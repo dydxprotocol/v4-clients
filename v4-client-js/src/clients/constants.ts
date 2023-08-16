@@ -175,7 +175,7 @@ export class Network {
       IndexerWSHost.DEV,
     );
     const validatorConfig = new ValidatorConfig(ValidatorApiHost.DEV, DEV_CHAIN_ID);
-    return new Network('staging', indexerConfig, validatorConfig);
+    return new Network('dev', indexerConfig, validatorConfig);
   }
 
   static staging(): Network {
