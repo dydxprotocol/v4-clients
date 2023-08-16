@@ -40,5 +40,11 @@ describe('Validator Client', () => {
       expect(prices.marketPrices).not.toBeUndefined();
       expect(prices.marketPrices[0].id).toBe(0);
     });
+
+    it('Equity tier limit configuration', async () => {
+      const response = await client.get.getEquityTierLimitConfiguration();
+      expect(response.equityTierLimitConfig).not.toBeUndefined();
+      expect(response.equityTierLimitConfig?.shortTermOrderEquityTiers[0].limit).toBe(0);
+    });
   });
 });
