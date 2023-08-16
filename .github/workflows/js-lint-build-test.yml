@@ -14,10 +14,13 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ../v4-client-js
+        working-directory: ./v4-client-js
     steps:
       - name: Check out repository code
         uses: actions/checkout@v3
+        with:
+          path: ./v4-client-js
+
 
       - name: Use Node.js 16
         uses: actions/setup-node@v3
