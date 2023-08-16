@@ -4,9 +4,10 @@ on: # yamllint disable-line rule:truthy
     paths:
       - 'v4-client-js/**'
   push:
+    paths:
+      - 'v4-client-js/**'
     branches:
       - main
-      - master
       - "release/*"
 
 jobs:
