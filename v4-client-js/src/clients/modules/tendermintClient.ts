@@ -117,8 +117,66 @@ export class TendermintClient {
     tx: Uint8Array,
   ): Promise<IndexedTx> {
     const result: BroadcastTxSyncResponse = await this.broadcastTransactionSync(tx);
-    const transactionId: string = toHex(result.hash).toUpperCase();
-    return this.queryTransaction(`tx.hash='${transactionId}'`);
+    return this.queryHash(result.hash);
+  }
+
+  /**
+   * @description Using tx method, query for a transaction on-chain with retries specified by
+   * the client BroadcastOptions.
+   *
+   * @throws TimeoutError if the transaction is not committed on-chain within the timeout limit.
+   * @returns An indexed transaction containing information about the transaction when committed.
+   */
+  async queryHash(
+    hash: Uint8Array,
+    time: number = 0,
+  ): Promise<IndexedTx> {
+    const now: number = Date.now();
+    const transactionId: string = toHex(hash).toUpperCase();
+
+    if (time >= this.broadcastOptions.broadcastTimeoutMs) {
+      throw new TimeoutError(
+        `Transaction with hash [${hash}] was submitted but was not yet found on the chain. You might want to check later. Query timed out after ${
+          this.broadcastOptions.broadcastTimeoutMs / 1000
+        } seconds.`,
+        transactionId,
+      );
+    }
+
+    await sleep(this.broadcastOptions.broadcastPollIntervalMs);
+
+    let tx: TxResponse;
+
+    // If the transaction is not found, the tx method will throw an Internal Error.
+    try {
+      tx = await this.baseClient.tx({ hash });
+    } catch (error) {
+      return this.queryHash(hash, time + Date.now() - now);
+    }
+
+    return {
+      height: tx.height,
+      hash: toHex(tx.hash).toUpperCase(),
+      code: tx.result.code,
+      rawLog: tx.result.log !== undefined ? tx.result.log : '',
+      tx: tx.tx,
+      txIndex: tx.index,
+      gasUsed: tx.result.gasUsed,
+      gasWanted: tx.result.gasWanted,
+      // Convert stargate events to tendermint events.
+      events: tx.result.events.map((event: Event) => {
+        return {
+          ...event,
+          attributes: event.attributes.map((attr: Attribute) => {
+            return {
+              ...attr,
+              key: Buffer.from(attr.key).toString(),
+              value: Buffer.from(attr.value).toString(),
+            };
+          }),
+        };
+      }),
+    };
   }
 
   /**
