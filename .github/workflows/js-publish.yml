@@ -1,8 +1,10 @@
-name: Publish Image to NPM
+name: "[v4-client-js] Publish Image to NPM"
 on: # yamllint disable-line rule:truthy
   push:
+    paths:
+      - 'v4-client-js/**'
     branches:
-      - master
+      - main
 
 # Ensure only a single instance of this workflow is running.
 concurrency:
@@ -12,6 +14,9 @@ concurrency:
 jobs:
   build-and-publish:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./v4-client-js
     permissions:
       contents: write
     steps:
@@ -26,6 +31,7 @@ jobs:
           node-version: 16
           registry-url: https://registry.npmjs.org
           cache: "npm"
+          cache-dependency-path: '**/package-lock.json'
 
       - name: Install
         run: npm ci
