@@ -92,5 +92,5 @@ examples/faucet_endpoint.py
 Wait for a few seconds for the faucet transaction to commit, then run
 
 ```
-pytest -v -c pytest_integration.ini
+pytest -v -c pytest_integration.ini 
 ```
