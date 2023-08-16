@@ -1,6 +1,8 @@
 name: Lint, Build, & Test
 on: # yamllint disable-line rule:truthy
   pull_request:
+    paths:
+      - 'v4-client-js/**'
   push:
     branches:
       - main
@@ -9,6 +11,9 @@ on: # yamllint disable-line rule:truthy
 jobs:
   CI:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./v4-client-js
     steps:
       - name: Check out repository code
         uses: actions/checkout@v3
