@@ -1,0 +1,72 @@
+{
+  "name": "@dydxprotocol/v4-client",
+  "version": "0.27.18",
+  "description": "General client library for the new dYdX system (v4 decentralized)",
+  "main": "build/src/index.js",
+  "scripts": {
+    "build": "rm -rf build/ && npm run compile",
+    "compile": "tsc",
+    "compile:watch": "npm run compile -- --watch",
+    "coverage": "npm run test -- --coverage",
+    "fix": "npm run lint -- --fix",
+    "lint": "eslint --ext .ts,.js .",
+    "prepublishOnly": "npm run compile",
+    "start": "node build/src/index.js",
+    "transpile": "rm -rf src/codegen && telescope transpile --protoDirs ./proto --outPath ./src/codegen --no-includeAminos --includeLCDClients --includeRPCClients",
+    "test": "NODE_ENV=test jest --testPathIgnorePatterns=__tests__/modules/client/*",
+    "test:watch": "npm test -- --watch",
+    "test-integration": "NODE_ENV=test jest",
+    "webpack": "webpack"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dydxprotocol/v4-client.git"
+  },
+  "author": "dYdX Trading Inc.",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/dydxprotocol/v4-client/issues"
+  },
+  "homepage": "https://github.com/dydxprotocol/v4-client#readme",
+  "dependencies": {
+    "@cosmjs/amino": "^0.30.1",
+    "@cosmjs/proto-signing": "^0.30.1",
+    "@cosmjs/stargate": "^0.30.1",
+    "@cosmjs/tendermint-rpc": "^0.30.1",
+    "@dydxprotocol/dydxjs": "^0.2.0",
+    "@osmonauts/lcd": "^0.6.0",
+    "@scure/bip32": "^1.1.5",
+    "@scure/bip39": "^1.1.1",
+    "axios": "1.1.3",
+    "bech32": "^1.1.4",
+    "bignumber.js": "^9.1.1",
+    "ethereum-cryptography": "^2.0.0",
+    "long": "^4.0.0",
+    "ws": "^8.13.0"
+  },
+  "devDependencies": {
+    "@dydxprotocol/node-service-base-dev": "^0.2.6",
+    "@osmonauts/telescope": "0.80.0",
+    "@protobufs/cosmos": "^0.0.11",
+    "@protobufs/gogoproto": "^0.0.10",
+    "@types/ffi-napi": "^4.0.4",
+    "@types/ws": "^8.5.4",
+    "@typescript-eslint/eslint-plugin": "v5.42.0",
+    "acorn": "^8.8.2",
+    "babel-loader": "^9.1.2",
+    "babel-polyfill": "^6.26.0",
+    "babel-preset-es2015": "^6.24.1",
+    "browserify-zlib": "^0.2.0",
+    "buffer": "^6.0.3",
+    "cosmjs-types": "^0.7.1",
+    "crypto-browserify": "^3.12.0",
+    "https-browserify": "^1.0.0",
+    "node-polyfill-webpack-plugin": "^2.0.1",
+    "path-browserify": "^1.0.1",
+    "stream-browserify": "^3.0.0",
+    "stream-http": "^3.2.0",
+    "ts-loader": "^9.4.2",
+    "webpack": "^5.77.0",
+    "webpack-cli": "^5.0.1"
+  }
+}
