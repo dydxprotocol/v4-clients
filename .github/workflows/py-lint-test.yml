@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ./v4-client-js
+        working-directory: ./v4-client-py
     steps:
       - name: Check out repository code
         uses: actions/checkout@v3
