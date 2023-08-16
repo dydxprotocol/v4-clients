@@ -323,6 +323,24 @@ export class Get {
     return accountFromAny(rawAccount);
   }
 
+  /**
+   * @description Get equity tier limit configuration.
+   *
+   * @returns Information on all equity tiers that are configured.
+   */
+  async getEquityTierLimitConfiguration(
+  ): Promise<ClobModule.QueryEquityTierLimitConfigurationResponse> {
+    const requestData: Uint8Array = Uint8Array.from(
+      ClobModule.QueryEquityTierLimitConfigurationRequest.encode({}).finish(),
+    );
+
+    const data: Uint8Array = await this.sendQuery(
+      '/dydxprotocol.clob.Query/EquityTierLimitConfiguration',
+      requestData,
+    );
+    return ClobModule.QueryEquityTierLimitConfigurationResponse.decode(data);
+  }
+
   private async sendQuery(requestUrl: string, requestData: Uint8Array): Promise<Uint8Array> {
     return this.stargateQueryClient.queryUnverified(requestUrl, requestData);
   }

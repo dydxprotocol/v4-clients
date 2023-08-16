@@ -6,28 +6,33 @@ import { BroadcastOptions } from './types';
 export * from '../lib/constants';
 
 // Chain ID
+export const DEV_CHAIN_ID = 'dydxprotocol-testnet';
 export const STAGING_CHAIN_ID = 'dydxprotocol-testnet';
 export const TESTNET_CHAIN_ID = 'dydx-testnet-2';
 
 // ------------ API URLs ------------
 export enum IndexerApiHost {
+  DEV = 'https://indexer.v4dev.dydx.exchange',
   STAGING = 'https://indexer.v4staging.dydx.exchange',
   TESTNET = 'https://indexer.v4testnet2.dydx.exchange',
   // TODO: Add MAINNET
 }
 
 export enum IndexerWSHost {
+  DEV = 'wss://indexer.v4dev.dydx.exchange/v4/ws',
   STAGING = 'wss://indexer.v4staging.dydx.exchange/v4/ws',
   TESTNET = 'wss://indexer.v4testnet2.dydx.exchange/v4/ws',
   // TODO: Add MAINNET
 }
 
 export enum FaucetApiHost {
+  DEV = 'https://faucet.v4dev.expotrading.com',
   STAGING = 'https://faucet.v4staging.dydx.exchange',
   TESTNET = 'https://faucet.v4testnet2.dydx.exchange',
 }
 
 export enum ValidatorApiHost {
+  DEV = 'https://validator.v4dev.dydx.exchange',
   STAGING = 'https://validator.v4staging.dydx.exchange',
   TESTNET = 'https://validator.v4testnet2.dydx.exchange',
   // TODO: Add MAINNET
@@ -36,6 +41,7 @@ export enum ValidatorApiHost {
 // ------------ Network IDs ------------
 
 export enum NetworkId {
+  DEV = 'dydxprotocol-testnet',
   STAGING = 'dydxprotocol-testnet',
   TESTNET = 'dydx-testnet-2',
   // TODO: Add MAINNET
@@ -162,6 +168,15 @@ export class Network {
     public indexerConfig: IndexerConfig,
     public validatorConfig: ValidatorConfig,
   ) {}
+
+  static dev(): Network {
+    const indexerConfig = new IndexerConfig(
+      IndexerApiHost.DEV,
+      IndexerWSHost.DEV,
+    );
+    const validatorConfig = new ValidatorConfig(ValidatorApiHost.DEV, DEV_CHAIN_ID);
+    return new Network('dev', indexerConfig, validatorConfig);
+  }
 
   static staging(): Network {
     const indexerConfig = new IndexerConfig(

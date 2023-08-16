@@ -84,6 +84,14 @@ async function test(): Promise<void> {
   } catch (error) {
     console.log(JSON.stringify(error.message));
   }
+
+  try {
+    const equityTierLimitConfiguration = await client.get.getEquityTierLimitConfiguration();
+    console.log('Equity Tier Limit Configuration');
+    console.log(JSON.stringify(equityTierLimitConfiguration));
+  } catch (error) {
+    console.log(JSON.stringify(error.message));
+  }
 }
 
 test().then(() => {
