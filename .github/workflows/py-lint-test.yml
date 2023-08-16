@@ -1,0 +1,33 @@
+name: "[v4-client-py] Lint, Test"
+
+on: # yamllint disable-line rule:truthy
+  pull_request:
+    paths:
+      - 'v4-client-py/**'
+  push:
+    paths:
+      - 'v4-client-py/**'
+    branches:
+      - main
+      - "release/*"
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./v4-client-js
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
+
+      - name: Install Dependencies
+        run: pip install -r requirements-lint.txt
+
+      - name: Lint
+        run: flake8
