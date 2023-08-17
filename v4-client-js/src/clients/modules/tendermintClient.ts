@@ -16,7 +16,6 @@ import {
   BroadcastTxAsyncResponse,
   BroadcastTxSyncResponse,
   TxResponse,
-  TxSearchResponse,
   Event,
 } from '@cosmjs/tendermint-rpc/build/tendermint37';
 import { sleep } from '@cosmjs/utils';
@@ -117,35 +116,38 @@ export class TendermintClient {
     tx: Uint8Array,
   ): Promise<IndexedTx> {
     const result: BroadcastTxSyncResponse = await this.broadcastTransactionSync(tx);
-    const transactionId: string = toHex(result.hash).toUpperCase();
-    return this.queryTransaction(`tx.hash='${transactionId}'`);
+    return this.queryHash(result.hash);
   }
 
   /**
-   * @description Query for a transaction on-chain with retries specified by
+   * @description Using tx method, query for a transaction on-chain with retries specified by
    * the client BroadcastOptions.
    *
    * @throws TimeoutError if the transaction is not committed on-chain within the timeout limit.
    * @returns An indexed transaction containing information about the transaction when committed.
    */
-  async queryTransaction(
-    query: string,
+  async queryHash(
+    hash: Uint8Array,
     time: number = 0,
   ): Promise<IndexedTx> {
     const now: number = Date.now();
+    const transactionId: string = toHex(hash).toUpperCase();
+
     if (time >= this.broadcastOptions.broadcastTimeoutMs) {
       throw new TimeoutError(
-        `Transaction with query [${query}] was submitted but was not yet found on the chain. You might want to check later. Query timed out after ${
+        `Transaction with hash [${hash}] was submitted but was not yet found on the chain. You might want to check later. Query timed out after ${
           this.broadcastOptions.broadcastTimeoutMs / 1000
         } seconds.`,
-        query,
+        transactionId,
       );
     }
 
     await sleep(this.broadcastOptions.broadcastPollIntervalMs);
 
-    const results: TxSearchResponse = await this.baseClient.txSearchAll({ query });
-    const mappedResults: readonly IndexedTx[] = results.txs.map((tx: TxResponse) => {
+    // If the transaction is not found, the tx method will throw an Internal Error.
+    try {
+      const tx: TxResponse = await this.baseClient.tx({ hash });
+
       return {
         height: tx.height,
         hash: toHex(tx.hash).toUpperCase(),
@@ -169,11 +171,9 @@ export class TendermintClient {
           };
         }),
       };
-    });
-
-    return mappedResults.length !== 0
-      ? mappedResults[0]
-      : this.queryTransaction(query, time + Date.now() - now);
+    } catch (error) {
+      return this.queryHash(hash, time + Date.now() - now);
+    }
   }
 
   /**
