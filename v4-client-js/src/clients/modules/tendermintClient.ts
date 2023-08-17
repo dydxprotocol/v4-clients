@@ -16,7 +16,6 @@ import {
   BroadcastTxAsyncResponse,
   BroadcastTxSyncResponse,
   TxResponse,
-  TxSearchResponse,
   Event,
 } from '@cosmjs/tendermint-rpc/build/tendermint37';
 import { sleep } from '@cosmjs/utils';
@@ -177,61 +176,6 @@ export class TendermintClient {
         };
       }),
     };
-  }
-
-  /**
-   * @description Query for a transaction on-chain with retries specified by
-   * the client BroadcastOptions.
-   *
-   * @throws TimeoutError if the transaction is not committed on-chain within the timeout limit.
-   * @returns An indexed transaction containing information about the transaction when committed.
-   */
-  async queryTransaction(
-    query: string,
-    time: number = 0,
-  ): Promise<IndexedTx> {
-    const now: number = Date.now();
-    if (time >= this.broadcastOptions.broadcastTimeoutMs) {
-      throw new TimeoutError(
-        `Transaction with query [${query}] was submitted but was not yet found on the chain. You might want to check later. Query timed out after ${
-          this.broadcastOptions.broadcastTimeoutMs / 1000
-        } seconds.`,
-        query,
-      );
-    }
-
-    await sleep(this.broadcastOptions.broadcastPollIntervalMs);
-
-    const results: TxSearchResponse = await this.baseClient.txSearchAll({ query });
-    const mappedResults: readonly IndexedTx[] = results.txs.map((tx: TxResponse) => {
-      return {
-        height: tx.height,
-        hash: toHex(tx.hash).toUpperCase(),
-        code: tx.result.code,
-        rawLog: tx.result.log !== undefined ? tx.result.log : '',
-        tx: tx.tx,
-        txIndex: tx.index,
-        gasUsed: tx.result.gasUsed,
-        gasWanted: tx.result.gasWanted,
-        // Convert stargate events to tendermint events.
-        events: tx.result.events.map((event: Event) => {
-          return {
-            ...event,
-            attributes: event.attributes.map((attr: Attribute) => {
-              return {
-                ...attr,
-                key: Buffer.from(attr.key).toString(),
-                value: Buffer.from(attr.value).toString(),
-              };
-            }),
-          };
-        }),
-      };
-    });
-
-    return mappedResults.length !== 0
-      ? mappedResults[0]
-      : this.queryTransaction(query, time + Date.now() - now);
   }
 
   /**
