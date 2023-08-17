@@ -34,7 +34,7 @@ declare global {
 /* this should match the definitions in Abacus */
 export enum Environment {
   staging = 'dydxprotocol-staging',
-  testnet = 'dydxprotocol-testnet-1',
+  testnet = 'dydxprotocol-testnet-2',
 }
 
 function network(env: Environment): Network {
@@ -457,6 +457,46 @@ export async function getAccountBalance(): Promise<String> {
     const address = globalThis.wallet.address!;
 
     const tx = await client.validatorClient.get.getAccountBalance(address, USDC_DENOM);
+    return encodeJson(tx);
+  } catch (error) {
+    return wrappedError(error);
+  }
+}
+
+export async function getAccountBalances(): Promise<String> {
+  try {
+    const client = globalThis.client;
+    if (client === undefined) {
+      throw new UserError('client is not connected. Call connectClient() first');
+    }
+    const wallet = globalThis.wallet;
+    if (wallet === undefined) {
+      throw new UserError('wallet is not set. Call connectWallet() first');
+    }
+    const address = globalThis.wallet.address!;
+
+    const tx = await client.validatorClient.get.getAccountBalances(address);
+    return encodeJson(tx);
+  } catch (error) {
+    return wrappedError(error);
+  }
+}
+
+export async function getUserStats(
+  payload: string,
+): Promise<String> {
+  try {
+    const client = globalThis.client;
+    if (client === undefined) {
+      throw new UserError('client is not connected. Call connectClient() first');
+    }
+    const json = JSON.parse(payload);
+    const address = json.address;
+    if (address === undefined) {
+      throw new UserError('address is not set');
+    }
+
+    const tx = await client.validatorClient.get.getUserStats(address);
     return encodeJson(tx);
   } catch (error) {
     return wrappedError(error);
