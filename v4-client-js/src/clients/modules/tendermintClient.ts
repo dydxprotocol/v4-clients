@@ -144,38 +144,36 @@ export class TendermintClient {
 
     await sleep(this.broadcastOptions.broadcastPollIntervalMs);
 
-    let tx: TxResponse;
-
     // If the transaction is not found, the tx method will throw an Internal Error.
     try {
-      tx = await this.baseClient.tx({ hash });
+      const tx: TxResponse = await this.baseClient.tx({ hash });
+
+      return {
+        height: tx.height,
+        hash: toHex(tx.hash).toUpperCase(),
+        code: tx.result.code,
+        rawLog: tx.result.log !== undefined ? tx.result.log : '',
+        tx: tx.tx,
+        txIndex: tx.index,
+        gasUsed: tx.result.gasUsed,
+        gasWanted: tx.result.gasWanted,
+        // Convert stargate events to tendermint events.
+        events: tx.result.events.map((event: Event) => {
+          return {
+            ...event,
+            attributes: event.attributes.map((attr: Attribute) => {
+              return {
+                ...attr,
+                key: Buffer.from(attr.key).toString(),
+                value: Buffer.from(attr.value).toString(),
+              };
+            }),
+          };
+        }),
+      };
     } catch (error) {
       return this.queryHash(hash, time + Date.now() - now);
     }
-
-    return {
-      height: tx.height,
-      hash: toHex(tx.hash).toUpperCase(),
-      code: tx.result.code,
-      rawLog: tx.result.log !== undefined ? tx.result.log : '',
-      tx: tx.tx,
-      txIndex: tx.index,
-      gasUsed: tx.result.gasUsed,
-      gasWanted: tx.result.gasWanted,
-      // Convert stargate events to tendermint events.
-      events: tx.result.events.map((event: Event) => {
-        return {
-          ...event,
-          attributes: event.attributes.map((attr: Attribute) => {
-            return {
-              ...attr,
-              key: Buffer.from(attr.key).toString(),
-              value: Buffer.from(attr.value).toString(),
-            };
-          }),
-        };
-      }),
-    };
   }
 
   /**
