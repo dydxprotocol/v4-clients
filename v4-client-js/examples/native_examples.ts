@@ -5,14 +5,15 @@ import {
   connectNetwork,
   connectWallet,
   deposit,
-  getAccountBalance,
+  getAccountBalances,
+  getUserStats,
   simulateDeposit,
   simulateWithdraw,
   withdraw,
   withdrawToIBC,
   wrappedError,
 } from '../src/clients/native';
-import { DYDX_TEST_MNEMONIC } from './constants';
+import { DYDX_TEST_ADDRESS, DYDX_TEST_MNEMONIC } from './constants';
 
 async function test(): Promise<void> {
   try {
@@ -22,8 +23,12 @@ async function test(): Promise<void> {
     const address = await connect(Environment.staging, DYDX_TEST_MNEMONIC);
     console.log(address);
 
-    const balance = await getAccountBalance();
-    console.log(balance);
+    const payload = `{ "address": "${DYDX_TEST_ADDRESS}" }`;
+    const userStats = await getUserStats(payload);
+    console.log(userStats);
+
+    let balances = await getAccountBalances();
+    console.log(balances);
 
     const simulatePayload = {
       subaccountNumber: 0,
@@ -38,6 +43,9 @@ async function test(): Promise<void> {
     };
     let tx = await withdraw(JSON.stringify(withdrawlPayload));
     console.log(tx);
+
+    balances = await getAccountBalances();
+    console.log(balances);
 
     await new Promise((resolve) => setTimeout(resolve, 1000));
 
