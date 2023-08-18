@@ -215,10 +215,9 @@ class CompositeClient:
         atomic_resolution = market['atomicResolution']
         step_base_quantums = market['stepBaseQuantums']
         quantum_conversion_exponent = market['quantumConversionExponent']
-        min_order_base_quantums = market['minOrderBaseQuantums']
         subticks_per_tick = market['subticksPerTick']
         order_side = calculate_side(side)
-        quantums = calculate_quantums(size, atomic_resolution, step_base_quantums, min_order_base_quantums)
+        quantums = calculate_quantums(size, atomic_resolution, step_base_quantums)
         subticks = calculate_subticks(price, atomic_resolution, quantum_conversion_exponent, subticks_per_tick)
         order_flags = calculate_order_flags(type, time_in_force)
         time_in_force = calculate_time_in_force(type, time_in_force, execution, post_only)

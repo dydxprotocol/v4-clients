@@ -41,12 +41,12 @@ def round(
 def calculate_quantums(
     size: float, 
     atomic_resolution: int, 
-    step_base_quantums: int, 
-    min_order_base_quantums: int
+    step_base_quantums: int,
 ):
     raw_quantums = size * 10**(-1 * atomic_resolution)
     quantums = round(raw_quantums, step_base_quantums)
-    return max(quantums, min_order_base_quantums)
+    # step_base_quantums functions as the minimum order size
+    return max(quantums, step_base_quantums)
 
 def calculate_subticks(
     price: float,
