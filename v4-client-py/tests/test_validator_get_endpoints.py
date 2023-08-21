@@ -67,6 +67,7 @@ def test_get_clob_pairs():
     except Exception as e:
         print('failed to get all clob pairs')
         print(e)
+        assert False
 
 def test_get_clob_pair():
     try:
@@ -76,6 +77,7 @@ def test_get_clob_pair():
     except Exception as e:
         print('failed to get clob pair')
         print(e)
+        assert False
 
 def test_get_prices():
     try:
@@ -85,6 +87,7 @@ def test_get_prices():
     except Exception as e:
         print('failed to get all prices')
         print(e)
+        assert False
 
 def test_get_price():
     try:
@@ -94,4 +97,14 @@ def test_get_price():
     except Exception as e:
         print('failed to get price')
         print(e)
+        assert False
 
+def test_get_equity_tier_limit_configuration():
+    try:
+        config = client.get.equity_tier_limit_config()
+        print('equity_tier_limit_configuration:')
+        print(config)
+    except Exception as e:
+        print('failed to get equity_tier_limit_configuration')
+        print(e)
+        assert False

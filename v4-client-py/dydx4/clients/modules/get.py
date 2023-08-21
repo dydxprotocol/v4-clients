@@ -72,6 +72,7 @@ from dydxpy.proto.dydxprotocol.clob import (
     query_pb2_grpc as clob_query_grpc,
     query_pb2 as clob_query,
     clob_pair_pb2 as clob_pair_type,
+    equity_tier_limit_config_pb2 as equity_tier_limit_config_type,
 )  
 
 
@@ -227,9 +228,9 @@ class Get:
     
     def prices(self) -> QueryAllMarketPricesResponse:
         '''
-        Get all pairs
+        Get all market prices
 
-        :returns: All pairs
+        :returns: All market prices
         '''
         return self.stubPrices.AllMarketPrices(
             QueryAllMarketPricesRequest()
@@ -237,13 +238,23 @@ class Get:
     
     def price(self, market_id: int) -> market_price_type.MarketPrice:
         '''
-        Get pair information
+        Get market price
 
-        :param pair_id: required
-        :type pair_id: int
+        :param market_id: required
+        :type market_id: int
 
-        :returns: Pair information
+        :returns: Market price
         '''
         return self.stubPrices.MarketPrice(
             QueryMarketPriceRequest(id=market_id)
         ).market_price
+
+    def equity_tier_limit_config(self) -> equity_tier_limit_config_type.EquityTierLimitConfiguration:
+        '''
+        Get equity tier limit configuration
+
+        :returns: Equity tier limit configuration
+        '''
+        return self.stubClob.EquityTierLimitConfiguration(
+            clob_query.QueryEquityTierLimitConfigurationRequest()
+        ).equity_tier_limit_config
