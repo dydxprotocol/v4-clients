@@ -27,7 +27,7 @@ setup(
     long_description_content_type='text/markdown',
     url='https://github.com/dydxprotocol/v4-client-py',
     author='dYdX Trading Inc.',
-    license='MIT',
+    license='Proprietary',
     author_email='contact@dydx.exchange',
     install_requires=REQUIREMENTS,
     keywords='dydx exchange rest api defi ethereum eth cosmo',
