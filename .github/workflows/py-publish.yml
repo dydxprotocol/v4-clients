@@ -1,0 +1,40 @@
+name: "[v4-client-py] Publish to PyPI"
+
+on: # yamllint disable-line rule:truthy
+  push:
+    paths:
+      - 'v4-client-py/**'
+    branches:
+      - main
+
+jobs:
+  build_and_publish:
+    environment: main
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./v4-client-py
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
+
+      - name: Install Dependencies
+        run: pip install -r requirements-publish.txt
+
+      - name: Install Poetry dependencies
+        run: poetry install --no-root
+
+      - name: Build package
+        run: poetry build
+
+      - name: Publish to PyPI
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
+        run: |
+          twine upload -r pypi dist/*
