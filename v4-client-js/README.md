@@ -1,10 +1,10 @@
 # V4 Client
 
-The V4-Client is the Typescript client for placing transactions and querying the dYdX chain.
+The V4-Client Typescript client is used for placing transactions and querying the dYdX chain.
 
 ## Development
 
-`v4-client` uses node `v18` for development. You can use `nvm` to manage different versions of node.
+`v4-client-js` uses node `v18` for development. You can use `nvm` to manage different versions of node.
 
 ```
 nvm install
@@ -32,4 +32,4 @@ Pending: Different configurations may be needed to generate JS for Android app
 
 Using the `npm version` command will update the appropriate version tags within the package locks and also will add a git tag with the version number..
 For example `npm version minor` will perform the necessary changes for a minor version release. After the change is merged, a GitHub action will
-[publish](https://github.com/dydxprotocol/v4-client/blob/master/.github/workflows/publish.yml) the new release.
+[publish](https://github.com/dydxprotocol/v4-clients/blob/master/.github/workflows/js-publish.yml) the new release.
