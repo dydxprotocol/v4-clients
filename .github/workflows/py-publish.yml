@@ -1,9 +1,6 @@
 name: "[v4-client-py] Publish to PyPI"
 
 on: # yamllint disable-line rule:truthy
-  pull_request:
-    paths:
-      - 'v4-client-py/**'
   push:
     paths:
       - 'v4-client-py/**'
@@ -12,7 +9,7 @@ on: # yamllint disable-line rule:truthy
 
 jobs:
   build_and_publish:
-    #environment: main
+    environment: main
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -30,18 +27,14 @@ jobs:
         run: pip install -r requirements-publish.txt
 
       - name: Install Poetry dependencies
-        run: |
-          poetry install --no-root
+        run: poetry install --no-root
 
       - name: Build package
-        run: |
-          poetry build
+        run: poetry build
 
-      - name: Test
-        run: ls dist
-      # - name: Publish to PyPI
-      #   env:
-      #     TWINE_USERNAME: __token__
-      #     TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
-      #   run: |
-      #     twine upload -r testpypi dist/*
+      - name: Publish to PyPI
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
+        run: |
+          twine upload -r pypi dist/*
