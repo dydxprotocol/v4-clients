@@ -84,7 +84,13 @@ async def main() -> None:
         print('failed to get price')
         print(e)
 
-
+    try:
+        config = client.get.equity_tier_limit_config()
+        print('equity_tier_limit_configuration:')
+        print(config)
+    except Exception as e:
+        print('failed to get equity_tier_limit_configuration')
+        print(e)
 
 
 if __name__ == '__main__':
