@@ -12,7 +12,7 @@ on: # yamllint disable-line rule:truthy
 
 jobs:
   build_and_publish:
-    environment: main
+    #environment: main
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -37,6 +37,8 @@ jobs:
         run: |
           poetry build
 
+      - name: Test
+        run: ls dist
       # - name: Publish to PyPI
       #   env:
       #     TWINE_USERNAME: __token__
