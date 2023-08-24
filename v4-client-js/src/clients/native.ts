@@ -8,7 +8,7 @@ import { Order_Side, Order_TimeInForce } from '@dydxprotocol/dydxjs/src/codegen/
 import * as AuthModule from 'cosmjs-types/cosmos/auth/v1beta1/query';
 import Long from 'long';
 
-import { BECH32_PREFIX, USDC_DENOM } from '../lib/constants';
+import { BECH32_PREFIX, GAS_PRICE_DYDX_DENOM, USDC_DENOM } from '../lib/constants';
 import { UserError } from '../lib/errors';
 import { encodeJson } from '../lib/helpers';
 import { deriveHDKeyFromEthereumSignature } from '../lib/onboarding';
@@ -483,7 +483,7 @@ export async function transferNativeToken(
         return encodeObjects;
       },
       false,
-      undefined,
+      GAS_PRICE_DYDX_DENOM,
       undefined,
     );
     return encodeJson(tx);
@@ -662,9 +662,13 @@ export async function simulateTransferNativeToken(
     );
     const msgs: EncodeObject[] = [msg];
     const encodeObjects: Promise<EncodeObject[]> = new Promise((resolve) => resolve(msgs));
-    const stdFee = await client.simulate(globalThis.wallet, () => {
-      return encodeObjects;
-    });
+    const stdFee = await client.simulate(
+      globalThis.wallet,
+      () => {
+        return encodeObjects;
+      },
+      GAS_PRICE_DYDX_DENOM,
+    );
     return encodeJson(stdFee);
   } catch (error) {
     return wrappedError(error);
