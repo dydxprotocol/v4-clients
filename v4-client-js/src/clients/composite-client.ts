@@ -6,6 +6,7 @@ import protobuf from 'protobufjs';
 
 import { OrderFlags } from '../types';
 import {
+  DYDX_DENOM,
   GAS_PRICE,
   Network, OrderExecution, OrderSide, OrderTimeInForce, OrderType,
 } from './constants';
@@ -538,6 +539,32 @@ export class CompositeClient {
       0,
       quantums,
       recipient,
+    );
+  }
+
+  /**
+     * @description Create message to send dydx token from subaccount to wallet
+     * with human readable input.
+     *
+     * @param subaccount The subaccount to withdraw from
+     * @param amount The amount to withdraw
+     * @param recipient The recipient address
+     *
+     * @throws UnexpectedClientError if a malformed response is returned with no GRPC error
+     * at any point.
+     * @returns The message
+     */
+  sendTokenMessage(
+    subaccount: Subaccount,
+    amount: number,
+    recipient: string,
+  ): EncodeObject {
+    const quantums: Long = Long.fromNumber(amount * (10 ** 6));
+    return this.validatorClient.post.composer.composeMsgSendToken(
+      subaccount.address,
+      recipient,
+      DYDX_DENOM,
+      quantums,
     );
   }
 

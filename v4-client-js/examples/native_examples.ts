@@ -8,7 +8,9 @@ import {
   getAccountBalances,
   getUserStats,
   simulateDeposit,
+  simulateTransferNativeToken,
   simulateWithdraw,
+  transferNativeToken,
   withdraw,
   withdrawToIBC,
   wrappedError,
@@ -20,12 +22,23 @@ async function test(): Promise<void> {
     const wallet = await connectWallet(DYDX_TEST_MNEMONIC);
     console.log(wallet);
 
-    const address = await connect(Environment.staging, DYDX_TEST_MNEMONIC);
+    const address = await connect(Environment.testnet, DYDX_TEST_MNEMONIC);
     console.log(address);
 
     const payload = `{ "address": "${DYDX_TEST_ADDRESS}" }`;
     const userStats = await getUserStats(payload);
     console.log(userStats);
+
+    const sendTokenPayload = {
+      subaccountNumber: 0,
+      amount: 10,   // Dydx Token
+      recipient: 'dydx15ndn9c895f8ntck25qughtuck9spv2d9svw5qx',
+    };
+    const fees = await simulateTransferNativeToken(JSON.stringify(sendTokenPayload));
+    console.log(fees);
+
+    let tx = await transferNativeToken(JSON.stringify(sendTokenPayload));
+    console.log(tx);
 
     let balances = await getAccountBalances();
     console.log(balances);
@@ -41,7 +54,7 @@ async function test(): Promise<void> {
       subaccountNumber: 0,
       amount: 20,
     };
-    let tx = await withdraw(JSON.stringify(withdrawlPayload));
+    tx = await withdraw(JSON.stringify(withdrawlPayload));
     console.log(tx);
 
     balances = await getAccountBalances();
