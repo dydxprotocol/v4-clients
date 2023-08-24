@@ -360,6 +360,7 @@ export async function withdraw(
     const tx = await client.withdrawFromSubaccount(
       subaccount,
       amount,
+      json.recipient,
     );
     return encodeJson(tx);
   } catch (error) {
@@ -427,6 +428,53 @@ export async function withdrawToIBC(
     const subaccountMsg = client.withdrawFromSubaccountMessage(subaccount, amount);
 
     const msgs = [subaccountMsg, ibcMsg];
+    const encodeObjects: Promise<EncodeObject[]> = new Promise((resolve) => resolve(msgs));
+
+    const tx = await client.send(
+      wallet,
+      () => {
+        return encodeObjects;
+      },
+      false,
+      undefined,
+      undefined,
+    );
+    return encodeJson(tx);
+  } catch (error) {
+    return wrappedError(error);
+  }
+}
+
+export async function transferNativeToken(
+  payload: string,
+): Promise<string> {
+  try {
+    const client = globalThis.client;
+    if (client === undefined) {
+      throw new UserError('client is not connected. Call connectClient() first');
+    }
+    const wallet = globalThis.wallet;
+    if (wallet === undefined) {
+      throw new UserError('wallet is not set. Call connectWallet() first');
+    }
+
+    const json = JSON.parse(payload);
+    const subaccountNumber = json.subaccountNumber;
+    if (subaccountNumber === undefined) {
+      throw new UserError('subaccountNumber is not set');
+    }
+    const amount = json.amount;
+    if (amount === undefined) {
+      throw new UserError('amount is not set');
+    }
+
+    const subaccount = new Subaccount(wallet, subaccountNumber);
+    const msg: EncodeObject = client.sendTokenMessage(
+      subaccount,
+      amount,
+      json.recipient,
+    );
+    const msgs = [msg];
     const encodeObjects: Promise<EncodeObject[]> = new Promise((resolve) => resolve(msgs));
 
     const tx = await client.send(
@@ -567,6 +615,50 @@ export async function simulateWithdraw(
     const msg: EncodeObject = client.withdrawFromSubaccountMessage(
       subaccount,
       amount,
+      json.recipient,
+    );
+    const msgs: EncodeObject[] = [msg];
+    const encodeObjects: Promise<EncodeObject[]> = new Promise((resolve) => resolve(msgs));
+    const stdFee = await client.simulate(globalThis.wallet, () => {
+      return encodeObjects;
+    });
+    return encodeJson(stdFee);
+  } catch (error) {
+    return wrappedError(error);
+  }
+}
+
+export async function simulateTransferNativeToken(
+  payload: string,
+): Promise<string> {
+  try {
+    const client = globalThis.client;
+    if (client === undefined) {
+      throw new UserError('client is not connected. Call connectClient() first');
+    }
+    const wallet = globalThis.wallet;
+    if (wallet === undefined) {
+      throw new UserError('wallet is not set. Call connectWallet() first');
+    }
+    const json = JSON.parse(payload);
+    const subaccountNumber = json.subaccountNumber;
+    if (subaccountNumber === undefined) {
+      throw new UserError('subaccountNumber is not set');
+    }
+    const recipient = json.recipient;
+    if (recipient === undefined) {
+      throw new UserError('recipient is not set');
+    }
+    const amount = json.amount;
+    if (amount === undefined) {
+      throw new UserError('amount is not set');
+    }
+
+    const subaccount = new Subaccount(wallet, subaccountNumber);
+    const msg: EncodeObject = client.sendTokenMessage(
+      subaccount,
+      amount,
+      json.recipient,
     );
     const msgs: EncodeObject[] = [msg];
     const encodeObjects: Promise<EncodeObject[]> = new Promise((resolve) => resolve(msgs));
