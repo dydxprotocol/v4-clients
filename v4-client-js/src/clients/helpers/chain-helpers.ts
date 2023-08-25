@@ -148,6 +148,8 @@ export function calculateOrderFlags(type: OrderType, timeInForce?: OrderTimeInFo
 export function calculateClientMetadata(orderType: OrderType): number {
   switch (orderType) {
     case OrderType.MARKET:
+    case OrderType.STOP_MARKET:
+    case OrderType.TAKE_PROFIT_MARKET:
       return 1;
 
     default:
