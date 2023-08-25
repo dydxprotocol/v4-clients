@@ -134,7 +134,7 @@ class CompositeClient:
 
         :returns: Client Metadata
         '''
-        return 1 if order_type == OrderType.MARKET else 0
+        return 1 if (order_type == OrderType.MARKET or order_type == OrderType.STOP_MARKET or order_type == OrderType.TAKE_PROFIT_MARKET) else 0
 
     def calculate_condition_type(self, order_type: OrderType) -> Order.ConditionType:
         '''
