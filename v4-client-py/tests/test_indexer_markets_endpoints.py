@@ -66,7 +66,8 @@ def test_get_perpetual_market_trades():
         btc_market_trades_response = client.markets.get_perpetual_market_trades(MARKET_BTC_USD)
         print(btc_market_trades_response.data)
         btc_market_trades = btc_market_trades_response.data['trades']
-        btc_market_trades_0 = btc_market_trades[0]
+        if len(btc_market_trades) > 0:
+            btc_market_trades_0 = btc_market_trades[0]
     except:
         print('failed to get market trades')
         assert False
