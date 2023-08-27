@@ -12,7 +12,7 @@ if [ $? -eq 0 ]; then
 	git config --global user.name "github_actions"
 
 	# Get version and tag
-	git tag v4-client-js ${VERSION}
+	git tag v4-client-js@${VERSION}
 	git push --tags
 
 	npm publish
