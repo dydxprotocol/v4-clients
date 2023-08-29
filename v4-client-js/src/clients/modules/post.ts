@@ -275,7 +275,7 @@ export class Post {
       // represented in 'usdc', and the output of `calculateFee` is in '', which is replaced
       // below by USDC_DENOM string.
       const amount: Coin[] = _.map(fee.amount, (coin: Coin) => {
-        if (coin.denom === 'usdc') {
+        if (coin.denom === 'uusdc') {
           return {
             amount: coin.amount,
             denom: USDC_DENOM,
