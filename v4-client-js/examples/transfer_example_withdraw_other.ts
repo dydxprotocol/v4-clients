@@ -57,6 +57,7 @@ async function test(): Promise<void> {
     0,
     amountAfterFee,
     TEST_RECIPIENT_ADDRESS,
+    false,
     Method.BroadcastTxCommit,
   );
   console.log('**Withdraw and Send**');
