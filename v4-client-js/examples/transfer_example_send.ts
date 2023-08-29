@@ -66,6 +66,7 @@ async function test(): Promise<void> {
     TEST_RECIPIENT_ADDRESS,
     DYDX_DENOM,
     amountAfterFee,
+    false,
     Method.BroadcastTxCommit,
   );
   console.log('**Send**');
