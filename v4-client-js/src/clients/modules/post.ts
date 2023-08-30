@@ -270,12 +270,12 @@ export class Post {
         gasPrice,
       );
 
-      // TODO(CORE-190): Temporary workaround before IBC denom is supported in '@cosmjs/stargate'.
+      // TODO(TRCL-2550): Temporary workaround before IBC denom is supported in '@cosmjs/stargate'.
       // The '@cosmjs/stargate' does not support denom with '/', so currently GAS_PRICE is
-      // represented in 'usdc', and the output of `calculateFee` is in '', which is replaced
+      // represented in 'uusdc', and the output of `calculateFee` is in '', which is replaced
       // below by USDC_DENOM string.
       const amount: Coin[] = _.map(fee.amount, (coin: Coin) => {
-        if (coin.denom === 'usdc') {
+        if (coin.denom === 'uusdc') {
           return {
             amount: coin.amount,
             denom: USDC_DENOM,
