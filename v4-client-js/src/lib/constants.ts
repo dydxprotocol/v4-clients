@@ -16,10 +16,8 @@ export const USDC_DENOM = 'ibc/8E27BA2D5493AF5636760E354E46004562C46AB7EC0CC4C1C
 export const DYDX_DENOM = 'dv4tnt';
 
 // Gas
-// TODO(DEC-1532): Determine why `MsgTransfer` messages return an innaccurate `GasUsed` value
-// from `/simulate`. 2x is quite high for a gas multipler (more standard is 1.1, or 1.3).
 export const GAS_MULTIPLIER: number = 1.4;
-// TODO(CORE-190): Replace 'usdc' with IBC denom after IBC denom is supported in '@cosmjs/stargate'.
+// TODO(TRCL-2550): Replace 'uusdc' with IBC denom.
 export const GAS_PRICE: GasPrice = GasPrice.fromString('0.025uusdc');
 export const GAS_PRICE_DYDX_DENOM: GasPrice = GasPrice.fromString('0.025dv4tnt');
 
