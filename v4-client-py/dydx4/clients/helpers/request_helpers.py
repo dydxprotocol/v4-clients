@@ -12,8 +12,9 @@ def generate_query_path(url, params):
     if not entries:
         return url
 
-    paramsString = '&'.join('{key}={str(value).lower() if isinstance(value, bool) else value}'.format(
-        key=x[0], value=x[1]) for x in entries if x[1] is not None)
+    paramsString = '&'.join('{key}={value}'.format(
+      key=x[0],
+      value=str(x[1]).lower() if isinstance(x[1], bool) else x[1]) for x in entries if x[1] is not None)
     if paramsString:
         return url + '?' + paramsString
 
