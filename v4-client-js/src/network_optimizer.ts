@@ -1,18 +1,17 @@
-import { Block } from '@cosmjs/stargate';
-
+import { IndexerClient } from './clients/indexer-client';
 import { ValidatorClient } from './clients/validator-client';
 import { encodeJson } from './lib/helpers';
-import { ValidatorConfig } from './types';
+import { IndexerConfig, ValidatorConfig } from './types';
 
 class PingResponse {
-    public readonly block: Block;
+    public readonly height: number;
     public readonly responseTime: Date;
     public endpoint?: string;
 
     constructor(
-      block: Block,
+      height: number,
     ) {
-      this.block = block;
+      this.height = height;
       this.responseTime = new Date();
     }
 }
@@ -32,6 +31,15 @@ export class NetworkOptimizer {
     )).filter(isTruthy);
   }
 
+  private indexerClients(
+    endpointUrls: string[],
+  ): IndexerClient[] {
+    return endpointUrls.map((endpointUrl) => new IndexerClient(
+      // socket is not used for finding optimal indexer, but required as a parameter to the config
+      new IndexerConfig(endpointUrl, endpointUrl.replace('https://', 'wss://').replace('http://', 'ws://')),
+    )).filter(isTruthy);
+  }
+
   async findOptimalNode(endpointUrls: string[], chainId: string): Promise<string> {
     if (endpointUrls.length === 0) {
       const errorResponse = {
@@ -46,10 +54,46 @@ export class NetworkOptimizer {
       clients
         .map(async (client) => {
           const block = await client.get.latestBlock();
-          const response = new PingResponse(block);
+          const response = new PingResponse(block.header.height);
           return {
             endpoint: client.config.restEndpoint,
-            height: response.block.header.height,
+            height: response.height,
+            time: response.responseTime.getTime(),
+          };
+        })
+        .map((promise) => promise.catch((_) => undefined)),
+    )).filter(isTruthy);
+
+    if (responses.length === 0) {
+      throw new Error('Could not connect to endpoints');
+    }
+    const maxHeight = Math.max(...responses.map(({ height }) => height));
+    return responses
+    // Only consider nodes at `maxHeight`
+      .filter(({ height }) => height === maxHeight)
+    // Return the endpoint with the fastest response time
+      .sort((a, b) => a.time - b.time)[0]
+      .endpoint;
+  }
+
+  async findOptimalIndexer(endpointUrls: string[]): Promise<string> {
+    if (endpointUrls.length === 0) {
+      const errorResponse = {
+        error: {
+          message: 'No URL provided',
+        },
+      };
+      return encodeJson(errorResponse);
+    }
+    const clients = this.indexerClients(endpointUrls);
+    const responses = (await Promise.all(
+      clients
+        .map(async (client) => {
+          const block = await client.markets.getHeight();
+          const response = new PingResponse(+block.height);
+          return {
+            endpoint: client.config.restEndpoint,
+            height: response.height,
             time: response.responseTime.getTime(),
           };
         })
