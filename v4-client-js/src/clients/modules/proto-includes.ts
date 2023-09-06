@@ -5,6 +5,7 @@ export * as SubaccountsModule
 from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/subaccounts/query';
 export * as FeeTierModule from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/feetiers/query';
 export * as StatsModule from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/stats/query';
+export * as RewardsModule from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/rewards/query';
 
 export * from '@dydxprotocol/v4-proto/src/codegen/cosmos/base/abci/v1beta1/abci';
 export * from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/clob/order';

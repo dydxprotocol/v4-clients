@@ -21,6 +21,7 @@ import {
   FeeTierModule,
   PerpetualsModule,
   PricesModule,
+  RewardsModule,
   SubaccountsModule,
   StatsModule,
 } from './proto-includes';
@@ -192,6 +193,18 @@ export class Get {
       requestData,
     );
     return SubaccountsModule.QuerySubaccountResponse.decode(data);
+  }
+
+  async getRewardsParams(): Promise<RewardsModule.QueryParamsResponse> {
+    const requestData = Uint8Array.from(
+      RewardsModule.QueryParamsRequest.encode({}).finish(),
+    );
+
+    const data: Uint8Array = await this.sendQuery(
+      '/dydxprotocol.rewards.Query/Params',
+      requestData,
+    );
+    return RewardsModule.QueryParamsResponse.decode(data);
   }
 
   /**

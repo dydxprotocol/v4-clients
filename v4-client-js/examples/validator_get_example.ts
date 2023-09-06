@@ -92,6 +92,14 @@ async function test(): Promise<void> {
   } catch (error) {
     console.log(JSON.stringify(error.message));
   }
+
+  try {
+    const rewardsParams = await client.get.getRewardsParams();
+    console.log('Rewards Params');
+    console.log(JSON.stringify(rewardsParams));
+  } catch (error) {
+    console.log(JSON.stringify(error.message));
+  }
 }
 
 test().then(() => {

@@ -886,3 +886,16 @@ export async function getOptimalIndexer(endpointUrlsAsJson: string): Promise<str
     return wrappedError(error);
   }
 }
+
+export async function getRewardsParams(): Promise<string> {
+  try {
+    const client = globalThis.client;
+    if (client === undefined) {
+      throw new UserError('client is not connected. Call connectClient() first');
+    }
+    const rewardsParams = await globalThis.client?.validatorClient.get.getRewardsParams();
+    return encodeJson(rewardsParams);
+  } catch (e) {
+    return wrappedError(e);
+  }
+}
