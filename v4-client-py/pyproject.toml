@@ -5,10 +5,10 @@ package-dir = {"" = "dydx4"}
 
 [tool.poetry]
 name = "dydx4"
-version = "0.2.3"
+version = "0.3.0"
 description = "dYdX v4 Client"
 authors = ["John Huang <contact@dydx.exchange>"]
-license = "Proprietary"
+license = "BSL-1.1"
 readme = "README.md"
 
 [tool.poetry.dependencies]
