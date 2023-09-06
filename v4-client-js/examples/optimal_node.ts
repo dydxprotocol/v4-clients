@@ -3,7 +3,7 @@ import {
 } from '../src/clients/constants';
 import { NetworkOptimizer } from '../src/network_optimizer';
 
-async function test(): Promise<void> {
+async function testNodes(): Promise<void> {
   // all valid endpoints
   try {
     const optimizer = new NetworkOptimizer();
@@ -48,4 +48,33 @@ async function test(): Promise<void> {
   }
 }
 
-test().catch(console.log);
+async function testIndexers(): Promise<void> {
+  // all valid endpoints
+  try {
+    const optimizer = new NetworkOptimizer();
+    const endpoints = [
+      'https://indexer.v4testnet2.dydx.exchange',
+    ];
+    const optimal = await optimizer.findOptimalIndexer(endpoints);
+    console.log(optimal);
+  } catch (error) {
+    console.log(error.message);
+  }
+
+  // all invalid endpoints
+
+  try {
+    const optimizer = new NetworkOptimizer();
+    const endpoints = [
+      'https://example.com',
+      'https://example.org',
+    ];
+    const optimal = await optimizer.findOptimalIndexer(endpoints);
+    console.log(optimal);
+  } catch (error) {
+    console.log(error.message);
+  }
+}
+
+testNodes().catch(console.log);
+testIndexers().catch(console.log);

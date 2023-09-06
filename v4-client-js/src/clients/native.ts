@@ -862,3 +862,27 @@ export async function getOptimalNode(endpointUrlsAsJson: string): Promise<string
     return wrappedError(error);
   }
 }
+
+export async function getOptimalIndexer(endpointUrlsAsJson: string): Promise<string> {
+  /*
+    param:
+      endpointUrlsAsJson:
+      {
+        "endpointUrls": [
+          "https://api.example.org"
+        ]
+      }
+  */
+  try {
+    const param = JSON.parse(endpointUrlsAsJson);
+    const endpointUrls = param.endpointUrls;
+    const networkOptimizer = new NetworkOptimizer();
+    const optimalUrl = await networkOptimizer.findOptimalIndexer(endpointUrls);
+    const url = {
+      url: optimalUrl,
+    };
+    return encodeJson(url);
+  } catch (error) {
+    return wrappedError(error);
+  }
+}
