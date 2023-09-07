@@ -23,6 +23,7 @@ import {
   PricesModule,
   RewardsModule,
   SubaccountsModule,
+  StakingModule,
   StatsModule,
 } from './proto-includes';
 import { TendermintClient } from './tendermintClient';
@@ -195,6 +196,11 @@ export class Get {
     return SubaccountsModule.QuerySubaccountResponse.decode(data);
   }
 
+  /**
+   * @description Get the params for the rewards module.
+   *
+   * @returns Params for the rewards module.
+   */
   async getRewardsParams(): Promise<RewardsModule.QueryParamsResponse> {
     const requestData = Uint8Array.from(
       RewardsModule.QueryParamsRequest.encode({}).finish(),
@@ -352,6 +358,52 @@ export class Get {
       requestData,
     );
     return ClobModule.QueryEquityTierLimitConfigurationResponse.decode(data);
+  }
+
+  /**
+   *
+   * @description Get all delegations from a delegator.
+   *
+   * @returns All delegations from a delegator.
+   */
+  async getDelegatorDelegations(
+    delegatorAddr: string,
+  ): Promise<StakingModule.QueryDelegatorDelegationsResponse> {
+    const requestData = Uint8Array.from(
+      StakingModule.QueryDelegatorDelegationsRequest.encode({
+        delegatorAddr,
+        pagination: PAGE_REQUEST,
+      }).finish(),
+    );
+
+    const data: Uint8Array = await this.sendQuery(
+      '/cosmos.staking.v1beta1.Query/DelegatorDelegations',
+      requestData,
+    );
+    return StakingModule.QueryDelegatorDelegationsResponse.decode(data);
+  }
+
+  /**
+   *
+   * @description Get all unbonding delegations from a delegator.
+   *
+   * @returns All unbonding delegations from a delegator.
+   */
+  async getDelegatorUnbondingDelegations(
+    delegatorAddr: string,
+  ): Promise<StakingModule.QueryDelegatorUnbondingDelegationsResponse> {
+    const requestData = Uint8Array.from(
+      StakingModule.QueryDelegatorUnbondingDelegationsRequest.encode({
+        delegatorAddr,
+        pagination: PAGE_REQUEST,
+      }).finish(),
+    );
+
+    const data: Uint8Array = await this.sendQuery(
+      '/cosmos.staking.v1beta1.Query/DelegatorUnbondingDelegations',
+      requestData,
+    );
+    return StakingModule.QueryDelegatorUnbondingDelegationsResponse.decode(data);
   }
 
   private async sendQuery(requestUrl: string, requestData: Uint8Array): Promise<Uint8Array> {

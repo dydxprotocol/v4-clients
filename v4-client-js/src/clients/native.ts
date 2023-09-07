@@ -899,3 +899,35 @@ export async function getRewardsParams(): Promise<string> {
     return wrappedError(e);
   }
 }
+
+export async function getDelegatorDelegations(
+  delegatorAddress: string,
+): Promise<string> {
+  try {
+    const client = globalThis.client;
+    if (client === undefined) {
+      throw new UserError('client is not connected. Call connectClient() first');
+    }
+    const delegations = await globalThis
+      .client?.validatorClient.get.getDelegatorDelegations(delegatorAddress);
+    return encodeJson(delegations);
+  } catch (e) {
+    return wrappedError(e);
+  }
+}
+
+export async function getDelegatorUnbondingDelegations(
+  delegatorAddress: string,
+): Promise<string> {
+  try {
+    const client = globalThis.client;
+    if (client === undefined) {
+      throw new UserError('client is not connected. Call connectClient() first');
+    }
+    const delegations = await globalThis
+      .client?.validatorClient.get.getDelegatorUnbondingDelegations(delegatorAddress);
+    return encodeJson(delegations);
+  } catch (e) {
+    return wrappedError(e);
+  }
+}
