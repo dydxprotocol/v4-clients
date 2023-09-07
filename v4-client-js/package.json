@@ -33,7 +33,7 @@
     "@cosmjs/proto-signing": "^0.30.1",
     "@cosmjs/stargate": "^0.30.1",
     "@cosmjs/tendermint-rpc": "^0.30.1",
-    "@dydxprotocol/dydxjs": "npm:@dydxprotocol/v4-telescope-js@^0.1.2",
+    "@dydxprotocol/dydxjs": "npm:@dydxprotocol/v4-proto@^0.1.2",
     "@osmonauts/lcd": "^0.6.0",
     "@scure/bip32": "^1.1.5",
     "@scure/bip39": "^1.1.1",
