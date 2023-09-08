@@ -415,7 +415,7 @@ export class Post {
         );
         resolve([msg]);
       });
-      return this.send(subaccount.wallet, () => msgs, true, undefined, undefined, broadcastMode);
+      return this.send(subaccount.wallet, () => msgs, false, undefined, undefined, broadcastMode);
     }
 
     async deposit(
@@ -433,7 +433,7 @@ export class Post {
         );
         resolve([msg]);
       });
-      return this.send(subaccount.wallet, () => msgs, true, undefined, undefined, broadcastMode);
+      return this.send(subaccount.wallet, () => msgs, false, undefined, undefined, broadcastMode);
     }
 
     async withdraw(
@@ -441,7 +441,6 @@ export class Post {
       assetId: number,
       quantums: Long,
       recipient?: string,
-      zeroFee: boolean = true,
       broadcastMode?: BroadcastMode,
     ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
       const msgs: Promise<EncodeObject[]> = new Promise((resolve) => {
@@ -454,7 +453,7 @@ export class Post {
         );
         resolve([msg]);
       });
-      return this.send(subaccount.wallet, () => msgs, zeroFee, undefined, undefined, broadcastMode);
+      return this.send(subaccount.wallet, () => msgs, false, undefined, undefined, broadcastMode);
     }
 
     async sendToken(

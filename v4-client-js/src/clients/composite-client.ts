@@ -459,7 +459,7 @@ export class CompositeClient {
     });
     return this.validatorClient.post.send(subaccount.wallet,
       () => msgs,
-      true);
+      false);
   }
 
   /**
@@ -512,7 +512,7 @@ export class CompositeClient {
     return this.send(
       subaccount.wallet,
       () => msgs,
-      true);
+      false);
   }
 
   /**

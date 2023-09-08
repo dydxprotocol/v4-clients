@@ -15,11 +15,12 @@ describe('Validator Client', () => {
   let subaccount: Subaccount;
   let client: ValidatorClient;
 
-  describe('Transfers', async () => {
+  describe('Transfers', () => {
     beforeEach(async () => {
       wallet = await LocalWallet.fromMnemonic(DYDX_TEST_MNEMONIC, BECH32_PREFIX);
       subaccount = new Subaccount(wallet, 0);
       client = await ValidatorClient.connect(Network.staging().validatorConfig);
+      await sleep(5000);  // wait for withdraw to complete
     });
 
     it('Withdraw', async () => {
@@ -27,12 +28,11 @@ describe('Validator Client', () => {
         subaccount,
         0,
         new Long(1_00_000_000),
+        undefined,
       );
       console.log('**Withdraw Tx**');
       console.log(tx);
     });
-
-    await sleep(5000);  // wait for withdraw to complete
 
     it('Deposit', async () => {
       const tx = await client.post.deposit(
@@ -42,10 +42,7 @@ describe('Validator Client', () => {
       );
       console.log('**Deposit Tx**');
       console.log(tx);
-    },
-    );
-
-    await sleep(5000);  // wait for withdraw to complete
+    });
 
     it('Transfer', async () => {
       const tx = await client.post.transfer(
@@ -57,7 +54,6 @@ describe('Validator Client', () => {
       );
       console.log('**Transfer Tx**');
       console.log(tx);
-    },
-    );
+    });
   });
 });
