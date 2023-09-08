@@ -1,4 +1,4 @@
-<p align="center"><img src="https://dydx.exchange/flat.svg" width="256" /></p>
+<p align="center"><img src="https://dydx.exchange/icon.svg?" width="256" /></p>
 
 <div align="center">
   <a href='https://www.npmjs.com/package/@dydxprotocol/v4-client-js'>
