@@ -1,4 +1,4 @@
-import { PageRequest } from '@dydxprotocol/dydxjs/src/codegen/cosmos/base/query/v1beta1/pagination';
+import { PageRequest } from '@dydxprotocol/v4-proto/src/codegen/cosmos/base/query/v1beta1/pagination';
 import Long from 'long';
 
 import { BroadcastOptions } from './types';

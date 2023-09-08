@@ -3,14 +3,14 @@ import { defaultRegistryTypes } from '@cosmjs/stargate';
 import {
   MsgPlaceOrder,
   MsgCancelOrder,
-} from '@dydxprotocol/dydxjs/src/codegen/dydxprotocol/clob/tx';
+} from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/clob/tx';
 import {
   MsgWithdrawFromSubaccount,
   MsgDepositToSubaccount,
-} from '@dydxprotocol/dydxjs/src/codegen/dydxprotocol/sending/transfer';
+} from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/sending/transfer';
 import {
   MsgCreateTransfer,
-} from '@dydxprotocol/dydxjs/src/codegen/dydxprotocol/sending/tx';
+} from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/sending/tx';
 
 export const registry: ReadonlyArray<[string, GeneratedType]> = [];
 export function generateRegistry(): Registry {
