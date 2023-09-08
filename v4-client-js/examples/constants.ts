@@ -1,4 +1,4 @@
-import { Order_Side, Order_TimeInForce } from '@dydxprotocol/dydxjs/src/codegen/dydxprotocol/clob/order';
+import { Order_Side, Order_TimeInForce } from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/clob/order';
 import Long from 'long';
 
 import { IPlaceOrder, OrderFlags } from '../src/clients/types';
