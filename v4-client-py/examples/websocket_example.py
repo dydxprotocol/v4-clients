@@ -6,8 +6,8 @@ Usage: python -m examples.websocket_example
 import asyncio
 import json
 
-from dydx4.clients.dydx_socket_client import SocketClient
-from dydx4.clients.constants import Network
+from v4_client_py.clients.dydx_socket_client import SocketClient
+from v4_client_py.clients.constants import Network
 
 from tests.constants import DYDX_TEST_ADDRESS
 

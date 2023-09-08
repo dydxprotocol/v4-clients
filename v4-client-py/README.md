@@ -34,11 +34,11 @@ Select Venv
 Select Python 3.9 as interpreter
 Select requirements.txt as the dependencies to install
 
-TODO: Add dydxpy to the requirements.txt
+TODO: Add v4-proto to the requirements.txt
 
-Install dydxpy
+Install v4-proto
 ```
-pip install -i https://test.pypi.org/simple/ dydxpy==<version>
+pip install -i https://test.pypi.org/simple/ v4-proto==<version>
 ```
 
 VS Code will automatically switch to .venv environment when running example code. Or you can manually switch

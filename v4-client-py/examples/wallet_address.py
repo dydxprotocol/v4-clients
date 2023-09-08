@@ -1,5 +1,5 @@
-from dydx4.chain.aerial.wallet import LocalWallet
-from dydx4.clients.constants import BECH32_PREFIX
+from v4_client_py.chain.aerial.wallet import LocalWallet
+from v4_client_py.clients.constants import BECH32_PREFIX
 
 from tests.constants import DYDX_TEST_ADDRESS, DYDX_TEST_PRIVATE_KEY, DYDX_TEST_MNEMONIC
 

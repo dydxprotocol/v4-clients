@@ -3,13 +3,13 @@ import datetime
 import logging
 import random
 from time import sleep
-from dydx4.chain.aerial.wallet import LocalWallet
-from dydx4.clients.dydx_subaccount import Subaccount
-from dydxpy.proto.dydxprotocol.clob.order_pb2 import Order
+from v4_client_py.chain.aerial.wallet import LocalWallet
+from v4_client_py.clients.dydx_subaccount import Subaccount
+from v4_proto.dydxprotocol.clob.order_pb2 import Order
 
-from dydx4.clients.dydx_validator_client import ValidatorClient
-from dydx4.clients.constants import BECH32_PREFIX, Network
-from dydx4.clients.helpers.chain_helpers import ORDER_FLAGS_SHORT_TERM
+from v4_client_py.clients.dydx_validator_client import ValidatorClient
+from v4_client_py.clients.constants import BECH32_PREFIX, Network
+from v4_client_py.clients.helpers.chain_helpers import ORDER_FLAGS_SHORT_TERM
 from examples.utils import loadJson
 
 from tests.constants import DYDX_TEST_MNEMONIC

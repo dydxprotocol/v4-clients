@@ -1,11 +1,11 @@
 # pyproject.toml
 
 [tool.setuptools]
-package-dir = {"" = "dydx4"}
+package-dir = {"" = "v4_client_py"}
 
 [tool.poetry]
-name = "dydx4"
-version = "0.3.0"
+name = "v4-client-py"
+version = "0.4.0"
 description = "dYdX v4 Client"
 authors = ["John Huang <contact@dydx.exchange>"]
 license = "BSL-1.1"

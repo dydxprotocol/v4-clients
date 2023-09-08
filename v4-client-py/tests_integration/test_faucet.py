@@ -1,6 +1,6 @@
 
-from dydx4.clients import FaucetClient, Subaccount
-from dydx4.clients.constants import Network
+from v4_client_py.clients import FaucetClient, Subaccount
+from v4_client_py.clients.constants import Network
 
 from tests.constants import DYDX_TEST_MNEMONIC
 
