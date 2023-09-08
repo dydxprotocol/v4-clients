@@ -1,6 +1,6 @@
 <p align="center"><img src="https://dydx.exchange/icon.svg?" width="256" /></p>
 
-<h1 align="center">V4 Clients</h1>
+<h1 align="center">v4 Clients</h1>
 
 <div align="center">
   <a href='https://www.npmjs.com/package/@dydxprotocol/v4-client-js'>
@@ -15,7 +15,7 @@
 </div>
 
 ## v4-client-js
-The V4-Client Typescript client is used for placing transactions and querying the dYdX chain.
+The v4-Client Typescript client is used for placing transactions and querying the dYdX chain.
 
 ## v4-client-py
 Python client for dYdX (v4 API).
