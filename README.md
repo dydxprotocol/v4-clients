@@ -1,8 +1,8 @@
-<p style="text-align: center;"><img src="https://dydx.exchange/icon.svg?" width="256" /></p>
+<p align="center"><img src="https://dydx.exchange/icon.svg?" width="256" /></p>
 
-<h1 style="text-align: center;">V4 Clients</h1>
+<h1 align="center">V4 Clients</h1>
 
-<div style="text-align: center;">
+<div align="center">
   <a href='https://www.npmjs.com/package/@dydxprotocol/v4-client-js'>
     <img src='https://img.shields.io/npm/v/@dydxprotocol/v4-client-js.svg' alt='PyPI'/>
   </a>
