@@ -29,7 +29,6 @@ describe('Validator Client', () => {
         0,
         new Long(1_00_000_000),
         undefined,
-        false,
       );
       console.log('**Withdraw Tx**');
       console.log(tx);
@@ -40,7 +39,6 @@ describe('Validator Client', () => {
         subaccount,
         0,
         new Long(1_000_000),
-        false,
       );
       console.log('**Deposit Tx**');
       console.log(tx);
@@ -53,7 +51,6 @@ describe('Validator Client', () => {
         1,
         0,
         new Long(1_000),
-        false,
       );
       console.log('**Transfer Tx**');
       console.log(tx);

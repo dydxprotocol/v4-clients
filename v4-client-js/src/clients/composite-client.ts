@@ -449,7 +449,6 @@ export class CompositeClient {
   async depositToSubaccount(
     subaccount: Subaccount,
     amount: number,
-    zeroFee: boolean = false,
   ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
     const msgs: Promise<EncodeObject[]> = new Promise((resolve) => {
       const msg = this.depositToSubaccountMessage(
@@ -460,7 +459,7 @@ export class CompositeClient {
     });
     return this.validatorClient.post.send(subaccount.wallet,
       () => msgs,
-      zeroFee);
+      false);
   }
 
   /**
@@ -501,7 +500,6 @@ export class CompositeClient {
     subaccount: Subaccount,
     amount: number,
     recipient?: string,
-    zeroFee: boolean = false,
   ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
     const msgs: Promise<EncodeObject[]> = new Promise((resolve) => {
       const msg = this.withdrawFromSubaccountMessage(
@@ -514,7 +512,7 @@ export class CompositeClient {
     return this.send(
       subaccount.wallet,
       () => msgs,
-      zeroFee);
+      false);
   }
 
   /**
