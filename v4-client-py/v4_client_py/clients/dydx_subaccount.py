@@ -1,6 +1,6 @@
 
-from dydx4.chain.aerial.wallet import LocalWallet
-from dydx4.clients.constants import BECH32_PREFIX
+from v4_client_py.chain.aerial.wallet import LocalWallet
+from v4_client_py.clients.constants import BECH32_PREFIX
 
 class Subaccount:
     def __init__(

@@ -5,11 +5,11 @@ Usage: python -m examples.composite_example
 import asyncio
 import logging
 from random import randrange
-from dydx4.chain.aerial.wallet import LocalWallet
-from dydx4.clients import CompositeClient, Subaccount
-from dydx4.clients.constants import BECH32_PREFIX, Network
+from v4_client_py.chain.aerial.wallet import LocalWallet
+from v4_client_py.clients import CompositeClient, Subaccount
+from v4_client_py.clients.constants import BECH32_PREFIX, Network
 
-from dydx4.clients.helpers.chain_helpers import (
+from v4_client_py.clients.helpers.chain_helpers import (
     OrderType, 
     OrderSide, 
     OrderTimeInForce, 

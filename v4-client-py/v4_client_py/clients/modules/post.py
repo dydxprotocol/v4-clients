@@ -3,7 +3,7 @@ from google.protobuf import message as _message
 from v4_proto.dydxprotocol.clob.tx_pb2 import MsgPlaceOrder
 from v4_proto.dydxprotocol.clob.order_pb2 import Order
 
-from dydx4.clients.helpers.chain_helpers import ORDER_FLAGS_LONG_TERM, ORDER_FLAGS_SHORT_TERM
+from v4_client_py.clients.helpers.chain_helpers import ORDER_FLAGS_LONG_TERM, ORDER_FLAGS_SHORT_TERM
 
 from ..constants import BroadcastMode, ValidatorConfig
 from ..composer import Composer

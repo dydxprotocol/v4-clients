@@ -3,7 +3,7 @@
 
 from datetime import timedelta
 from typing import Any, Callable, List, Optional, Union
-from dydx4.clients.constants import BroadcastMode
+from v4_client_py.clients.constants import BroadcastMode
 
 from v4_proto.cosmos.base.query.v1beta1.pagination_pb2 import PageRequest
 

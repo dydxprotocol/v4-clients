@@ -2,8 +2,8 @@ import asyncio
 import logging
 
 
-from dydx4.clients import ValidatorClient, Subaccount
-from dydx4.clients.constants import Network
+from v4_client_py.clients import ValidatorClient, Subaccount
+from v4_client_py.clients.constants import Network
 
 from tests.constants import DYDX_TEST_MNEMONIC
 

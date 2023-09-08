@@ -3,7 +3,7 @@ import grpc
 from datetime import datetime, timedelta
 
 from v4_proto.dydxprotocol.clob.tx_pb2 import MsgPlaceOrder
-from dydx4.clients.helpers.chain_helpers import (
+from v4_client_py.clients.helpers.chain_helpers import (
     QUOTE_QUANTUMS_ATOMIC_RESOLUTION,
     Order,
     OrderType, 
@@ -20,12 +20,12 @@ from dydx4.clients.helpers.chain_helpers import (
     ORDER_FLAGS_CONDITIONAL,
 )
 
-from dydx4.clients.constants import Network
-from dydx4.clients.dydx_indexer_client import IndexerClient
-from dydx4.clients.dydx_validator_client import ValidatorClient
-from dydx4.clients.dydx_subaccount import Subaccount
+from v4_client_py.clients.constants import Network
+from v4_client_py.clients.dydx_indexer_client import IndexerClient
+from v4_client_py.clients.dydx_validator_client import ValidatorClient
+from v4_client_py.clients.dydx_subaccount import Subaccount
 
-from dydx4.chain.aerial.tx_helpers import SubmittedTx
+from v4_client_py.chain.aerial.tx_helpers import SubmittedTx
 
 
 class CompositeClient:

@@ -3,8 +3,8 @@
 Usage: python -m examples.private_endpoints
 '''
 
-from dydx4.clients import IndexerClient, Subaccount
-from dydx4.clients.constants import Network
+from v4_client_py.clients import IndexerClient, Subaccount
+from v4_client_py.clients.constants import Network
 
 from tests.constants import DYDX_TEST_MNEMONIC
 
