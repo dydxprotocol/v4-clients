@@ -1,6 +1,8 @@
-<p align="center"><img src="https://dydx.exchange/icon.svg?" width="256" /></p>
+<p style="text-align: center;"><img src="https://dydx.exchange/icon.svg?" width="256" /></p>
 
-<div align="center">
+<h1 style="text-align: center;">V4 Client for Python</h1>
+
+<div style="text-align: center;">
   <a href='https://pypi.org/project/v4-client-py'>
     <img src='https://img.shields.io/pypi/v/v4-client-py.svg' alt='PyPI'/>
   </a>
@@ -8,7 +10,6 @@
     <img src='https://img.shields.io/badge/License-BSL_1.1-blue' alt='License' />
   </a>
 </div>
-<br>
 
 Python client for dYdX (v4 API).
 
