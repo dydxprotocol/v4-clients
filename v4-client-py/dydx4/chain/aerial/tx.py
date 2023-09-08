@@ -7,9 +7,9 @@ from typing import Any, List, Optional, Union
 
 from google.protobuf.any_pb2 import Any as ProtoAny
 
-from dydxpy.proto.cosmos.crypto.secp256k1.keys_pb2 import PubKey as ProtoPubKey
-from dydxpy.proto.cosmos.tx.signing.v1beta1.signing_pb2 import SignMode
-from dydxpy.proto.cosmos.tx.v1beta1.tx_pb2 import (
+from v4_proto.cosmos.crypto.secp256k1.keys_pb2 import PubKey as ProtoPubKey
+from v4_proto.cosmos.tx.signing.v1beta1.signing_pb2 import SignMode
+from v4_proto.cosmos.tx.v1beta1.tx_pb2 import (
     AuthInfo,
     Fee,
     ModeInfo,

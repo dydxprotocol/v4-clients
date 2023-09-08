@@ -2,7 +2,7 @@ import grpc
 
 from datetime import datetime, timedelta
 
-from dydxpy.proto.dydxprotocol.clob.tx_pb2 import MsgPlaceOrder
+from v4_proto.dydxprotocol.clob.tx_pb2 import MsgPlaceOrder
 from dydx4.clients.helpers.chain_helpers import (
     QUOTE_QUANTUMS_ATOMIC_RESOLUTION,
     Order,

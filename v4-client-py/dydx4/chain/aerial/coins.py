@@ -4,7 +4,7 @@
 import re
 from typing import List
 
-from dydxpy.proto.cosmos.base.v1beta1.coin_pb2 import Coin
+from v4_proto.cosmos.base.v1beta1.coin_pb2 import Coin
 
 def parse_coins(value: str) -> List[Coin]:
     """Parse the coins.

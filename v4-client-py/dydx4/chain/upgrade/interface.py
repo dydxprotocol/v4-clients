@@ -20,7 +20,7 @@
 
 from abc import ABC, abstractmethod
 
-from dydxpy.proto.cosmos.upgrade.v1beta1.query_pb2 import (
+from v4_proto.cosmos.upgrade.v1beta1.query_pb2 import (
     QueryAppliedPlanRequest,
     QueryAppliedPlanResponse,
     QueryCurrentPlanRequest,

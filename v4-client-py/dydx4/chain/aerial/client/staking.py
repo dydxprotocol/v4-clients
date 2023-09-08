@@ -3,8 +3,8 @@
 
 from enum import Enum
 
-from dydxpy.proto.cosmos.base.v1beta1.coin_pb2 import Coin
-from dydxpy.proto.cosmos.staking.v1beta1.tx_pb2 import (
+from v4_proto.cosmos.base.v1beta1.coin_pb2 import Coin
+from v4_proto.cosmos.staking.v1beta1.tx_pb2 import (
     MsgBeginRedelegate,
     MsgDelegate,
     MsgUndelegate,

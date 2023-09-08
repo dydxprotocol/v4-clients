@@ -1,6 +1,6 @@
 
 from enum import Flag, auto
-from dydxpy.proto.dydxprotocol.clob.order_pb2 import Order
+from v4_proto.dydxprotocol.clob.order_pb2 import Order
 
 class OrderType(Flag):
     MARKET = auto()

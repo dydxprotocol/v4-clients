@@ -1,7 +1,7 @@
 
 """Distribution."""
 
-from dydxpy.proto.cosmos.distribution.v1beta1.tx_pb2 import MsgWithdrawDelegatorReward
+from v4_proto.cosmos.distribution.v1beta1.tx_pb2 import MsgWithdrawDelegatorReward
 
 from ...crypto.address import Address
 

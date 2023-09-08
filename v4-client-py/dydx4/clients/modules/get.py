@@ -6,69 +6,69 @@ from typing import Optional
 
 from ..constants import ValidatorConfig
 
-from dydxpy.proto.dydxprotocol.clob.order_pb2 import *
-from dydxpy.proto.dydxprotocol.clob.tx_pb2 import *
-from dydxpy.proto.dydxprotocol.clob.query_pb2 import *
+from v4_proto.dydxprotocol.clob.order_pb2 import *
+from v4_proto.dydxprotocol.clob.tx_pb2 import *
+from v4_proto.dydxprotocol.clob.query_pb2 import *
 
-from dydxpy.proto.dydxprotocol.subaccounts.subaccount_pb2 import *
-from dydxpy.proto.dydxprotocol.subaccounts.query_pb2 import *
+from v4_proto.dydxprotocol.subaccounts.subaccount_pb2 import *
+from v4_proto.dydxprotocol.subaccounts.query_pb2 import *
 
-from dydxpy.proto.dydxprotocol.sending.transfer_pb2 import *
-from dydxpy.proto.dydxprotocol.sending.tx_pb2 import *
+from v4_proto.dydxprotocol.sending.transfer_pb2 import *
+from v4_proto.dydxprotocol.sending.tx_pb2 import *
 
-from dydxpy.proto.dydxprotocol.assets.genesis_pb2 import *
-from dydxpy.proto.dydxprotocol.assets.query_pb2 import *
-from dydxpy.proto.dydxprotocol.assets.asset_pb2 import *
+from v4_proto.dydxprotocol.assets.genesis_pb2 import *
+from v4_proto.dydxprotocol.assets.query_pb2 import *
+from v4_proto.dydxprotocol.assets.asset_pb2 import *
 
-from dydxpy.proto.dydxprotocol.perpetuals.query_pb2 import *
-from dydxpy.proto.dydxprotocol.perpetuals.perpetual_pb2 import *
+from v4_proto.dydxprotocol.perpetuals.query_pb2 import *
+from v4_proto.dydxprotocol.perpetuals.perpetual_pb2 import *
 
-from dydxpy.proto.dydxprotocol.prices.query_pb2 import *
-from dydxpy.proto.dydxprotocol.prices.market_price_pb2 import *
+from v4_proto.dydxprotocol.prices.query_pb2 import *
+from v4_proto.dydxprotocol.prices.market_price_pb2 import *
 
-from dydxpy.proto.cosmos.base.tendermint.v1beta1 import (
+from v4_proto.cosmos.base.tendermint.v1beta1 import (
     query_pb2_grpc as tendermint_query_grpc,
     query_pb2 as tendermint_query,
 )
 
-from dydxpy.proto.cosmos.auth.v1beta1 import (
+from v4_proto.cosmos.auth.v1beta1 import (
     query_pb2_grpc as auth_query_grpc,
     query_pb2 as auth_query,
     auth_pb2 as auth_type,
 )
 
-from dydxpy.proto.cosmos.authz.v1beta1 import (
+from v4_proto.cosmos.authz.v1beta1 import (
     query_pb2_grpc as authz_query_grpc,
 )
 
-from dydxpy.proto.cosmos.bank.v1beta1 import (
+from v4_proto.cosmos.bank.v1beta1 import (
     query_pb2_grpc as bank_query_grpc,
     query_pb2 as bank_query,
 )
-from dydxpy.proto.cosmos.tx.v1beta1 import (
+from v4_proto.cosmos.tx.v1beta1 import (
     service_pb2_grpc as tx_service_grpc,
     service_pb2 as tx_service,
 )
 
-from dydxpy.proto.dydxprotocol.subaccounts import (
+from v4_proto.dydxprotocol.subaccounts import (
     query_pb2_grpc as subaccounts_query_grpc,
     subaccount_pb2 as subaccount_type,
 )
 
-from dydxpy.proto.dydxprotocol.assets import (
+from v4_proto.dydxprotocol.assets import (
     query_pb2_grpc as assets_query_grpc,
 )
 
-from dydxpy.proto.dydxprotocol.perpetuals import (
+from v4_proto.dydxprotocol.perpetuals import (
     query_pb2_grpc as perpetuals_query_grpc,
 )
 
-from dydxpy.proto.dydxprotocol.prices import (
+from v4_proto.dydxprotocol.prices import (
     query_pb2_grpc as prices_query_grpc,
     market_price_pb2 as market_price_type,
 )
 
-from dydxpy.proto.dydxprotocol.clob import (
+from v4_proto.dydxprotocol.clob import (
     query_pb2_grpc as clob_query_grpc,
     query_pb2 as clob_query,
     clob_pair_pb2 as clob_pair_type,

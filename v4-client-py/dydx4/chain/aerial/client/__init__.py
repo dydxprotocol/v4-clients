@@ -11,42 +11,42 @@ from typing import Any, Dict, List, Optional, Tuple
 import certifi
 import grpc
 
-from dydxpy.proto.cosmos.auth.v1beta1.auth_pb2 import BaseAccount
-from dydxpy.proto.cosmos.auth.v1beta1.query_pb2 import QueryAccountRequest
-from dydxpy.proto.cosmos.auth.v1beta1.query_pb2_grpc import QueryStub as AuthGrpcClient
-from dydxpy.proto.cosmos.bank.v1beta1.query_pb2 import (
+from v4_proto.cosmos.auth.v1beta1.auth_pb2 import BaseAccount
+from v4_proto.cosmos.auth.v1beta1.query_pb2 import QueryAccountRequest
+from v4_proto.cosmos.auth.v1beta1.query_pb2_grpc import QueryStub as AuthGrpcClient
+from v4_proto.cosmos.bank.v1beta1.query_pb2 import (
     QueryAllBalancesRequest,
     QueryBalanceRequest,
 )
-from dydxpy.proto.cosmos.bank.v1beta1.query_pb2_grpc import QueryStub as BankGrpcClient
-from dydxpy.proto.cosmos.crypto.ed25519.keys_pb2 import (  # noqa # pylint: disable=unused-import
+from v4_proto.cosmos.bank.v1beta1.query_pb2_grpc import QueryStub as BankGrpcClient
+from v4_proto.cosmos.crypto.ed25519.keys_pb2 import (  # noqa # pylint: disable=unused-import
     PubKey,
 )
-from dydxpy.proto.cosmos.distribution.v1beta1.query_pb2 import (
+from v4_proto.cosmos.distribution.v1beta1.query_pb2 import (
     QueryDelegationRewardsRequest,
 )
-from dydxpy.proto.cosmos.distribution.v1beta1.query_pb2_grpc import (
+from v4_proto.cosmos.distribution.v1beta1.query_pb2_grpc import (
     QueryStub as DistributionGrpcClient,
 )
-from dydxpy.proto.cosmos.params.v1beta1.query_pb2 import QueryParamsRequest
-from dydxpy.proto.cosmos.params.v1beta1.query_pb2_grpc import (
+from v4_proto.cosmos.params.v1beta1.query_pb2 import QueryParamsRequest
+from v4_proto.cosmos.params.v1beta1.query_pb2_grpc import (
     QueryStub as QueryParamsGrpcClient,
 )
-from dydxpy.proto.cosmos.staking.v1beta1.query_pb2 import (
+from v4_proto.cosmos.staking.v1beta1.query_pb2 import (
     QueryDelegatorDelegationsRequest,
     QueryDelegatorUnbondingDelegationsRequest,
     QueryValidatorsRequest,
 )
-from dydxpy.proto.cosmos.staking.v1beta1.query_pb2_grpc import (
+from v4_proto.cosmos.staking.v1beta1.query_pb2_grpc import (
     QueryStub as StakingGrpcClient,
 )
-from dydxpy.proto.cosmos.tx.v1beta1.service_pb2 import (
+from v4_proto.cosmos.tx.v1beta1.service_pb2 import (
     BroadcastMode,
     BroadcastTxRequest,
     GetTxRequest,
     SimulateRequest,
 )
-from dydxpy.proto.cosmos.tx.v1beta1.service_pb2_grpc import ServiceStub as TxGrpcClient
+from v4_proto.cosmos.tx.v1beta1.service_pb2_grpc import ServiceStub as TxGrpcClient
 
 from .bank import create_bank_send_msg
 from .distribution import create_withdraw_delegator_reward

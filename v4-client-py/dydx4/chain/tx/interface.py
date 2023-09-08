@@ -21,7 +21,7 @@
 
 from abc import ABC, abstractmethod
 
-import dydxpy.proto.cosmos.tx.v1beta1.service_pb2 as svc
+import v4_proto.cosmos.tx.v1beta1.service_pb2 as svc
 
 
 class TxInterface(ABC):

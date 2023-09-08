@@ -20,7 +20,7 @@
 
 from abc import ABC, abstractmethod
 
-from dydxpy.proto.cosmos.evidence.v1beta1.query_pb2 import (
+from v4_proto.cosmos.evidence.v1beta1.query_pb2 import (
     QueryAllEvidenceRequest,
     QueryAllEvidenceResponse,
     QueryEvidenceRequest,

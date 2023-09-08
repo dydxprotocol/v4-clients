@@ -19,7 +19,7 @@
 """Implementation of IBC Applications Transfer  interface using REST."""
 from google.protobuf.json_format import Parse
 
-from dydxpy.proto.cosmos.base.tendermint.v1beta1.query_pb2 import (
+from v4_proto.cosmos.base.tendermint.v1beta1.query_pb2 import (
     GetBlockByHeightRequest,
     GetBlockByHeightResponse,
     GetLatestBlockRequest,

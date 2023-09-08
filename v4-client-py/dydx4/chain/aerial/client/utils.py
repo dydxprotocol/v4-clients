@@ -5,7 +5,7 @@ from datetime import timedelta
 from typing import Any, Callable, List, Optional, Union
 from dydx4.clients.constants import BroadcastMode
 
-from dydxpy.proto.cosmos.base.query.v1beta1.pagination_pb2 import PageRequest
+from v4_proto.cosmos.base.query.v1beta1.pagination_pb2 import PageRequest
 
 from ..tx import SigningCfg
 from ..tx_helpers import SubmittedTx

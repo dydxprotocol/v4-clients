@@ -1,7 +1,7 @@
 # ------------ Constants for Testing ------------
 from dydx4.clients.constants import ORDER_SIDE_BUY
 from dydx4.clients.helpers.chain_helpers import ORDER_FLAGS_SHORT_TERM
-from dydxpy.proto.dydxprotocol.clob.order_pb2 import Order
+from v4_proto.dydxprotocol.clob.order_pb2 import Order
 
 
 DEFAULT_HOST = 'http://localhost:8080'

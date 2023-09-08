@@ -3,7 +3,7 @@
 
 from abc import ABC, abstractmethod
 
-from dydxpy.proto.cosmos.auth.v1beta1.query_pb2 import (
+from v4_proto.cosmos.auth.v1beta1.query_pb2 import (
     QueryAccountRequest,
     QueryAccountResponse,
     QueryParamsRequest,

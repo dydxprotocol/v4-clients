@@ -3,7 +3,7 @@
 
 from google.protobuf.json_format import Parse
 
-from dydxpy.proto.cosmos.bank.v1beta1.query_pb2 import (
+from v4_proto.cosmos.bank.v1beta1.query_pb2 import (
     QueryAllBalancesRequest,
     QueryAllBalancesResponse,
     QueryBalanceRequest,

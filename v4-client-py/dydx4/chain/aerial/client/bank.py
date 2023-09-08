@@ -1,8 +1,8 @@
 
 """Bank send message."""
 
-from dydxpy.proto.cosmos.bank.v1beta1.tx_pb2 import MsgSend
-from dydxpy.proto.cosmos.base.v1beta1.coin_pb2 import Coin
+from v4_proto.cosmos.bank.v1beta1.tx_pb2 import MsgSend
+from v4_proto.cosmos.base.v1beta1.coin_pb2 import Coin
 
 from ...crypto.address import Address
 

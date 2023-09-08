@@ -5,7 +5,7 @@ import random
 from time import sleep
 from dydx4.chain.aerial.wallet import LocalWallet
 from dydx4.clients.dydx_subaccount import Subaccount
-from dydxpy.proto.dydxprotocol.clob.order_pb2 import Order
+from v4_proto.dydxprotocol.clob.order_pb2 import Order
 
 from dydx4.clients.dydx_validator_client import ValidatorClient
 from dydx4.clients.constants import BECH32_PREFIX, Network

@@ -1,10 +1,10 @@
 
 
-from dydxpy.proto.dydxprotocol.clob.tx_pb2 import MsgPlaceOrder, MsgCancelOrder
-from dydxpy.proto.dydxprotocol.clob.order_pb2 import Order, OrderId
-from dydxpy.proto.dydxprotocol.subaccounts.subaccount_pb2 import SubaccountId
-from dydxpy.proto.dydxprotocol.sending.transfer_pb2 import Transfer, MsgWithdrawFromSubaccount, MsgDepositToSubaccount
-from dydxpy.proto.dydxprotocol.sending.tx_pb2 import MsgCreateTransfer
+from v4_proto.dydxprotocol.clob.tx_pb2 import MsgPlaceOrder, MsgCancelOrder
+from v4_proto.dydxprotocol.clob.order_pb2 import Order, OrderId
+from v4_proto.dydxprotocol.subaccounts.subaccount_pb2 import SubaccountId
+from v4_proto.dydxprotocol.sending.transfer_pb2 import Transfer, MsgWithdrawFromSubaccount, MsgDepositToSubaccount
+from v4_proto.dydxprotocol.sending.tx_pb2 import MsgCreateTransfer
 
 
 class Composer:
