@@ -1,11 +1,11 @@
 <p align="center"><img src="https://dydx.exchange/flat.svg" width="256" /></p>
 
 <div align="center">
-  <a href='https://pypi.org/project/dydx-v4-python'>
-    <img src='https://img.shields.io/pypi/v/dydx-v4-python.svg' alt='PyPI'/>
+  <a href='https://pypi.org/project/v4-client-py'>
+    <img src='https://img.shields.io/pypi/v/v4-client-py.svg' alt='PyPI'/>
   </a>
-  <a href='https://github.com/dydxprotocol/dydx-v4-python/blob/master/LICENSE'>
-    <img src='https://img.shields.io/github/license/dydxprotocol/dydx-v4-python.svg' alt='License' />
+  <a href='https://github.com/dydxprotocol/v4-clients/blob/main/v4-client-py/LICENSE'>
+    <img src='https://img.shields.io/badge/License-BSL_1.1-blue' alt='License' />
   </a>
 </div>
 <br>
@@ -14,12 +14,12 @@ Python client for dYdX (v4 API).
 
 The library is currently tested against Python versions 3.9, and 3.11.
 
-## Installation (TODO: modify after release)
+## Installation
 
-The `dydx-v4-python` package is available on [PyPI](https://pypi.org/project/dydx-v4-python). Install with `pip`:
+The `v4-client-py` package is available on [PyPI](https://pypi.org/project/v4-client-py). Install with `pip`:
 
 ```bash
-pip install dydx-v4-python
+pip install v4-client-py
 ```
 
 ## Getting Started
@@ -29,16 +29,17 @@ Sample code is located in examples folder
 ## Development Setup - VS Code
 
 Install Microsoft Python extensions
+```
 Shift-Command-P: Create Python Environment
 Select Venv
 Select Python 3.9 as interpreter
 Select requirements.txt as the dependencies to install
-
-TODO: Add v4-proto to the requirements.txt
-
-Install v4-proto
 ```
-pip install -i https://test.pypi.org/simple/ v4-proto==<version>
+
+
+Install requirements
+```
+pip install -r requirements.txt
 ```
 
 VS Code will automatically switch to .venv environment when running example code. Or you can manually switch
