@@ -1,6 +1,6 @@
 {
   "name": "@dydxprotocol/v4-client-js",
-  "version": "0.33.2",
+  "version": "0.34.0",
   "description": "General client library for the new dYdX system (v4 decentralized)",
   "main": "build/src/index.js",
   "scripts": {
@@ -30,10 +30,13 @@
   "homepage": "https://github.com/dydxprotocol/v4-clients#readme",
   "dependencies": {
     "@cosmjs/amino": "^0.30.1",
+    "@cosmjs/encoding": "^0.31.1",
+    "@cosmjs/math": "^0.31.1",
     "@cosmjs/proto-signing": "^0.30.1",
     "@cosmjs/stargate": "^0.30.1",
     "@cosmjs/tendermint-rpc": "^0.30.1",
-    "@dydxprotocol/v4-proto": "^0.1.2",
+    "@cosmjs/utils": "^0.31.1",
+    "@dydxprotocol/v4-proto": "^0.2.1",
     "@osmonauts/lcd": "^0.6.0",
     "@scure/bip32": "^1.1.5",
     "@scure/bip39": "^1.1.1",
@@ -42,6 +45,7 @@
     "bignumber.js": "^9.1.1",
     "ethereum-cryptography": "^2.0.0",
     "long": "^4.0.0",
+    "protobufjs": ">=6.11.4",
     "ws": "^8.13.0"
   },
   "devDependencies": {
