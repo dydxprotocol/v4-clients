@@ -126,8 +126,8 @@ export const MAX_MEMO_CHARACTERS: number = 256;
 // Querying
 export const PAGE_REQUEST: PageRequest = {
   key: new Uint8Array(),
-  offset: new Long(0),
-  limit: new Long(-1),
+  offset: Long.UZERO,
+  limit: Long.MAX_UNSIGNED_VALUE,
   countTotal: true,
   reverse: false,
 };
