@@ -4,20 +4,20 @@ from ..chain.aerial.config import NetworkConfig
 
 # ------------ API URLs ------------
 INDEXER_API_HOST_MAINNET = None
-INDEXER_API_HOST_TESTNET = 'https://indexer.v4testnet2.dydx.exchange'
+INDEXER_API_HOST_TESTNET = 'https://indexer.v4testnet.dydx.exchange'
 INDEXER_API_HOST_STAGING = 'https://indexer.v4staging.dydx.exchange'
 INDEXER_API_HOST_DEV = 'https://indexer.v4dev.dydx.exchange'
 INDEXER_WS_HOST_MAINNET = None
-INDEXER_WS_HOST_TESTNET = 'wss://indexer.v4testnet2.dydx.exchange/v4/ws'
+INDEXER_WS_HOST_TESTNET = 'wss://indexer.v4testnet.dydx.exchange/v4/ws'
 INDEXER_WS_HOST_STAGING = 'wss://indexer.v4staging.dydx.exchange/v4/ws'
 INDEXER_WS_HOST_DEV = 'wss://indexer.v4dev.dydx.exchange/v4/ws'
 
-FAUCET_API_HOST_TESTNET = 'https://faucet.v4testnet2.dydx.exchange'
+FAUCET_API_HOST_TESTNET = 'https://faucet.v4testnet.dydx.exchange'
 FAUCET_API_HOST_STAGING = 'https://faucet.v4staging.dydx.exchange'
 FAUCET_API_HOST_DEV = 'https://faucet.v4dev.expotrading.com'
 
 VALIDATOR_API_HOST_MAINNET = None
-VALIDATOR_API_HOST_TESTNET = 'https://validator.v4testnet2.dydx.exchange'
+VALIDATOR_API_HOST_TESTNET = 'https://validator.v4testnet.dydx.exchange'
 VALIDATOR_API_HOST_STAGING = 'https://validator.v4staging.dydx.exchange'
 VALIDATOR_API_HOST_DEV = 'https://validator.v4dev.dydx.exchange'
 
@@ -28,7 +28,7 @@ VALIDATOR_GRPC_DEV = '52.192.187.113:9090'
 
 # ------------ Ethereum Network IDs ------------
 NETWORK_ID_MAINNET = None
-NETWORK_ID_TESTNET = 'dydx-testnet-2'
+NETWORK_ID_TESTNET = 'dydx-testnet-3'
 NETWORK_ID_STAGING = 'dydxprotocol-testnet'
 NETWORK_ID_DEV = 'dydxprotocol-testnet'
 
