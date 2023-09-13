@@ -45,6 +45,7 @@
     "bignumber.js": "^9.1.1",
     "ethereum-cryptography": "^2.0.0",
     "long": "^4.0.0",
+    "protobufjs": ">=6.11.4",
     "ws": "^8.13.0"
   },
   "devDependencies": {
