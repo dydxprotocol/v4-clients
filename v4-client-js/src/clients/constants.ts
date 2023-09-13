@@ -14,27 +14,27 @@ export const TESTNET_CHAIN_ID = 'dydx-testnet-2';
 export enum IndexerApiHost {
   DEV = 'https://indexer.v4dev.dydx.exchange',
   STAGING = 'https://indexer.v4staging.dydx.exchange',
-  TESTNET = 'https://indexer.v4testnet2.dydx.exchange',
+  TESTNET = 'https://indexer.v4testnet.dydx.exchange',
   // TODO: Add MAINNET
 }
 
 export enum IndexerWSHost {
   DEV = 'wss://indexer.v4dev.dydx.exchange/v4/ws',
   STAGING = 'wss://indexer.v4staging.dydx.exchange/v4/ws',
-  TESTNET = 'wss://indexer.v4testnet2.dydx.exchange/v4/ws',
+  TESTNET = 'wss://indexer.v4testnet.dydx.exchange/v4/ws',
   // TODO: Add MAINNET
 }
 
 export enum FaucetApiHost {
   DEV = 'https://faucet.v4dev.expotrading.com',
   STAGING = 'https://faucet.v4staging.dydx.exchange',
-  TESTNET = 'https://faucet.v4testnet2.dydx.exchange',
+  TESTNET = 'https://faucet.v4testnet.dydx.exchange',
 }
 
 export enum ValidatorApiHost {
   DEV = 'https://validator.v4dev.dydx.exchange',
   STAGING = 'https://validator.v4staging.dydx.exchange',
-  TESTNET = 'https://validator.v4testnet2.dydx.exchange',
+  TESTNET = 'https://validator.v4testnet.dydx.exchange',
   // TODO: Add MAINNET
 }
 
@@ -43,7 +43,7 @@ export enum ValidatorApiHost {
 export enum NetworkId {
   DEV = 'dydxprotocol-testnet',
   STAGING = 'dydxprotocol-testnet',
-  TESTNET = 'dydx-testnet-2',
+  TESTNET = 'dydx-testnet-3',
   // TODO: Add MAINNET
 }
 export const NETWORK_ID_MAINNET: string | null = null;
