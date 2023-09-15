@@ -4,7 +4,7 @@ from ..chain.aerial.config import NetworkConfig
 
 # ------------ API URLs ------------
 INDEXER_API_HOST_MAINNET = None
-INDEXER_API_HOST_TESTNET = 'https://indexer.v4testnet.dydx.exchange'
+INDEXER_API_HOST_TESTNET = 'https://dydx-testnet.imperator.co'
 INDEXER_API_HOST_STAGING = 'https://indexer.v4staging.dydx.exchange'
 INDEXER_API_HOST_DEV = 'https://indexer.v4dev.dydx.exchange'
 INDEXER_WS_HOST_MAINNET = None
@@ -17,12 +17,12 @@ FAUCET_API_HOST_STAGING = 'https://faucet.v4staging.dydx.exchange'
 FAUCET_API_HOST_DEV = 'https://faucet.v4dev.expotrading.com'
 
 VALIDATOR_API_HOST_MAINNET = None
-VALIDATOR_API_HOST_TESTNET = 'https://validator.v4testnet.dydx.exchange'
+VALIDATOR_API_HOST_TESTNET = 'https://dydx-testnet-archive.allthatnode.com'
 VALIDATOR_API_HOST_STAGING = 'https://validator.v4staging.dydx.exchange'
 VALIDATOR_API_HOST_DEV = 'https://validator.v4dev.dydx.exchange'
 
 VALIDATOR_GRPC_MAINNET = None
-VALIDATOR_GRPC_TESTNET = 'validator.v4testnet2.dydx.exchange:9090'
+VALIDATOR_GRPC_TESTNET = 'dydx-testnet-archive.allthatnode.com:9090'
 VALIDATOR_GRPC_STAGING = '54.249.255.18:9090'
 VALIDATOR_GRPC_DEV = '52.192.187.113:9090'
 

@@ -8,20 +8,20 @@ export * from '../lib/constants';
 // Chain ID
 export const DEV_CHAIN_ID = 'dydxprotocol-testnet';
 export const STAGING_CHAIN_ID = 'dydxprotocol-testnet';
-export const TESTNET_CHAIN_ID = 'dydx-testnet-2';
+export const TESTNET_CHAIN_ID = 'dydx-testnet-3';
 
 // ------------ API URLs ------------
 export enum IndexerApiHost {
   DEV = 'https://indexer.v4dev.dydx.exchange',
   STAGING = 'https://indexer.v4staging.dydx.exchange',
-  TESTNET = 'https://indexer.v4testnet.dydx.exchange',
+  TESTNET = 'https://dydx-testnet.imperator.co',
   // TODO: Add MAINNET
 }
 
 export enum IndexerWSHost {
   DEV = 'wss://indexer.v4dev.dydx.exchange/v4/ws',
   STAGING = 'wss://indexer.v4staging.dydx.exchange/v4/ws',
-  TESTNET = 'wss://indexer.v4testnet.dydx.exchange/v4/ws',
+  TESTNET = 'wss://dydx-testnet.imperator.co/v4/ws',
   // TODO: Add MAINNET
 }
 
@@ -34,7 +34,7 @@ export enum FaucetApiHost {
 export enum ValidatorApiHost {
   DEV = 'https://validator.v4dev.dydx.exchange',
   STAGING = 'https://validator.v4staging.dydx.exchange',
-  TESTNET = 'https://validator.v4testnet.dydx.exchange',
+  TESTNET = 'https://dydx-testnet-archive.allthatnode.com',
   // TODO: Add MAINNET
 }
 
