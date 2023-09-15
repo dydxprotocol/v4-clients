@@ -7,21 +7,7 @@ export const MARKET_BTC_USD: string = 'BTC-USD';
 describe('IndexerClient', () => {
   const client = new IndexerClient(Network.staging().indexerConfig);
 
-  describe('Public Endpoints', () => {
-    it('Indexer time', async () => {
-      const response = await client.markets.getTime();
-      const iso = response.iso;
-      expect(iso).not.toBeUndefined();
-    });
-
-    it('Indexer height', async () => {
-      const response = await client.markets.getHeight();
-      const height = response.height;
-      const time = response.time;
-      expect(height).not.toBeUndefined();
-      expect(time).not.toBeUndefined();
-    });
-
+  describe('Market Endpoints', () => {
     it('Markets', async () => {
       const response = await client.markets.getPerpetualMarkets();
       const btc = response.markets[MARKET_BTC_USD];

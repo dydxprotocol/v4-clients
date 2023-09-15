@@ -42,17 +42,3 @@ export interface Options {
 export enum ClobPairId {
   PERPETUAL_PAIR_BTC_USD = 0,
 }
-
-export enum MarketId {
-  PERPETUAL_PRICE_BTC_USD = 0,
-}
-
-export enum PerpetualId {
-  PERPETUAL_BTC_USD = 0,
-}
-
-export interface FaucetRequest {
-  address: string;
-  subaccountNumber: number;
-  amount: number;
-}

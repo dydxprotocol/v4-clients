@@ -64,14 +64,4 @@ export default class MarketsClient extends RestClient {
       timePeriod: period,
     });
   }
-
-  async getTime(): Promise<Data> {
-    const uri = '/v4/time';
-    return this.get(uri);
-  }
-
-  async getHeight(): Promise<Data> {
-    const uri = '/v4/height';
-    return this.get(uri);
-  }
 }
