@@ -52,3 +52,26 @@ class FaucetClient(object):
                 'amount': amount,
             }
         )
+    
+    def fill_native(
+            self,
+            address: str,
+    ) -> Response:
+        '''
+        fill account with native token
+
+        :param address: required
+        :type address: str
+
+        :returns:
+
+        :raises: DydxAPIError
+        '''
+        path = '/faucet/native-token'
+        return self._post(
+            path,
+            {},
+            {
+                'address': address,
+            }
+        )
