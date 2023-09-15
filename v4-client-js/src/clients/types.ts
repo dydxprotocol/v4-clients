@@ -70,4 +70,19 @@ export type BroadcastMode = (
   Method.BroadcastTxAsync | Method.BroadcastTxSync | Method.BroadcastTxCommit
 );
 
+// ------ Utility Endpoint Responses ------ //
+export interface TimeResponse {
+  iso: string;
+  epoch: number;
+}
+
+export interface HeightResponse {
+  height: number;
+  time: string;
+}
+
+export interface ComplianceResponse {
+  restricted: boolean;
+}
+
 export * from './modules/proto-includes';

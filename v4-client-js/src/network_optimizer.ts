@@ -89,7 +89,7 @@ export class NetworkOptimizer {
     const responses = (await Promise.all(
       clients
         .map(async (client) => {
-          const block = await client.markets.getHeight();
+          const block = await client.utility.getHeight();
           const response = new PingResponse(+block.height);
           return {
             endpoint: client.config.restEndpoint,

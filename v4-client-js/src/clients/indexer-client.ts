@@ -1,6 +1,7 @@
 import { IndexerConfig, DEFAULT_API_TIMEOUT } from './constants';
 import AccountClient from './modules/account';
 import MarketsClient from './modules/markets';
+import UtilityClient from './modules/utility';
 
 /**
  * @description Client for Indexer
@@ -10,6 +11,7 @@ export class IndexerClient {
     readonly apiTimeout: number;
     readonly _markets: MarketsClient;
     readonly _account: AccountClient;
+    readonly _utility: UtilityClient;
 
     constructor(config: IndexerConfig, apiTimeout?: number) {
       this.config = config;
@@ -17,6 +19,7 @@ export class IndexerClient {
 
       this._markets = new MarketsClient(config.restEndpoint);
       this._account = new AccountClient(config.restEndpoint);
+      this._utility = new UtilityClient(config.restEndpoint);
     }
 
     /**
@@ -35,5 +38,12 @@ export class IndexerClient {
      */
     get account(): AccountClient {
       return this._account;
+    }
+
+    /**
+     * @description Get the utility module, used for interacting with non-market public endpoints.
+     */
+    get utility(): UtilityClient {
+      return this._utility;
     }
 }
