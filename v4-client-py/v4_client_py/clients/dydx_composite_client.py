@@ -18,6 +18,7 @@ from v4_client_py.clients.helpers.chain_helpers import (
     ORDER_FLAGS_SHORT_TERM,
     ORDER_FLAGS_LONG_TERM,
     ORDER_FLAGS_CONDITIONAL,
+    SHORT_BLOCK_WINDOW,
 )
 
 from v4_client_py.clients.constants import Network
@@ -42,6 +43,19 @@ class CompositeClient:
     def calculate_good_til_block(self) -> int:
         response = self.validator_client.get.latest_block()
         return response.block.header.height + 3
+
+    def validate_good_til_block(self, good_til_block: int) -> None:
+        response = self.validator_client.get.latest_block()
+        next_valid_block_height = response.block.header.height + 1
+        lower_bound = next_valid_block_height
+        upper_bound = next_valid_block_height + SHORT_BLOCK_WINDOW
+        if good_til_block < lower_bound or good_til_block > upper_bound:
+            raise Exception(
+                f"Invalid Short-Term order GoodTilBlock. "
+                f"Should be greater-than-or-equal-to {lower_bound} "
+                f"and less-than-or-equal-to {upper_bound}. "
+                f"Provided good til block: {good_til_block}"
+            )
     
     def calculate_good_til_block_time(self, good_til_time_in_seconds: int) -> int:
         now = datetime.now()
@@ -120,6 +134,66 @@ class CompositeClient:
             good_til_time_in_seconds=good_til_time_in_seconds,
             execution=execution,
             post_only=post_only,
+            reduce_only=reduce_only,
+            trigger_price=trigger_price,
+        )
+        return self.validator_client.post.send_message(subaccount=subaccount, msg=msg, zeroFee=True)
+
+    def place_short_term_order(
+        self,
+        subaccount: Subaccount,
+        market: str,
+        side: OrderSide,
+        price: float,
+        size: float,
+        client_id: int,
+        good_til_block: int,
+        execution: OrderExecution,
+        reduce_only: bool,
+        trigger_price: float = None,
+    ) -> SubmittedTx:
+        '''
+        Place order
+
+        :param subaccount: required
+        :type subaccount: Subaccount
+
+        :param market: required
+        :type market: str
+
+        :param side: required
+        :type side: Order.Side
+
+        :param price: required
+        :type price: float
+
+        :param size: required
+        :type size: float
+
+        :param client_id: required
+        :type client_id: int
+
+        :param good_til_block: required
+        :type good_til_block: int
+
+        :param execution: required
+        :type execution: OrderExecution
+
+        :param reduce_only: required
+        :type reduce_only: bool
+
+        :returns: Tx information
+        '''
+        msg = self.place_order_message(
+            subaccount=subaccount,
+            market=market,
+            type=type,
+            side=side,
+            price=price,
+            size=size,
+            client_id=client_id,
+            good_til_block=good_til_block,
+            execution=execution,
             reduce_only=reduce_only,
             trigger_price=trigger_price,
         )
@@ -248,6 +322,53 @@ class CompositeClient:
             client_metadata=client_metadata,
             condition_type=condition_type,
             conditional_order_trigger_subticks=conditional_order_trigger_subticks,
+        )
+
+    def place_short_term_order_message(
+        self,
+        subaccount: Subaccount,
+        market: str,
+        type: OrderType,
+        side: OrderSide,
+        price: float,
+        size: float,
+        client_id: int,
+        time_in_force: OrderExecution,
+        good_til_block: int,
+        reduce_only: bool,
+    ) -> MsgPlaceOrder:
+        # Validate the GoodTilBlock.
+        self.validate_good_til_block(good_til_block=good_til_block)
+
+        # Construct the MsgPlaceOrder.
+        markets_response = self.indexer_client.markets.get_perpetual_markets(market)
+        market = markets_response.data['markets'][market]
+        clob_pair_id = market['clobPairId']
+        atomic_resolution = market['atomicResolution']
+        step_base_quantums = market['stepBaseQuantums']
+        quantum_conversion_exponent = market['quantumConversionExponent']
+        subticks_per_tick = market['subticksPerTick']
+        order_side = calculate_side(side)
+        quantums = calculate_quantums(size, atomic_resolution, step_base_quantums)
+        subticks = calculate_subticks(price, atomic_resolution, quantum_conversion_exponent, subticks_per_tick)
+        order_flags = ORDER_FLAGS_SHORT_TERM
+        client_metadata = self.calculate_client_metadata(type)
+        return self.validator_client.post.composer.compose_msg_place_order(
+            address=subaccount.address,
+            subaccount_number=subaccount.subaccount_number,
+            client_id=client_id,
+            clob_pair_id=clob_pair_id,
+            order_flags=order_flags,
+            good_til_block=good_til_block,
+            good_til_block_time=0,
+            side=order_side,
+            quantums=quantums,
+            subticks=subticks,
+            time_in_force=time_in_force,
+            reduce_only=reduce_only,
+            client_metadata=client_metadata,
+            condition_type=Order.CONDITION_TYPE_UNSPECIFIED,
+            conditional_order_trigger_subticks=0,
         )
     
 
