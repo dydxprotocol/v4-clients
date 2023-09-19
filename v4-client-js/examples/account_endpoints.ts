@@ -107,20 +107,6 @@ async function test(): Promise<void> {
     console.log(error.message);
   }
 
-  // Get funding payments
-  try {
-    const response = await client.account.getSubaccountFunding(address, 0);
-    console.log(response);
-    const fundingPayments = response.fundingPayments;
-    console.log(fundingPayments);
-    if (fundingPayments.length > 0) {
-      const fundingPayments0 = fundingPayments[0];
-      console.log(fundingPayments0);
-    }
-  } catch (error) {
-    console.log(error.message);
-  }
-
   // Get historical pnl
   try {
     const response = await client.account.getSubaccountHistoricalPNLs(address, 0);

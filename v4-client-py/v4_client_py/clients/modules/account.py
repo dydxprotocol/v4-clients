@@ -384,48 +384,6 @@ class Account(object):
             },
         )
     
-    def get_subaccount_funding(
-        self,
-        address: str,
-        subaccount_number: int,
-        limit: int = None,
-        created_before_or_at_height: int = None,
-        created_before_or_at_time: str = None,
-    ) -> Response:
-        '''
-        Get asset transfers record
-
-        :param address: required
-        :type address: str
-
-        :param subaccount_number: required
-        :type subaccount_number: int
-
-        :param limit: optional
-        :type limit: number
-
-        :param created_before_or_at_height: optional
-        :type created_before_or_at_height: number
-
-        :param created_before_or_at_time: optional
-        :type created_before_or_at_time: ISO str
-
-        :returns: Array of funding payments
-
-        :raises: DydxAPIError
-        '''
-        return self._get(
-            '/v4/funding',
-            {
-                'address': address,
-                'subaccountNumber': subaccount_number,
-                'limit': limit,
-                'createdBeforeOrAtHeight': created_before_or_at_height,
-                'createdBeforeOrAt': created_before_or_at_time,
-            },
-        )
-    
-
     def get_subaccount_historical_pnls(
         self,
         address: str,

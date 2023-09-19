@@ -134,23 +134,6 @@ export default class AccountClient extends RestClient {
     });
   }
 
-  async getSubaccountFunding(
-    address: string,
-    subaccountNumber: number,
-    limit?: number | null,
-    createdBeforeOrAtHeight?: number | null,
-    createdBeforeOrAt?: string | null,
-  ): Promise<Data> {
-    const uri = '/v4/funding';
-    return this.get(uri, {
-      address,
-      subaccountNumber,
-      limit,
-      createdBeforeOrAtHeight,
-      createdBeforeOrAt,
-    });
-  }
-
   async getSubaccountHistoricalPNLs(
     address: string,
     subaccountNumber: number,
