@@ -20,7 +20,7 @@ class OrderTimeInForce(Flag):
     FOK = auto()    # Fill or Kill
 
 class OrderExecution(Flag):
-    DEFAULT = auto()    # Default
+    DEFAULT = 0         # Default. Note proto enums start at 0, which is why this start at 0.
     IOC = auto()        # Immediate or Cancel
     POST_ONLY = auto()  # Post-only
     FOK = auto()        # Fill or Kill
