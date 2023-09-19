@@ -44,6 +44,12 @@ class CompositeClient:
         response = self.validator_client.get.latest_block()
         return response.block.header.height + 3
 
+    def calculate_good_til_block_time(self, good_til_time_in_seconds: int) -> int:
+        now = datetime.now()
+        interval = timedelta(seconds=good_til_time_in_seconds)
+        future = now + interval
+        return int(future.timestamp())
+
     def validate_good_til_block(self, good_til_block: int) -> None:
         response = self.validator_client.get.latest_block()
         next_valid_block_height = response.block.header.height + 1
@@ -56,13 +62,6 @@ class CompositeClient:
                 f"and less-than-or-equal-to {upper_bound}. "
                 f"Provided good til block: {good_til_block}"
             )
-    
-    def calculate_good_til_block_time(self, good_til_time_in_seconds: int) -> int:
-        now = datetime.now()
-        interval = timedelta(seconds=good_til_time_in_seconds)
-        future = now + interval
-        return int(future.timestamp())
-
 
     # Only MARKET and LIMIT types are supported right now
     # Use human readable form of input, including price and size
@@ -153,7 +152,7 @@ class CompositeClient:
         trigger_price: float = None,
     ) -> SubmittedTx:
         '''
-        Place order
+        Place Short-Term order
 
         :param subaccount: required
         :type subaccount: Subaccount
@@ -184,7 +183,7 @@ class CompositeClient:
 
         :returns: Tx information
         '''
-        msg = self.place_order_message(
+        msg = self.place_short_term_order_message(
             subaccount=subaccount,
             market=market,
             type=type,
@@ -370,7 +369,6 @@ class CompositeClient:
             condition_type=Order.CONDITION_TYPE_UNSPECIFIED,
             conditional_order_trigger_subticks=0,
         )
-    
 
     def cancel_order(
         self, 

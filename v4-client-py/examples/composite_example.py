@@ -29,27 +29,25 @@ async def main() -> None:
     subaccount = Subaccount(wallet, 0)
     ordersParams = loadJson('human_readable_orders.json')
     for orderParams in ordersParams:
-        type = OrderType[orderParams["type"]]
         side = OrderSide[orderParams["side"]]
 
         # Get the expiration block.
-        response = client.get.latest_block()
-        next_valid_block_height = response.block.header.height + 1
+        current_block = client.get_current_block()
+        next_valid_block_height = current_block + 1
         # Note, you can change this to any number between `next_valid_block_height` to `next_valid_block_height + SHORT_BLOCK_WINDOW`
         good_til_block = next_valid_block_height + 3
 
         price = orderParams.get("price", 1350)
         try:
-            tx = client.place_order(
+            tx = client.place_short_term_order(
                 subaccount,
                 market='ETH-USD',
-                type=type,
                 side=side,
                 price=price,
                 size=0.01,
                 client_id=randrange(0, 100000000),
                 good_til_block=good_til_block,
-                execution=OrderExecution.DEFAULT,
+                time_in_force=OrderExecution.DEFAULT,
                 reduce_only=False
             )
             print('**Order Tx**')
