@@ -78,20 +78,6 @@ describe('IndexerClient', () => {
       }
     });
 
-    /*
-    ** Funding endpoint is not implemented in the indexer yet
-    it('Funding', async () => {
-      const response = await client.account.getSubaccountFunding(DYDX_TEST_ADDRESS, 0);
-      expect(response).not.toBeNull();
-      const funding = response.funding;
-      expect(funding).not.toBeNull();
-      if (funding.length > 0) {
-        const funding0 = funding[0];
-        expect(funding0).not.toBeNull();
-      }
-    });
-    */
-
     it('Historical PNL', async () => {
       const response = await client.account.getSubaccountHistoricalPNLs(DYDX_TEST_ADDRESS, 0);
       expect(response).not.toBeNull();
