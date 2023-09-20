@@ -1,13 +1,15 @@
+import { Order_TimeInForce } from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/clob/order';
+
 import { BECH32_PREFIX } from '../src';
 import { CompositeClient } from '../src/clients/composite-client';
 import {
-  Network, OrderExecution, OrderSide, OrderTimeInForce, OrderType,
+  Network, OrderExecution, OrderSide,
 } from '../src/clients/constants';
 import LocalWallet from '../src/clients/modules/local-wallet';
 import { Subaccount } from '../src/clients/subaccount';
 import { randomInt } from '../src/lib/utils';
 import { DYDX_TEST_MNEMONIC } from './constants';
-import ordersParams from './human_readable_orders.json';
+import ordersParams from './human_readable_short_term_orders.json';
 
 async function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -23,34 +25,50 @@ async function test(): Promise<void> {
   const subaccount = new Subaccount(wallet, 0);
   for (const orderParams of ordersParams) {
     try {
-      const type = OrderType[orderParams.type as keyof typeof OrderType];
       const side = OrderSide[orderParams.side as keyof typeof OrderSide];
-      const timeInForceString = orderParams.timeInForce ?? 'GTT';
-      const timeInForce = OrderTimeInForce[timeInForceString as keyof typeof OrderTimeInForce];
       const price = orderParams.price ?? 1350;
-      const timeInForceSeconds = (timeInForce === OrderTimeInForce.GTT) ? 60 : 0;
-      const postOnly = orderParams.postOnly ?? false;
-      const tx = await client.placeOrder(
+
+      const currentBlock = await client.validatorClient.get.latestBlockHeight();
+      const nextValidBlockHeight = currentBlock + 1;
+      // Note, you can change this to any number between `next_valid_block_height`
+      // to `next_valid_block_height + SHORT_BLOCK_WINDOW`
+      const goodTilBlock = nextValidBlockHeight + 3;
+
+      const timeInForce = orderExecutionToTimeInForce(orderParams.timeInForce);
+
+      const tx = await client.placeShortTermOrder(
         subaccount,
         'ETH-USD',
-        type,
         side,
         price,
         0.01,
         randomInt(100_000_000),
         timeInForce,
-        timeInForceSeconds,
-        OrderExecution.DEFAULT,
-        postOnly,
+        goodTilBlock,
         false,
       );
       console.log('**Order Tx**');
-      console.log(tx);
+      console.log(tx.hash.toString());
     } catch (error) {
       console.log(error.message);
     }
 
     await sleep(5000);  // wait for placeOrder to complete
+  }
+}
+
+function orderExecutionToTimeInForce(orderExecution: string): Order_TimeInForce {
+  switch (orderExecution) {
+    case OrderExecution.DEFAULT:
+      return Order_TimeInForce.TIME_IN_FORCE_UNSPECIFIED;
+    case OrderExecution.FOK:
+      return Order_TimeInForce.TIME_IN_FORCE_FILL_OR_KILL;
+    case OrderExecution.IOC:
+      return Order_TimeInForce.TIME_IN_FORCE_IOC;
+    case OrderExecution.POST_ONLY:
+      return Order_TimeInForce.TIME_IN_FORCE_POST_ONLY;
+    default:
+      throw new Error('Unrecognized order execution');
   }
 }
 
