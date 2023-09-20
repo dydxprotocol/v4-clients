@@ -155,8 +155,7 @@ class Composer:
         )
         return MsgCancelOrder(
             order_id=order_id, 
-            good_til_block=good_til_block,
-            good_til_block_time=good_til_block_time
+            good_til_block=good_til_block
         )
     
     def compose_msg_transfer(
