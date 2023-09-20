@@ -40,6 +40,10 @@ class CompositeClient:
         self.indexer_client = IndexerClient(network.indexer_config, api_timeout, send_options)
         self.validator_client = ValidatorClient(network.validator_config, credentials)
 
+    def get_current_block(self) -> int:
+        response = self.validator_client.get.latest_block()
+        return response.block.header.height
+
     def calculate_good_til_block(self) -> int:
         response = self.validator_client.get.latest_block()
         return response.block.header.height + 3
@@ -147,9 +151,8 @@ class CompositeClient:
         size: float,
         client_id: int,
         good_til_block: int,
-        execution: OrderExecution,
+        time_in_force: OrderExecution,
         reduce_only: bool,
-        trigger_price: float = None,
     ) -> SubmittedTx:
         '''
         Place Short-Term order
@@ -175,8 +178,8 @@ class CompositeClient:
         :param good_til_block: required
         :type good_til_block: int
 
-        :param execution: required
-        :type execution: OrderExecution
+        :param time_in_force: required
+        :type time_in_force: OrderExecution
 
         :param reduce_only: required
         :type reduce_only: bool
@@ -192,9 +195,8 @@ class CompositeClient:
             size=size,
             client_id=client_id,
             good_til_block=good_til_block,
-            execution=execution,
+            time_in_force=time_in_force,
             reduce_only=reduce_only,
-            trigger_price=trigger_price,
         )
         return self.validator_client.post.send_message(subaccount=subaccount, msg=msg, zeroFee=True)
     
