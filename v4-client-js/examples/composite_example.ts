@@ -1,7 +1,9 @@
+import { Order_TimeInForce } from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/clob/order';
+
 import { BECH32_PREFIX } from '../src';
 import { CompositeClient } from '../src/clients/composite-client';
 import {
-  Network, OrderExecution, OrderSide, OrderTimeInForce, OrderType,
+  Network, OrderSide,
 } from '../src/clients/constants';
 import LocalWallet from '../src/clients/modules/local-wallet';
 import { Subaccount } from '../src/clients/subaccount';
@@ -23,25 +25,24 @@ async function test(): Promise<void> {
   const subaccount = new Subaccount(wallet, 0);
   for (const orderParams of ordersParams) {
     try {
-      const type = OrderType[orderParams.type as keyof typeof OrderType];
       const side = OrderSide[orderParams.side as keyof typeof OrderSide];
-      const timeInForceString = orderParams.timeInForce ?? 'GTT';
-      const timeInForce = OrderTimeInForce[timeInForceString as keyof typeof OrderTimeInForce];
       const price = orderParams.price ?? 1350;
-      const timeInForceSeconds = (timeInForce === OrderTimeInForce.GTT) ? 60 : 0;
-      const postOnly = orderParams.postOnly ?? false;
-      const tx = await client.placeOrder(
+
+      const currentBlock = await client.validatorClient.get.latestBlockHeight();
+      const nextValidBlockHeight = currentBlock + 1;
+      // Note, you can change this to any number between `next_valid_block_height`
+      // to `next_valid_block_height + SHORT_BLOCK_WINDOW`
+      const goodTilBlock = nextValidBlockHeight + 3;
+
+      const tx = await client.placeShortTermOrder(
         subaccount,
         'ETH-USD',
-        type,
         side,
         price,
         0.01,
         randomInt(100_000_000),
-        timeInForce,
-        timeInForceSeconds,
-        OrderExecution.DEFAULT,
-        postOnly,
+        Order_TimeInForce.TIME_IN_FORCE_UNSPECIFIED,
+        goodTilBlock,
         false,
       );
       console.log('**Order Tx**');
