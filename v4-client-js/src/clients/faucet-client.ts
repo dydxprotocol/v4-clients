@@ -11,6 +11,7 @@ export class FaucetClient extends RestClient {
     address: string,
     subaccountNumber: number,
     amount: number,
+    headers?: {},
   ): Promise<Response> {
     const uri = '/faucet/tokens';
 
@@ -22,6 +23,7 @@ export class FaucetClient extends RestClient {
         subaccountNumber,
         amount,
       },
+      headers,
     );
   }
 }
