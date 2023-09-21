@@ -21,6 +21,7 @@ import { FaucetClient } from './faucet-client';
 import LocalWallet from './modules/local-wallet';
 import { Subaccount } from './subaccount';
 import { OrderFlags } from './types';
+import UtilityClient from './modules/utility';
 
 declare global {
   // eslint-disable-next-line vars-on-top, no-var
@@ -117,6 +118,19 @@ export async function deriveMnemomicFromEthereumSignature(signature: string): Pr
     return new Promise((resolve) => {
       resolve(encodeJson(result));
     });
+  } catch (e) {
+    return wrappedError(e);
+  }
+}
+
+export async function screen(address: string): Promise<string> {
+  try {
+    const client = globalThis.client;
+    if (client === undefined) {
+      throw new UserError('client is not connected. Call connectClient() first');
+    }
+    const block = await globalThis.client.indexerClient.utility.screen(address);
+    return encodeJson(block);
   } catch (e) {
     return wrappedError(e);
   }
