@@ -32,7 +32,7 @@ async function test(): Promise<void> {
       const nextValidBlockHeight = currentBlock + 1;
       // Note, you can change this to any number between `next_valid_block_height`
       // to `next_valid_block_height + SHORT_BLOCK_WINDOW`
-      const goodTilBlock = nextValidBlockHeight + 3;
+      const goodTilBlock = nextValidBlockHeight + 10;
 
       const timeInForce = orderExecutionToTimeInForce(orderParams.timeInForce);
 
