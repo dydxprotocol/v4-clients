@@ -14,7 +14,7 @@ class OrderSide(Flag):
     BUY = auto()
     SELL = auto()
 
-# FE enums. Do not pass these directly into the order proto fields.
+# FE enums. Do not pass these directly into the order proto TimeInForce field.
 class OrderTimeInForce(Flag):
     GTT = auto()    # Good Til Time
     IOC = auto()    # Immediate or Cancel
@@ -27,6 +27,7 @@ class OrderExecution(Flag):
     FOK = auto()        # Fill or Kill
 
 # Enums to use in order proto fields. Use proto generated fields once that's fixed.
+# should match https://github.com/dydxprotocol/v4-chain/blob/main/proto/dydxprotocol/clob/order.proto#L159
 class Order_TimeInForce(Flag):
 
     '''
@@ -58,8 +59,6 @@ class Order_TimeInForce(Flag):
     entire amount can‘t be matched.
     '''
     TIME_IN_FORCE_FILL_OR_KILL = 3
-
-    UNRECOGNIZED = -1
 
 ORDER_FLAGS_SHORT_TERM = 0
 ORDER_FLAGS_LONG_TERM = 64

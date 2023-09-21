@@ -41,6 +41,9 @@ async def main() -> None:
         time_in_force = orderExecutionToTimeInForce(orderParams['timeInForce'])
 
         price = orderParams.get("price", 1350)
+        # uint32
+        client_id = randrange(0, 2 ** 32 - 1)
+
         try:
             tx = client.place_short_term_order(
                 subaccount,
@@ -48,7 +51,7 @@ async def main() -> None:
                 side=side,
                 price=price,
                 size=0.01,
-                client_id=randrange(0, 100000000),
+                client_id=client_id,
                 good_til_block=good_til_block,
                 time_in_force=time_in_force,
                 reduce_only=False
