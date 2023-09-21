@@ -21,7 +21,6 @@ import { FaucetClient } from './faucet-client';
 import LocalWallet from './modules/local-wallet';
 import { Subaccount } from './subaccount';
 import { OrderFlags } from './types';
-import UtilityClient from './modules/utility';
 
 declare global {
   // eslint-disable-next-line vars-on-top, no-var
