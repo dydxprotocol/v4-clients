@@ -128,8 +128,8 @@ export async function screen(address: string): Promise<string> {
     if (client === undefined) {
       throw new UserError('client is not connected. Call connectClient() first');
     }
-    const block = await globalThis.client.indexerClient.utility.screen(address);
-    return encodeJson(block);
+    const compliance = await globalThis.client.indexerClient.utility.screen(address);
+    return encodeJson(compliance);
   } catch (e) {
     return wrappedError(e);
   }
