@@ -1,5 +1,5 @@
 
-from enum import Flag, auto
+from enum import Flag, auto, Enum
 from v4_proto.dydxprotocol.clob.order_pb2 import Order
 
 class OrderType(Flag):
@@ -13,7 +13,8 @@ class OrderType(Flag):
 class OrderSide(Flag):
     BUY = auto()
     SELL = auto()
-    
+
+# FE enums. Do not pass these directly into the order proto fields.
 class OrderTimeInForce(Flag):
     GTT = auto()    # Good Til Time
     IOC = auto()    # Immediate or Cancel
@@ -24,6 +25,41 @@ class OrderExecution(Flag):
     IOC = auto()        # Immediate or Cancel
     POST_ONLY = auto()  # Post-only
     FOK = auto()        # Fill or Kill
+
+# Enums to use in order proto fields. Use proto generated fields once that's fixed.
+class Order_TimeInForce(Flag):
+
+    '''
+    TIME_IN_FORCE_UNSPECIFIED - TIME_IN_FORCE_UNSPECIFIED represents the default behavior where an
+    order will first match with existing orders on the book, and any
+    remaining size will be added to the book as a maker order.
+    '''
+    TIME_IN_FORCE_UNSPECIFIED = 0
+
+    '''
+    TIME_IN_FORCE_IOC - TIME_IN_FORCE_IOC enforces that an order only be matched with
+    maker orders on the book. If the order has remaining size after
+    matching with existing orders on the book, the remaining size
+    is not placed on the book.
+    '''
+    TIME_IN_FORCE_IOC = 1
+
+    '''
+    TIME_IN_FORCE_POST_ONLY - TIME_IN_FORCE_POST_ONLY enforces that an order only be placed
+    on the book as a maker order. Note this means that validators will cancel
+    any newly-placed post only orders that would cross with other maker
+    orders.
+    '''
+    TIME_IN_FORCE_POST_ONLY = 2
+
+    '''
+    TIME_IN_FORCE_FILL_OR_KILL - TIME_IN_FORCE_FILL_OR_KILL enforces that an order will either be filled
+    completely and immediately by maker orders on the book or canceled if the
+    entire amount can‘t be matched.
+    '''
+    TIME_IN_FORCE_FILL_OR_KILL = 3
+
+    UNRECOGNIZED = -1
 
 ORDER_FLAGS_SHORT_TERM = 0
 ORDER_FLAGS_LONG_TERM = 64

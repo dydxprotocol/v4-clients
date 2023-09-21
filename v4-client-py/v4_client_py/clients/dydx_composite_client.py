@@ -6,6 +6,7 @@ from v4_proto.dydxprotocol.clob.tx_pb2 import MsgPlaceOrder
 from v4_client_py.clients.helpers.chain_helpers import (
     QUOTE_QUANTUMS_ATOMIC_RESOLUTION,
     Order,
+    Order_TimeInForce,
     OrderType, 
     OrderSide, 
     OrderTimeInForce, 
@@ -151,7 +152,7 @@ class CompositeClient:
         size: float,
         client_id: int,
         good_til_block: int,
-        time_in_force: OrderExecution,
+        time_in_force: Order_TimeInForce,
         reduce_only: bool,
     ) -> SubmittedTx:
         '''
@@ -334,7 +335,7 @@ class CompositeClient:
         price: float,
         size: float,
         client_id: int,
-        time_in_force: OrderExecution,
+        time_in_force: Order_TimeInForce,
         good_til_block: int,
         reduce_only: bool,
     ) -> MsgPlaceOrder:

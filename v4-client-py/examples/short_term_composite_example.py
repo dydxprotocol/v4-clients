@@ -10,6 +10,7 @@ from v4_client_py.clients import CompositeClient, Subaccount
 from v4_client_py.clients.constants import BECH32_PREFIX, Network
 
 from v4_client_py.clients.helpers.chain_helpers import (
+    Order_TimeInForce,
     OrderType, 
     OrderSide, 
     OrderTimeInForce, 
@@ -27,60 +28,51 @@ async def main() -> None:
         network,
     )
     subaccount = Subaccount(wallet, 0)
-    ordersParams = loadJson('human_readable_orders.json')
+    ordersParams = loadJson('human_readable_short_term_orders.json')
     for orderParams in ordersParams:
-        type = OrderType[orderParams["type"]]
         side = OrderSide[orderParams["side"]]
-        time_in_force_string = orderParams.get("timeInForce", "GTT")
-        time_in_force = OrderTimeInForce[time_in_force_string]
+
+        # Get the expiration block.
+        current_block = client.get_current_block()
+        next_valid_block_height = current_block + 1
+        # Note, you can change this to any number between `next_valid_block_height` to `next_valid_block_height + SHORT_BLOCK_WINDOW`
+        good_til_block = next_valid_block_height + 3
+
+        time_in_force = orderExecutionToTimeInForce(orderParams['timeInForce'])
+
         price = orderParams.get("price", 1350)
-        time_in_force_seconds = 60 if time_in_force == OrderTimeInForce.GTT else 0
-        post_only = orderParams.get("postOnly", False)
         try:
-            tx = client.place_order(
+            tx = client.place_short_term_order(
                 subaccount,
                 market='ETH-USD',
-                type=type,
                 side=side,
                 price=price,
                 size=0.01,
                 client_id=randrange(0, 100000000),
+                good_til_block=good_til_block,
                 time_in_force=time_in_force,
-                good_til_time_in_seconds=time_in_force_seconds,
-                execution=OrderExecution.DEFAULT,
-                post_only=post_only,
                 reduce_only=False
             )
             print('**Order Tx**')
-            print(tx)
+            print(tx.tx_hash)
         except Exception as error:
             print('**Order Failed**')
             print(str(error))
 
         await asyncio.sleep(5)  # wait for placeOrder to complete
 
+def orderExecutionToTimeInForce(orderExecution: str) -> Order_TimeInForce:
+    if orderExecution == "DEFAULT":
+        return Order_TimeInForce.TIME_IN_FORCE_UNSPECIFIED
+    elif orderExecution == "FOK":
+        return Order_TimeInForce.TIME_IN_FORCE_FILL_OR_KILL
+    elif orderExecution == "IOC":
+        return Order_TimeInForce.TIME_IN_FORCE_IOC
+    elif orderExecution == "POST_ONLY":
+        return Order_TimeInForce.TIME_IN_FORCE_POST_ONLY
+    else:
+        raise ValueError('Unrecognized order execution')
 
-    try:
-        tx = client.place_order(
-            subaccount,
-            market='ETH-USD',
-            type=OrderType.STOP_MARKET,
-            side=OrderSide.SELL,
-            price=900.0,
-            size=0.01,
-            client_id=randrange(0, 100000000),
-            time_in_force=OrderTimeInForce.GTT,
-            good_til_time_in_seconds=1000,
-            execution=OrderExecution.IOC,
-            post_only=False,
-            reduce_only=False,
-            trigger_price=1000,
-        )
-        print('**Order Tx**')
-        print(tx)
-    except Exception as error:
-        print('**Order Failed**')
-        print(str(error))
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
     asyncio.get_event_loop().run_until_complete(main())
