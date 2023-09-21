@@ -36,13 +36,16 @@ async function test(): Promise<void> {
 
       const timeInForce = orderExecutionToTimeInForce(orderParams.timeInForce);
 
+      // uint32
+      const clientId = randomInt(2 ** 32 - 1);
+
       const tx = await client.placeShortTermOrder(
         subaccount,
         'ETH-USD',
         side,
         price,
         0.01,
-        randomInt(100_000_000),
+        clientId,
         timeInForce,
         goodTilBlock,
         false,
