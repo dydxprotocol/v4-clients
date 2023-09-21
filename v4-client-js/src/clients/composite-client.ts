@@ -1,6 +1,7 @@
 import { EncodeObject } from '@cosmjs/proto-signing';
 import { GasPrice, IndexedTx, StdFee } from '@cosmjs/stargate';
 import { BroadcastTxAsyncResponse, BroadcastTxSyncResponse } from '@cosmjs/tendermint-rpc/build/tendermint37';
+import { Order_ConditionType, Order_TimeInForce } from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/clob/order';
 import Long from 'long';
 import protobuf from 'protobufjs';
 
@@ -8,7 +9,7 @@ import { OrderFlags } from '../types';
 import {
   DYDX_DENOM,
   GAS_PRICE,
-  Network, OrderExecution, OrderSide, OrderTimeInForce, OrderType,
+  Network, OrderExecution, OrderSide, OrderTimeInForce, OrderType, SHORT_BLOCK_WINDOW,
 } from './constants';
 import {
   calculateQuantums,
@@ -21,6 +22,7 @@ import {
   calculateConditionalOrderTriggerSubticks,
 } from './helpers/chain-helpers';
 import { IndexerClient } from './indexer-client';
+import { UserError } from './lib/errors';
 import LocalWallet from './modules/local-wallet';
 import { Subaccount } from './subaccount';
 import { ValidatorClient } from './validator-client';
@@ -158,6 +160,27 @@ export class CompositeClient {
   }
 
   /**
+   * @description Calculate the goodTilBlock value for a SHORT_TERM order
+   *
+   * @param goodTilBlock Number of blocks from the current block height the order will
+   * be valid for.
+   *
+   * @throws UnexpectedClientError if a malformed response is returned with no GRPC error
+   * at any point.
+   */
+  private async validateGoodTilBlock(goodTilBlock: number): Promise<void> {
+    const height = await this.validatorClient.get.latestBlockHeight();
+    const nextValidBlockHeight = height + 1;
+    const lowerBound = nextValidBlockHeight;
+    const upperBound = nextValidBlockHeight + SHORT_BLOCK_WINDOW;
+    if (goodTilBlock < lowerBound || goodTilBlock > upperBound) {
+      throw new UserError(`Invalid Short-Term order GoodTilBlock.
+        Should be greater-than-or-equal-to ${lowerBound} and less-than-or-equal-to ${upperBound}.
+        Provided good til block: ${goodTilBlock}`);
+    }
+  }
+
+  /**
      * @description Calculate the goodTilBlockTime value for a LONG_TERM order
      * the calling function is responsible for creating the messages.
      *
@@ -173,6 +196,60 @@ export class CompositeClient {
     const interval = goodTilTimeInSeconds * millisecondsPerSecond;
     const future = new Date(now.valueOf() + interval);
     return Math.round(future.getTime() / 1000);
+  }
+
+  /**
+   * @description Place a short term order with human readable input.
+   *
+   * Use human readable form of input, including price and size
+   * The quantum and subticks are calculated and submitted
+   *
+   * @param subaccount The subaccount to place the order under
+   * @param marketId The market to place the order on
+   * @param side The side of the order to place
+   * @param price The price of the order to place
+   * @param size The size of the order to place
+   * @param clientId The client id of the order to place
+   * @param timeInForce The time in force of the order to place
+   * @param goodTilBlock The goodTilBlock of the order to place
+   * @param reduceOnly The reduceOnly of the order to place
+   *
+   *
+   * @throws UnexpectedClientError if a malformed response is returned with no GRPC error
+   * at any point.
+   * @returns The transaction hash.
+   */
+  async placeShortTermOrder(
+    subaccount: Subaccount,
+    marketId: string,
+    side: OrderSide,
+    price: number,
+    size: number,
+    clientId: number,
+    goodTilBlock: number,
+    timeInForce: Order_TimeInForce,
+    reduceOnly: boolean,
+  ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
+    const msgs: Promise<EncodeObject[]> = new Promise((resolve) => {
+      const msg = this.placeShortTermOrderMessage(
+        subaccount,
+        marketId,
+        side,
+        price,
+        size,
+        clientId,
+        timeInForce,
+        goodTilBlock,
+        reduceOnly,
+      );
+      msg.then((it) => resolve([it])).catch((err) => {
+        console.log(err);
+      });
+    });
+    return this.send(
+      subaccount.wallet,
+      () => msgs,
+      true);
   }
 
   /**
@@ -338,6 +415,79 @@ export class CompositeClient {
       clientMetadata,
       conditionalType,
       conditionalOrderTriggerSubticks,
+    );
+  }
+
+  /**
+     * @description Calculate and create the short term place order message
+     *
+     * Use human readable form of input, including price and size
+     * The quantum and subticks are calculated and submitted
+     *
+     * @param subaccount The subaccount to place the order under
+     * @param marketId The market to place the order on
+     * @param side The side of the order to place
+     * @param price The price of the order to place
+     * @param size The size of the order to place
+     * @param clientId The client id of the order to place
+     * @param timeInForce The time in force of the order to place
+     * @param goodTilBlock The goodTilBlock of the order to place
+     * @param reduceOnly The reduceOnly of the order to place
+     *
+     *
+     * @throws UnexpectedClientError if a malformed response is returned with no GRPC error
+     * at any point.
+     * @returns The message to be passed into the protocol
+     */
+  private async placeShortTermOrderMessage(
+    subaccount: Subaccount,
+    marketId: string,
+    side: OrderSide,
+    price: number,
+    size: number,
+    clientId: number,
+    goodTilBlock: number,
+    timeInForce: Order_TimeInForce,
+    reduceOnly: boolean,
+  ): Promise<EncodeObject> {
+    await this.validateGoodTilBlock(goodTilBlock);
+
+    const marketsResponse = await this.indexerClient.markets.getPerpetualMarkets(marketId);
+    const market = marketsResponse.markets[marketId];
+    const clobPairId = market.clobPairId;
+    const atomicResolution = market.atomicResolution;
+    const stepBaseQuantums = market.stepBaseQuantums;
+    const quantumConversionExponent = market.quantumConversionExponent;
+    const subticksPerTick = market.subticksPerTick;
+    const orderSide = calculateSide(side);
+    const quantums = calculateQuantums(
+      size,
+      atomicResolution,
+      stepBaseQuantums,
+    );
+    const subticks = calculateSubticks(
+      price,
+      atomicResolution,
+      quantumConversionExponent,
+      subticksPerTick,
+    );
+    const orderFlags = OrderFlags.SHORT_TERM;
+    return this.validatorClient.post.composer.composeMsgPlaceOrder(
+      subaccount.address,
+      subaccount.subaccountNumber,
+      clientId,
+      clobPairId,
+      orderFlags,
+      goodTilBlock,
+      0, // Short term orders use goodTilBlock.
+      orderSide,
+      quantums,
+      subticks,
+      timeInForce,
+      reduceOnly,
+      0, // Client metadata is 0 for short term orders.
+      Order_ConditionType.CONDITION_TYPE_UNSPECIFIED, // Short term orders cannot be conditional.
+      Long.fromInt(0), // Short term orders cannot be conditional.
     );
   }
 
