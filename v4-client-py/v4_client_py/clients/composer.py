@@ -6,6 +6,8 @@ from v4_proto.dydxprotocol.subaccounts.subaccount_pb2 import SubaccountId
 from v4_proto.dydxprotocol.sending.transfer_pb2 import Transfer, MsgWithdrawFromSubaccount, MsgDepositToSubaccount
 from v4_proto.dydxprotocol.sending.tx_pb2 import MsgCreateTransfer
 
+from v4_client_py.clients.helpers.chain_helpers import is_order_flag_stateful_order
+
 
 class Composer:
     def compose_msg_place_order(
@@ -77,6 +79,15 @@ class Composer:
         :returns: Place order message, to be sent to chain
         '''
         subaccount_id = SubaccountId(owner=address, number=subaccount_number)
+
+        is_stateful_order = is_order_flag_stateful_order(order_flags)
+        if is_stateful_order:
+            if good_til_block_time == 0:
+                raise ValueError('stateful orders must have a valid GTBT')
+        else:
+            if good_til_block == 0:
+                raise ValueError('Short term orders must have a valid GTB')
+
         order_id = OrderId(
             subaccount_id=subaccount_id, 
             client_id=client_id, 
@@ -147,12 +158,27 @@ class Composer:
         :returns: Tx information
         '''
         subaccount_id = SubaccountId(owner=address, number=subaccount_number)
+        is_stateful_order = is_order_flag_stateful_order(order_flags)
+
+        if is_stateful_order:
+            if good_til_block_time == 0:
+                raise ValueError('stateful orders must have a valid GTBT')
+        else:
+            if good_til_block == 0:
+                raise ValueError('Short term orders must have a valid GTB')
+
         order_id = OrderId(
             subaccount_id=subaccount_id, 
             client_id=client_id, 
             order_flags=order_flags, 
             clob_pair_id=int(clob_pair_id)
         )
+
+        if is_stateful_order:
+            return MsgCancelOrder(
+                order_id=order_id, 
+                good_til_block_time=good_til_block_time
+            )
         return MsgCancelOrder(
             order_id=order_id, 
             good_til_block=good_til_block

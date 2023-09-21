@@ -68,6 +68,17 @@ SHORT_BLOCK_WINDOW = 20
 
 QUOTE_QUANTUMS_ATOMIC_RESOLUTION = -6
 
+def is_order_flag_stateful_order(
+    order_flag: int
+) -> bool:
+    if order_flag == ORDER_FLAGS_SHORT_TERM:
+        return False
+    elif order_flag == ORDER_FLAGS_LONG_TERM:
+        return True
+    elif order_flag == ORDER_FLAGS_CONDITIONAL:
+        return True
+    else:
+        raise ValueError('Invalid order flag')
 
 def round(
     number: float,
