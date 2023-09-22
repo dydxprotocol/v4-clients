@@ -931,3 +931,18 @@ export async function getDelegatorUnbondingDelegations(
     return wrappedError(e);
   }
 }
+
+export async function getMarketPrice(
+  marketId: number,
+): Promise<string> {
+  try {
+    const client = globalThis.client;
+    if (client === undefined) {
+      throw new UserError('client is not connected. Call connectClient() first');
+    }
+    const marketPrice = await client.validatorClient.get.getPrice(marketId);
+    return encodeJson(marketPrice);
+  } catch (e) {
+    return wrappedError(e);
+  }
+}
