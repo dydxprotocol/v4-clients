@@ -59,7 +59,7 @@ async def main() -> None:
             'ETH-USD',
             ORDER_FLAGS_SHORT_TERM,
             good_til_time_in_seconds=0, # short term orders use GTB.
-            good_til_block=good_til_block+10,
+            good_til_block=good_til_block, # GTB should be the same or greater than order to cancel
         )
         print('**Cancel Short Term Order Tx**')
         print(tx.tx_hash)

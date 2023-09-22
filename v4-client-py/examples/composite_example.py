@@ -34,9 +34,16 @@ async def main() -> None:
         time_in_force_string = orderParams.get("timeInForce", "GTT")
         time_in_force = OrderTimeInForce[time_in_force_string]
         price = orderParams.get("price", 1350)
-        time_in_force_seconds = 60 if time_in_force == OrderTimeInForce.GTT else 0
-        latest_block = client.validator_client.get.latest_block()
-        good_til_block = latest_block.block.header.height + 10
+
+        if time_in_force == OrderTimeInForce.GTT:
+            time_in_force_seconds = 60
+            good_til_block = 0
+        else:
+            latest_block = client.validator_client.get.latest_block()
+            next_valid_block = latest_block.block.header.height + 1
+            good_til_block = next_valid_block + 10
+            time_in_force_seconds = 0
+
         post_only = orderParams.get("postOnly", False)
         try:
             tx = client.place_order(

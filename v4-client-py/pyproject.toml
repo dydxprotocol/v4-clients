@@ -5,7 +5,7 @@ package-dir = {"" = "v4_client_py"}
 
 [tool.poetry]
 name = "v4-client-py"
-version = "0.6.7"
+version = "0.6.8"
 description = "dYdX v4 Client"
 authors = ["John Huang <contact@dydx.exchange>"]
 license = "BSL-1.1"
