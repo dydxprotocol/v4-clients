@@ -1,3 +1,4 @@
+from typing import Tuple
 import grpc
 
 from datetime import datetime, timedelta
@@ -17,8 +18,6 @@ from v4_client_py.clients.helpers.chain_helpers import (
     calculate_time_in_force, 
     calculate_order_flags,
     ORDER_FLAGS_SHORT_TERM,
-    ORDER_FLAGS_LONG_TERM,
-    ORDER_FLAGS_CONDITIONAL,
     SHORT_BLOCK_WINDOW,
     is_order_flag_stateful_order,
 )
@@ -46,15 +45,27 @@ class CompositeClient:
         response = self.validator_client.get.latest_block()
         return response.block.header.height
 
-    def calculate_good_til_block(self) -> int:
-        response = self.validator_client.get.latest_block()
-        return response.block.header.height + 3
-
     def calculate_good_til_block_time(self, good_til_time_in_seconds: int) -> int:
         now = datetime.now()
         interval = timedelta(seconds=good_til_time_in_seconds)
         future = now + interval
         return int(future.timestamp())
+
+    # Helper function to generate the corresponding
+    # good_til_block, good_til_block_time fields to construct an order.
+    # good_til_block is the exact block number the short term order will expire on.
+    # good_til_time_in_seconds is the number of seconds until the stateful order expires.
+    def generate_good_til_fields(
+        self,
+        order_flags: int,
+        good_til_block: int,
+        good_til_time_in_seconds: int,
+    ) -> Tuple[int, int]:
+        is_stateful_order = is_order_flag_stateful_order(order_flags)
+        if is_stateful_order:
+            return 0, self.calculate_good_til_block_time(good_til_time_in_seconds)
+        else:
+            return good_til_block, 0
 
     def validate_good_til_block(self, good_til_block: int) -> None:
         response = self.validator_client.get.latest_block()
@@ -83,6 +94,7 @@ class CompositeClient:
         size: float,
         client_id: int,
         time_in_force: OrderTimeInForce,
+        good_til_block: int,
         good_til_time_in_seconds: int,
         execution: OrderExecution,
         post_only: bool,
@@ -113,6 +125,9 @@ class CompositeClient:
         :param time_in_force: required
         :type time_in_force: OrderTimeInForce
 
+        :param good_til_block: required
+        :type good_til_block: int
+
         :param good_til_time_in_seconds: required
         :type good_til_time_in_seconds: int
 
@@ -136,6 +151,7 @@ class CompositeClient:
             size=size,
             client_id=client_id,
             time_in_force=time_in_force,
+            good_til_block=good_til_block,
             good_til_time_in_seconds=good_til_time_in_seconds,
             execution=execution,
             post_only=post_only,
@@ -280,6 +296,7 @@ class CompositeClient:
         size: float,
         client_id: int,
         time_in_force: OrderTimeInForce,
+        good_til_block: int,
         good_til_time_in_seconds: int,
         execution: OrderExecution,
         post_only: bool,
@@ -298,8 +315,11 @@ class CompositeClient:
         subticks = calculate_subticks(price, atomic_resolution, quantum_conversion_exponent, subticks_per_tick)
         order_flags = calculate_order_flags(type, time_in_force)
         time_in_force = calculate_time_in_force(type, time_in_force, execution, post_only)
-        good_til_block = self.calculate_good_til_block() if order_flags == ORDER_FLAGS_SHORT_TERM else 0
-        good_til_block_time = self.calculate_good_til_block_time(good_til_time_in_seconds) if (order_flags == ORDER_FLAGS_LONG_TERM or order_flags == ORDER_FLAGS_CONDITIONAL) else 0
+        good_til_block, good_til_block_time = self.generate_good_til_fields(
+            order_flags,
+            good_til_block,
+            good_til_time_in_seconds,
+        )
         client_metadata = self.calculate_client_metadata(type)
         condition_type = self.calculate_condition_type(type)
         conditional_order_trigger_subticks = self.calculate_conditional_order_trigger_subticks(
@@ -398,10 +418,10 @@ class CompositeClient:
         :param order_flags: required
         :type order_flags: int
 
-        :param good_til_block: optional
+        :param good_til_block: required
         :type good_til_block: int
 
-        :param good_til_block_time: optional
+        :param good_til_block_time: required
         :type good_til_block_time: int
 
         :returns: Tx information
@@ -472,8 +492,11 @@ class CompositeClient:
         market = markets_response.data['markets'][market]
         clob_pair_id = market['clobPairId']
 
-        good_til_block = self.calculate_good_til_block() if order_flags == ORDER_FLAGS_SHORT_TERM else 0
-        good_til_block_time = self.calculate_good_til_block_time(good_til_time_in_seconds) if (order_flags == ORDER_FLAGS_LONG_TERM or order_flags == ORDER_FLAGS_CONDITIONAL) else 0
+        good_til_block, good_til_block_time = self.generate_good_til_fields(
+            order_flags,
+            good_til_block,
+            good_til_time_in_seconds,
+        )
 
         return self.validator_client.post.composer.compose_msg_cancel_order(
             address=subaccount.address,

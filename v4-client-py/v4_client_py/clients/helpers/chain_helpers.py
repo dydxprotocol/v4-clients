@@ -80,6 +80,38 @@ def is_order_flag_stateful_order(
     else:
         raise ValueError('Invalid order flag')
 
+def validate_good_til_fields(
+    is_stateful_order: bool,
+    good_til_block_time: int,
+    good_til_block: int,
+):
+    if is_stateful_order:
+        if good_til_block_time == 0:
+            raise ValueError(
+                "stateful orders must have a valid GTBT. GTBT: ${0}".format(
+                    good_til_block_time,
+                )
+            )
+        if good_til_block != 0:
+            raise ValueError(
+                "stateful order uses GTBT. GTB must be zero. GTB: ${0}".format(
+                    good_til_block,
+                )
+            )
+    else:
+        if good_til_block == 0:
+            raise ValueError(
+                "short term orders must have a valid GTB. GTB: ${0}".format(
+                    good_til_block,
+                )
+            )
+        if good_til_block_time != 0:
+            raise ValueError(
+                "stateful order uses GTB. GTBT must be zero. GTBT: ${0}".format(
+                    good_til_block_time,
+                )
+            )
+
 def round(
     number: float,
     base: int

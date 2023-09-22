@@ -6,7 +6,7 @@ from v4_proto.dydxprotocol.subaccounts.subaccount_pb2 import SubaccountId
 from v4_proto.dydxprotocol.sending.transfer_pb2 import Transfer, MsgWithdrawFromSubaccount, MsgDepositToSubaccount
 from v4_proto.dydxprotocol.sending.tx_pb2 import MsgCreateTransfer
 
-from v4_client_py.clients.helpers.chain_helpers import is_order_flag_stateful_order
+from v4_client_py.clients.helpers.chain_helpers import is_order_flag_stateful_order, validate_good_til_fields
 
 
 class Composer:
@@ -81,12 +81,7 @@ class Composer:
         subaccount_id = SubaccountId(owner=address, number=subaccount_number)
 
         is_stateful_order = is_order_flag_stateful_order(order_flags)
-        if is_stateful_order:
-            if good_til_block_time == 0:
-                raise ValueError('stateful orders must have a valid GTBT')
-        else:
-            if good_til_block == 0:
-                raise ValueError('Short term orders must have a valid GTB')
+        validate_good_til_fields(is_stateful_order, good_til_block_time, good_til_block)
 
         order_id = OrderId(
             subaccount_id=subaccount_id, 
@@ -159,13 +154,7 @@ class Composer:
         '''
         subaccount_id = SubaccountId(owner=address, number=subaccount_number)
         is_stateful_order = is_order_flag_stateful_order(order_flags)
-
-        if is_stateful_order:
-            if good_til_block_time == 0:
-                raise ValueError('stateful orders must have a valid GTBT')
-        else:
-            if good_til_block == 0:
-                raise ValueError('Short term orders must have a valid GTB')
+        validate_good_til_fields(is_stateful_order, good_til_block_time, good_til_block)
 
         order_id = OrderId(
             subaccount_id=subaccount_id, 

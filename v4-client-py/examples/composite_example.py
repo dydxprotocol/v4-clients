@@ -35,6 +35,8 @@ async def main() -> None:
         time_in_force = OrderTimeInForce[time_in_force_string]
         price = orderParams.get("price", 1350)
         time_in_force_seconds = 60 if time_in_force == OrderTimeInForce.GTT else 0
+        latest_block = client.validator_client.get.latest_block()
+        good_til_block = latest_block.block.header.height + 10
         post_only = orderParams.get("postOnly", False)
         try:
             tx = client.place_order(
@@ -46,6 +48,7 @@ async def main() -> None:
                 size=0.01,
                 client_id=randrange(0, 100000000),
                 time_in_force=time_in_force,
+                good_til_block=good_til_block,
                 good_til_time_in_seconds=time_in_force_seconds,
                 execution=OrderExecution.DEFAULT,
                 post_only=post_only,
@@ -70,6 +73,7 @@ async def main() -> None:
             size=0.01,
             client_id=randrange(0, 100000000),
             time_in_force=OrderTimeInForce.GTT,
+            good_til_block=0, # long term orders use GTBT
             good_til_time_in_seconds=1000,
             execution=OrderExecution.IOC,
             post_only=False,
