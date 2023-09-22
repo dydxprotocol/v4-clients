@@ -16,7 +16,7 @@ from v4_client_py.clients.helpers.chain_helpers import (
     OrderTimeInForce, 
     OrderExecution,
 )
-from examples.utils import loadJson
+from examples.utils import loadJson, orderExecutionToTimeInForce
 
 from tests.constants import DYDX_TEST_MNEMONIC
 
@@ -36,7 +36,7 @@ async def main() -> None:
         current_block = client.get_current_block()
         next_valid_block_height = current_block + 1
         # Note, you can change this to any number between `next_valid_block_height` to `next_valid_block_height + SHORT_BLOCK_WINDOW`
-        good_til_block = next_valid_block_height + 3
+        good_til_block = next_valid_block_height + 10
 
         time_in_force = orderExecutionToTimeInForce(orderParams['timeInForce'])
 
@@ -63,18 +63,6 @@ async def main() -> None:
             print(str(error))
 
         await asyncio.sleep(5)  # wait for placeOrder to complete
-
-def orderExecutionToTimeInForce(orderExecution: str) -> Order_TimeInForce:
-    if orderExecution == "DEFAULT":
-        return Order_TimeInForce.TIME_IN_FORCE_UNSPECIFIED
-    elif orderExecution == "FOK":
-        return Order_TimeInForce.TIME_IN_FORCE_FILL_OR_KILL
-    elif orderExecution == "IOC":
-        return Order_TimeInForce.TIME_IN_FORCE_IOC
-    elif orderExecution == "POST_ONLY":
-        return Order_TimeInForce.TIME_IN_FORCE_POST_ONLY
-    else:
-        raise ValueError('Unrecognized order execution')
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
