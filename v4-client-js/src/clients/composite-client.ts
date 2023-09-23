@@ -26,6 +26,7 @@ import { UserError } from './lib/errors';
 import LocalWallet from './modules/local-wallet';
 import { Subaccount } from './subaccount';
 import { ValidatorClient } from './validator-client';
+import { isStatefulOrder } from '../lib/validation';
 
 // Required for encoding and decoding queries that are of type Long.
 // Must be done once but since the individal modules should be usable
@@ -160,13 +161,13 @@ export class CompositeClient {
   }
 
   /**
-   * @description Calculate the goodTilBlock value for a SHORT_TERM order
+   * @description Validate the goodTilBlock value for a SHORT_TERM order
    *
    * @param goodTilBlock Number of blocks from the current block height the order will
    * be valid for.
    *
-   * @throws UnexpectedClientError if a malformed response is returned with no GRPC error
-   * at any point.
+   * @throws UserError if the goodTilBlock value is not valid given latest block height and
+   * SHORT_BLOCK_WINDOW.
    */
   private async validateGoodTilBlock(goodTilBlock: number): Promise<void> {
     const height = await this.validatorClient.get.latestBlockHeight();
@@ -497,7 +498,7 @@ export class CompositeClient {
      * @param subaccount The subaccount to cancel the order from
      * @param clientId The client id of the order to cancel
      * @param orderFlags The order flags of the order to cancel
-     * @param clobPairId The clob pair id of the order to cancel
+     * @param marketId The market to cancel the order on
      * @param goodTilBlock The goodTilBlock of the order to cancel
      * @param goodTilBlockTime The goodTilBlockTime of the order to cancel
      *
@@ -509,10 +510,33 @@ export class CompositeClient {
     subaccount: Subaccount,
     clientId: number,
     orderFlags: OrderFlags,
-    clobPairId: number,
-    goodTilBlock?: number,
-    goodTilBlockTime?: number,
+    marketId: string,
+    goodTilBlock: number,
+    goodTilTimeInSeconds: number,
   ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
+
+    const marketsResponse = await this.indexerClient.markets.getPerpetualMarkets(marketId);
+    const market = marketsResponse.markets[marketId];
+    const clobPairId = market.clobPairId;
+
+    let goodTilBlockTime;
+    if (isStatefulOrder(orderFlags)) {
+      if (goodTilTimeInSeconds === 0) {
+        throw new Error('goodTilTimeInSeconds must be set for LONG_TERM or CONDITIONAL order');
+      }
+      if (goodTilBlock !== 0) {
+        throw new Error('Stateful orders use GTBT instead of GTB.');
+      }
+      goodTilBlockTime = this.calculateGoodTilBlockTime(goodTilTimeInSeconds);
+    } else {
+      if (goodTilBlock === 0) {
+        throw new Error('goodTilBlock must be set for SHORT_TERM order');
+      }
+      if (goodTilTimeInSeconds !== 0) {
+        throw new Error('Short term orders use GTB instead of GTBT.');
+      }
+    }
+
     return this.validatorClient.post.cancelOrder(
       subaccount,
       clientId,

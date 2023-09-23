@@ -131,7 +131,7 @@ function verifyNumberIsUint32(num: number): boolean {
   return num >= 0 && num <= MAX_UINT_32;
 }
 
-function isStatefulOrder(orderFlags: OrderFlags): boolean {
+export function isStatefulOrder(orderFlags: OrderFlags): boolean {
   return orderFlags === OrderFlags.LONG_TERM || orderFlags === OrderFlags.CONDITIONAL;
 }
 

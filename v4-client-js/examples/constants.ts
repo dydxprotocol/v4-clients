@@ -13,6 +13,8 @@ export const PERPETUAL_PAIR_BTC_USD: number = 0;
 const quantums: Long = new Long(1_000_000_000);
 const subticks: Long = new Long(1_000_000_000);
 
+export const MAX_CLIENT_ID = 2 ** 32 - 1;
+
 // PlaceOrder variables
 export const defaultOrder: IPlaceOrder = {
   clientId: 0,
