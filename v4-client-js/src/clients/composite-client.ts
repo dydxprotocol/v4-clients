@@ -5,6 +5,7 @@ import { Order_ConditionType, Order_TimeInForce } from '@dydxprotocol/v4-proto/s
 import Long from 'long';
 import protobuf from 'protobufjs';
 
+import { isStatefulOrder } from '../lib/validation';
 import { OrderFlags } from '../types';
 import {
   DYDX_DENOM,
@@ -26,7 +27,6 @@ import { UserError } from './lib/errors';
 import LocalWallet from './modules/local-wallet';
 import { Subaccount } from './subaccount';
 import { ValidatorClient } from './validator-client';
-import { isStatefulOrder } from '../lib/validation';
 
 // Required for encoding and decoding queries that are of type Long.
 // Must be done once but since the individal modules should be usable
@@ -239,8 +239,8 @@ export class CompositeClient {
         price,
         size,
         clientId,
-        timeInForce,
         goodTilBlock,
+        timeInForce,
         reduceOnly,
       );
       msg.then((it) => resolve([it])).catch((err) => {
