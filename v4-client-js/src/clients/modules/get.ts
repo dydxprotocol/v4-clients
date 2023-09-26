@@ -413,10 +413,10 @@ export class Get {
    * @returns Information on all delayed complete bridge messages.
    */
   async getDelayedCompleteBridgeMessages(
-    address?: string,
+    address: string = '',
   ): Promise<BridgeModule.QueryDelayedCompleteBridgeMessagesResponse> {
     const requestData: Uint8Array = Uint8Array.from(
-      BridgeModule.QueryDelayedCompleteBridgeMessagesRequest.encode({ address: address ?? '' }).finish(),
+      BridgeModule.QueryDelayedCompleteBridgeMessagesRequest.encode({ address }).finish(),
     );
 
     const data: Uint8Array = await this.sendQuery(
