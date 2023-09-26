@@ -17,6 +17,7 @@ import protobuf from 'protobufjs';
 import { PAGE_REQUEST } from '../constants';
 import { UnexpectedClientError } from '../lib/errors';
 import {
+  BridgeModule,
   ClobModule,
   FeeTierModule,
   PerpetualsModule,
@@ -404,6 +405,25 @@ export class Get {
       requestData,
     );
     return StakingModule.QueryDelegatorUnbondingDelegationsResponse.decode(data);
+  }
+
+  /**
+   * @description Get all delayed complete bridge messages, optionally filtered by address.
+   *
+   * @returns Information on all delayed complete bridge messages.
+   */
+  async getDelayedCompleteBridgeMessages(
+    address: string = '',
+  ): Promise<BridgeModule.QueryDelayedCompleteBridgeMessagesResponse> {
+    const requestData: Uint8Array = Uint8Array.from(
+      BridgeModule.QueryDelayedCompleteBridgeMessagesRequest.encode({ address }).finish(),
+    );
+
+    const data: Uint8Array = await this.sendQuery(
+      '/dydxprotocol.bridge.Query/QueryDelayedCompleteBridgeMessages',
+      requestData,
+    );
+    return BridgeModule.QueryDelayedCompleteBridgeMessagesResponse.decode(data);
   }
 
   private async sendQuery(requestUrl: string, requestData: Uint8Array): Promise<Uint8Array> {
