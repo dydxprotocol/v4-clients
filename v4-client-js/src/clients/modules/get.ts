@@ -420,7 +420,7 @@ export class Get {
     );
 
     const data: Uint8Array = await this.sendQuery(
-      '/dydxprotocol.bridge.Query/QueryDelayedCompleteBridgeMessages',
+      '/dydxprotocol.bridge.Query/DelayedCompleteBridgeMessages',
       requestData,
     );
     return BridgeModule.QueryDelayedCompleteBridgeMessagesResponse.decode(data);
