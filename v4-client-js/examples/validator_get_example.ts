@@ -117,6 +117,24 @@ async function test(): Promise<void> {
   } catch (error) {
     console.log(JSON.stringify(error.message));
   }
+
+  try {
+    const delayedCompleteBridgeMessagesParams = await client
+      .get.getDelayedCompleteBridgeMessages();
+    console.log('All delayed complete bridge messages');
+    console.log(JSON.stringify(delayedCompleteBridgeMessagesParams));
+  } catch (error) {
+    console.log(JSON.stringify(error.message));
+  }
+
+  try {
+    const delayedCompleteBridgeMessagesParams = await client
+      .get.getDelayedCompleteBridgeMessages(DYDX_TEST_ADDRESS);
+    console.log('Filtered delayed complete bridge messages');
+    console.log(JSON.stringify(delayedCompleteBridgeMessagesParams));
+  } catch (error) {
+    console.log(JSON.stringify(error.message));
+  }
 }
 
 test().then(() => {
