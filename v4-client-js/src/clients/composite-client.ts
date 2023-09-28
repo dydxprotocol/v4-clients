@@ -529,15 +529,15 @@ export class CompositeClient {
         throw new Error('goodTilTimeInSeconds must be set for LONG_TERM or CONDITIONAL order');
       }
       if (goodTilBlock !== 0) {
-        throw new Error('Stateful orders use GTBT instead of GTB.');
+        throw new Error('goodTIlBlock should be zero since LONG_TERM or CONDITIONAL orders use goodTilTimeInSeconds instead of goodTilBlock.');
       }
       goodTilBlockTime = this.calculateGoodTilBlockTime(goodTilTimeInSeconds);
     } else {
       if (goodTilBlock === 0) {
-        throw new Error('goodTilBlock must be set for SHORT_TERM order');
+        throw new Error('goodTilBlock must be non-zero for SHORT_TERM orders');
       }
       if (goodTilTimeInSeconds !== 0) {
-        throw new Error('Short term orders use GTB instead of GTBT.');
+        throw new Error('goodTilTimeInSeconds should be zero since SHORT_TERM orders use goodTilBlock instead of goodTilTimeInSeconds.');
       }
     }
 
