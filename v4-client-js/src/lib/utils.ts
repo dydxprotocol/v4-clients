@@ -34,3 +34,12 @@ export function clientIdFromString(
   // We must coerce this into a 32-bit unsigned integer.
   return hash + (2 ** 31);
 }
+
+/**
+ * Pauses the execution of the program for a specified time.
+ * @param ms - The number of milliseconds to pause the program.
+ * @returns A promise that resolves after the specified number of milliseconds.
+ */
+export async function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
