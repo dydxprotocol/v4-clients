@@ -21,6 +21,14 @@ async function test(): Promise<void> {
   console.log(client);
   const subaccount = new Subaccount(wallet, 0);
 
+  /*
+  Note this example places a stateful order.
+  Programmatic traders should generally not use stateful orders for following reasons:
+  - Stateful orders received out of order by validators will fail sequence number validation and be dropped.
+  - Stateful orders have worse time priority since they are only matched after they are included on the block.
+  - Stateful order rate limits are more restrictive than Short-Term orders, specifically max 2 per block / 20 per 100 blocks.
+  - Stateful orders can only be canceled after they’ve been included in a block.
+  */
   const longTermOrderClientId = randomInt(MAX_CLIENT_ID);
   try {
     // place a long term order

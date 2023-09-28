@@ -5,7 +5,7 @@ import { Order_ConditionType, Order_TimeInForce } from '@dydxprotocol/v4-proto/s
 import Long from 'long';
 import protobuf from 'protobufjs';
 
-import { isStatefulOrder } from '../lib/validation';
+import { isStatefulOrder, verifyOrderFlags } from '../lib/validation';
 import { OrderFlags } from '../types';
 import {
   DYDX_DENOM,
@@ -518,6 +518,10 @@ export class CompositeClient {
     const marketsResponse = await this.indexerClient.markets.getPerpetualMarkets(marketId);
     const market = marketsResponse.markets[marketId];
     const clobPairId = market.clobPairId;
+
+    if (!verifyOrderFlags(orderFlags)) {
+      throw new Error('Invalid order flags: ' + orderFlags);
+    }
 
     let goodTilBlockTime;
     if (isStatefulOrder(orderFlags)) {
