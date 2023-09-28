@@ -520,7 +520,7 @@ export class CompositeClient {
     const clobPairId = market.clobPairId;
 
     if (!verifyOrderFlags(orderFlags)) {
-      throw new Error('Invalid order flags: ' + orderFlags);
+      throw new Error(`Invalid order flags: ${orderFlags}`);
     }
 
     let goodTilBlockTime;
