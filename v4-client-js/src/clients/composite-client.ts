@@ -529,7 +529,10 @@ export class CompositeClient {
         throw new Error('goodTilTimeInSeconds must be set for LONG_TERM or CONDITIONAL order');
       }
       if (goodTilBlock !== 0) {
-        throw new Error('goodTIlBlock should be zero since LONG_TERM or CONDITIONAL orders use goodTilTimeInSeconds instead of goodTilBlock.');
+        throw new Error(
+          'goodTilBlock should be zero since LONG_TERM or CONDITIONAL orders ' +
+          'use goodTilTimeInSeconds instead of goodTilBlock.',
+        );
       }
       goodTilBlockTime = this.calculateGoodTilBlockTime(goodTilTimeInSeconds);
     } else {
