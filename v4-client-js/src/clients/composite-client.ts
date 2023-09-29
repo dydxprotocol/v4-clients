@@ -5,6 +5,7 @@ import { Order_ConditionType, Order_TimeInForce } from '@dydxprotocol/v4-proto/s
 import Long from 'long';
 import protobuf from 'protobufjs';
 
+import { isStatefulOrder, verifyOrderFlags } from '../lib/validation';
 import { OrderFlags } from '../types';
 import {
   DYDX_DENOM,
@@ -160,13 +161,13 @@ export class CompositeClient {
   }
 
   /**
-   * @description Calculate the goodTilBlock value for a SHORT_TERM order
+   * @description Validate the goodTilBlock value for a SHORT_TERM order
    *
    * @param goodTilBlock Number of blocks from the current block height the order will
    * be valid for.
    *
-   * @throws UnexpectedClientError if a malformed response is returned with no GRPC error
-   * at any point.
+   * @throws UserError if the goodTilBlock value is not valid given latest block height and
+   * SHORT_BLOCK_WINDOW.
    */
   private async validateGoodTilBlock(goodTilBlock: number): Promise<void> {
     const height = await this.validatorClient.get.latestBlockHeight();
@@ -238,8 +239,8 @@ export class CompositeClient {
         price,
         size,
         clientId,
-        timeInForce,
         goodTilBlock,
+        timeInForce,
         reduceOnly,
       );
       msg.then((it) => resolve([it])).catch((err) => {
@@ -497,7 +498,7 @@ export class CompositeClient {
      * @param subaccount The subaccount to cancel the order from
      * @param clientId The client id of the order to cancel
      * @param orderFlags The order flags of the order to cancel
-     * @param clobPairId The clob pair id of the order to cancel
+     * @param marketId The market to cancel the order on
      * @param goodTilBlock The goodTilBlock of the order to cancel
      * @param goodTilBlockTime The goodTilBlockTime of the order to cancel
      *
@@ -509,10 +510,40 @@ export class CompositeClient {
     subaccount: Subaccount,
     clientId: number,
     orderFlags: OrderFlags,
-    clobPairId: number,
-    goodTilBlock?: number,
-    goodTilBlockTime?: number,
+    marketId: string,
+    goodTilBlock: number,
+    goodTilTimeInSeconds: number,
   ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
+
+    const marketsResponse = await this.indexerClient.markets.getPerpetualMarkets(marketId);
+    const market = marketsResponse.markets[marketId];
+    const clobPairId = market.clobPairId;
+
+    if (!verifyOrderFlags(orderFlags)) {
+      throw new Error(`Invalid order flags: ${orderFlags}`);
+    }
+
+    let goodTilBlockTime;
+    if (isStatefulOrder(orderFlags)) {
+      if (goodTilTimeInSeconds === 0) {
+        throw new Error('goodTilTimeInSeconds must be set for LONG_TERM or CONDITIONAL order');
+      }
+      if (goodTilBlock !== 0) {
+        throw new Error(
+          'goodTilBlock should be zero since LONG_TERM or CONDITIONAL orders ' +
+          'use goodTilTimeInSeconds instead of goodTilBlock.',
+        );
+      }
+      goodTilBlockTime = this.calculateGoodTilBlockTime(goodTilTimeInSeconds);
+    } else {
+      if (goodTilBlock === 0) {
+        throw new Error('goodTilBlock must be non-zero for SHORT_TERM orders');
+      }
+      if (goodTilTimeInSeconds !== 0) {
+        throw new Error('goodTilTimeInSeconds should be zero since SHORT_TERM orders use goodTilBlock instead of goodTilTimeInSeconds.');
+      }
+    }
+
     return this.validatorClient.post.cancelOrder(
       subaccount,
       clientId,
