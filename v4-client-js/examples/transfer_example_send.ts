@@ -1,4 +1,5 @@
 import { EncodeObject } from '@cosmjs/proto-signing';
+import { Account } from '@cosmjs/stargate';
 import { Method } from '@cosmjs/tendermint-rpc';
 import Long from 'long';
 
@@ -15,7 +16,6 @@ import LocalWallet from '../src/clients/modules/local-wallet';
 import { Subaccount } from '../src/clients/subaccount';
 import { ValidatorClient } from '../src/clients/validator-client';
 import { DYDX_TEST_MNEMONIC } from './constants';
-import { Account } from '@cosmjs/stargate';
 
 // TODO: Test after staging deploy latest transfer contracts.
 
