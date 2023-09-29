@@ -457,7 +457,7 @@ class CompositeClient:
         :param clob_pair_id: required
         :type clob_pair_id: int
 
-        :param good_til_block: optional
+        :param good_til_block: required
         :type good_til_block: int
 
         :returns: Tx information

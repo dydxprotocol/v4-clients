@@ -10,11 +10,7 @@ from v4_client_py.clients import CompositeClient, Subaccount
 from v4_client_py.clients.constants import BECH32_PREFIX, Network
 
 from v4_client_py.clients.helpers.chain_helpers import (
-    Order_TimeInForce,
-    OrderType, 
     OrderSide, 
-    OrderTimeInForce, 
-    OrderExecution,
 )
 from examples.utils import loadJson, orderExecutionToTimeInForce
 
