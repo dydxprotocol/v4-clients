@@ -3,7 +3,7 @@
 */
 
 import { EncodeObject } from '@cosmjs/proto-signing';
-import { accountFromAny } from '@cosmjs/stargate';
+import { Account, accountFromAny } from '@cosmjs/stargate';
 import { Order_Side, Order_TimeInForce } from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/clob/order';
 import * as AuthModule from 'cosmjs-types/cosmos/auth/v1beta1/query';
 import Long from 'long';
@@ -13,7 +13,7 @@ import { UserError } from '../lib/errors';
 import { encodeJson } from '../lib/helpers';
 import { deriveHDKeyFromEthereumSignature } from '../lib/onboarding';
 import { NetworkOptimizer } from '../network_optimizer';
-import { CompositeClient } from './composite-client';
+import { CompositeClient, MarketInfo } from './composite-client';
 import {
   Network, OrderType, OrderSide, OrderTimeInForce, OrderExecution, IndexerConfig, ValidatorConfig,
 } from './constants';
@@ -224,6 +224,9 @@ export async function placeOrder(
     const reduceOnly = json.reduceOnly ?? false;
     const triggerPrice = json.triggerPrice;
 
+    const marketInfo = json.marketInfo as MarketInfo;
+    const currentHeight = json.currentHeight as number;
+
     const subaccount = new Subaccount(wallet, subaccountNumber);
     const tx = await client.placeOrder(
       subaccount,
@@ -239,6 +242,8 @@ export async function placeOrder(
       postOnly,
       reduceOnly,
       triggerPrice,
+      marketInfo,
+      currentHeight,
     );
     return encodeJson(tx);
   } catch (error) {
@@ -429,12 +434,17 @@ export async function withdrawToIBC(
 
     const msgs = [subaccountMsg, ibcMsg];
     const encodeObjects: Promise<EncodeObject[]> = new Promise((resolve) => resolve(msgs));
+    const account: Promise<Account> = client.validatorClient.post.account(
+      subaccount.address,
+      undefined,
+    );
 
     const tx = await client.send(
       wallet,
       () => {
         return encodeObjects;
       },
+      () => account,
       false,
       undefined,
       undefined,
@@ -477,11 +487,17 @@ export async function transferNativeToken(
     const msgs = [msg];
     const encodeObjects: Promise<EncodeObject[]> = new Promise((resolve) => resolve(msgs));
 
+    const account: Promise<Account> = client.validatorClient.post.account(
+      subaccount.address,
+      undefined,
+    );
+
     const tx = await client.send(
       wallet,
       () => {
         return encodeObjects;
       },
+      () => account,
       false,
       GAS_PRICE_DYDX_DENOM,
       undefined,
@@ -580,9 +596,19 @@ export async function simulateDeposit(
     );
     const msgs: EncodeObject[] = [msg];
     const encodeObjects: Promise<EncodeObject[]> = new Promise((resolve) => resolve(msgs));
-    const stdFee = await client.simulate(globalThis.wallet, () => {
-      return encodeObjects;
-    });
+
+    const account: Promise<Account> = client.validatorClient.post.account(
+      subaccount.address,
+      undefined,
+    );
+
+    const stdFee = await client.simulate(
+      globalThis.wallet,
+      () => {
+        return encodeObjects;
+      },
+      () => account,
+    );
     return JSON.stringify(stdFee);
   } catch (error) {
     return wrappedError(error);
@@ -619,9 +645,18 @@ export async function simulateWithdraw(
     );
     const msgs: EncodeObject[] = [msg];
     const encodeObjects: Promise<EncodeObject[]> = new Promise((resolve) => resolve(msgs));
-    const stdFee = await client.simulate(globalThis.wallet, () => {
-      return encodeObjects;
-    });
+    const account: Promise<Account> = client.validatorClient.post.account(
+      subaccount.address,
+      undefined,
+    );
+
+    const stdFee = await client.simulate(
+      globalThis.wallet,
+      () => {
+        return encodeObjects;
+      },
+      () => account,
+    );
     return encodeJson(stdFee);
   } catch (error) {
     return wrappedError(error);
@@ -662,11 +697,17 @@ export async function simulateTransferNativeToken(
     );
     const msgs: EncodeObject[] = [msg];
     const encodeObjects: Promise<EncodeObject[]> = new Promise((resolve) => resolve(msgs));
+
+    const account: Promise<Account> = client.validatorClient.post.account(
+      subaccount.address,
+      undefined,
+    );
     const stdFee = await client.simulate(
       globalThis.wallet,
       () => {
         return encodeObjects;
       },
+      () => account,
       GAS_PRICE_DYDX_DENOM,
     );
     return encodeJson(stdFee);
@@ -717,9 +758,14 @@ export async function signRawPlaceOrder(
       );
       resolve([msg]);
     });
+    const account: Promise<Account> = client.validatorClient.post.account(
+      wallet.address!,
+      orderFlags,
+    );
     const signed = await client.sign(
       wallet,
       () => msgs,
+      () => account,
       true,
     );
     return Buffer.from(signed).toString('base64');

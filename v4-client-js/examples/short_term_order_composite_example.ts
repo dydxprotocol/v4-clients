@@ -46,8 +46,8 @@ async function test(): Promise<void> {
         price,
         0.01,
         clientId,
-        timeInForce,
         goodTilBlock,
+        timeInForce,
         false,
       );
       console.log('**Order Tx**');

@@ -5,6 +5,7 @@ import {
   Registry,
 } from '@cosmjs/proto-signing';
 import {
+  Account,
   calculateFee,
   GasPrice,
   IndexedTx,
@@ -55,6 +56,8 @@ export class Post {
     private readonly chainId: string;
     public readonly get: Get;
 
+    private accountNumberCache: Map<string, Account> = new Map();
+
     constructor(
       get: Get,
       chainId: string,
@@ -76,12 +79,22 @@ export class Post {
     async simulate(
       wallet: LocalWallet,
       messaging: () => Promise<EncodeObject[]>,
+      account: () => Promise<Account>,
       gasPrice: GasPrice = GAS_PRICE,
       memo?: string,
     ): Promise<StdFee> {
-      const msgs = await messaging();
-      const account = await this.get.getAccount(wallet.address!);
-      return this.simulateTransaction(wallet.pubKey!, account.sequence, msgs, gasPrice, memo);
+      const msgsPromise = messaging();
+      const accountPromise = account();
+      const msgsAndAccount = await Promise.all([msgsPromise, accountPromise]);
+      const msgs = msgsAndAccount[0];
+
+      return this.simulateTransaction(
+        wallet.pubKey!,
+        msgsAndAccount[1].sequence,
+        msgs,
+        gasPrice,
+        memo,
+      );
     }
 
     /**
@@ -95,12 +108,16 @@ export class Post {
     async sign(
       wallet: LocalWallet,
       messaging: () => Promise<EncodeObject[]>,
+      account: () => Promise<Account>,
       zeroFee: boolean,
       gasPrice: GasPrice = GAS_PRICE,
       memo?: string,
     ): Promise<Uint8Array> {
-      const msgs = await messaging();
-      return this.signTransaction(wallet, msgs, zeroFee, gasPrice, memo);
+      const msgsPromise = await messaging();
+      const accountPromise = await account();
+      const msgsAndAccount = await Promise.all([msgsPromise, accountPromise]);
+      const msgs = msgsAndAccount[0];
+      return this.signTransaction(wallet, msgs, msgsAndAccount[1], zeroFee, gasPrice, memo);
     }
 
     /**
@@ -114,14 +131,20 @@ export class Post {
     async send(
       wallet: LocalWallet,
       messaging: () => Promise<EncodeObject[]>,
+      account: () => Promise<Account>,
       zeroFee: boolean,
       gasPrice: GasPrice = GAS_PRICE,
       memo?: string,
       broadcastMode?: BroadcastMode,
     ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
-      const msgs = await messaging();
+      const msgsPromise = messaging();
+      const accountPromise = account();
+      const msgsAndAccount = await Promise.all([msgsPromise, accountPromise]);
+      const msgs = msgsAndAccount[0];
+
       return this.signAndSendTransaction(
         wallet,
+        msgsAndAccount[1],
         msgs,
         zeroFee,
         gasPrice,
@@ -159,11 +182,11 @@ export class Post {
     private async signTransaction(
       wallet: LocalWallet,
       messages: EncodeObject[],
+      account: Account,
       zeroFee: boolean,
       gasPrice: GasPrice = GAS_PRICE,
       memo?: string,
     ): Promise<Uint8Array> {
-      const account = await this.get.getAccount(wallet.address!);
       // Simulate transaction if no fee is specified.
       const fee: StdFee = zeroFee ? {
         amount: [],
@@ -190,6 +213,18 @@ export class Post {
       );
     }
 
+    public async account(address: string, orderFlags?: number): Promise<Account> {
+      if (orderFlags === OrderFlags.SHORT_TERM) {
+        if (this.accountNumberCache.has(address)) {
+          // For SHORT_TERM orders, the sequence doesn't matter
+          return this.accountNumberCache.get(address)!;
+        }
+      }
+      const account = await this.get.getAccount(address);
+      this.accountNumberCache.set(address, account);
+      return account;
+    }
+
     /**
      * @description Sign and send a message
      *
@@ -197,6 +232,7 @@ export class Post {
      */
     private async signAndSendTransaction(
       wallet: LocalWallet,
+      account: Account,
       messages: EncodeObject[],
       zeroFee: boolean,
       gasPrice: GasPrice = GAS_PRICE,
@@ -206,6 +242,7 @@ export class Post {
       const signedTransaction = await this.signTransaction(
         wallet,
         messages,
+        account,
         zeroFee,
         gasPrice,
         memo,
@@ -329,7 +366,16 @@ export class Post {
         );
         resolve([msg]);
       });
-      return this.send(subaccount.wallet, () => msgs, true, undefined, undefined, broadcastMode);
+      const account: Promise<Account> = this.account(subaccount.address, orderFlags);
+      return this.send(
+        subaccount.wallet,
+        () => msgs,
+        () => account,
+        true,
+        undefined,
+        undefined,
+        broadcastMode,
+      );
     }
 
     async placeOrderObject(
@@ -377,7 +423,15 @@ export class Post {
         );
         resolve([msg]);
       });
-      return this.send(subaccount.wallet, () => msgs, true, undefined, undefined, broadcastMode);
+      const account: Promise<Account> = this.account(subaccount.address, undefined);
+      return this.send(
+        subaccount.wallet,
+        () => msgs,
+        () => account,
+        true,
+        undefined,
+        undefined,
+        broadcastMode);
     }
 
     async cancelOrderObject(
@@ -415,7 +469,16 @@ export class Post {
         );
         resolve([msg]);
       });
-      return this.send(subaccount.wallet, () => msgs, false, undefined, undefined, broadcastMode);
+      const account: Promise<Account> = this.account(subaccount.address, undefined);
+      return this.send(
+        subaccount.wallet,
+        () => msgs,
+        () => account,
+        false,
+        undefined,
+        undefined,
+        broadcastMode,
+      );
     }
 
     async deposit(
@@ -433,7 +496,16 @@ export class Post {
         );
         resolve([msg]);
       });
-      return this.send(subaccount.wallet, () => msgs, false, undefined, undefined, broadcastMode);
+      const account: Promise<Account> = this.account(subaccount.address, undefined);
+      return this.send(
+        subaccount.wallet,
+        () => msgs,
+        () => account,
+        false,
+        undefined,
+        undefined,
+        broadcastMode,
+      );
     }
 
     async withdraw(
@@ -453,7 +525,16 @@ export class Post {
         );
         resolve([msg]);
       });
-      return this.send(subaccount.wallet, () => msgs, false, undefined, undefined, broadcastMode);
+      const account: Promise<Account> = this.account(subaccount.address, undefined);
+      return this.send(
+        subaccount.wallet,
+        () => msgs,
+        () => account,
+        false,
+        undefined,
+        undefined,
+        broadcastMode,
+      );
     }
 
     async sendToken(
@@ -473,9 +554,11 @@ export class Post {
         );
         resolve([msg]);
       });
+      const account: Promise<Account> = this.account(subaccount.address, undefined);
       return this.send(
         subaccount.wallet,
         () => msgs,
+        () => account,
         zeroFee,
         coinDenom === DYDX_DENOM ? GAS_PRICE_DYDX_DENOM : GAS_PRICE,
         undefined,
