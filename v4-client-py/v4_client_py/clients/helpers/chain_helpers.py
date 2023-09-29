@@ -68,6 +68,49 @@ SHORT_BLOCK_WINDOW = 20
 
 QUOTE_QUANTUMS_ATOMIC_RESOLUTION = -6
 
+def is_order_flag_stateful_order(
+    order_flag: int
+) -> bool:
+    if order_flag == ORDER_FLAGS_SHORT_TERM:
+        return False
+    elif order_flag == ORDER_FLAGS_LONG_TERM:
+        return True
+    elif order_flag == ORDER_FLAGS_CONDITIONAL:
+        return True
+    else:
+        raise ValueError('Invalid order flag')
+
+def validate_good_til_fields(
+    is_stateful_order: bool,
+    good_til_block_time: int,
+    good_til_block: int,
+):
+    if is_stateful_order:
+        if good_til_block_time == 0:
+            raise ValueError(
+                "stateful orders must have a valid GTBT. GTBT: ${0}".format(
+                    good_til_block_time,
+                )
+            )
+        if good_til_block != 0:
+            raise ValueError(
+                "stateful order uses GTBT. GTB must be zero. GTB: ${0}".format(
+                    good_til_block,
+                )
+            )
+    else:
+        if good_til_block == 0:
+            raise ValueError(
+                "short term orders must have a valid GTB. GTB: ${0}".format(
+                    good_til_block,
+                )
+            )
+        if good_til_block_time != 0:
+            raise ValueError(
+                "stateful order uses GTB. GTBT must be zero. GTBT: ${0}".format(
+                    good_til_block_time,
+                )
+            )
 
 def round(
     number: float,
@@ -106,30 +149,30 @@ def calculate_time_in_force(
     time_in_force: OrderTimeInForce, 
     execution: OrderExecution, 
     post_only: bool
-) -> Order.TimeInForce:
+) -> Order_TimeInForce:
     if type == OrderType.MARKET:
-        return Order.TIME_IN_FORCE_IOC
+        return Order_TimeInForce.TIME_IN_FORCE_IOC
     elif type == OrderType.LIMIT:
         if time_in_force == OrderTimeInForce.GTT:
             if post_only:
-                return Order.TIME_IN_FORCE_POST_ONLY
+                return Order_TimeInForce.TIME_IN_FORCE_POST_ONLY
             else:
-                return Order.TIME_IN_FORCE_UNSPECIFIED
+                return Order_TimeInForce.TIME_IN_FORCE_UNSPECIFIED
         elif time_in_force == OrderTimeInForce.FOK:
-            return Order.TIME_IN_FORCE_FILL_OR_KILL
+            return Order_TimeInForce.TIME_IN_FORCE_FILL_OR_KILL
         elif time_in_force == OrderTimeInForce.IOC:
-            return Order.TIME_IN_FORCE_IOC
+            return Order_TimeInForce.TIME_IN_FORCE_IOC
         else:
             raise Exception("Unexpected code path: time_in_force")
     elif type == OrderType.STOP_LIMIT or type == OrderType.TAKE_PROFIT_LIMIT:
         if execution == OrderExecution.DEFAULT:
-            return Order.TIME_IN_FORCE_UNSPECIFIED
+            return Order_TimeInForce.TIME_IN_FORCE_UNSPECIFIED
         elif execution == OrderExecution.POST_ONLY:
-            return Order.TIME_IN_FORCE_POST_ONLY
+            return Order_TimeInForce.TIME_IN_FORCE_POST_ONLY
         if execution == OrderExecution.FOK:
-            return Order.TIME_IN_FORCE_FOK
+            return Order_TimeInForce.TIME_IN_FORCE_FILL_OR_KILL
         elif execution == OrderExecution.IOC:
-            return Order.TIME_IN_FORCE_IOC
+            return Order_TimeInForce.TIME_IN_FORCE_IOC
         else:
             raise Exception("Unexpected code path: time_in_force")
     elif type == OrderType.STOP_MARKET or type == OrderType.TAKE_PROFIT_MARKET:
@@ -138,9 +181,9 @@ def calculate_time_in_force(
         elif execution == OrderExecution.POST_ONLY:
             raise Exception("Execution value POST_ONLY not supported for STOP_MARKET or TAKE_PROFIT_MARKET")
         if execution == OrderExecution.FOK:
-            return Order.TIME_IN_FORCE_FOK
+            return Order_TimeInForce.TIME_IN_FORCE_FILL_OR_KILL
         elif execution == OrderExecution.IOC:
-            return Order.TIME_IN_FORCE_IOC
+            return Order_TimeInForce.TIME_IN_FORCE_IOC
         else:
             raise Exception("Unexpected code path: time_in_force")
     else:
