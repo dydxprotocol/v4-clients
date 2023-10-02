@@ -102,18 +102,26 @@ async function test(): Promise<void> {
   }
 
   try {
-    const delegationsParams = await client.get.getDelegatorDelegations(DYDX_TEST_ADDRESS);
-    console.log('Rewards Params');
-    console.log(JSON.stringify(delegationsParams));
+    const delegations = await client.get.getDelegatorDelegations(DYDX_TEST_ADDRESS);
+    console.log('Delegations');
+    console.log(JSON.stringify(delegations));
   } catch (error) {
     console.log(JSON.stringify(error.message));
   }
 
   try {
-    const unbondingDelegationsParams = await client
+    const unbondingDelegations = await client
       .get.getDelegatorUnbondingDelegations(DYDX_TEST_ADDRESS);
-    console.log('Rewards Params');
-    console.log(JSON.stringify(unbondingDelegationsParams));
+    console.log('Unbonding Delegationss');
+    console.log(JSON.stringify(unbondingDelegations));
+  } catch (error) {
+    console.log(JSON.stringify(error.message));
+  }
+
+  try {
+    const getAllBondedValidators = await client.get.getAllValidators('BOND_STATUS_BONDED');
+    console.log('All Validators');
+    console.log(JSON.stringify(getAllBondedValidators));
   } catch (error) {
     console.log(JSON.stringify(error.message));
   }
