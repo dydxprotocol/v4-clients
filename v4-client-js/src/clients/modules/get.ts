@@ -426,6 +426,26 @@ export class Get {
     return BridgeModule.QueryDelayedCompleteBridgeMessagesResponse.decode(data);
   }
 
+  /**
+   * @description Get all validators of a status.
+   *
+   * @returns all validators of a status.
+   */
+  async getAllValidators(
+    status: string = '',
+  ): Promise<StakingModule.QueryValidatorsResponse> {
+    const requestData = Uint8Array.from(
+      StakingModule.QueryValidatorsRequest
+        .encode({ status, pagination: PAGE_REQUEST }).finish(),
+    );
+
+    const data: Uint8Array = await this.sendQuery(
+      '/cosmos.staking.v1beta1.Query/Validators',
+      requestData,
+    );
+    return StakingModule.QueryValidatorsResponse.decode(data);
+  }
+
   private async sendQuery(requestUrl: string, requestData: Uint8Array): Promise<Uint8Array> {
     return this.stargateQueryClient.queryUnverified(requestUrl, requestData);
   }

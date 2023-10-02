@@ -947,15 +947,20 @@ export async function getRewardsParams(): Promise<string> {
 }
 
 export async function getDelegatorDelegations(
-  delegatorAddress: string,
+  payload: string,
 ): Promise<string> {
   try {
     const client = globalThis.client;
     if (client === undefined) {
       throw new UserError('client is not connected. Call connectClient() first');
     }
+    const json = JSON.parse(payload);
+    const address = json.address;
+    if (address === undefined) {
+      throw new UserError('address is not set');
+    }
     const delegations = await globalThis
-      .client?.validatorClient.get.getDelegatorDelegations(delegatorAddress);
+      .client?.validatorClient.get.getDelegatorDelegations(address);
     return encodeJson(delegations);
   } catch (e) {
     return wrappedError(e);
@@ -963,15 +968,20 @@ export async function getDelegatorDelegations(
 }
 
 export async function getDelegatorUnbondingDelegations(
-  delegatorAddress: string,
+  payload: string,
 ): Promise<string> {
   try {
     const client = globalThis.client;
     if (client === undefined) {
       throw new UserError('client is not connected. Call connectClient() first');
     }
+    const json = JSON.parse(payload);
+    const address = json.address;
+    if (address === undefined) {
+      throw new UserError('address is not set');
+    }
     const delegations = await globalThis
-      .client?.validatorClient.get.getDelegatorUnbondingDelegations(delegatorAddress);
+      .client?.validatorClient.get.getDelegatorUnbondingDelegations(address);
     return encodeJson(delegations);
   } catch (e) {
     return wrappedError(e);
@@ -979,12 +989,17 @@ export async function getDelegatorUnbondingDelegations(
 }
 
 export async function getMarketPrice(
-  marketId: number,
+  payload: string,
 ): Promise<string> {
   try {
     const client = globalThis.client;
     if (client === undefined) {
       throw new UserError('client is not connected. Call connectClient() first');
+    }
+    const json = JSON.parse(payload);
+    const marketId = json.marketId;
+    if (marketId === undefined) {
+      throw new UserError('marketId is not set');
     }
     const marketPrice = await client.validatorClient.get.getPrice(marketId);
     return encodeJson(marketPrice);
