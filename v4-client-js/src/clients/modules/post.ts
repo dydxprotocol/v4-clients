@@ -213,7 +213,12 @@ export class Post {
       );
     }
 
-    public async account(address: string, orderFlags?: number): Promise<Account> {
+    /**
+     * @description Retrieve an account structure for transactions.
+     * For short term orders, the sequence doesn't matter. Use cached if available.
+     * For long term and conditional orders, a round trip to validator must be made.
+     */
+    public async account(address: string, orderFlags?: OrderFlags): Promise<Account> {
       if (orderFlags === OrderFlags.SHORT_TERM) {
         if (this.accountNumberCache.has(address)) {
           // For SHORT_TERM orders, the sequence doesn't matter

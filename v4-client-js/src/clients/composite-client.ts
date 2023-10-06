@@ -298,6 +298,12 @@ export class CompositeClient {
      * @param execution The execution of the order to place.
      * @param postOnly The postOnly of the order to place.
      * @param reduceOnly The reduceOnly of the order to place.
+     * @param triggerPrice The trigger price of conditional orders.
+     * @param marketInfo optional market information for calculating quantums and subticks.
+     *        This can be constructed from Indexer API. If set to null, additional round
+     *        trip to Indexer API will be made.
+     * @param currentHeight Current block height. This can be obtained from ValidatorClient.
+     *        If set to null, additional round trip to ValidatorClient will be made.
      *
      *
      * @throws UnexpectedClientError if a malformed response is returned with no GRPC error
@@ -344,9 +350,10 @@ export class CompositeClient {
         console.log(err);
       });
     });
+    const orderFlags = calculateOrderFlags(type, timeInForce);
     const account: Promise<Account> = this.validatorClient.post.account(
       subaccount.address,
-      undefined,
+      orderFlags,
     );
     return this.send(
       subaccount.wallet,
