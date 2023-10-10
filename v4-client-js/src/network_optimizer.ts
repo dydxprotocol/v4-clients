@@ -69,8 +69,8 @@ export class NetworkOptimizer {
     }
     const maxHeight = Math.max(...responses.map(({ height }) => height));
     return responses
-    // Only consider nodes at `maxHeight`
-      .filter(({ height }) => height === maxHeight)
+    // Only consider nodes at `maxHeight` or `maxHeight - 1`
+      .filter(({ height }) => height === maxHeight || height === maxHeight - 1)
     // Return the endpoint with the fastest response time
       .sort((a, b) => a.time - b.time)[0]
       .endpoint;
@@ -105,8 +105,8 @@ export class NetworkOptimizer {
     }
     const maxHeight = Math.max(...responses.map(({ height }) => height));
     return responses
-    // Only consider nodes at `maxHeight`
-      .filter(({ height }) => height === maxHeight)
+    // Only consider nodes at `maxHeight` or `maxHeight - 1`
+      .filter(({ height }) => height === maxHeight || height === maxHeight - 1)
     // Return the endpoint with the fastest response time
       .sort((a, b) => a.time - b.time)[0]
       .endpoint;
