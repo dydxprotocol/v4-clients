@@ -13,7 +13,7 @@ import { UserError } from '../lib/errors';
 import { encodeJson } from '../lib/helpers';
 import { deriveHDKeyFromEthereumSignature } from '../lib/onboarding';
 import { NetworkOptimizer } from '../network_optimizer';
-import { CompositeClient } from './composite-client';
+import { CompositeClient, MarketInfo } from './composite-client';
 import {
   Network, OrderType, OrderSide, OrderTimeInForce, OrderExecution, IndexerConfig, ValidatorConfig,
 } from './constants';
@@ -224,6 +224,9 @@ export async function placeOrder(
     const reduceOnly = json.reduceOnly ?? false;
     const triggerPrice = json.triggerPrice;
 
+    const marketInfo = json.marketInfo as MarketInfo;
+    const currentHeight = json.currentHeight as number;
+
     const subaccount = new Subaccount(wallet, subaccountNumber);
     const tx = await client.placeOrder(
       subaccount,
@@ -239,6 +242,8 @@ export async function placeOrder(
       postOnly,
       reduceOnly,
       triggerPrice,
+      marketInfo,
+      currentHeight,
     );
     return encodeJson(tx);
   } catch (error) {
@@ -580,9 +585,13 @@ export async function simulateDeposit(
     );
     const msgs: EncodeObject[] = [msg];
     const encodeObjects: Promise<EncodeObject[]> = new Promise((resolve) => resolve(msgs));
-    const stdFee = await client.simulate(globalThis.wallet, () => {
-      return encodeObjects;
-    });
+
+    const stdFee = await client.simulate(
+      globalThis.wallet,
+      () => {
+        return encodeObjects;
+      },
+    );
     return JSON.stringify(stdFee);
   } catch (error) {
     return wrappedError(error);
@@ -619,9 +628,13 @@ export async function simulateWithdraw(
     );
     const msgs: EncodeObject[] = [msg];
     const encodeObjects: Promise<EncodeObject[]> = new Promise((resolve) => resolve(msgs));
-    const stdFee = await client.simulate(globalThis.wallet, () => {
-      return encodeObjects;
-    });
+
+    const stdFee = await client.simulate(
+      globalThis.wallet,
+      () => {
+        return encodeObjects;
+      },
+    );
     return encodeJson(stdFee);
   } catch (error) {
     return wrappedError(error);
@@ -662,6 +675,7 @@ export async function simulateTransferNativeToken(
     );
     const msgs: EncodeObject[] = [msg];
     const encodeObjects: Promise<EncodeObject[]> = new Promise((resolve) => resolve(msgs));
+
     const stdFee = await client.simulate(
       globalThis.wallet,
       () => {

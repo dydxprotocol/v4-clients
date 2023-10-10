@@ -5,6 +5,7 @@ import {
   Registry,
 } from '@cosmjs/proto-signing';
 import {
+  Account,
   calculateFee,
   GasPrice,
   IndexedTx,
@@ -55,6 +56,8 @@ export class Post {
     private readonly chainId: string;
     public readonly get: Get;
 
+    private accountNumberCache: Map<string, Account> = new Map();
+
     constructor(
       get: Get,
       chainId: string,
@@ -78,10 +81,20 @@ export class Post {
       messaging: () => Promise<EncodeObject[]>,
       gasPrice: GasPrice = GAS_PRICE,
       memo?: string,
+      account?: () => Promise<Account>,
     ): Promise<StdFee> {
-      const msgs = await messaging();
-      const account = await this.get.getAccount(wallet.address!);
-      return this.simulateTransaction(wallet.pubKey!, account.sequence, msgs, gasPrice, memo);
+      const msgsPromise = messaging();
+      const accountPromise = account ? (await account()) : this.account(wallet.address!);
+      const msgsAndAccount = await Promise.all([msgsPromise, accountPromise]);
+      const msgs = msgsAndAccount[0];
+
+      return this.simulateTransaction(
+        wallet.pubKey!,
+        msgsAndAccount[1].sequence,
+        msgs,
+        gasPrice,
+        memo,
+      );
     }
 
     /**
@@ -98,9 +111,13 @@ export class Post {
       zeroFee: boolean,
       gasPrice: GasPrice = GAS_PRICE,
       memo?: string,
+      account?: () => Promise<Account>,
     ): Promise<Uint8Array> {
-      const msgs = await messaging();
-      return this.signTransaction(wallet, msgs, zeroFee, gasPrice, memo);
+      const msgsPromise = await messaging();
+      const accountPromise = account ? (await account()) : this.account(wallet.address!);
+      const msgsAndAccount = await Promise.all([msgsPromise, accountPromise]);
+      const msgs = msgsAndAccount[0];
+      return this.signTransaction(wallet, msgs, msgsAndAccount[1], zeroFee, gasPrice, memo);
     }
 
     /**
@@ -118,10 +135,16 @@ export class Post {
       gasPrice: GasPrice = GAS_PRICE,
       memo?: string,
       broadcastMode?: BroadcastMode,
+      account?: () => Promise<Account>,
     ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
-      const msgs = await messaging();
+      const msgsPromise = messaging();
+      const accountPromise = account ? (await account()) : this.account(wallet.address!);
+      const msgsAndAccount = await Promise.all([msgsPromise, accountPromise]);
+      const msgs = msgsAndAccount[0];
+
       return this.signAndSendTransaction(
         wallet,
+        msgsAndAccount[1],
         msgs,
         zeroFee,
         gasPrice,
@@ -159,11 +182,11 @@ export class Post {
     private async signTransaction(
       wallet: LocalWallet,
       messages: EncodeObject[],
+      account: Account,
       zeroFee: boolean,
       gasPrice: GasPrice = GAS_PRICE,
       memo?: string,
     ): Promise<Uint8Array> {
-      const account = await this.get.getAccount(wallet.address!);
       // Simulate transaction if no fee is specified.
       const fee: StdFee = zeroFee ? {
         amount: [],
@@ -191,12 +214,30 @@ export class Post {
     }
 
     /**
+     * @description Retrieve an account structure for transactions.
+     * For short term orders, the sequence doesn't matter. Use cached if available.
+     * For long term and conditional orders, a round trip to validator must be made.
+     */
+    public async account(address: string, orderFlags?: OrderFlags): Promise<Account> {
+      if (orderFlags === OrderFlags.SHORT_TERM) {
+        if (this.accountNumberCache.has(address)) {
+          // For SHORT_TERM orders, the sequence doesn't matter
+          return this.accountNumberCache.get(address)!;
+        }
+      }
+      const account = await this.get.getAccount(address);
+      this.accountNumberCache.set(address, account);
+      return account;
+    }
+
+    /**
      * @description Sign and send a message
      *
      * @returns The Tx Response.
      */
     private async signAndSendTransaction(
       wallet: LocalWallet,
+      account: Account,
       messages: EncodeObject[],
       zeroFee: boolean,
       gasPrice: GasPrice = GAS_PRICE,
@@ -206,6 +247,7 @@ export class Post {
       const signedTransaction = await this.signTransaction(
         wallet,
         messages,
+        account,
         zeroFee,
         gasPrice,
         memo,
@@ -329,7 +371,16 @@ export class Post {
         );
         resolve([msg]);
       });
-      return this.send(subaccount.wallet, () => msgs, true, undefined, undefined, broadcastMode);
+      const account: Promise<Account> = this.account(subaccount.address, orderFlags);
+      return this.send(
+        subaccount.wallet,
+        () => msgs,
+        true,
+        undefined,
+        undefined,
+        broadcastMode,
+        () => account,
+      );
     }
 
     async placeOrderObject(
@@ -377,7 +428,13 @@ export class Post {
         );
         resolve([msg]);
       });
-      return this.send(subaccount.wallet, () => msgs, true, undefined, undefined, broadcastMode);
+      return this.send(
+        subaccount.wallet,
+        () => msgs,
+        true,
+        undefined,
+        undefined,
+        broadcastMode);
     }
 
     async cancelOrderObject(
@@ -415,7 +472,14 @@ export class Post {
         );
         resolve([msg]);
       });
-      return this.send(subaccount.wallet, () => msgs, false, undefined, undefined, broadcastMode);
+      return this.send(
+        subaccount.wallet,
+        () => msgs,
+        false,
+        undefined,
+        undefined,
+        broadcastMode,
+      );
     }
 
     async deposit(
@@ -433,7 +497,14 @@ export class Post {
         );
         resolve([msg]);
       });
-      return this.send(subaccount.wallet, () => msgs, false, undefined, undefined, broadcastMode);
+      return this.send(
+        subaccount.wallet,
+        () => msgs,
+        false,
+        undefined,
+        undefined,
+        broadcastMode,
+      );
     }
 
     async withdraw(
@@ -453,7 +524,14 @@ export class Post {
         );
         resolve([msg]);
       });
-      return this.send(subaccount.wallet, () => msgs, false, undefined, undefined, broadcastMode);
+      return this.send(
+        subaccount.wallet,
+        () => msgs,
+        false,
+        undefined,
+        undefined,
+        broadcastMode,
+      );
     }
 
     async sendToken(
