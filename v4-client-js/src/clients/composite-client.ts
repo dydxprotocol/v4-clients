@@ -1,5 +1,7 @@
 import { EncodeObject } from '@cosmjs/proto-signing';
-import { GasPrice, IndexedTx, StdFee } from '@cosmjs/stargate';
+import {
+  Account, GasPrice, IndexedTx, StdFee,
+} from '@cosmjs/stargate';
 import { BroadcastTxAsyncResponse, BroadcastTxSyncResponse } from '@cosmjs/tendermint-rpc/build/tendermint37';
 import { Order_ConditionType, Order_TimeInForce } from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/clob/order';
 import Long from 'long';
@@ -10,7 +12,13 @@ import { OrderFlags } from '../types';
 import {
   DYDX_DENOM,
   GAS_PRICE,
-  Network, OrderExecution, OrderSide, OrderTimeInForce, OrderType, SHORT_BLOCK_WINDOW,
+  Network,
+  OrderExecution,
+  OrderSide,
+  OrderTimeInForce,
+  OrderType,
+  SHORT_BLOCK_FORWARD,
+  SHORT_BLOCK_WINDOW,
 } from './constants';
 import {
   calculateQuantums,
@@ -34,6 +42,14 @@ import { ValidatorClient } from './validator-client';
 // Reference: https://github.com/protobufjs/protobuf.js/issues/921
 protobuf.util.Long = Long;
 protobuf.configure();
+
+export interface MarketInfo {
+  clobPairId: number;
+  atomicResolution: number;
+  stepBaseQuantums: number;
+  quantumConversionExponent: number;
+  subticksPerTick: number;
+}
 
 export class CompositeClient {
   public readonly network: Network;
@@ -89,8 +105,16 @@ export class CompositeClient {
     zeroFee: boolean,
     gasPrice: GasPrice = GAS_PRICE,
     memo?: string,
+    account?: () => Promise<Account>,
   ): Promise<Uint8Array> {
-    return this.validatorClient.post.sign(wallet, messaging, zeroFee, gasPrice, memo);
+    return this.validatorClient.post.sign(
+      wallet,
+      messaging,
+      zeroFee,
+      gasPrice,
+      memo,
+      account,
+    );
   }
 
   /**
@@ -107,8 +131,17 @@ export class CompositeClient {
     zeroFee: boolean,
     gasPrice: GasPrice = GAS_PRICE,
     memo?: string,
+    account?: () => Promise<Account>,
   ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
-    return this.validatorClient.post.send(wallet, messaging, zeroFee, gasPrice, memo);
+    return this.validatorClient.post.send(
+      wallet,
+      messaging,
+      zeroFee,
+      gasPrice,
+      memo,
+      undefined,
+      account,
+    );
   }
 
   /**
@@ -144,8 +177,15 @@ export class CompositeClient {
     messaging: () => Promise<EncodeObject[]>,
     gasPrice: GasPrice = GAS_PRICE,
     memo?: string,
+    account?: () => Promise<Account>,
   ): Promise<StdFee> {
-    return this.validatorClient.post.simulate(wallet, messaging, gasPrice, memo);
+    return this.validatorClient.post.simulate(
+      wallet,
+      messaging,
+      gasPrice,
+      memo,
+      account,
+    );
   }
 
   /**
@@ -155,9 +195,17 @@ export class CompositeClient {
      * at any point.
      * @returns The goodTilBlock value
      */
-  private async calculateGoodTilBlock(): Promise<number> {
-    const height = await this.validatorClient.get.latestBlockHeight();
-    return height + 3;
+
+  private async calculateGoodTilBlock(
+    orderFlags: OrderFlags,
+    currentHeight?: number,
+  ): Promise<number> {
+    if (orderFlags === OrderFlags.SHORT_TERM) {
+      const height = currentHeight ?? await this.validatorClient.get.latestBlockHeight();
+      return height + SHORT_BLOCK_FORWARD;
+    } else {
+      return Promise.resolve(0);
+    }
   }
 
   /**
@@ -247,10 +295,18 @@ export class CompositeClient {
         console.log(err);
       });
     });
+    const account: Promise<Account> = this.validatorClient.post.account(
+      subaccount.address,
+      undefined,
+    );
     return this.send(
       subaccount.wallet,
       () => msgs,
-      true);
+      true,
+      undefined,
+      undefined,
+      () => account,
+    );
   }
 
   /**
@@ -272,6 +328,12 @@ export class CompositeClient {
      * @param execution The execution of the order to place.
      * @param postOnly The postOnly of the order to place.
      * @param reduceOnly The reduceOnly of the order to place.
+     * @param triggerPrice The trigger price of conditional orders.
+     * @param marketInfo optional market information for calculating quantums and subticks.
+     *        This can be constructed from Indexer API. If set to null, additional round
+     *        trip to Indexer API will be made.
+     * @param currentHeight Current block height. This can be obtained from ValidatorClient.
+     *        If set to null, additional round trip to ValidatorClient will be made.
      *
      *
      * @throws UnexpectedClientError if a malformed response is returned with no GRPC error
@@ -292,6 +354,8 @@ export class CompositeClient {
     postOnly?: boolean,
     reduceOnly?: boolean,
     triggerPrice?: number,
+    marketInfo?: MarketInfo,
+    currentHeight?: number,
   ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
     const msgs: Promise<EncodeObject[]> = new Promise((resolve) => {
       const msg = this.placeOrderMessage(
@@ -309,15 +373,26 @@ export class CompositeClient {
         postOnly,
         reduceOnly,
         triggerPrice,
+        marketInfo,
+        currentHeight,
       );
       msg.then((it) => resolve([it])).catch((err) => {
         console.log(err);
       });
     });
+    const orderFlags = calculateOrderFlags(type, timeInForce);
+    const account: Promise<Account> = this.validatorClient.post.account(
+      subaccount.address,
+      orderFlags,
+    );
     return this.send(
       subaccount.wallet,
       () => msgs,
-      true);
+      true,
+      undefined,
+      undefined,
+      () => account,
+    );
   }
 
   /**
@@ -360,14 +435,22 @@ export class CompositeClient {
     postOnly?: boolean,
     reduceOnly?: boolean,
     triggerPrice?: number,
+    marketInfo?: MarketInfo,
+    currentHeight?: number,
   ): Promise<EncodeObject> {
-    const marketsResponse = await this.indexerClient.markets.getPerpetualMarkets(marketId);
-    const market = marketsResponse.markets[marketId];
-    const clobPairId = market.clobPairId;
-    const atomicResolution = market.atomicResolution;
-    const stepBaseQuantums = market.stepBaseQuantums;
-    const quantumConversionExponent = market.quantumConversionExponent;
-    const subticksPerTick = market.subticksPerTick;
+    const orderFlags = calculateOrderFlags(type, timeInForce);
+
+    const result = await Promise.all([
+      this.calculateGoodTilBlock(orderFlags, currentHeight),
+      this.retrieveMarketInfo(marketId, marketInfo),
+    ],
+    );
+    const goodTilBlock = result[0];
+    const clobPairId = result[1].clobPairId;
+    const atomicResolution = result[1].atomicResolution;
+    const stepBaseQuantums = result[1].stepBaseQuantums;
+    const quantumConversionExponent = result[1].quantumConversionExponent;
+    const subticksPerTick = result[1].subticksPerTick;
     const orderSide = calculateSide(side);
     const quantums = calculateQuantums(
       size,
@@ -380,16 +463,13 @@ export class CompositeClient {
       quantumConversionExponent,
       subticksPerTick,
     );
-    const orderFlags = calculateOrderFlags(type, timeInForce);
     const orderTimeInForce = calculateTimeInForce(type, timeInForce, execution, postOnly);
-    const goodTilBlock = (orderFlags === OrderFlags.SHORT_TERM)
-      ? await this.calculateGoodTilBlock() : 0;
     let goodTilBlockTime = 0;
     if (orderFlags === OrderFlags.LONG_TERM || orderFlags === OrderFlags.CONDITIONAL) {
       if (goodTilTimeInSeconds == null) {
         throw new Error('goodTilTimeInSeconds must be set for LONG_TERM or CONDITIONAL order');
       } else {
-        goodTilBlockTime = await this.calculateGoodTilBlockTime(goodTilTimeInSeconds);
+        goodTilBlockTime = this.calculateGoodTilBlockTime(goodTilTimeInSeconds);
       }
     }
     const clientMetadata = calculateClientMetadata(type);
@@ -417,6 +497,27 @@ export class CompositeClient {
       conditionalType,
       conditionalOrderTriggerSubticks,
     );
+  }
+
+  private async retrieveMarketInfo(marketId: string, marketInfo?:MarketInfo): Promise<MarketInfo> {
+    if (marketInfo) {
+      return Promise.resolve(marketInfo);
+    } else {
+      const marketsResponse = await this.indexerClient.markets.getPerpetualMarkets(marketId);
+      const market = marketsResponse.markets[marketId];
+      const clobPairId = market.clobPairId;
+      const atomicResolution = market.atomicResolution;
+      const stepBaseQuantums = market.stepBaseQuantums;
+      const quantumConversionExponent = market.quantumConversionExponent;
+      const subticksPerTick = market.subticksPerTick;
+      return {
+        clobPairId,
+        atomicResolution,
+        stepBaseQuantums,
+        quantumConversionExponent,
+        subticksPerTick,
+      };
+    }
   }
 
   /**
@@ -787,7 +888,8 @@ export class CompositeClient {
     const signature = await this.sign(
       wallet,
       () => msgs,
-      true);
+      true,
+    );
 
     return Buffer.from(signature).toString('base64');
   }
@@ -812,7 +914,11 @@ export class CompositeClient {
       );
       resolve([msg]);
     });
-    const signature = await this.sign(subaccount.wallet, () => msgs, true);
+    const signature = await this.sign(
+      subaccount.wallet,
+      () => msgs,
+      true,
+    );
 
     return Buffer.from(signature).toString('base64');
   }
