@@ -434,17 +434,12 @@ export async function withdrawToIBC(
 
     const msgs = [subaccountMsg, ibcMsg];
     const encodeObjects: Promise<EncodeObject[]> = new Promise((resolve) => resolve(msgs));
-    const account: Promise<Account> = client.validatorClient.post.account(
-      subaccount.address,
-      undefined,
-    );
 
     const tx = await client.send(
       wallet,
       () => {
         return encodeObjects;
       },
-      () => account,
       false,
       undefined,
       undefined,
@@ -487,17 +482,11 @@ export async function transferNativeToken(
     const msgs = [msg];
     const encodeObjects: Promise<EncodeObject[]> = new Promise((resolve) => resolve(msgs));
 
-    const account: Promise<Account> = client.validatorClient.post.account(
-      subaccount.address,
-      undefined,
-    );
-
     const tx = await client.send(
       wallet,
       () => {
         return encodeObjects;
       },
-      () => account,
       false,
       GAS_PRICE_DYDX_DENOM,
       undefined,
@@ -597,17 +586,11 @@ export async function simulateDeposit(
     const msgs: EncodeObject[] = [msg];
     const encodeObjects: Promise<EncodeObject[]> = new Promise((resolve) => resolve(msgs));
 
-    const account: Promise<Account> = client.validatorClient.post.account(
-      subaccount.address,
-      undefined,
-    );
-
     const stdFee = await client.simulate(
       globalThis.wallet,
       () => {
         return encodeObjects;
       },
-      () => account,
     );
     return JSON.stringify(stdFee);
   } catch (error) {
@@ -645,17 +628,12 @@ export async function simulateWithdraw(
     );
     const msgs: EncodeObject[] = [msg];
     const encodeObjects: Promise<EncodeObject[]> = new Promise((resolve) => resolve(msgs));
-    const account: Promise<Account> = client.validatorClient.post.account(
-      subaccount.address,
-      undefined,
-    );
 
     const stdFee = await client.simulate(
       globalThis.wallet,
       () => {
         return encodeObjects;
       },
-      () => account,
     );
     return encodeJson(stdFee);
   } catch (error) {
@@ -698,16 +676,11 @@ export async function simulateTransferNativeToken(
     const msgs: EncodeObject[] = [msg];
     const encodeObjects: Promise<EncodeObject[]> = new Promise((resolve) => resolve(msgs));
 
-    const account: Promise<Account> = client.validatorClient.post.account(
-      subaccount.address,
-      undefined,
-    );
     const stdFee = await client.simulate(
       globalThis.wallet,
       () => {
         return encodeObjects;
       },
-      () => account,
       GAS_PRICE_DYDX_DENOM,
     );
     return encodeJson(stdFee);
@@ -758,14 +731,9 @@ export async function signRawPlaceOrder(
       );
       resolve([msg]);
     });
-    const account: Promise<Account> = client.validatorClient.post.account(
-      wallet.address!,
-      orderFlags,
-    );
     const signed = await client.sign(
       wallet,
       () => msgs,
-      () => account,
       true,
     );
     return Buffer.from(signed).toString('base64');

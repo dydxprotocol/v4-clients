@@ -96,12 +96,19 @@ export class CompositeClient {
   async sign(
     wallet: LocalWallet,
     messaging: () => Promise<EncodeObject[]>,
-    account: () => Promise<Account>,
     zeroFee: boolean,
     gasPrice: GasPrice = GAS_PRICE,
     memo?: string,
+    account?: () => Promise<Account>,
   ): Promise<Uint8Array> {
-    return this.validatorClient.post.sign(wallet, messaging, zeroFee, gasPrice, memo);
+    return this.validatorClient.post.sign(
+      wallet,
+      messaging,
+      zeroFee,
+      gasPrice,
+      memo,
+      account,
+    );
   }
 
   /**
@@ -115,10 +122,10 @@ export class CompositeClient {
   async send(
     wallet: LocalWallet,
     messaging: () => Promise<EncodeObject[]>,
-    account: () => Promise<Account>,
     zeroFee: boolean,
     gasPrice: GasPrice = GAS_PRICE,
     memo?: string,
+    account?: () => Promise<Account>,
   ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
     return this.validatorClient.post.send(
       wallet,
@@ -127,7 +134,8 @@ export class CompositeClient {
       gasPrice,
       memo,
       undefined,
-      account);
+      account,
+    );
   }
 
   /**
@@ -161,11 +169,17 @@ export class CompositeClient {
   async simulate(
     wallet: LocalWallet,
     messaging: () => Promise<EncodeObject[]>,
-    account: () => Promise<Account>,
     gasPrice: GasPrice = GAS_PRICE,
     memo?: string,
+    account?: () => Promise<Account>,
   ): Promise<StdFee> {
-    return this.validatorClient.post.simulate(wallet, messaging, gasPrice, memo);
+    return this.validatorClient.post.simulate(
+      wallet,
+      messaging,
+      gasPrice,
+      memo,
+      account,
+    );
   }
 
   /**
@@ -282,8 +296,11 @@ export class CompositeClient {
     return this.send(
       subaccount.wallet,
       () => msgs,
+      true,
+      undefined,
+      undefined,
       () => account,
-      true);
+    );
   }
 
   /**
@@ -365,8 +382,11 @@ export class CompositeClient {
     return this.send(
       subaccount.wallet,
       () => msgs,
+      true,
+      undefined,
+      undefined,
       () => account,
-      true);
+    );
   }
 
   /**
@@ -656,14 +676,9 @@ export class CompositeClient {
       );
       resolve([msg]);
     });
-    const account: Promise<Account> = this.validatorClient.post.account(
-      subaccount.address,
-      undefined,
-    );
     return this.send(
       subaccount.wallet,
       () => msgs,
-      () => account,
       true);
   }
 
@@ -770,14 +785,9 @@ export class CompositeClient {
       );
       resolve([msg]);
     });
-    const account: Promise<Account> = this.validatorClient.post.account(
-      subaccount.address,
-      undefined,
-    );
     return this.send(
       subaccount.wallet,
       () => msgs,
-      () => account,
       false);
   }
 
@@ -876,8 +886,11 @@ export class CompositeClient {
     const signature = await this.sign(
       wallet,
       () => msgs,
+      true,
+      undefined,
+      undefined,
       () => account,
-      true);
+    );
 
     return Buffer.from(signature).toString('base64');
   }
@@ -902,14 +915,9 @@ export class CompositeClient {
       );
       resolve([msg]);
     });
-    const account: Promise<Account> = this.validatorClient.post.account(
-      subaccount.address,
-      undefined,
-    );
     const signature = await this.sign(
       subaccount.wallet,
       () => msgs,
-      () => account,
       true,
     );
 
