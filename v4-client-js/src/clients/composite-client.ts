@@ -12,7 +12,13 @@ import { OrderFlags } from '../types';
 import {
   DYDX_DENOM,
   GAS_PRICE,
-  Network, OrderExecution, OrderSide, OrderTimeInForce, OrderType, SHORT_BLOCK_WINDOW,
+  Network,
+  OrderExecution,
+  OrderSide,
+  OrderTimeInForce,
+  OrderType,
+  SHORT_BLOCK_FORWARD,
+  SHORT_BLOCK_WINDOW,
 } from './constants';
 import {
   calculateQuantums,
@@ -196,7 +202,7 @@ export class CompositeClient {
   ): Promise<number> {
     if (orderFlags === OrderFlags.SHORT_TERM) {
       const height = currentHeight ?? await this.validatorClient.get.latestBlockHeight();
-      return height + 3;
+      return height + SHORT_BLOCK_FORWARD;
     } else {
       return Promise.resolve(0);
     }
