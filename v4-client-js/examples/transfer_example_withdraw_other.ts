@@ -1,5 +1,4 @@
 import { EncodeObject } from '@cosmjs/proto-signing';
-import { Account } from '@cosmjs/stargate';
 import { Method } from '@cosmjs/tendermint-rpc';
 import Long from 'long';
 

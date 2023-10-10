@@ -879,17 +879,10 @@ export class CompositeClient {
         console.log(err);
       });
     });
-    const account: Promise<Account> = this.validatorClient.post.account(
-      subaccount.address,
-      undefined,
-    );
     const signature = await this.sign(
       wallet,
       () => msgs,
       true,
-      undefined,
-      undefined,
-      () => account,
     );
 
     return Buffer.from(signature).toString('base64');
