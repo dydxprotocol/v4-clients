@@ -41,14 +41,9 @@ async function test(): Promise<void> {
     resolve([msg]);
   });
 
-  const account: Promise<Account> = client.post.account(
-    subaccount.address,
-    undefined,
-  );
   const totalFee = await client.post.simulate(
     subaccount.wallet,
     () => msgs,
-    () => account,
     undefined,
   );
   console.log('**Total Fee**');

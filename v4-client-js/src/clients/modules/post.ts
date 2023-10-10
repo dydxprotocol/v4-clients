@@ -79,12 +79,12 @@ export class Post {
     async simulate(
       wallet: LocalWallet,
       messaging: () => Promise<EncodeObject[]>,
-      account: () => Promise<Account>,
       gasPrice: GasPrice = GAS_PRICE,
       memo?: string,
+      account?: () => Promise<Account>,
     ): Promise<StdFee> {
       const msgsPromise = messaging();
-      const accountPromise = account();
+      const accountPromise = account ? (await account()) : this.account(wallet.address!);
       const msgsAndAccount = await Promise.all([msgsPromise, accountPromise]);
       const msgs = msgsAndAccount[0];
 
@@ -108,13 +108,13 @@ export class Post {
     async sign(
       wallet: LocalWallet,
       messaging: () => Promise<EncodeObject[]>,
-      account: () => Promise<Account>,
       zeroFee: boolean,
       gasPrice: GasPrice = GAS_PRICE,
       memo?: string,
+      account?: () => Promise<Account>,
     ): Promise<Uint8Array> {
       const msgsPromise = await messaging();
-      const accountPromise = await account();
+      const accountPromise = account ? (await account()) : this.account(wallet.address!);
       const msgsAndAccount = await Promise.all([msgsPromise, accountPromise]);
       const msgs = msgsAndAccount[0];
       return this.signTransaction(wallet, msgs, msgsAndAccount[1], zeroFee, gasPrice, memo);
@@ -131,14 +131,14 @@ export class Post {
     async send(
       wallet: LocalWallet,
       messaging: () => Promise<EncodeObject[]>,
-      account: () => Promise<Account>,
       zeroFee: boolean,
       gasPrice: GasPrice = GAS_PRICE,
       memo?: string,
       broadcastMode?: BroadcastMode,
+      account?: () => Promise<Account>,
     ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
       const msgsPromise = messaging();
-      const accountPromise = account();
+      const accountPromise = account ? (await account()) : this.account(wallet.address!);
       const msgsAndAccount = await Promise.all([msgsPromise, accountPromise]);
       const msgs = msgsAndAccount[0];
 
@@ -375,11 +375,11 @@ export class Post {
       return this.send(
         subaccount.wallet,
         () => msgs,
-        () => account,
         true,
         undefined,
         undefined,
         broadcastMode,
+        () => account,
       );
     }
 
@@ -428,11 +428,9 @@ export class Post {
         );
         resolve([msg]);
       });
-      const account: Promise<Account> = this.account(subaccount.address, undefined);
       return this.send(
         subaccount.wallet,
         () => msgs,
-        () => account,
         true,
         undefined,
         undefined,
@@ -474,11 +472,9 @@ export class Post {
         );
         resolve([msg]);
       });
-      const account: Promise<Account> = this.account(subaccount.address, undefined);
       return this.send(
         subaccount.wallet,
         () => msgs,
-        () => account,
         false,
         undefined,
         undefined,
@@ -501,11 +497,9 @@ export class Post {
         );
         resolve([msg]);
       });
-      const account: Promise<Account> = this.account(subaccount.address, undefined);
       return this.send(
         subaccount.wallet,
         () => msgs,
-        () => account,
         false,
         undefined,
         undefined,
@@ -530,11 +524,9 @@ export class Post {
         );
         resolve([msg]);
       });
-      const account: Promise<Account> = this.account(subaccount.address, undefined);
       return this.send(
         subaccount.wallet,
         () => msgs,
-        () => account,
         false,
         undefined,
         undefined,
@@ -559,11 +551,9 @@ export class Post {
         );
         resolve([msg]);
       });
-      const account: Promise<Account> = this.account(subaccount.address, undefined);
       return this.send(
         subaccount.wallet,
         () => msgs,
-        () => account,
         zeroFee,
         coinDenom === DYDX_DENOM ? GAS_PRICE_DYDX_DENOM : GAS_PRICE,
         undefined,

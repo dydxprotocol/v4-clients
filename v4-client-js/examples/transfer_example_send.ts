@@ -49,15 +49,9 @@ async function test(): Promise<void> {
     resolve([msg]);
   });
 
-  const account: Promise<Account> = client.post.account(
-    subaccount.address,
-    undefined,
-  );
-
   const totalFee = await client.post.simulate(
     subaccount.wallet,
     () => msgs,
-    () => account,
     GAS_PRICE_DYDX_DENOM,
     undefined,
   );

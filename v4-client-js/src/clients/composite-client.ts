@@ -101,7 +101,7 @@ export class CompositeClient {
     gasPrice: GasPrice = GAS_PRICE,
     memo?: string,
   ): Promise<Uint8Array> {
-    return this.validatorClient.post.sign(wallet, messaging, account, zeroFee, gasPrice, memo);
+    return this.validatorClient.post.sign(wallet, messaging, zeroFee, gasPrice, memo);
   }
 
   /**
@@ -120,7 +120,14 @@ export class CompositeClient {
     gasPrice: GasPrice = GAS_PRICE,
     memo?: string,
   ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
-    return this.validatorClient.post.send(wallet, messaging, account, zeroFee, gasPrice, memo);
+    return this.validatorClient.post.send(
+      wallet,
+      messaging,
+      zeroFee,
+      gasPrice,
+      memo,
+      undefined,
+      account);
   }
 
   /**
@@ -158,7 +165,7 @@ export class CompositeClient {
     gasPrice: GasPrice = GAS_PRICE,
     memo?: string,
   ): Promise<StdFee> {
-    return this.validatorClient.post.simulate(wallet, messaging, account, gasPrice, memo);
+    return this.validatorClient.post.simulate(wallet, messaging, gasPrice, memo);
   }
 
   /**
@@ -711,13 +718,8 @@ export class CompositeClient {
       );
       resolve([msg]);
     });
-    const account: Promise<Account> = this.validatorClient.post.account(
-      subaccount.address,
-      undefined,
-    );
     return this.validatorClient.post.send(subaccount.wallet,
       () => msgs,
-      () => account,
       false);
   }
 
