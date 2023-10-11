@@ -18,6 +18,7 @@ def prepare_and_broadcast_basic_transaction(
     gas_limit: Optional[int] = None,
     memo: Optional[str] = None,
     broadcast_mode: BroadcastMode = None,
+    fee: Optional[str] = "5000dv4tnt",
 ) -> SubmittedTx:
     """Prepare and broadcast basic transaction.
 
@@ -34,10 +35,7 @@ def prepare_and_broadcast_basic_transaction(
     if account is None:
         account = client.query_account(sender.address())
 
-    if gas_limit is not None:
-        # simply build the fee from the provided gas limit
-        fee = client.estimate_fee_from_gas(gas_limit)
-    else:
+    if gas_limit is None:
 
         # we need to build up a representative transaction so that we can accurately simulate it
         tx.seal(
@@ -50,7 +48,7 @@ def prepare_and_broadcast_basic_transaction(
         tx.complete()
 
         # simulate the gas and fee for the transaction
-        gas_limit, fee = client.estimate_gas_and_fee_for_tx(tx)
+        gas_limit, _ = client.estimate_gas_and_fee_for_tx(tx)
 
     # finally, build the final transaction that will be executed with the correct gas and fee values
     tx.seal(
