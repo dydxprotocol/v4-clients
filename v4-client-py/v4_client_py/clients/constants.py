@@ -96,9 +96,6 @@ MAX_MEMO_CHARACTERS = 256
 
 BECH32_PREFIX = 'dydx'
 
-# ------------ DEFAULT TOKEN ------------
-DEFAULT_TOKEN = "dv4tnt"
-
 class BroadcastMode(Enum):
     BroadcastTxSync = 0
     BroadcastTxCommit = 1

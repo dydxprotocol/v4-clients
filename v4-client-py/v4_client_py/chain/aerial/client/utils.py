@@ -3,7 +3,7 @@
 
 from datetime import timedelta
 from typing import Any, Callable, List, Optional, Union
-from v4_client_py.clients.constants import BroadcastMode, DEFAULT_TOKEN
+from v4_client_py.clients.constants import BroadcastMode
 
 from v4_proto.cosmos.base.query.v1beta1.pagination_pb2 import PageRequest
 
@@ -18,7 +18,7 @@ def prepare_and_broadcast_basic_transaction(
     gas_limit: Optional[int] = None,
     memo: Optional[str] = None,
     broadcast_mode: BroadcastMode = None,
-    fee: Optional[int] = 5000,
+    fee: int = 5000,
 ) -> SubmittedTx:
     """Prepare and broadcast basic transaction.
 
@@ -28,6 +28,8 @@ def prepare_and_broadcast_basic_transaction(
     :param account: The account
     :param gas_limit: The gas limit
     :param memo: Transaction memo, defaults to None
+    :param broadcast_mode: Broadcast mode, defaults to None
+    :param fee: Transaction fee, defaults to 5000
 
     :return: broadcast transaction
     """
@@ -53,7 +55,7 @@ def prepare_and_broadcast_basic_transaction(
     # finally, build the final transaction that will be executed with the correct gas and fee values
     tx.seal(
         SigningCfg.direct(sender.public_key(), account.sequence),
-        fee=f"{fee}{DEFAULT_TOKEN}",
+        fee=f"{fee}{client.network_config.fee_denomination}",
         gas_limit=gas_limit,
         memo=memo,
     )

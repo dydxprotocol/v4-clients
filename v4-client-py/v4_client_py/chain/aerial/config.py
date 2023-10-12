@@ -72,6 +72,21 @@ class NetworkConfig:
         )
 
     @classmethod
+    def fetch_dydx_testnet(cls) -> "NetworkConfig":
+        """Dydx testnet.
+
+        :return: Network configuration
+        """
+        return NetworkConfig(
+            chain_id="dydx",
+            url="grpc+https://v4.testnet.dydx.exchange",
+            fee_minimum_gas_price=5000000000,
+            fee_denomination="dv4tnt",
+            staking_denomination="dv4tnt",
+            faucet_url="http://faucet.v4testnet.dydx.exchange",
+        )
+
+    @classmethod
     def fetchai_alpha_testnet(cls):
         """Get the fetchai alpha testnet.
 
@@ -93,7 +108,7 @@ class NetworkConfig:
 
         :return: fetchai stable testnet. For now dorado is fetchai stable testnet.
         """
-        return cls.fetchai_dorado_testnet()
+        return cls.fetch_dydx_testnet()
 
     @classmethod
     def fetchai_mainnet(cls) -> "NetworkConfig":
