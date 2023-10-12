@@ -57,6 +57,7 @@ class Post:
             gas_limit=gas_limit,
             memo=None,
             broadcast_mode=broadcast_mode if (broadcast_mode != None) else self.default_broadcast_mode(msg),
+            fee="0dv4tnt" if zeroFee else "5000dv4tnt",
             )
     
     def place_order(
