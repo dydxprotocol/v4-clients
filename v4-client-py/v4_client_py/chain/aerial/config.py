@@ -103,10 +103,10 @@ class NetworkConfig:
         raise RuntimeError("No beta testnet available")
 
     @classmethod
-    def fetchai_stable_testnet(cls):
-        """Get the fetchai stable testnet.
+    def fetch_dydx_stable_testnet(cls):
+        """Get the dydx stable testnet.
 
-        :return: fetchai stable testnet. For now dorado is fetchai stable testnet.
+        :return: dydx stable testnet.
         """
         return cls.fetch_dydx_testnet()
 
@@ -144,7 +144,7 @@ class NetworkConfig:
         :return: latest stable testnet
         """
         warnings.warn(
-            "latest_stable_testnet is deprecated, use fetchai_stable_testnet instead",
+            "latest_stable_testnet is deprecated, use fetch_dydx_stable_testnet instead",
             DeprecationWarning,
         )
-        return cls.fetchai_stable_testnet()
+        return cls.fetch_dydx_stable_testnet()

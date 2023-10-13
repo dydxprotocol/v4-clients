@@ -29,7 +29,7 @@ def prepare_and_broadcast_basic_transaction(
     :param gas_limit: The gas limit
     :param memo: Transaction memo, defaults to None
     :param broadcast_mode: Broadcast mode, defaults to None
-    :param fee: Transaction fee, defaults to 5000
+    :param fee: Transaction fee, defaults to 5000. Denomination is determined by the network config.
 
     :return: broadcast transaction
     """
