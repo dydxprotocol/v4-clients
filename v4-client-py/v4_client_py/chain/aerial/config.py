@@ -72,6 +72,21 @@ class NetworkConfig:
         )
 
     @classmethod
+    def fetch_dydx_testnet(cls) -> "NetworkConfig":
+        """Dydx testnet.
+
+        :return: Network configuration
+        """
+        return NetworkConfig(
+            chain_id="dydx",
+            url="grpc+https://v4.testnet.dydx.exchange",
+            fee_minimum_gas_price=5000000000,
+            fee_denomination="dv4tnt",
+            staking_denomination="dv4tnt",
+            faucet_url="http://faucet.v4testnet.dydx.exchange",
+        )
+
+    @classmethod
     def fetchai_alpha_testnet(cls):
         """Get the fetchai alpha testnet.
 
@@ -88,12 +103,12 @@ class NetworkConfig:
         raise RuntimeError("No beta testnet available")
 
     @classmethod
-    def fetchai_stable_testnet(cls):
-        """Get the fetchai stable testnet.
+    def fetch_dydx_stable_testnet(cls):
+        """Get the dydx stable testnet.
 
-        :return: fetchai stable testnet. For now dorado is fetchai stable testnet.
+        :return: dydx stable testnet.
         """
-        return cls.fetchai_dorado_testnet()
+        return cls.fetch_dydx_testnet()
 
     @classmethod
     def fetchai_mainnet(cls) -> "NetworkConfig":
@@ -129,7 +144,7 @@ class NetworkConfig:
         :return: latest stable testnet
         """
         warnings.warn(
-            "latest_stable_testnet is deprecated, use fetchai_stable_testnet instead",
+            "latest_stable_testnet is deprecated, use fetch_dydx_stable_testnet instead",
             DeprecationWarning,
         )
-        return cls.fetchai_stable_testnet()
+        return cls.fetch_dydx_stable_testnet()

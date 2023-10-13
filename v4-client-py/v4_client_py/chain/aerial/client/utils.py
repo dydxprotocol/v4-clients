@@ -18,6 +18,7 @@ def prepare_and_broadcast_basic_transaction(
     gas_limit: Optional[int] = None,
     memo: Optional[str] = None,
     broadcast_mode: BroadcastMode = None,
+    fee: int = 5000,
 ) -> SubmittedTx:
     """Prepare and broadcast basic transaction.
 
@@ -27,6 +28,8 @@ def prepare_and_broadcast_basic_transaction(
     :param account: The account
     :param gas_limit: The gas limit
     :param memo: Transaction memo, defaults to None
+    :param broadcast_mode: Broadcast mode, defaults to None
+    :param fee: Transaction fee, defaults to 5000. Denomination is determined by the network config.
 
     :return: broadcast transaction
     """
@@ -34,10 +37,7 @@ def prepare_and_broadcast_basic_transaction(
     if account is None:
         account = client.query_account(sender.address())
 
-    if gas_limit is not None:
-        # simply build the fee from the provided gas limit
-        fee = client.estimate_fee_from_gas(gas_limit)
-    else:
+    if gas_limit is None:
 
         # we need to build up a representative transaction so that we can accurately simulate it
         tx.seal(
@@ -50,12 +50,12 @@ def prepare_and_broadcast_basic_transaction(
         tx.complete()
 
         # simulate the gas and fee for the transaction
-        gas_limit, fee = client.estimate_gas_and_fee_for_tx(tx)
+        gas_limit, _ = client.estimate_gas_and_fee_for_tx(tx)
 
     # finally, build the final transaction that will be executed with the correct gas and fee values
     tx.seal(
         SigningCfg.direct(sender.public_key(), account.sequence),
-        fee=fee,
+        fee=f"{fee}{client.network_config.fee_denomination}",
         gas_limit=gas_limit,
         memo=memo,
     )
