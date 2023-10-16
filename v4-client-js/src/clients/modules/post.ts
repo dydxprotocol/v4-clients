@@ -70,8 +70,10 @@ export class Post {
       this.registry = generateRegistry();
       this.composer = new Composer();
       this.denoms = denoms;
-      this.defaultGasPrice = GasPrice.fromString(`0.025${denoms.USDC_GAS_DENOM !== undefined ? denoms.USDC_GAS_DENOM : denoms.USDC_DENOM}`);
-      this.defaultDydxGasPrice = GasPrice.fromString(`25000000000${denoms.DYDX_GAS_DENOM !== undefined ? denoms.DYDX_GAS_DENOM : denoms.DYDX_DENOM}`);
+      this.defaultGasPrice = GasPrice
+        .fromString(`0.025${denoms.USDC_GAS_DENOM !== undefined ? denoms.USDC_GAS_DENOM : denoms.USDC_DENOM}`);
+      this.defaultDydxGasPrice = GasPrice
+        .fromString(`25000000000${denoms.CHAINTOKEN_GAS_DENOM !== undefined ? denoms.CHAINTOKEN_GAS_DENOM : denoms.CHAINTOKEN_DENOM}`);
     }
 
     /**
@@ -548,7 +550,7 @@ export class Post {
       zeroFee: boolean = true,
       broadcastMode?: BroadcastMode,
     ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
-      if (coinDenom !== this.denoms.DYDX_DENOM && coinDenom !== this.denoms.USDC_DENOM) {
+      if (coinDenom !== this.denoms.CHAINTOKEN_DENOM && coinDenom !== this.denoms.USDC_DENOM) {
         throw new Error('Unsupported coinDenom');
       }
 
@@ -565,7 +567,9 @@ export class Post {
         subaccount.wallet,
         () => msgs,
         zeroFee,
-        coinDenom === this.denoms.DYDX_DENOM ? this.defaultDydxGasPrice : this.defaultGasPrice,
+        coinDenom === this.denoms.CHAINTOKEN_DENOM
+          ? this.defaultDydxGasPrice
+          : this.defaultGasPrice,
         undefined,
         broadcastMode,
       );

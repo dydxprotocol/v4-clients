@@ -26,8 +26,8 @@ export class NetworkOptimizer {
     return (await Promise.all(
       endpointUrls.map((endpointUrl) => ValidatorClient.connect(
         new ValidatorConfig(endpointUrl, chainId, {
-          DYDX_DENOM: 'usdc',
-          USDC_DENOM: 'dydx',
+          CHAINTOKEN_DENOM: '',
+          USDC_DENOM: '',
         }))
         .catch((_) => undefined),
       ),

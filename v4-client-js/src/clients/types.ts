@@ -63,10 +63,10 @@ export interface BroadcastOptions {
 
 export interface DenomConfig {
   USDC_DENOM: string;
-  DYDX_DENOM: string;
+  CHAINTOKEN_DENOM: string;
 
   USDC_GAS_DENOM?: string;
-  DYDX_GAS_DENOM?: string;
+  CHAINTOKEN_GAS_DENOM?: string;
 }
 
 // Specify when a broadcast should return:

@@ -31,7 +31,7 @@ async function test(): Promise<void> {
     const msg = client.post.composer.composeMsgSendToken(
       subaccount.address,
       TEST_RECIPIENT_ADDRESS,
-      client.config.denoms.DYDX_DENOM,
+      client.config.denoms.CHAINTOKEN_DENOM,
       amount,
     );
 
@@ -54,7 +54,7 @@ async function test(): Promise<void> {
   const tx = await client.post.sendToken(
     subaccount,
     TEST_RECIPIENT_ADDRESS,
-    client.config.denoms.DYDX_DENOM,
+    client.config.denoms.CHAINTOKEN_DENOM,
     amountAfterFee,
     false,
     Method.BroadcastTxCommit,

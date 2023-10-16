@@ -839,7 +839,7 @@ export class CompositeClient {
     amount: number,
     recipient: string,
   ): EncodeObject {
-    const dydxDenom = this._validatorClient?.config.denoms.DYDX_DENOM;
+    const dydxDenom = this._validatorClient?.config.denoms.CHAINTOKEN_DENOM;
     if (dydxDenom === undefined) {
       throw new Error('DYDX denom not set in validator config');
     }
