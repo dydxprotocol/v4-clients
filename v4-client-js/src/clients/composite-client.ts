@@ -823,7 +823,7 @@ export class CompositeClient {
   }
 
   /**
-     * @description Create message to send dydx token from subaccount to wallet
+     * @description Create message to send chain token from subaccount to wallet
      * with human readable input.
      *
      * @param subaccount The subaccount to withdraw from
@@ -839,15 +839,15 @@ export class CompositeClient {
     amount: number,
     recipient: string,
   ): EncodeObject {
-    const dydxDenom = this._validatorClient?.config.denoms.CHAINTOKEN_DENOM;
-    if (dydxDenom === undefined) {
-      throw new Error('DYDX denom not set in validator config');
+    const chainTokenDenom = this._validatorClient?.config.denoms.CHAINTOKEN_DENOM;
+    if (chainTokenDenom === undefined) {
+      throw new Error('Chain token denom not set in validator config');
     }
     const quantums: Long = Long.fromNumber(amount * (10 ** 6));
     return this.validatorClient.post.composer.composeMsgSendToken(
       subaccount.address,
       recipient,
-      dydxDenom,
+      chainTokenDenom,
       quantums,
     );
   }
