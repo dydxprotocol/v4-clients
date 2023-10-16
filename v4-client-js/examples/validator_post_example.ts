@@ -2,7 +2,7 @@ import Long from 'long';
 import protobuf from 'protobufjs';
 
 import { BECH32_PREFIX } from '../src';
-import { STAGING_CHAIN_ID, Network, ValidatorConfig } from '../src/clients/constants';
+import { Network } from '../src/clients/constants';
 import LocalWallet from '../src/clients/modules/local-wallet';
 import { Subaccount } from '../src/clients/subaccount';
 import { IPlaceOrder } from '../src/clients/types';
