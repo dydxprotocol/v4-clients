@@ -1,4 +1,4 @@
-import { GasPrice, StdFee } from '@cosmjs/stargate';
+import { StdFee } from '@cosmjs/stargate';
 
 // Bech32 Prefix
 export const BECH32_PREFIX = 'dydx';
@@ -10,16 +10,8 @@ export const BROADCAST_TIMEOUT_MS: number = 8_000;
 // API Defaults
 export const API_TIMEOUT_DEFAULT_MS: number = 5_000;
 
-// Default placeholder USDC denom (same as protocol).
-// Precomputed USDC IBC denom.
-export const USDC_DENOM = 'ibc/8E27BA2D5493AF5636760E354E46004562C46AB7EC0CC4C1CA14E9E20E2545B5';
-export const DYDX_DENOM = 'dv4tnt';
-
 // Gas
 export const GAS_MULTIPLIER: number = 1.4;
-// TODO(TRCL-2550): Replace 'uusdc' with IBC denom.
-export const GAS_PRICE: GasPrice = GasPrice.fromString('0.025uusdc');
-export const GAS_PRICE_DYDX_DENOM: GasPrice = GasPrice.fromString('0.025dv4tnt');
 
 export const ZERO_FEE: StdFee = {
   amount: [],

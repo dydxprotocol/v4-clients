@@ -32,11 +32,8 @@ async function sleep(ms: number): Promise<void> {
 async function test(): Promise<void> {
   const wallet = await LocalWallet.fromMnemonic(DYDX_TEST_MNEMONIC, BECH32_PREFIX);
   console.log(wallet);
-  const config = new ValidatorConfig(
-    Network.staging().validatorConfig.restEndpoint,
-    STAGING_CHAIN_ID,
-  );
-  const client = await ValidatorClient.connect(config);
+
+  const client = await ValidatorClient.connect(Network.staging().validatorConfig);
   console.log('**Client**');
   console.log(client);
 

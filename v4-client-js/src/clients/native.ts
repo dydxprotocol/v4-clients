@@ -8,7 +8,7 @@ import { Order_Side, Order_TimeInForce } from '@dydxprotocol/v4-proto/src/codege
 import * as AuthModule from 'cosmjs-types/cosmos/auth/v1beta1/query';
 import Long from 'long';
 
-import { BECH32_PREFIX, GAS_PRICE_DYDX_DENOM, USDC_DENOM } from '../lib/constants';
+import { BECH32_PREFIX } from '../lib/constants';
 import { UserError } from '../lib/errors';
 import { encodeJson } from '../lib/helpers';
 import { deriveHDKeyFromEthereumSignature } from '../lib/onboarding';
@@ -64,6 +64,8 @@ export async function connectClient(
 
 export async function connectNetwork(
   chainId: string,
+  usdcDenom: string,
+  dydxDenom: string,
   validatorUrl: string,
   indexerUrl: string,
   indexerSocketUrl: string,
@@ -71,7 +73,10 @@ export async function connectNetwork(
 ): Promise<string> {
   try {
     const indexerConfig = new IndexerConfig(indexerUrl, indexerSocketUrl);
-    const validatorConfig = new ValidatorConfig(validatorUrl, chainId);
+    const validatorConfig = new ValidatorConfig(validatorUrl, chainId, {
+      USDC_DENOM: usdcDenom,
+      DYDX_DENOM: dydxDenom,
+    });
     const config = new Network('native', indexerConfig, validatorConfig);
     globalThis.client = await CompositeClient.connect(config);
     if (faucetUrl !== undefined) {
@@ -488,8 +493,6 @@ export async function transferNativeToken(
         return encodeObjects;
       },
       false,
-      GAS_PRICE_DYDX_DENOM,
-      undefined,
     );
     return encodeJson(tx);
   } catch (error) {
@@ -509,7 +512,8 @@ export async function getAccountBalance(): Promise<String> {
     }
     const address = globalThis.wallet.address!;
 
-    const tx = await client.validatorClient.get.getAccountBalance(address, USDC_DENOM);
+    const tx = await client.validatorClient.get
+      .getAccountBalance(address, client.validatorClient.config.denoms.USDC_DENOM);
     return encodeJson(tx);
   } catch (error) {
     return wrappedError(error);
@@ -681,7 +685,6 @@ export async function simulateTransferNativeToken(
       () => {
         return encodeObjects;
       },
-      GAS_PRICE_DYDX_DENOM,
     );
     return encodeJson(stdFee);
   } catch (error) {

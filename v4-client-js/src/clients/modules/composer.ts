@@ -4,7 +4,6 @@ import { Coin } from 'cosmjs-types/cosmos/base/v1beta1/coin';
 import Long from 'long';
 import protobuf from 'protobufjs';
 
-import { USDC_DENOM, DYDX_DENOM } from '../../lib/constants';
 import {
   OrderId,
   Order,
@@ -200,10 +199,6 @@ export class Composer {
     coinDenom: string,
     quantums: Long,
   ): EncodeObject {
-    if (coinDenom !== USDC_DENOM && coinDenom !== DYDX_DENOM) {
-      throw new Error('Unsupported coinDenom');
-    }
-
     const coin: Coin = {
       denom: coinDenom,
       amount: quantums.toString(),

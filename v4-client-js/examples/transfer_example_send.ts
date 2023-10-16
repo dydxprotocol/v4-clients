@@ -4,13 +4,7 @@ import Long from 'long';
 
 import { TEST_RECIPIENT_ADDRESS } from '../__tests__/helpers/constants';
 import { BECH32_PREFIX } from '../src';
-import {
-  STAGING_CHAIN_ID,
-  Network,
-  ValidatorConfig,
-  DYDX_DENOM,
-  GAS_PRICE_DYDX_DENOM,
-} from '../src/clients/constants';
+import { Network } from '../src/clients/constants';
 import LocalWallet from '../src/clients/modules/local-wallet';
 import { Subaccount } from '../src/clients/subaccount';
 import { ValidatorClient } from '../src/clients/validator-client';
@@ -25,11 +19,7 @@ async function test(): Promise<void> {
   );
   console.log(wallet);
 
-  const config = new ValidatorConfig(
-    Network.staging().validatorConfig.restEndpoint,
-    STAGING_CHAIN_ID,
-  );
-  const client = await ValidatorClient.connect(config);
+  const client = await ValidatorClient.connect(Network.staging().validatorConfig);
   console.log('**Client**');
   console.log(client);
 
@@ -41,7 +31,7 @@ async function test(): Promise<void> {
     const msg = client.post.composer.composeMsgSendToken(
       subaccount.address,
       TEST_RECIPIENT_ADDRESS,
-      DYDX_DENOM,
+      client.config.denoms.DYDX_DENOM,
       amount,
     );
 
@@ -51,7 +41,7 @@ async function test(): Promise<void> {
   const totalFee = await client.post.simulate(
     subaccount.wallet,
     () => msgs,
-    GAS_PRICE_DYDX_DENOM,
+    undefined,
     undefined,
   );
   console.log('**Total Fee**');
@@ -64,7 +54,7 @@ async function test(): Promise<void> {
   const tx = await client.post.sendToken(
     subaccount,
     TEST_RECIPIENT_ADDRESS,
-    DYDX_DENOM,
+    client.config.denoms.DYDX_DENOM,
     amountAfterFee,
     false,
     Method.BroadcastTxCommit,
