@@ -22,10 +22,7 @@ import _ from 'lodash';
 import Long from 'long';
 import protobuf from 'protobufjs';
 
-import { DYDX_DENOM, GAS_PRICE_DYDX_DENOM, USDC_DENOM } from '../../lib/constants';
-import {
-  GAS_MULTIPLIER, GAS_PRICE,
-} from '../constants';
+import { GAS_MULTIPLIER } from '../constants';
 import { UnexpectedClientError } from '../lib/errors';
 import { generateRegistry } from '../lib/registry';
 import { Subaccount } from '../subaccount';
@@ -35,6 +32,7 @@ import {
   TransactionOptions,
   IPlaceOrder,
   ICancelOrder,
+  DenomConfig,
 } from '../types';
 import { Composer } from './composer';
 import { Get } from './get';
@@ -55,17 +53,27 @@ export class Post {
     private readonly registry: Registry;
     private readonly chainId: string;
     public readonly get: Get;
+    public readonly denoms: DenomConfig;
+
+    private readonly defaultGasPrice: GasPrice;
+    private readonly defaultDydxGasPrice: GasPrice;
 
     private accountNumberCache: Map<string, Account> = new Map();
 
     constructor(
       get: Get,
       chainId: string,
+      denoms: DenomConfig,
     ) {
       this.get = get;
       this.chainId = chainId;
       this.registry = generateRegistry();
       this.composer = new Composer();
+      this.denoms = denoms;
+      this.defaultGasPrice = GasPrice
+        .fromString(`0.025${denoms.USDC_GAS_DENOM !== undefined ? denoms.USDC_GAS_DENOM : denoms.USDC_DENOM}`);
+      this.defaultDydxGasPrice = GasPrice
+        .fromString(`25000000000${denoms.CHAINTOKEN_GAS_DENOM !== undefined ? denoms.CHAINTOKEN_GAS_DENOM : denoms.CHAINTOKEN_DENOM}`);
     }
 
     /**
@@ -79,7 +87,7 @@ export class Post {
     async simulate(
       wallet: LocalWallet,
       messaging: () => Promise<EncodeObject[]>,
-      gasPrice: GasPrice = GAS_PRICE,
+      gasPrice: GasPrice = this.defaultGasPrice,
       memo?: string,
       account?: () => Promise<Account>,
     ): Promise<StdFee> {
@@ -109,7 +117,7 @@ export class Post {
       wallet: LocalWallet,
       messaging: () => Promise<EncodeObject[]>,
       zeroFee: boolean,
-      gasPrice: GasPrice = GAS_PRICE,
+      gasPrice: GasPrice = this.defaultGasPrice,
       memo?: string,
       account?: () => Promise<Account>,
     ): Promise<Uint8Array> {
@@ -132,7 +140,7 @@ export class Post {
       wallet: LocalWallet,
       messaging: () => Promise<EncodeObject[]>,
       zeroFee: boolean,
-      gasPrice: GasPrice = GAS_PRICE,
+      gasPrice: GasPrice = this.defaultGasPrice,
       memo?: string,
       broadcastMode?: BroadcastMode,
       account?: () => Promise<Account>,
@@ -184,7 +192,7 @@ export class Post {
       messages: EncodeObject[],
       account: Account,
       zeroFee: boolean,
-      gasPrice: GasPrice = GAS_PRICE,
+      gasPrice: GasPrice = this.defaultGasPrice,
       memo?: string,
     ): Promise<Uint8Array> {
       // Simulate transaction if no fee is specified.
@@ -240,7 +248,7 @@ export class Post {
       account: Account,
       messages: EncodeObject[],
       zeroFee: boolean,
-      gasPrice: GasPrice = GAS_PRICE,
+      gasPrice: GasPrice = this.defaultGasPrice,
       memo?: string,
       broadcastMode?: BroadcastMode,
     ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
@@ -283,7 +291,7 @@ export class Post {
       pubKey: Secp256k1Pubkey,
       sequence: number,
       messages: readonly EncodeObject[],
-      gasPrice: GasPrice = GAS_PRICE,
+      gasPrice: GasPrice = this.defaultGasPrice,
       memo?: string,
     ): Promise<StdFee> {
       // Get simulated response.
@@ -320,7 +328,7 @@ export class Post {
         if (coin.denom === 'uusdc') {
           return {
             amount: coin.amount,
-            denom: USDC_DENOM,
+            denom: this.denoms.USDC_DENOM,
           };
         }
         return coin;
@@ -542,6 +550,10 @@ export class Post {
       zeroFee: boolean = true,
       broadcastMode?: BroadcastMode,
     ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
+      if (coinDenom !== this.denoms.CHAINTOKEN_DENOM && coinDenom !== this.denoms.USDC_DENOM) {
+        throw new Error('Unsupported coinDenom');
+      }
+
       const msgs: Promise<EncodeObject[]> = new Promise((resolve) => {
         const msg = this.composer.composeMsgSendToken(
           subaccount.address,
@@ -555,7 +567,9 @@ export class Post {
         subaccount.wallet,
         () => msgs,
         zeroFee,
-        coinDenom === DYDX_DENOM ? GAS_PRICE_DYDX_DENOM : GAS_PRICE,
+        coinDenom === this.denoms.CHAINTOKEN_DENOM
+          ? this.defaultDydxGasPrice
+          : this.defaultGasPrice,
         undefined,
         broadcastMode,
       );

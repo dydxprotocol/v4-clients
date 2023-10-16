@@ -10,8 +10,6 @@ import protobuf from 'protobufjs';
 import { isStatefulOrder, verifyOrderFlags } from '../lib/validation';
 import { OrderFlags } from '../types';
 import {
-  DYDX_DENOM,
-  GAS_PRICE,
   Network,
   OrderExecution,
   OrderSide,
@@ -103,7 +101,7 @@ export class CompositeClient {
     wallet: LocalWallet,
     messaging: () => Promise<EncodeObject[]>,
     zeroFee: boolean,
-    gasPrice: GasPrice = GAS_PRICE,
+    gasPrice?: GasPrice,
     memo?: string,
     account?: () => Promise<Account>,
   ): Promise<Uint8Array> {
@@ -129,7 +127,7 @@ export class CompositeClient {
     wallet: LocalWallet,
     messaging: () => Promise<EncodeObject[]>,
     zeroFee: boolean,
-    gasPrice: GasPrice = GAS_PRICE,
+    gasPrice?: GasPrice,
     memo?: string,
     account?: () => Promise<Account>,
   ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
@@ -175,7 +173,7 @@ export class CompositeClient {
   async simulate(
     wallet: LocalWallet,
     messaging: () => Promise<EncodeObject[]>,
-    gasPrice: GasPrice = GAS_PRICE,
+    gasPrice?: GasPrice,
     memo?: string,
     account?: () => Promise<Account>,
   ): Promise<StdFee> {
@@ -825,7 +823,7 @@ export class CompositeClient {
   }
 
   /**
-     * @description Create message to send dydx token from subaccount to wallet
+     * @description Create message to send chain token from subaccount to wallet
      * with human readable input.
      *
      * @param subaccount The subaccount to withdraw from
@@ -841,11 +839,15 @@ export class CompositeClient {
     amount: number,
     recipient: string,
   ): EncodeObject {
+    const chainTokenDenom = this._validatorClient?.config.denoms.CHAINTOKEN_DENOM;
+    if (chainTokenDenom === undefined) {
+      throw new Error('Chain token denom not set in validator config');
+    }
     const quantums: Long = Long.fromNumber(amount * (10 ** 6));
     return this.validatorClient.post.composer.composeMsgSendToken(
       subaccount.address,
       recipient,
-      DYDX_DENOM,
+      chainTokenDenom,
       quantums,
     );
   }

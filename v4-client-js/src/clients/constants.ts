@@ -1,7 +1,7 @@
 import { PageRequest } from '@dydxprotocol/v4-proto/src/codegen/cosmos/base/query/v1beta1/pagination';
 import Long from 'long';
 
-import { BroadcastOptions } from './types';
+import { BroadcastOptions, DenomConfig } from './types';
 
 export * from '../lib/constants';
 
@@ -150,11 +150,13 @@ export class IndexerConfig {
 export class ValidatorConfig {
   public restEndpoint: string;
   public chainId: string;
+  public denoms: DenomConfig;
   public broadcastOptions?: BroadcastOptions;
 
   constructor(
     restEndpoint: string,
     chainId: string,
+    denoms: DenomConfig,
     broadcastOptions?: BroadcastOptions,
   ) {
     if ((restEndpoint?.endsWith('/'))) {
@@ -162,6 +164,7 @@ export class ValidatorConfig {
     }
     this.restEndpoint = restEndpoint;
     this.chainId = chainId;
+    this.denoms = denoms;
     this.broadcastOptions = broadcastOptions;
   }
 }
@@ -178,7 +181,12 @@ export class Network {
       IndexerApiHost.DEV,
       IndexerWSHost.DEV,
     );
-    const validatorConfig = new ValidatorConfig(ValidatorApiHost.DEV, DEV_CHAIN_ID);
+    const validatorConfig = new ValidatorConfig(ValidatorApiHost.DEV, DEV_CHAIN_ID,
+      {
+        CHAINTOKEN_DENOM: 'adv4tnt',
+        USDC_DENOM: 'ibc/8E27BA2D5493AF5636760E354E46004562C46AB7EC0CC4C1CA14E9E20E2545B5',
+        USDC_GAS_DENOM: 'uusdc',
+      });
     return new Network('dev', indexerConfig, validatorConfig);
   }
 
@@ -187,7 +195,12 @@ export class Network {
       IndexerApiHost.STAGING,
       IndexerWSHost.STAGING,
     );
-    const validatorConfig = new ValidatorConfig(ValidatorApiHost.STAGING, STAGING_CHAIN_ID);
+    const validatorConfig = new ValidatorConfig(ValidatorApiHost.STAGING, STAGING_CHAIN_ID,
+      {
+        CHAINTOKEN_DENOM: 'adv4tnt',
+        USDC_DENOM: 'ibc/8E27BA2D5493AF5636760E354E46004562C46AB7EC0CC4C1CA14E9E20E2545B5',
+        USDC_GAS_DENOM: 'uusdc',
+      });
     return new Network('staging', indexerConfig, validatorConfig);
   }
 
@@ -196,7 +209,12 @@ export class Network {
       IndexerApiHost.TESTNET,
       IndexerWSHost.TESTNET,
     );
-    const validatorConfig = new ValidatorConfig(ValidatorApiHost.TESTNET, TESTNET_CHAIN_ID);
+    const validatorConfig = new ValidatorConfig(ValidatorApiHost.TESTNET, TESTNET_CHAIN_ID,
+      {
+        CHAINTOKEN_DENOM: 'adv4tnt',
+        USDC_DENOM: 'ibc/8E27BA2D5493AF5636760E354E46004562C46AB7EC0CC4C1CA14E9E20E2545B5',
+        USDC_GAS_DENOM: 'uusdc',
+      });
     return new Network('testnet', indexerConfig, validatorConfig);
   }
 
