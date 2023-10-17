@@ -670,7 +670,7 @@ export class CompositeClient {
     subaccount: Subaccount,
     recipientAddress: string,
     recipientSubaccountNumber: number,
-    amount: number,
+    amount: string,
   ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
     const msgs: Promise<EncodeObject[]> = new Promise((resolve) => {
       const msg = this.transferToSubaccountMessage(
@@ -704,14 +704,19 @@ export class CompositeClient {
     subaccount: Subaccount,
     recipientAddress: string,
     recipientSubaccountNumber: number,
-    amount: number,
+    amount: string,
   ): EncodeObject {
     const validatorClient = this._validatorClient;
     if (validatorClient === undefined) {
       throw new Error('validatorClient not set');
     }
-    const quantums: Long = Long
-      .fromNumber(amount * (10 ** validatorClient.config.denoms.USDC_DECIMALS));
+    const quantums = parseUnits(amount, validatorClient.config.denoms.USDC_DECIMALS);
+    if (quantums > BigInt(Long.MAX_VALUE.toString())) {
+      throw new Error('amount to large');
+    }
+    if (quantums < 0) {
+      throw new Error('amount must be positive');
+    }
 
     return this.validatorClient.post.composer.composeMsgTransfer(
       subaccount.address,
@@ -719,7 +724,7 @@ export class CompositeClient {
       recipientAddress,
       recipientSubaccountNumber,
       0,
-      quantums,
+      Long.fromString(quantums.toString()),
     );
   }
 
@@ -735,7 +740,7 @@ export class CompositeClient {
      */
   async depositToSubaccount(
     subaccount: Subaccount,
-    amount: number,
+    amount: string,
   ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
     const msgs: Promise<EncodeObject[]> = new Promise((resolve) => {
       const msg = this.depositToSubaccountMessage(
@@ -761,20 +766,25 @@ export class CompositeClient {
      */
   depositToSubaccountMessage(
     subaccount: Subaccount,
-    amount: number,
+    amount: string,
   ): EncodeObject {
     const validatorClient = this._validatorClient;
     if (validatorClient === undefined) {
       throw new Error('validatorClient not set');
     }
-    const quantums: Long = Long
-      .fromNumber(amount * (10 ** validatorClient.config.denoms.USDC_DECIMALS));
+    const quantums = parseUnits(amount, validatorClient.config.denoms.USDC_DECIMALS);
+    if (quantums > BigInt(Long.MAX_VALUE.toString())) {
+      throw new Error('amount to large');
+    }
+    if (quantums < 0) {
+      throw new Error('amount must be positive');
+    }
 
     return this.validatorClient.post.composer.composeMsgDepositToSubaccount(
       subaccount.address,
       subaccount.subaccountNumber,
       0,
-      quantums,
+      Long.fromString(quantums.toString()),
     );
   }
 
@@ -791,7 +801,7 @@ export class CompositeClient {
      */
   async withdrawFromSubaccount(
     subaccount: Subaccount,
-    amount: number,
+    amount: string,
     recipient?: string,
   ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
     const msgs: Promise<EncodeObject[]> = new Promise((resolve) => {
@@ -822,21 +832,26 @@ export class CompositeClient {
      */
   withdrawFromSubaccountMessage(
     subaccount: Subaccount,
-    amount: number,
+    amount: string,
     recipient?: string,
   ): EncodeObject {
     const validatorClient = this._validatorClient;
     if (validatorClient === undefined) {
       throw new Error('validatorClient not set');
     }
-    const quantums: Long = Long
-      .fromNumber(amount * (10 ** validatorClient.config.denoms.USDC_DECIMALS));
+    const quantums = parseUnits(amount, validatorClient.config.denoms.USDC_DECIMALS);
+    if (quantums > BigInt(Long.MAX_VALUE.toString())) {
+      throw new Error('amount to large');
+    }
+    if (quantums < 0) {
+      throw new Error('amount must be positive');
+    }
 
     return this.validatorClient.post.composer.composeMsgWithdrawFromSubaccount(
       subaccount.address,
       subaccount.subaccountNumber,
       0,
-      quantums,
+      Long.fromString(quantums.toString()),
       recipient,
     );
   }

@@ -99,7 +99,7 @@ async function test(): Promise<void> {
     const encode = (str: string):string => Buffer.from(str, 'binary').toString('base64');
     const encoded = encode(squidPayload);
 
-    tx = await withdrawToIBC(0, 13, encoded);
+    tx = await withdrawToIBC(0, '13', encoded);
     console.log(tx);
 
     const connected = await connectNetwork(

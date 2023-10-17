@@ -419,7 +419,7 @@ export async function faucet(
 
 export async function withdrawToIBC(
   subaccountNumber: number,
-  amount: number,
+  amount: string,
   payload: string,
 ): Promise<string> {
   try {
