@@ -1,6 +1,7 @@
 import { PageRequest } from '@dydxprotocol/v4-proto/src/codegen/cosmos/base/query/v1beta1/pagination';
 import Long from 'long';
 
+import { DEFAULT_CHAINTOKEN_DECIMALS, DEFAULT_USDC_DECIMALS } from '../lib/constants';
 import { BroadcastOptions, DenomConfig } from './types';
 
 export * from '../lib/constants';
@@ -159,11 +160,9 @@ export class ValidatorConfig {
     denoms: DenomConfig,
     broadcastOptions?: BroadcastOptions,
   ) {
-    if ((restEndpoint?.endsWith('/'))) {
-      this.restEndpoint = restEndpoint.slice(0, -1);
-    }
-    this.restEndpoint = restEndpoint;
+    this.restEndpoint = restEndpoint?.endsWith('/') ? restEndpoint.slice(0, -1) : restEndpoint;
     this.chainId = chainId;
+
     this.denoms = denoms;
     this.broadcastOptions = broadcastOptions;
   }
@@ -186,6 +185,8 @@ export class Network {
         CHAINTOKEN_DENOM: 'adv4tnt',
         USDC_DENOM: 'ibc/8E27BA2D5493AF5636760E354E46004562C46AB7EC0CC4C1CA14E9E20E2545B5',
         USDC_GAS_DENOM: 'uusdc',
+        USDC_DECIMALS: 6,
+        CHAINTOKEN_DECIMALS: 18,
       });
     return new Network('dev', indexerConfig, validatorConfig);
   }
@@ -200,6 +201,8 @@ export class Network {
         CHAINTOKEN_DENOM: 'adv4tnt',
         USDC_DENOM: 'ibc/8E27BA2D5493AF5636760E354E46004562C46AB7EC0CC4C1CA14E9E20E2545B5',
         USDC_GAS_DENOM: 'uusdc',
+        USDC_DECIMALS: 6,
+        CHAINTOKEN_DECIMALS: 18,
       });
     return new Network('staging', indexerConfig, validatorConfig);
   }
@@ -214,6 +217,8 @@ export class Network {
         CHAINTOKEN_DENOM: 'adv4tnt',
         USDC_DENOM: 'ibc/8E27BA2D5493AF5636760E354E46004562C46AB7EC0CC4C1CA14E9E20E2545B5',
         USDC_GAS_DENOM: 'uusdc',
+        USDC_DECIMALS: 6,
+        CHAINTOKEN_DECIMALS: 18,
       });
     return new Network('testnet', indexerConfig, validatorConfig);
   }
