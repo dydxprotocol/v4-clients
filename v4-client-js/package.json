@@ -44,6 +44,7 @@
     "bech32": "^1.1.4",
     "bignumber.js": "^9.1.1",
     "ethereum-cryptography": "^2.0.0",
+    "ethers": "^6.6.1",
     "long": "^4.0.0",
     "protobufjs": ">=6.11.4",
     "ws": "^8.13.0"

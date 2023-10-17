@@ -69,16 +69,20 @@ export async function connectNetwork(
   indexerSocketUrl: string,
   faucetUrl?: string,
   usdcDenom?: string,
+  usdcDecimals?: string,
   usdcGasDenom?: string,
   chainTokenDenom?: string,
+  chainTokenDecimals?: string,
   chainTokenGasDenom?: string,
 ): Promise<string> {
   try {
     const indexerConfig = new IndexerConfig(indexerUrl, indexerSocketUrl);
     const validatorConfig = new ValidatorConfig(validatorUrl, chainId, {
       USDC_DENOM: usdcDenom ?? 'ibc/8E27BA2D5493AF5636760E354E46004562C46AB7EC0CC4C1CA14E9E20E2545B5',
-      CHAINTOKEN_DENOM: chainTokenDenom ?? 'adv4tnt',
+      USDC_DECIMALS: parseInt(usdcDecimals ?? '6', 10),
       USDC_GAS_DENOM: usdcGasDenom ?? 'uusdc',
+      CHAINTOKEN_DENOM: chainTokenDenom ?? 'adv4tnt',
+      CHAINTOKEN_DECIMALS: parseInt(chainTokenDecimals ?? '18', 10),
       CHAINTOKEN_GAS_DENOM: chainTokenGasDenom,
     });
     const config = new Network('native', indexerConfig, validatorConfig);

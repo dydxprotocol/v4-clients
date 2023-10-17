@@ -63,9 +63,11 @@ export interface BroadcastOptions {
 
 export interface DenomConfig {
   USDC_DENOM: string;
-  CHAINTOKEN_DENOM: string;
-
+  USDC_DECIMALS: number;
   USDC_GAS_DENOM?: string;
+
+  CHAINTOKEN_DENOM: string;
+  CHAINTOKEN_DECIMALS: number;
   CHAINTOKEN_GAS_DENOM?: string;
 }
 
