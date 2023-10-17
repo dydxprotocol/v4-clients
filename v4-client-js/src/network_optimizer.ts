@@ -27,7 +27,9 @@ export class NetworkOptimizer {
       endpointUrls.map((endpointUrl) => ValidatorClient.connect(
         new ValidatorConfig(endpointUrl, chainId, {
           CHAINTOKEN_DENOM: '',
+          CHAINTOKEN_DECIMALS: 18,
           USDC_DENOM: '',
+          USDC_DECIMALS: 6,
         }))
         .catch((_) => undefined),
       ),
