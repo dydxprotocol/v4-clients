@@ -31,7 +31,7 @@ async function test(): Promise<void> {
 
     const sendTokenPayload = {
       subaccountNumber: 0,
-      amount: 10,   // Dydx Token
+      amount: '10',   // Dydx Token
       recipient: 'dydx15ndn9c895f8ntck25qughtuck9spv2d9svw5qx',
     };
     const fees = await simulateTransferNativeToken(JSON.stringify(sendTokenPayload));
@@ -99,7 +99,7 @@ async function test(): Promise<void> {
     const encode = (str: string):string => Buffer.from(str, 'binary').toString('base64');
     const encoded = encode(squidPayload);
 
-    tx = await withdrawToIBC(0, 13, encoded);
+    tx = await withdrawToIBC(0, '13', encoded);
     console.log(tx);
 
     const connected = await connectNetwork(

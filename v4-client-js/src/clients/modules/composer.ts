@@ -197,11 +197,11 @@ export class Composer {
     address: string,
     recipient: string,
     coinDenom: string,
-    quantums: Long,
+    quantums: string,
   ): EncodeObject {
     const coin: Coin = {
       denom: coinDenom,
-      amount: quantums.toString(),
+      amount: quantums,
     };
 
     const msg: MsgSend = {

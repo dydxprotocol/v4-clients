@@ -4,6 +4,7 @@ import {
 } from '@cosmjs/stargate';
 import { BroadcastTxAsyncResponse, BroadcastTxSyncResponse } from '@cosmjs/tendermint-rpc/build/tendermint37';
 import { Order_ConditionType, Order_TimeInForce } from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/clob/order';
+import { parseUnits } from 'ethers';
 import Long from 'long';
 import protobuf from 'protobufjs';
 
@@ -669,7 +670,7 @@ export class CompositeClient {
     subaccount: Subaccount,
     recipientAddress: string,
     recipientSubaccountNumber: number,
-    amount: number,
+    amount: string,
   ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
     const msgs: Promise<EncodeObject[]> = new Promise((resolve) => {
       const msg = this.transferToSubaccountMessage(
@@ -703,16 +704,27 @@ export class CompositeClient {
     subaccount: Subaccount,
     recipientAddress: string,
     recipientSubaccountNumber: number,
-    amount: number,
+    amount: string,
   ): EncodeObject {
-    const quantums: Long = Long.fromNumber(amount * (10 ** 6));
+    const validatorClient = this._validatorClient;
+    if (validatorClient === undefined) {
+      throw new Error('validatorClient not set');
+    }
+    const quantums = parseUnits(amount, validatorClient.config.denoms.USDC_DECIMALS);
+    if (quantums > BigInt(Long.MAX_VALUE.toString())) {
+      throw new Error('amount to large');
+    }
+    if (quantums < 0) {
+      throw new Error('amount must be positive');
+    }
+
     return this.validatorClient.post.composer.composeMsgTransfer(
       subaccount.address,
       subaccount.subaccountNumber,
       recipientAddress,
       recipientSubaccountNumber,
       0,
-      quantums,
+      Long.fromString(quantums.toString()),
     );
   }
 
@@ -728,7 +740,7 @@ export class CompositeClient {
      */
   async depositToSubaccount(
     subaccount: Subaccount,
-    amount: number,
+    amount: string,
   ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
     const msgs: Promise<EncodeObject[]> = new Promise((resolve) => {
       const msg = this.depositToSubaccountMessage(
@@ -754,14 +766,25 @@ export class CompositeClient {
      */
   depositToSubaccountMessage(
     subaccount: Subaccount,
-    amount: number,
+    amount: string,
   ): EncodeObject {
-    const quantums: Long = Long.fromNumber(amount * (10 ** 6));
+    const validatorClient = this._validatorClient;
+    if (validatorClient === undefined) {
+      throw new Error('validatorClient not set');
+    }
+    const quantums = parseUnits(amount, validatorClient.config.denoms.USDC_DECIMALS);
+    if (quantums > BigInt(Long.MAX_VALUE.toString())) {
+      throw new Error('amount to large');
+    }
+    if (quantums < 0) {
+      throw new Error('amount must be positive');
+    }
+
     return this.validatorClient.post.composer.composeMsgDepositToSubaccount(
       subaccount.address,
       subaccount.subaccountNumber,
       0,
-      quantums,
+      Long.fromString(quantums.toString()),
     );
   }
 
@@ -778,7 +801,7 @@ export class CompositeClient {
      */
   async withdrawFromSubaccount(
     subaccount: Subaccount,
-    amount: number,
+    amount: string,
     recipient?: string,
   ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
     const msgs: Promise<EncodeObject[]> = new Promise((resolve) => {
@@ -809,15 +832,26 @@ export class CompositeClient {
      */
   withdrawFromSubaccountMessage(
     subaccount: Subaccount,
-    amount: number,
+    amount: string,
     recipient?: string,
   ): EncodeObject {
-    const quantums: Long = Long.fromNumber(amount * (10 ** 6));
+    const validatorClient = this._validatorClient;
+    if (validatorClient === undefined) {
+      throw new Error('validatorClient not set');
+    }
+    const quantums = parseUnits(amount, validatorClient.config.denoms.USDC_DECIMALS);
+    if (quantums > BigInt(Long.MAX_VALUE.toString())) {
+      throw new Error('amount to large');
+    }
+    if (quantums < 0) {
+      throw new Error('amount must be positive');
+    }
+
     return this.validatorClient.post.composer.composeMsgWithdrawFromSubaccount(
       subaccount.address,
       subaccount.subaccountNumber,
       0,
-      quantums,
+      Long.fromString(quantums.toString()),
       recipient,
     );
   }
@@ -836,19 +870,25 @@ export class CompositeClient {
      */
   sendTokenMessage(
     subaccount: Subaccount,
-    amount: number,
+    amount: string,
     recipient: string,
   ): EncodeObject {
-    const chainTokenDenom = this._validatorClient?.config.denoms.CHAINTOKEN_DENOM;
-    if (chainTokenDenom === undefined) {
+    const {
+      CHAINTOKEN_DENOM: chainTokenDenom,
+      CHAINTOKEN_DECIMALS: chainTokenDecimals,
+    } = this._validatorClient?.config.denoms || {};
+
+    if (chainTokenDenom === undefined || chainTokenDecimals === undefined) {
       throw new Error('Chain token denom not set in validator config');
     }
-    const quantums: Long = Long.fromNumber(amount * (10 ** 6));
+
+    const quantums = parseUnits(amount, chainTokenDecimals);
+
     return this.validatorClient.post.composer.composeMsgSendToken(
       subaccount.address,
       recipient,
       chainTokenDenom,
-      quantums,
+      quantums.toString(),
     );
   }
 
