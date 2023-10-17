@@ -1,7 +1,6 @@
 import { PageRequest } from '@dydxprotocol/v4-proto/src/codegen/cosmos/base/query/v1beta1/pagination';
 import Long from 'long';
 
-import { DEFAULT_CHAINTOKEN_DECIMALS, DEFAULT_USDC_DECIMALS } from '../lib/constants';
 import { BroadcastOptions, DenomConfig } from './types';
 
 export * from '../lib/constants';
