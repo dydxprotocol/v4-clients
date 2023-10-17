@@ -32,7 +32,7 @@ async function test(): Promise<void> {
       subaccount.address,
       TEST_RECIPIENT_ADDRESS,
       client.config.denoms.CHAINTOKEN_DENOM,
-      amount,
+      amount.toString(),
     );
 
     resolve([msg]);
@@ -55,7 +55,7 @@ async function test(): Promise<void> {
     subaccount,
     TEST_RECIPIENT_ADDRESS,
     client.config.denoms.CHAINTOKEN_DENOM,
-    amountAfterFee,
+    amountAfterFee.toString(),
     false,
     Method.BroadcastTxCommit,
   );

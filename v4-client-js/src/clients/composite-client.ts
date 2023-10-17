@@ -836,19 +836,18 @@ export class CompositeClient {
      */
   sendTokenMessage(
     subaccount: Subaccount,
-    amount: number,
+    amount: string,
     recipient: string,
   ): EncodeObject {
     const chainTokenDenom = this._validatorClient?.config.denoms.CHAINTOKEN_DENOM;
     if (chainTokenDenom === undefined) {
       throw new Error('Chain token denom not set in validator config');
     }
-    const quantums: Long = Long.fromNumber(amount * (10 ** 6));
     return this.validatorClient.post.composer.composeMsgSendToken(
       subaccount.address,
       recipient,
       chainTokenDenom,
-      quantums,
+      amount,
     );
   }
 

@@ -546,7 +546,7 @@ export class Post {
       subaccount: Subaccount,
       recipient: string,
       coinDenom: string,
-      quantums: Long,
+      quantums: string,
       zeroFee: boolean = true,
       broadcastMode?: BroadcastMode,
     ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
