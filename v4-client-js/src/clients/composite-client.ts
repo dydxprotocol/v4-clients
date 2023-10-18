@@ -869,10 +869,14 @@ export class CompositeClient {
      * @returns The message
      */
   sendTokenMessage(
-    subaccount: Subaccount,
+    wallet: LocalWallet,
     amount: string,
     recipient: string,
   ): EncodeObject {
+    const address = wallet.address;
+    if (address === undefined) {
+      throw new UserError('wallet address is not set. Call connectWallet() first');
+    }
     const {
       CHAINTOKEN_DENOM: chainTokenDenom,
       CHAINTOKEN_DECIMALS: chainTokenDecimals,
@@ -885,7 +889,7 @@ export class CompositeClient {
     const quantums = parseUnits(amount, chainTokenDecimals);
 
     return this.validatorClient.post.composer.composeMsgSendToken(
-      subaccount.address,
+      address,
       recipient,
       chainTokenDenom,
       quantums.toString(),

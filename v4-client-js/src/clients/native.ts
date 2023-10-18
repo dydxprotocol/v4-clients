@@ -477,18 +477,13 @@ export async function transferNativeToken(
     }
 
     const json = JSON.parse(payload);
-    const subaccountNumber = json.subaccountNumber;
-    if (subaccountNumber === undefined) {
-      throw new UserError('subaccountNumber is not set');
-    }
     const amount = json.amount;
     if (amount === undefined) {
       throw new UserError('amount is not set');
     }
 
-    const subaccount = new Subaccount(wallet, subaccountNumber);
     const msg: EncodeObject = client.sendTokenMessage(
-      subaccount,
+      wallet,
       amount,
       json.recipient,
     );
@@ -666,10 +661,6 @@ export async function simulateTransferNativeToken(
       throw new UserError('wallet is not set. Call connectWallet() first');
     }
     const json = JSON.parse(payload);
-    const subaccountNumber = json.subaccountNumber;
-    if (subaccountNumber === undefined) {
-      throw new UserError('subaccountNumber is not set');
-    }
     const recipient = json.recipient;
     if (recipient === undefined) {
       throw new UserError('recipient is not set');
@@ -679,9 +670,8 @@ export async function simulateTransferNativeToken(
       throw new UserError('amount is not set');
     }
 
-    const subaccount = new Subaccount(wallet, subaccountNumber);
     const msg: EncodeObject = client.sendTokenMessage(
-      subaccount,
+      wallet,
       amount,
       json.recipient,
     );
