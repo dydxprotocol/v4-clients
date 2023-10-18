@@ -611,8 +611,8 @@ export class CompositeClient {
     clientId: number,
     orderFlags: OrderFlags,
     marketId: string,
-    goodTilBlock: number,
-    goodTilTimeInSeconds: number,
+    goodTilBlock?: number,
+    goodTilTimeInSeconds?: number,
   ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
 
     const marketsResponse = await this.indexerClient.markets.getPerpetualMarkets(marketId);
@@ -625,7 +625,7 @@ export class CompositeClient {
 
     let goodTilBlockTime;
     if (isStatefulOrder(orderFlags)) {
-      if (goodTilTimeInSeconds === 0) {
+      if (goodTilTimeInSeconds === undefined || goodTilTimeInSeconds === 0) {
         throw new Error('goodTilTimeInSeconds must be set for LONG_TERM or CONDITIONAL order');
       }
       if (goodTilBlock !== 0) {
@@ -636,10 +636,10 @@ export class CompositeClient {
       }
       goodTilBlockTime = this.calculateGoodTilBlockTime(goodTilTimeInSeconds);
     } else {
-      if (goodTilBlock === 0) {
+      if (goodTilBlock === undefined || goodTilBlock === 0) {
         throw new Error('goodTilBlock must be non-zero for SHORT_TERM orders');
       }
-      if (goodTilTimeInSeconds !== 0) {
+      if (goodTilTimeInSeconds !== undefined && goodTilTimeInSeconds !== 0) {
         throw new Error('goodTilTimeInSeconds should be zero since SHORT_TERM orders use goodTilBlock instead of goodTilTimeInSeconds.');
       }
     }

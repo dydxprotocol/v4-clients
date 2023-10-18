@@ -55,8 +55,8 @@ export class Post {
     public readonly get: Get;
     public readonly denoms: DenomConfig;
 
-    private readonly defaultGasPrice: GasPrice;
-    private readonly defaultDydxGasPrice: GasPrice;
+    public readonly defaultGasPrice: GasPrice;
+    public readonly defaultDydxGasPrice: GasPrice;
 
     private accountNumberCache: Map<string, Account> = new Map();
 

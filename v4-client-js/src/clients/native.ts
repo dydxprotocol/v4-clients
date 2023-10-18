@@ -63,27 +63,45 @@ export async function connectClient(
 }
 
 export async function connectNetwork(
-  chainId: string,
-  validatorUrl: string,
-  indexerUrl: string,
-  indexerSocketUrl: string,
-  faucetUrl?: string,
-  usdcDenom?: string,
-  usdcDecimals?: string,
-  usdcGasDenom?: string,
-  chainTokenDenom?: string,
-  chainTokenDecimals?: string,
-  chainTokenGasDenom?: string,
+  paramsJSON: string,
 ): Promise<string> {
   try {
-    const indexerConfig = new IndexerConfig(indexerUrl, indexerSocketUrl);
+    const params = JSON.parse(paramsJSON);
+    const {
+      indexerUrl,
+      websocketUrl,
+      validatorUrl,
+      chainId,
+      faucetUrl,
+      USDC_DENOM,
+      USDC_DECIMALS,
+      USDC_GAS_DENOM,
+      CHAINTOKEN_DENOM,
+      CHAINTOKEN_DECIMALS,
+      CHAINTOKEN_GAS_DENOM,
+    } = params;
+
+    if (indexerUrl === undefined ||
+      websocketUrl === undefined ||
+      validatorUrl === undefined ||
+      chainId === undefined) {
+      throw new UserError('Missing required network params');
+    }
+    if (USDC_DENOM === undefined ||
+      USDC_DECIMALS === undefined ||
+      CHAINTOKEN_DENOM === undefined ||
+      CHAINTOKEN_DECIMALS === undefined) {
+      throw new UserError('Missing required token params');
+    }
+
+    const indexerConfig = new IndexerConfig(indexerUrl, websocketUrl);
     const validatorConfig = new ValidatorConfig(validatorUrl, chainId, {
-      USDC_DENOM: usdcDenom ?? 'ibc/8E27BA2D5493AF5636760E354E46004562C46AB7EC0CC4C1CA14E9E20E2545B5',
-      USDC_DECIMALS: parseInt(usdcDecimals ?? '6', 10),
-      USDC_GAS_DENOM: usdcGasDenom ?? 'uusdc',
-      CHAINTOKEN_DENOM: chainTokenDenom ?? 'adv4tnt',
-      CHAINTOKEN_DECIMALS: parseInt(chainTokenDecimals ?? '18', 10),
-      CHAINTOKEN_GAS_DENOM: chainTokenGasDenom,
+      USDC_DENOM,
+      USDC_DECIMALS,
+      USDC_GAS_DENOM,
+      CHAINTOKEN_DENOM,
+      CHAINTOKEN_DECIMALS,
+      CHAINTOKEN_GAS_DENOM,
     });
     const config = new Network('native', indexerConfig, validatorConfig);
     globalThis.client = await CompositeClient.connect(config);

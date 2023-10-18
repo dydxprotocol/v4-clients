@@ -8,7 +8,7 @@ export * from '../lib/constants';
 // Chain ID
 export const DEV_CHAIN_ID = 'dydxprotocol-testnet';
 export const STAGING_CHAIN_ID = 'dydxprotocol-testnet';
-export const TESTNET_CHAIN_ID = 'dydx-testnet-3';
+export const TESTNET_CHAIN_ID = 'dydx-testnet-4';
 
 // ------------ API URLs ------------
 export enum IndexerApiHost {
