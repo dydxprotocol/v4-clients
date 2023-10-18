@@ -6,6 +6,7 @@ import {
   connectWallet,
   deposit,
   getAccountBalances,
+  getOptimalNode,
   getUserStats,
   simulateDeposit,
   simulateTransferNativeToken,
@@ -19,6 +20,17 @@ import { DYDX_TEST_ADDRESS, DYDX_TEST_MNEMONIC } from './constants';
 
 async function test(): Promise<void> {
   try {
+    const paramsInJson = `{
+      "endpointUrls":[
+        "https://dydx-testnet.nodefleet.org",
+        "https://test-dydx.kingnodes.com",
+        "https://dydx-rpc.liquify.com/api=8878132/dydx"
+      ],
+      "chainId":"dydx-testnet-4"
+    }`;
+    const result = await getOptimalNode(paramsInJson);
+    console.log(result);
+
     const wallet = await connectWallet(DYDX_TEST_MNEMONIC);
     console.log(wallet);
 
