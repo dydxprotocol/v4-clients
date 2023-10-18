@@ -28,7 +28,7 @@ VALIDATOR_GRPC_DEV = '52.192.187.113:9090'
 
 # ------------ Ethereum Network IDs ------------
 NETWORK_ID_MAINNET = None
-NETWORK_ID_TESTNET = 'dydx-testnet-3'
+NETWORK_ID_TESTNET = 'dydx-testnet-4'
 NETWORK_ID_STAGING = 'dydxprotocol-testnet'
 NETWORK_ID_DEV = 'dydxprotocol-testnet'
 

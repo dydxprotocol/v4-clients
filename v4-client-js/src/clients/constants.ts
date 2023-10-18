@@ -43,7 +43,7 @@ export enum ValidatorApiHost {
 export enum NetworkId {
   DEV = 'dydxprotocol-testnet',
   STAGING = 'dydxprotocol-testnet',
-  TESTNET = 'dydx-testnet-3',
+  TESTNET = 'dydx-testnet-4',
   // TODO: Add MAINNET
 }
 export const NETWORK_ID_MAINNET: string | null = null;
