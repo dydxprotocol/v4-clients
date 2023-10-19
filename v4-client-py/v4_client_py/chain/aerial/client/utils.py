@@ -18,7 +18,7 @@ def prepare_and_broadcast_basic_transaction(
     gas_limit: Optional[int] = None,
     memo: Optional[str] = None,
     broadcast_mode: BroadcastMode = None,
-    fee: int = 5000,
+    fee: Optional[int] = None,
 ) -> SubmittedTx:
     """Prepare and broadcast basic transaction.
 
@@ -36,7 +36,8 @@ def prepare_and_broadcast_basic_transaction(
     # query the account information for the sender
     if account is None:
         account = client.query_account(sender.address())
-
+    if fee is None:
+        fee = client.network_config.fee_minimum_gas_price
     if gas_limit is None:
 
         # we need to build up a representative transaction so that we can accurately simulate it
