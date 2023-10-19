@@ -321,7 +321,7 @@ export async function cancelOrder(
     const goodTilBlockTime = json.goodTilBlockTime;
 
     const subaccount = new Subaccount(wallet, subaccountNumber);
-    const tx = await client.cancelOrder(
+    const tx = await client.cancelRawOrder(
       subaccount,
       clientId,
       orderFlags,

@@ -593,6 +593,38 @@ export class CompositeClient {
   }
 
   /**
+     * @description Cancel an order with order information from web socket or REST.
+     *
+     * @param subaccount The subaccount to cancel the order from
+     * @param clientId The client id of the order to cancel
+     * @param orderFlags The order flags of the order to cancel
+     * @param clobPairId The clob pair id of the order to cancel
+     * @param goodTilBlock The goodTilBlock of the order to cancel
+     * @param goodTilBlockTime The goodTilBlockTime of the order to cancel
+     *
+     * @throws UnexpectedClientError if a malformed response is returned with no GRPC error
+     * at any point.
+     * @returns The transaction hash.
+     */
+  async cancelRawOrder(
+    subaccount: Subaccount,
+    clientId: number,
+    orderFlags: OrderFlags,
+    clobPairId: number,
+    goodTilBlock?: number,
+    goodTilBlockTime?: number,
+  ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
+    return this.validatorClient.post.cancelOrder(
+      subaccount,
+      clientId,
+      orderFlags,
+      clobPairId,
+      goodTilBlock,
+      goodTilBlockTime,
+    );
+  }
+
+  /**
      * @description Cancel an order with human readable input.
      *
      * @param subaccount The subaccount to cancel the order from
