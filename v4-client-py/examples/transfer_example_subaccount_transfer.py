@@ -20,7 +20,7 @@ async def main() -> None:
             recipient_address=subaccount.address,
             recipient_subaccount_number=1,
             asset_id=0,
-            amount=5,
+            amount=5_000_000,
         )
         print('**Transfer Tx**')
         print(tx)
