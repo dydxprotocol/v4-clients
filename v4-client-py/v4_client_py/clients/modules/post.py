@@ -43,7 +43,6 @@ class Post:
         '''
 
         wallet = subaccount.wallet
-        # url = ('grpc+https://' if self.config.ssl_enabled else 'grpc+http://') + self.config.grpc_endpoint
         network = NetworkConfig.fetch_dydx_testnet()
         ledger = LedgerClient(network)
         tx = Transaction()

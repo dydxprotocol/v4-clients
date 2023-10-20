@@ -15,7 +15,6 @@ async def main() -> None:
     wallet = LocalWallet.from_mnemonic(DYDX_TEST_MNEMONIC, BECH32_PREFIX);
     subaccount = Subaccount(wallet, 0)
     try:
-        print(f"subaccount address: {subaccount.address}")
         tx = client.post.transfer(
             subaccount=subaccount,
             recipient_address=subaccount.address,
