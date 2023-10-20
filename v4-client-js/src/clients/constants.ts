@@ -32,7 +32,7 @@ export enum FaucetApiHost {
 }
 
 export enum ValidatorApiHost {
-  DEV = 'https://validator.v4dev.dydx.exchange',
+  DEV = 'http://3.134.210.83:26657',
   STAGING = 'https://validator.v4staging.dydx.exchange',
   TESTNET = 'https://dydx-testnet-archive.allthatnode.com',
   // TODO: Add MAINNET

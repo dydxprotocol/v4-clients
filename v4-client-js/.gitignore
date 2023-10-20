@@ -20,3 +20,6 @@ npm-debug.log
 # vim
 *.swo
 *.swp
+
+# IDE
+.idea/
