@@ -79,8 +79,8 @@ class NetworkConfig:
         """
         return NetworkConfig(
             chain_id="dydx",
-            url="grpc+https://v4.testnet.dydx.exchange",
-            fee_minimum_gas_price=25000000000,
+            url="grpc+https://dydx-testnet-archive.allthatnode.com:9090",
+            fee_minimum_gas_price=2315275000000000,
             fee_denomination="adv4tnt",
             staking_denomination="dv4tnt",
             faucet_url="http://faucet.v4testnet.dydx.exchange",
