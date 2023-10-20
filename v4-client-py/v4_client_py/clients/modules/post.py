@@ -43,8 +43,7 @@ class Post:
         '''
 
         wallet = subaccount.wallet
-        url = ('grpc+https://' if self.config.ssl_enabled else 'grpc+http://') + self.config.grpc_endpoint
-        network = NetworkConfig(self.config.chain_id, 0, None, None, url, None)
+        network = NetworkConfig.fetch_dydx_testnet()
         ledger = LedgerClient(network)
         tx = Transaction()
         tx.add_message(msg)
@@ -57,7 +56,7 @@ class Post:
             gas_limit=gas_limit,
             memo=None,
             broadcast_mode=broadcast_mode if (broadcast_mode != None) else self.default_broadcast_mode(msg),
-            fee=0 if zeroFee else 5000,
+            fee=0 if zeroFee else None,
             )
     
     def place_order(
