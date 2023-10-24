@@ -19,7 +19,7 @@ from tests.constants import DYDX_TEST_MNEMONIC
 
 async def main() -> None:
     wallet = LocalWallet.from_mnemonic(DYDX_TEST_MNEMONIC, BECH32_PREFIX)
-    network = Network.staging()
+    network = Network.testnet()
     client = CompositeClient(
         network,
     )

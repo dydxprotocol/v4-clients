@@ -72,7 +72,7 @@ Select "Python: Current File"
 
 ## Running tests
 
-Integration tests uses Staging environment for testing. We use pytest.
+Integration tests uses testnet environment for testing. We use pytest.
 
 To install pytest
 
@@ -87,7 +87,7 @@ pytest -v
 ```
 
 For integration tests with transactions, a subaccount must exist for the specified address.
-This subaccount may be reset when staging environment is reset. To create the subaccount, run
+This subaccount may be reset when testnet environment is reset. To create the subaccount, run
 
 examples/faucet_endpoint.py
 

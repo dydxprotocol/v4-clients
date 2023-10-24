@@ -3,7 +3,7 @@ import RestClient from './modules/rest';
 
 export class FaucetClient extends RestClient {
   /**
-     * @description For staging and testnet only, add USDC to an subaccount
+     * @description For testnet only, add USDC to an subaccount
      *
      * @returns The HTTP response.
      */

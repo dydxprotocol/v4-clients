@@ -10,7 +10,7 @@ from tests.constants import DYDX_TEST_MNEMONIC
 
 
 async def main() -> None:
-    network = Network.staging()
+    network = Network.testnet()
     client = ValidatorClient(network.validator_config)
     wallet = LocalWallet.from_mnemonic(DYDX_TEST_MNEMONIC, BECH32_PREFIX);
     subaccount = Subaccount(wallet, 0)

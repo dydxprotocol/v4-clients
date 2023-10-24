@@ -31,32 +31,12 @@ declare global {
   var wallet: LocalWallet;
 }
 
-/* this should match the definitions in Abacus */
-export enum Environment {
-  staging = 'dydxprotocol-staging',
-  testnet = 'dydxprotocol-testnet-2',
-}
-
-function network(env: Environment): Network {
-  switch (env) {
-    case Environment.staging:
-      return Network.staging();
-
-    case Environment.testnet:
-      return Network.testnet();
-
-    default:
-      throw new UserError('invalid environment');
-  }
-}
-
 export async function connectClient(
-  env: Environment,
+  network: Network,
 ): Promise<string> {
   try {
-    const config = network(env);
-    globalThis.client = await CompositeClient.connect(config);
-    return encodeJson(config);
+    globalThis.client = await CompositeClient.connect(network);
+    return encodeJson(network);
   } catch (e) {
     return wrappedError(e);
   }
@@ -129,11 +109,11 @@ export async function connectWallet(
 }
 
 export async function connect(
-  env: Environment,
+  network: Network,
   mnemonic: string,
 ): Promise<string> {
   try {
-    await connectClient(env);
+    await connectClient(network);
     return connectWallet(mnemonic);
   } catch (e) {
     return wrappedError(e);

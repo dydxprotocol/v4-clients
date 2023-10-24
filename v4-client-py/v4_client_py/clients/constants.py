@@ -5,32 +5,21 @@ from ..chain.aerial.config import NetworkConfig
 # ------------ API URLs ------------
 INDEXER_API_HOST_MAINNET = None
 INDEXER_API_HOST_TESTNET = 'https://dydx-testnet.imperator.co'
-INDEXER_API_HOST_STAGING = 'https://indexer.v4staging.dydx.exchange'
-INDEXER_API_HOST_DEV = 'https://indexer.v4dev.dydx.exchange'
+
 INDEXER_WS_HOST_MAINNET = None
 INDEXER_WS_HOST_TESTNET = 'wss://indexer.v4testnet.dydx.exchange/v4/ws'
-INDEXER_WS_HOST_STAGING = 'wss://indexer.v4staging.dydx.exchange/v4/ws'
-INDEXER_WS_HOST_DEV = 'wss://indexer.v4dev.dydx.exchange/v4/ws'
 
 FAUCET_API_HOST_TESTNET = 'https://faucet.v4testnet.dydx.exchange'
-FAUCET_API_HOST_STAGING = 'https://faucet.v4staging.dydx.exchange'
-FAUCET_API_HOST_DEV = 'https://faucet.v4dev.expotrading.com'
 
 VALIDATOR_API_HOST_MAINNET = None
 VALIDATOR_API_HOST_TESTNET = 'https://dydx-testnet-archive.allthatnode.com'
-VALIDATOR_API_HOST_STAGING = 'https://validator.v4staging.dydx.exchange'
-VALIDATOR_API_HOST_DEV = 'https://validator.v4dev.dydx.exchange'
 
 VALIDATOR_GRPC_MAINNET = None
 VALIDATOR_GRPC_TESTNET = 'dydx-testnet-archive.allthatnode.com:9090'
-VALIDATOR_GRPC_STAGING = '54.249.255.18:9090'
-VALIDATOR_GRPC_DEV = '52.192.187.113:9090'
 
 # ------------ Ethereum Network IDs ------------
 NETWORK_ID_MAINNET = None
 NETWORK_ID_TESTNET = 'dydx-testnet-4'
-NETWORK_ID_STAGING = 'dydxprotocol-testnet'
-NETWORK_ID_DEV = 'dydxprotocol-testnet'
 
 # ------------ Market Statistic Day Types ------------
 MARKET_STATISTIC_DAY_ONE = '1'
@@ -139,42 +128,6 @@ class Network:
             faucet_endpoint = faucet_endpoint[:-1]
         self.faucet_endpoint = faucet_endpoint
 
-    @classmethod
-    def dev(cls):
-        validator_config=ValidatorConfig(
-            grpc_endpoint=VALIDATOR_GRPC_DEV,
-            chain_id=NETWORK_ID_DEV,
-            ssl_enabled=False
-        )
-        indexer_config=IndexerConfig(
-            rest_endpoint=INDEXER_API_HOST_DEV,
-            websocket_endpoint=INDEXER_WS_HOST_DEV,
-        )
-        return cls(
-            env='dev',
-            validator_config=validator_config,
-            indexer_config=indexer_config,
-            faucet_endpoint=FAUCET_API_HOST_DEV,
-        )
-
-    @classmethod
-    def staging(cls):
-        validator_config=ValidatorConfig(
-            grpc_endpoint=VALIDATOR_GRPC_STAGING,
-            chain_id=NETWORK_ID_STAGING, 
-            ssl_enabled=False
-        )
-        indexer_config=IndexerConfig(
-            rest_endpoint=INDEXER_API_HOST_STAGING,
-            websocket_endpoint=INDEXER_WS_HOST_STAGING,
-        )
-        return cls(
-            env='staging',
-            validator_config=validator_config,
-            indexer_config=indexer_config,
-            faucet_endpoint=FAUCET_API_HOST_STAGING,
-        )
-    
     @classmethod
     def testnet(cls):
         validator_config=ValidatorConfig(

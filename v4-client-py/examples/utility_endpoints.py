@@ -7,7 +7,7 @@ from v4_client_py.clients import IndexerClient
 from v4_client_py.clients.constants import Network
 
 client = IndexerClient(
-    config=Network.staging().indexer_config,
+    config=Network.testnet().indexer_config,
 )
 
 # Get indexer server time

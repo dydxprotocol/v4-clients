@@ -3,7 +3,7 @@ import { Network } from '../../../src/clients/constants';
 import { DYDX_TEST_ADDRESS } from './constants';
 
 describe('IndexerClient', () => {
-  const client = new IndexerClient(Network.staging().indexerConfig);
+  const client = new IndexerClient(Network.testnet().indexerConfig);
 
   describe('Utility Endpoints', () => {
     it('getTime', async () => {

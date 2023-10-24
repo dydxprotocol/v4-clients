@@ -6,7 +6,7 @@ import { Network } from '../src/clients/constants';
 import { IndexerClient } from '../src/clients/indexer-client';
 
 async function test(): Promise<void> {
-  const client = new IndexerClient(Network.staging().indexerConfig);
+  const client = new IndexerClient(Network.testnet().indexerConfig);
 
   // Get indexer server time
   try {

@@ -5,7 +5,7 @@ import { IndexerClient } from '../../../src/clients/indexer-client';
 export const MARKET_BTC_USD: string = 'BTC-USD';
 
 describe('IndexerClient', () => {
-  const client = new IndexerClient(Network.staging().indexerConfig);
+  const client = new IndexerClient(Network.testnet().indexerConfig);
 
   describe('Market Endpoints', () => {
     it('Markets', async () => {

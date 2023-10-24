@@ -19,7 +19,7 @@ describe('Validator Client', () => {
     beforeEach(async () => {
       wallet = await LocalWallet.fromMnemonic(DYDX_TEST_MNEMONIC, BECH32_PREFIX);
       subaccount = new Subaccount(wallet, 0);
-      client = await ValidatorClient.connect(Network.staging().validatorConfig);
+      client = await ValidatorClient.connect(Network.testnet().validatorConfig);
       await sleep(5000);  // wait for withdraw to complete
     });
 

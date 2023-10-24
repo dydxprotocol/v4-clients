@@ -6,7 +6,7 @@ describe('Validator Client', () => {
   let client: ValidatorClient;
   describe('Get', () => {
     beforeEach(async () => {
-      client = await ValidatorClient.connect(Network.staging().validatorConfig);
+      client = await ValidatorClient.connect(Network.testnet().validatorConfig);
     });
 
     it('Account', async () => {
