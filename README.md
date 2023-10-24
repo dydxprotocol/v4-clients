@@ -15,9 +15,9 @@
 </div>
 
 ## v4-client-js
-The v4-Client Typescript client is used for placing transactions and querying the dYdX chain.
+The dYdX Chain Client Typescript client is used for placing transactions and querying the dYdX chain.
 
 ## v4-client-py
-Python client for dYdX (v4 API).
+Python client for dYdX Chain.
 
 The library is currently tested against Python versions 3.9, and 3.11.
