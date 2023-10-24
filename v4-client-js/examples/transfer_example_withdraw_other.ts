@@ -10,13 +10,11 @@ import { Subaccount } from '../src/clients/subaccount';
 import { ValidatorClient } from '../src/clients/validator-client';
 import { DYDX_TEST_MNEMONIC } from './constants';
 
-// TODO: Test after staging deploy latest transfer contracts.
-
 async function test(): Promise<void> {
   const wallet = await LocalWallet.fromMnemonic(DYDX_TEST_MNEMONIC, BECH32_PREFIX);
   console.log(wallet);
 
-  const client = await ValidatorClient.connect(Network.staging().validatorConfig);
+  const client = await ValidatorClient.connect(Network.testnet().validatorConfig);
   console.log('**Client**');
   console.log(client);
 

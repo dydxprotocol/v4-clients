@@ -3,7 +3,7 @@ from v4_client_py.clients import IndexerClient
 from v4_client_py.clients.constants import Network, MARKET_BTC_USD
 
 client = IndexerClient(
-    config=Network.staging().indexer_config,
+    config=Network.testnet().indexer_config,
 )
 
 def test_get_perpetual_markets():

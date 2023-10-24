@@ -1,8 +1,7 @@
+import { Network } from '../src/clients/constants';
 import { UserError } from '../src/clients/lib/errors';
 import {
-  Environment,
   connect,
-  connectNetwork,
   connectWallet,
   deposit,
   getAccountBalances,
@@ -34,7 +33,7 @@ async function test(): Promise<void> {
     const wallet = await connectWallet(DYDX_TEST_MNEMONIC);
     console.log(wallet);
 
-    const address = await connect(Environment.testnet, DYDX_TEST_MNEMONIC);
+    const address = await connect(Network.testnet(), DYDX_TEST_MNEMONIC);
     console.log(address);
 
     const payload = `{ "address": "${DYDX_TEST_ADDRESS}" }`;
@@ -113,21 +112,6 @@ async function test(): Promise<void> {
 
     tx = await withdrawToIBC(0, '13', encoded);
     console.log(tx);
-
-    const connected = await connectNetwork(JSON.stringify({
-      indexerUrl: 'https://indexer.v4staging.dydx.exchange',
-      websocketUrl: 'wss://indexer.v4staging.dydx.exchange/v4/ws',
-      validatorUrl: 'https://validator.v4staging.dydx.exchange',
-      chainId: 'dydxprotocol-testnet',
-      faucetUrl: 'https://faucet.v4staging.dydx.exchange',
-      USDC_DENOM: 'ibc/8E27BA2D5493AF5636760E354E46004562C46AB7EC0CC4C1CA14E9E20E2545B5',
-      USDC_DECIMALS: 6,
-      USDC_GAS_DENOM: 'uusdc',
-      CHAINTOKEN_DENOM: 'adv4tnt',
-      CHAINTOKEN_DECIMALS: 18,
-    }));
-    console.log(connected);
-
   } catch (error) {
     console.log(error.message);
   }

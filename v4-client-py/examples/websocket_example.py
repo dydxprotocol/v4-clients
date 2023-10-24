@@ -30,7 +30,7 @@ def on_message(ws, message):
 def on_close(ws):
     print('WebSocket connection closed')
 
-my_ws = SocketClient(config=Network.staging().indexer_config,
+my_ws = SocketClient(config=Network.testnet().indexer_config,
                     on_message=on_message,
                     on_open=on_open,
                     on_close=on_close)

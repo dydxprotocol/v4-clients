@@ -7,7 +7,7 @@ import { IndexerClient } from '../src/clients/indexer-client';
 import { DYDX_TEST_ADDRESS } from './constants';
 
 async function test(): Promise<void> {
-  const client = new IndexerClient(Network.staging().indexerConfig);
+  const client = new IndexerClient(Network.testnet().indexerConfig);
   const address = DYDX_TEST_ADDRESS;
 
   // Get subaccounts

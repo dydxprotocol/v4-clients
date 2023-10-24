@@ -8,7 +8,7 @@ from v4_client_py.clients.constants import Network
 from tests.constants import DYDX_TEST_MNEMONIC
 
 client = FaucetClient(
-    host=Network.staging().faucet_endpoint,
+    host=Network.testnet().faucet_endpoint,
 )
 
 subaccount = Subaccount.from_mnemonic(DYDX_TEST_MNEMONIC)

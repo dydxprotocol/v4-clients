@@ -30,7 +30,7 @@ describe('Validator Client', () => {
   describe('Post', () => {
     beforeEach(async () => {
       wallet = await LocalWallet.fromMnemonic(DYDX_TEST_MNEMONIC, BECH32_PREFIX);
-      client = await ValidatorClient.connect(Network.staging().validatorConfig);
+      client = await ValidatorClient.connect(Network.testnet().validatorConfig);
     });
 
     it('PlaceOrder', async () => {

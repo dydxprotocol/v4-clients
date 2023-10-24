@@ -18,7 +18,7 @@ async function sleep(ms: number): Promise<void> {
 async function test(): Promise<void> {
   const wallet = await LocalWallet.fromMnemonic(DYDX_TEST_MNEMONIC, BECH32_PREFIX);
   console.log(wallet);
-  const network = Network.staging();
+  const network = Network.testnet();
   const client = await CompositeClient.connect(network);
   console.log('**Client**');
   console.log(client);

@@ -9,7 +9,7 @@ from v4_client_py.clients.constants import Network
 from tests.constants import DYDX_TEST_MNEMONIC
 
 client = IndexerClient(
-    config=Network.staging().indexer_config,
+    config=Network.testnet().indexer_config,
 )
 
 try:
