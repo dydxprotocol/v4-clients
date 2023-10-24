@@ -8,7 +8,7 @@ subaccount = Subaccount.from_mnemonic(DYDX_TEST_MNEMONIC)
 address = subaccount.address
 
 client = IndexerClient(
-    config=Network.staging().indexer_config,
+    config=Network.testnet().indexer_config,
 )
 
 def test_get_time():

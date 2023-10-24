@@ -7,7 +7,7 @@ import { FaucetClient } from '../src/clients/faucet-client';
 import { DYDX_TEST_ADDRESS } from './constants';
 
 async function test(): Promise<void> {
-  const client = new FaucetClient(FaucetApiHost.STAGING);
+  const client = new FaucetClient(FaucetApiHost.TESTNET);
   const address = DYDX_TEST_ADDRESS;
 
   // Use faucet to fill subaccount

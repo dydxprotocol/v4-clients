@@ -3,7 +3,7 @@ from v4_client_py.clients.constants import Network
 
 from tests.constants import DYDX_TEST_ADDRESS
 
-network = Network.staging()
+network = Network.testnet()
 client = ValidatorClient(network.validator_config)
 address = DYDX_TEST_ADDRESS
 print('address:')

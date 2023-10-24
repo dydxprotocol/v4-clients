@@ -3,7 +3,7 @@ import { ValidatorClient } from '../src/clients/validator-client';
 import { DYDX_TEST_ADDRESS } from './constants';
 
 async function test(): Promise<void> {
-  const client = await ValidatorClient.connect(Network.staging().validatorConfig);
+  const client = await ValidatorClient.connect(Network.testnet().validatorConfig);
 
   try {
     const account = await client.get.getAccount(DYDX_TEST_ADDRESS);

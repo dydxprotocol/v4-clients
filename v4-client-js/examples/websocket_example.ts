@@ -4,7 +4,7 @@ import { DYDX_TEST_ADDRESS } from './constants';
 
 function test(): void {
   const mySocket = new SocketClient(
-    Network.staging().indexerConfig,
+    Network.testnet().indexerConfig,
     () => {
       console.log('socket opened');
     },

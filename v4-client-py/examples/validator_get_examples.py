@@ -8,7 +8,7 @@ from tests.constants import DYDX_TEST_ADDRESS
 
 
 async def main() -> None:
-    network = Network.staging()
+    network = Network.testnet()
     client = ValidatorClient(network.validator_config)
     address = DYDX_TEST_ADDRESS
     try:

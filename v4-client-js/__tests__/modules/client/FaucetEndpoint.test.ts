@@ -3,7 +3,7 @@ import { FaucetClient } from '../../../src/clients/faucet-client';
 import { DYDX_TEST_ADDRESS } from './constants';
 
 describe('FaucetClient', () => {
-  const client = new FaucetClient(FaucetApiHost.STAGING);
+  const client = new FaucetClient(FaucetApiHost.TESTNET);
 
   describe('Faucet Endpoints', () => {
     it('Fill', async () => {
