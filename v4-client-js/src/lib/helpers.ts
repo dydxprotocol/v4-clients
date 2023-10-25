@@ -1,4 +1,3 @@
-import { toHex } from '@cosmjs/encoding';
 import BigNumber from 'bignumber.js';
 import Long from 'long';
 
