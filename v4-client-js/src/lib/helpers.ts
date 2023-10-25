@@ -38,6 +38,17 @@ export function stripHexPrefix(input: string): string {
   return input;
 }
 
+export function bytesToBigInt(u: Uint8Array): BigInt {
+  if (u.length <= 1) {
+    return BigInt(0);
+  }
+  // eslint-disable-next-line no-bitwise
+  const negated: boolean = (u[0] & 1) === 1;
+  const hex: string = Buffer.from(u.slice(1)).toString('hex');
+  const abs: bigint = BigInt(`0x${hex}`);
+  return negated ? -abs : abs;
+}
+
 export function encodeJson(object?: Object): string {
   // eslint-disable-next-line prefer-arrow-callback
   return JSON.stringify(object, function replacer(_key, value) {
@@ -50,9 +61,9 @@ export function encodeJson(object?: Object): string {
       return value.toString();
     }
     if (value?.buffer instanceof Uint8Array) {
-      return toHex(value.buffer);
+      return bytesToBigInt(value.buffer).toString();
     } else if (value instanceof Uint8Array) {
-      return toHex(value);
+      return bytesToBigInt(value).toString();
     }
     return value;
   });
