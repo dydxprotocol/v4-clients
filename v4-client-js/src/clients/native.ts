@@ -172,6 +172,20 @@ export async function getUserFeeTier(address: string): Promise<string> {
   }
 }
 
+export async function getEquityTiers(): Promise<string> {
+  try {
+    const client = globalThis.client;
+    if (client === undefined) {
+      throw new UserError('client is not connected. Call connectClient() first');
+    }
+    const equityTiers = await globalThis.client?.validatorClient.get
+      .getEquityTierLimitConfiguration();
+    return encodeJson(equityTiers);
+  } catch (e) {
+    return wrappedError(e);
+  }
+}
+
 export async function getPerpetualMarkets(): Promise<string> {
   try {
     const client = globalThis.client;
