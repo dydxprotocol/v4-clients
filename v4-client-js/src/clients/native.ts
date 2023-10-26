@@ -10,7 +10,7 @@ import Long from 'long';
 
 import { BECH32_PREFIX } from '../lib/constants';
 import { UserError } from '../lib/errors';
-import { encodeJson } from '../lib/helpers';
+import { ByteArrayEncoding, encodeJson } from '../lib/helpers';
 import { deriveHDKeyFromEthereumSignature } from '../lib/onboarding';
 import { NetworkOptimizer } from '../network_optimizer';
 import { CompositeClient, MarketInfo } from './composite-client';
@@ -167,6 +167,20 @@ export async function getUserFeeTier(address: string): Promise<string> {
     }
     const feeTiers = await globalThis.client?.validatorClient.get.getUserFeeTier(address);
     return encodeJson(feeTiers);
+  } catch (e) {
+    return wrappedError(e);
+  }
+}
+
+export async function getEquityTiers(): Promise<string> {
+  try {
+    const client = globalThis.client;
+    if (client === undefined) {
+      throw new UserError('client is not connected. Call connectClient() first');
+    }
+    const equityTiers = await globalThis.client?.validatorClient.get
+      .getEquityTierLimitConfiguration();
+    return encodeJson(equityTiers, ByteArrayEncoding.BIGINT);
   } catch (e) {
     return wrappedError(e);
   }

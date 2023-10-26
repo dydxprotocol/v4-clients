@@ -38,7 +38,26 @@ export function stripHexPrefix(input: string): string {
   return input;
 }
 
-export function encodeJson(object?: Object): string {
+function toBigInt(u: Uint8Array): BigInt {
+  if (u.length <= 1) {
+    return BigInt(0);
+  }
+  // eslint-disable-next-line no-bitwise
+  const negated: boolean = (u[0] & 1) === 1;
+  const hex: string = Buffer.from(u.slice(1)).toString('hex');
+  const abs: bigint = BigInt(`0x${hex}`);
+  return negated ? -abs : abs;
+}
+
+export enum ByteArrayEncoding {
+  HEX = 'hex',
+  BIGINT = 'bigint',
+}
+
+export function encodeJson(
+  object?: Object,
+  byteArrayEncoding: ByteArrayEncoding = ByteArrayEncoding.HEX,
+): string {
   // eslint-disable-next-line prefer-arrow-callback
   return JSON.stringify(object, function replacer(_key, value) {
     // Even though we set the an UInt8Array as the value,
@@ -50,9 +69,17 @@ export function encodeJson(object?: Object): string {
       return value.toString();
     }
     if (value?.buffer instanceof Uint8Array) {
-      return toHex(value.buffer);
+      if (byteArrayEncoding === ByteArrayEncoding.HEX) {
+        return toHex(value.buffer);
+      } else {
+        return toBigInt(value.buffer).toString();
+      }
     } else if (value instanceof Uint8Array) {
-      return toHex(value);
+      if (byteArrayEncoding === ByteArrayEncoding.HEX) {
+        return toHex(value);
+      } else {
+        return toBigInt(value).toString();
+      }
     }
     return value;
   });
