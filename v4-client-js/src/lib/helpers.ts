@@ -1,3 +1,4 @@
+import { toHex } from '@cosmjs/encoding';
 import BigNumber from 'bignumber.js';
 import Long from 'long';
 
@@ -37,7 +38,7 @@ export function stripHexPrefix(input: string): string {
   return input;
 }
 
-export function bytesToBigInt(u: Uint8Array): BigInt {
+function toBigInt(u: Uint8Array): BigInt {
   if (u.length <= 1) {
     return BigInt(0);
   }
@@ -48,7 +49,15 @@ export function bytesToBigInt(u: Uint8Array): BigInt {
   return negated ? -abs : abs;
 }
 
-export function encodeJson(object?: Object): string {
+export enum ByteArrayEncoding {
+  HEX = 'hex',
+  BIGINT = 'bigint',
+}
+
+export function encodeJson(
+  object?: Object,
+  byteArrayEncoding: ByteArrayEncoding = ByteArrayEncoding.HEX,
+): string {
   // eslint-disable-next-line prefer-arrow-callback
   return JSON.stringify(object, function replacer(_key, value) {
     // Even though we set the an UInt8Array as the value,
@@ -60,9 +69,17 @@ export function encodeJson(object?: Object): string {
       return value.toString();
     }
     if (value?.buffer instanceof Uint8Array) {
-      return bytesToBigInt(value.buffer).toString();
+      if (byteArrayEncoding === ByteArrayEncoding.HEX) {
+        return toHex(value.buffer);
+      } else {
+        return toBigInt(value.buffer).toString();
+      }
     } else if (value instanceof Uint8Array) {
-      return bytesToBigInt(value).toString();
+      if (byteArrayEncoding === ByteArrayEncoding.HEX) {
+        return toHex(value);
+      } else {
+        return toBigInt(value).toString();
+      }
     }
     return value;
   });

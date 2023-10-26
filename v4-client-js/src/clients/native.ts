@@ -10,7 +10,7 @@ import Long from 'long';
 
 import { BECH32_PREFIX } from '../lib/constants';
 import { UserError } from '../lib/errors';
-import { encodeJson } from '../lib/helpers';
+import { ByteArrayEncoding, encodeJson } from '../lib/helpers';
 import { deriveHDKeyFromEthereumSignature } from '../lib/onboarding';
 import { NetworkOptimizer } from '../network_optimizer';
 import { CompositeClient, MarketInfo } from './composite-client';
@@ -180,7 +180,7 @@ export async function getEquityTiers(): Promise<string> {
     }
     const equityTiers = await globalThis.client?.validatorClient.get
       .getEquityTierLimitConfiguration();
-    return encodeJson(equityTiers);
+    return encodeJson(equityTiers, ByteArrayEncoding.BIGINT);
   } catch (e) {
     return wrappedError(e);
   }
