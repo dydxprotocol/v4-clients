@@ -7,7 +7,7 @@ export * as validation from './lib/validation';
 export * as onboarding from './lib/onboarding';
 
 export { default as LocalWallet } from './clients/modules/local-wallet';
-export { Subaccount as SubaccountClient } from './clients/subaccount';
+export { SubaccountInfo as SubaccountClient } from './clients/subaccount';
 export { CompositeClient } from './clients/composite-client';
 export { IndexerClient } from './clients/indexer-client';
 export { ValidatorClient } from './clients/validator-client';

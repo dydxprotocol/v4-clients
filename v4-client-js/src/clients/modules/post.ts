@@ -25,7 +25,7 @@ import protobuf from 'protobufjs';
 import { GAS_MULTIPLIER } from '../constants';
 import { UnexpectedClientError } from '../lib/errors';
 import { generateRegistry } from '../lib/registry';
-import { Subaccount } from '../subaccount';
+import { SubaccountInfo } from '../subaccount';
 import {
   OrderFlags,
   BroadcastMode,
@@ -343,7 +343,7 @@ export class Post {
     // ------ State-Changing Requests ------ //
 
     async placeOrder(
-      subaccount: Subaccount,
+      subaccount: SubaccountInfo,
       clientId: number,
       clobPairId: number,
       side: Order_Side,
@@ -392,7 +392,7 @@ export class Post {
     }
 
     async placeOrderObject(
-      subaccount: Subaccount,
+      subaccount: SubaccountInfo,
       placeOrder: IPlaceOrder,
       broadcastMode?: BroadcastMode,
     ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
@@ -416,7 +416,7 @@ export class Post {
     }
 
     async cancelOrder(
-      subaccount: Subaccount,
+      subaccount: SubaccountInfo,
       clientId: number,
       orderFlags: OrderFlags,
       clobPairId: number,
@@ -446,7 +446,7 @@ export class Post {
     }
 
     async cancelOrderObject(
-      subaccount: Subaccount,
+      subaccount: SubaccountInfo,
       cancelOrder: ICancelOrder,
       broadcastMode?: BroadcastMode,
     ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
@@ -462,7 +462,7 @@ export class Post {
     }
 
     async transfer(
-      subaccount: Subaccount,
+      subaccount: SubaccountInfo,
       recipientAddress: string,
       recipientSubaccountNumber: number,
       assetId: number,
@@ -491,7 +491,7 @@ export class Post {
     }
 
     async deposit(
-      subaccount: Subaccount,
+      subaccount: SubaccountInfo,
       assetId: number,
       quantums: Long,
       broadcastMode?: BroadcastMode,
@@ -516,7 +516,7 @@ export class Post {
     }
 
     async withdraw(
-      subaccount: Subaccount,
+      subaccount: SubaccountInfo,
       assetId: number,
       quantums: Long,
       recipient?: string,
@@ -543,7 +543,7 @@ export class Post {
     }
 
     async sendToken(
-      subaccount: Subaccount,
+      subaccount: SubaccountInfo,
       recipient: string,
       coinDenom: string,
       quantums: string,

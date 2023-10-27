@@ -1,6 +1,6 @@
 import LocalWallet from './modules/local-wallet';
 
-export class Subaccount {
+export class SubaccountInfo {
     readonly wallet: LocalWallet;
     // TODO, change address to Wallet object when implementing validator functions
     readonly subaccountNumber: number;

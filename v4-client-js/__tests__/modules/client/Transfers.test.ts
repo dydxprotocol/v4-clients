@@ -1,6 +1,6 @@
 import { Network } from '../../../src/clients/constants';
 import LocalWallet from '../../../src/clients/modules/local-wallet';
-import { Subaccount } from '../../../src/clients/subaccount';
+import { SubaccountInfo } from '../../../src/clients/subaccount';
 import { ValidatorClient } from '../../../src/clients/validator-client';
 import { DYDX_TEST_MNEMONIC } from '../../../examples/constants';
 import Long from 'long';
@@ -12,13 +12,13 @@ async function sleep(ms: number): Promise<void> {
 
 describe('Validator Client', () => {
   let wallet: LocalWallet;
-  let subaccount: Subaccount;
+  let subaccount: SubaccountInfo;
   let client: ValidatorClient;
 
   describe('Transfers', () => {
     beforeEach(async () => {
       wallet = await LocalWallet.fromMnemonic(DYDX_TEST_MNEMONIC, BECH32_PREFIX);
-      subaccount = new Subaccount(wallet, 0);
+      subaccount = new SubaccountInfo(wallet, 0);
       client = await ValidatorClient.connect(Network.testnet().validatorConfig);
       await sleep(5000);  // wait for withdraw to complete
     });

@@ -4,7 +4,7 @@ import protobuf from 'protobufjs';
 import { BECH32_PREFIX } from '../src';
 import { Network } from '../src/clients/constants';
 import LocalWallet from '../src/clients/modules/local-wallet';
-import { Subaccount } from '../src/clients/subaccount';
+import { SubaccountInfo } from '../src/clients/subaccount';
 import { IPlaceOrder } from '../src/clients/types';
 import { ValidatorClient } from '../src/clients/validator-client';
 import { randomInt } from '../src/lib/utils';
@@ -40,7 +40,7 @@ async function test(): Promise<void> {
   const value1 = Long.fromNumber(400000000000);
   console.log(value1.toString());
 
-  const subaccount = new Subaccount(wallet, 0);
+  const subaccount = new SubaccountInfo(wallet, 0);
   for (const orderParams of ordersParams) {
     const height = await client.get.latestBlockHeight();
     const placeOrder = dummyOrder(height);

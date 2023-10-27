@@ -6,7 +6,7 @@ import { TEST_RECIPIENT_ADDRESS } from '../__tests__/helpers/constants';
 import { BECH32_PREFIX } from '../src';
 import { Network } from '../src/clients/constants';
 import LocalWallet from '../src/clients/modules/local-wallet';
-import { Subaccount } from '../src/clients/subaccount';
+import { SubaccountInfo } from '../src/clients/subaccount';
 import { ValidatorClient } from '../src/clients/validator-client';
 import { DYDX_TEST_MNEMONIC } from './constants';
 
@@ -18,7 +18,7 @@ async function test(): Promise<void> {
   console.log('**Client**');
   console.log(client);
 
-  const subaccount = new Subaccount(wallet, 0);
+  const subaccount = new SubaccountInfo(wallet, 0);
 
   const amount = new Long(100_000_000);
 

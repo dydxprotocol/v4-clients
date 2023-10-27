@@ -2,7 +2,7 @@ import { Order_Side } from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/clob
 
 import { Network } from '../../../src/clients/constants';
 import LocalWallet from '../../../src/clients/modules/local-wallet';
-import { Subaccount } from '../../../src/clients/subaccount';
+import { SubaccountInfo } from '../../../src/clients/subaccount';
 import { IPlaceOrder } from '../../../src/clients/types';
 import { ValidatorClient } from '../../../src/clients/validator-client';
 import { randomInt } from '../../../src/lib/utils';
@@ -41,7 +41,7 @@ describe('Validator Client', () => {
       console.log('**Account**');
       console.log(account);
       const height = await client.get.latestBlockHeight();
-      const subaccount = new Subaccount(wallet, 0);
+      const subaccount = new SubaccountInfo(wallet, 0);
       const placeOrder = dummyOrder(height);
       placeOrder.clientId = randomInt(1_000_000_000);
       const tx = await client.post.placeOrderObject(

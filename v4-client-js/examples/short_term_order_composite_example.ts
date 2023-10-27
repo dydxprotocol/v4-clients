@@ -6,7 +6,7 @@ import {
   Network, OrderExecution, OrderSide,
 } from '../src/clients/constants';
 import LocalWallet from '../src/clients/modules/local-wallet';
-import { Subaccount } from '../src/clients/subaccount';
+import { SubaccountInfo } from '../src/clients/subaccount';
 import { randomInt } from '../src/lib/utils';
 import { DYDX_TEST_MNEMONIC } from './constants';
 import ordersParams from './human_readable_short_term_orders.json';
@@ -22,7 +22,7 @@ async function test(): Promise<void> {
   const client = await CompositeClient.connect(network);
   console.log('**Client**');
   console.log(client);
-  const subaccount = new Subaccount(wallet, 0);
+  const subaccount = new SubaccountInfo(wallet, 0);
   for (const orderParams of ordersParams) {
     try {
       const side = OrderSide[orderParams.side as keyof typeof OrderSide];

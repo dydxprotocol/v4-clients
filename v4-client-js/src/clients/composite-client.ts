@@ -32,7 +32,7 @@ import {
 import { IndexerClient } from './indexer-client';
 import { UserError } from './lib/errors';
 import LocalWallet from './modules/local-wallet';
-import { Subaccount } from './subaccount';
+import { SubaccountInfo } from './subaccount';
 import { ValidatorClient } from './validator-client';
 
 // Required for encoding and decoding queries that are of type Long.
@@ -268,7 +268,7 @@ export class CompositeClient {
    * @returns The transaction hash.
    */
   async placeShortTermOrder(
-    subaccount: Subaccount,
+    subaccount: SubaccountInfo,
     marketId: string,
     side: OrderSide,
     price: number,
@@ -340,7 +340,7 @@ export class CompositeClient {
      * @returns The transaction hash.
      */
   async placeOrder(
-    subaccount: Subaccount,
+    subaccount: SubaccountInfo,
     marketId: string,
     type: OrderType,
     side: OrderSide,
@@ -420,7 +420,7 @@ export class CompositeClient {
      * @returns The message to be passed into the protocol
      */
   private async placeOrderMessage(
-    subaccount: Subaccount,
+    subaccount: SubaccountInfo,
     marketId: string,
     type: OrderType,
     side: OrderSide,
@@ -541,7 +541,7 @@ export class CompositeClient {
      * @returns The message to be passed into the protocol
      */
   private async placeShortTermOrderMessage(
-    subaccount: Subaccount,
+    subaccount: SubaccountInfo,
     marketId: string,
     side: OrderSide,
     price: number,
@@ -607,7 +607,7 @@ export class CompositeClient {
      * @returns The transaction hash.
      */
   async cancelRawOrder(
-    subaccount: Subaccount,
+    subaccount: SubaccountInfo,
     clientId: number,
     orderFlags: OrderFlags,
     clobPairId: number,
@@ -639,7 +639,7 @@ export class CompositeClient {
      * @returns The transaction hash.
      */
   async cancelOrder(
-    subaccount: Subaccount,
+    subaccount: SubaccountInfo,
     clientId: number,
     orderFlags: OrderFlags,
     marketId: string,
@@ -699,7 +699,7 @@ export class CompositeClient {
      * @returns The transaction hash.
      */
   async transferToSubaccount(
-    subaccount: Subaccount,
+    subaccount: SubaccountInfo,
     recipientAddress: string,
     recipientSubaccountNumber: number,
     amount: string,
@@ -733,7 +733,7 @@ export class CompositeClient {
      * @returns The message
      */
   transferToSubaccountMessage(
-    subaccount: Subaccount,
+    subaccount: SubaccountInfo,
     recipientAddress: string,
     recipientSubaccountNumber: number,
     amount: string,
@@ -771,7 +771,7 @@ export class CompositeClient {
      * @returns The transaction hash.
      */
   async depositToSubaccount(
-    subaccount: Subaccount,
+    subaccount: SubaccountInfo,
     amount: string,
   ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
     const msgs: Promise<EncodeObject[]> = new Promise((resolve) => {
@@ -797,7 +797,7 @@ export class CompositeClient {
      * @returns The message
      */
   depositToSubaccountMessage(
-    subaccount: Subaccount,
+    subaccount: SubaccountInfo,
     amount: string,
   ): EncodeObject {
     const validatorClient = this._validatorClient;
@@ -832,7 +832,7 @@ export class CompositeClient {
      * @returns The transaction hash
      */
   async withdrawFromSubaccount(
-    subaccount: Subaccount,
+    subaccount: SubaccountInfo,
     amount: string,
     recipient?: string,
   ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
@@ -863,7 +863,7 @@ export class CompositeClient {
      * @returns The message
      */
   withdrawFromSubaccountMessage(
-    subaccount: Subaccount,
+    subaccount: SubaccountInfo,
     amount: string,
     recipient?: string,
   ): EncodeObject {
@@ -929,7 +929,7 @@ export class CompositeClient {
   }
 
   async signPlaceOrder(
-    subaccount: Subaccount,
+    subaccount: SubaccountInfo,
     marketId: string,
     type: OrderType,
     side: OrderSide,
@@ -973,7 +973,7 @@ export class CompositeClient {
   }
 
   async signCancelOrder(
-    subaccount: Subaccount,
+    subaccount: SubaccountInfo,
     clientId: number,
     orderFlags: OrderFlags,
     clobPairId: number,
