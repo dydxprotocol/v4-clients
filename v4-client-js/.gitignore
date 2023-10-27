@@ -16,6 +16,7 @@ out/
 .nyc_output
 npm-debug.log
 .env.test
+*.map
 
 # vim
 *.swo
