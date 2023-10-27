@@ -19,7 +19,7 @@ import {
 } from './constants';
 import { FaucetClient } from './faucet-client';
 import LocalWallet from './modules/local-wallet';
-import { Subaccount } from './subaccount';
+import { SubaccountInfo } from './subaccount';
 import { OrderFlags } from './types';
 
 declare global {
@@ -252,7 +252,7 @@ export async function placeOrder(
     const marketInfo = json.marketInfo as MarketInfo;
     const currentHeight = json.currentHeight as number;
 
-    const subaccount = new Subaccount(wallet, subaccountNumber);
+    const subaccount = new SubaccountInfo(wallet, subaccountNumber);
     const tx = await client.placeOrder(
       subaccount,
       marketId,
@@ -314,7 +314,7 @@ export async function cancelOrder(
     const goodTilBlock = json.goodTilBlock;
     const goodTilBlockTime = json.goodTilBlockTime;
 
-    const subaccount = new Subaccount(wallet, subaccountNumber);
+    const subaccount = new SubaccountInfo(wallet, subaccountNumber);
     const tx = await client.cancelRawOrder(
       subaccount,
       clientId,
@@ -352,7 +352,7 @@ export async function deposit(
       throw new UserError('amount is not set');
     }
 
-    const subaccount = new Subaccount(wallet, subaccountNumber);
+    const subaccount = new SubaccountInfo(wallet, subaccountNumber);
     const tx = await client.depositToSubaccount(
       subaccount,
       amount,
@@ -386,7 +386,7 @@ export async function withdraw(
       throw new UserError('amount is not set');
     }
 
-    const subaccount = new Subaccount(wallet, subaccountNumber);
+    const subaccount = new SubaccountInfo(wallet, subaccountNumber);
     const tx = await client.withdrawFromSubaccount(
       subaccount,
       amount,
@@ -454,7 +454,7 @@ export async function withdrawToIBC(
       value: json.msg,
     };
 
-    const subaccount = new Subaccount(wallet, subaccountNumber);
+    const subaccount = new SubaccountInfo(wallet, subaccountNumber);
     const subaccountMsg = client.withdrawFromSubaccountMessage(subaccount, amount);
 
     const msgs = [subaccountMsg, ibcMsg];
@@ -597,7 +597,7 @@ export async function simulateDeposit(
       throw new UserError('amount is not set');
     }
 
-    const subaccount = new Subaccount(wallet, subaccountNumber);
+    const subaccount = new SubaccountInfo(wallet, subaccountNumber);
     const msg: EncodeObject = client.depositToSubaccountMessage(
       subaccount,
       amount,
@@ -639,7 +639,7 @@ export async function simulateWithdraw(
       throw new UserError('amount is not set');
     }
 
-    const subaccount = new Subaccount(wallet, subaccountNumber);
+    const subaccount = new SubaccountInfo(wallet, subaccountNumber);
     const msg: EncodeObject = client.withdrawFromSubaccountMessage(
       subaccount,
       amount,
@@ -780,7 +780,7 @@ export async function signPlaceOrder(
       throw new UserError('wallet is not set. Call connectWallet() first');
     }
 
-    const subaccount = new Subaccount(wallet, subaccountNumber);
+    const subaccount = new SubaccountInfo(wallet, subaccountNumber);
     const signed = await client.signPlaceOrder(
       subaccount,
       marketId,
@@ -819,7 +819,7 @@ export async function signCancelOrder(
       throw new UserError('wallet is not set. Call connectWallet() first');
     }
 
-    const subaccount = new Subaccount(wallet, subaccountNumber);
+    const subaccount = new SubaccountInfo(wallet, subaccountNumber);
     const signed = await client.signCancelOrder(
       subaccount,
       clientId,

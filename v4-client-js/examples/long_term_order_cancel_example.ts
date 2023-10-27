@@ -4,7 +4,7 @@ import {
   Network, OrderExecution, OrderSide, OrderTimeInForce, OrderType,
 } from '../src/clients/constants';
 import LocalWallet from '../src/clients/modules/local-wallet';
-import { Subaccount } from '../src/clients/subaccount';
+import { SubaccountInfo } from '../src/clients/subaccount';
 import { randomInt } from '../src/lib/utils';
 import { DYDX_TEST_MNEMONIC, MAX_CLIENT_ID } from './constants';
 
@@ -19,7 +19,7 @@ async function test(): Promise<void> {
   const client = await CompositeClient.connect(network);
   console.log('**Client**');
   console.log(client);
-  const subaccount = new Subaccount(wallet, 0);
+  const subaccount = new SubaccountInfo(wallet, 0);
 
   /*
   Note this example places a stateful order.
