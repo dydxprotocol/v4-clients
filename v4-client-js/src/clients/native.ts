@@ -8,7 +8,7 @@ import { Order_Side, Order_TimeInForce } from '@dydxprotocol/v4-proto/src/codege
 import * as AuthModule from 'cosmjs-types/cosmos/auth/v1beta1/query';
 import Long from 'long';
 
-import { BECH32_PREFIX } from '../lib/constants';
+import { BECH32_PREFIX, BECH32_PREFIX_NOBLE } from '../lib/constants';
 import { UserError } from '../lib/errors';
 import { ByteArrayEncoding, encodeJson } from '../lib/helpers';
 import { deriveHDKeyFromEthereumSignature } from '../lib/onboarding';
@@ -29,6 +29,8 @@ declare global {
   var faucetClient: FaucetClient | null;
   // eslint-disable-next-line vars-on-top, no-var
   var wallet: LocalWallet;
+  // eslint-disable-next-line vars-on-top, no-var
+  var nobleWallet: LocalWallet;
 }
 
 export async function connectClient(
@@ -101,8 +103,10 @@ export async function connectWallet(
 ): Promise<string> {
   try {
     globalThis.wallet = await LocalWallet.fromMnemonic(mnemonic, BECH32_PREFIX);
+    globalThis.nobleWallet = await LocalWallet.fromMnemonic(mnemonic, BECH32_PREFIX_NOBLE);
     const address = globalThis.wallet.address!;
-    return encodeJson({ address });
+    const nobleAddress = globalThis.wallet.address!;
+    return encodeJson({ address, nobleAddress });
   } catch (e) {
     return wrappedError(e);
   }
@@ -458,6 +462,47 @@ export async function withdrawToIBC(
     const subaccountMsg = client.withdrawFromSubaccountMessage(subaccount, amount);
 
     const msgs = [subaccountMsg, ibcMsg];
+    const encodeObjects: Promise<EncodeObject[]> = new Promise((resolve) => resolve(msgs));
+
+    const tx = await client.send(
+      wallet,
+      () => {
+        return encodeObjects;
+      },
+      false,
+      undefined,
+      undefined,
+    );
+    return encodeJson(tx);
+  } catch (error) {
+    return wrappedError(error);
+  }
+}
+
+export async function nobleIBCTransfer(
+  payload: string,
+): Promise<string> {
+  try {
+    const client = globalThis.client;
+    if (client === undefined) {
+      throw new UserError('client is not connected. Call connectClient() first');
+    }
+    const wallet = globalThis.nobleWallet;
+    if (wallet === undefined) {
+      throw new UserError('noble wallet is not set. Call connectWallet() first');
+    }
+
+    const decode = (str: string):string => Buffer.from(str, 'base64').toString('binary');
+    const decoded = decode(payload);
+
+    const json = JSON.parse(decoded);
+
+    const ibcMsg: EncodeObject = {
+      typeUrl: json.msgTypeUrl, // '/ibc.applications.transfer.v1.MsgTransfer',
+      value: json.msg,
+    };
+
+    const msgs = [ibcMsg];
     const encodeObjects: Promise<EncodeObject[]> = new Promise((resolve) => resolve(msgs));
 
     const tx = await client.send(

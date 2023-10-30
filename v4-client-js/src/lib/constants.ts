@@ -2,6 +2,7 @@ import { StdFee } from '@cosmjs/stargate';
 
 // Bech32 Prefix
 export const BECH32_PREFIX = 'dydx';
+export const BECH32_PREFIX_NOBLE = 'noble';
 
 // Broadcast Defaults
 export const BROADCAST_POLL_INTERVAL_MS: number = 300;
