@@ -1017,6 +1017,18 @@ export async function getMarketPrice(
     return wrappedError(e);
   }
 }
+
+export function getNobleAddress(): Promise<String> {
+  try {
+    if (globalThis.nobleWallet?.address === undefined) {
+      throw new UserError('wallet is not set. Call connectWallet() first');
+    }
+    return Promise.resolve(encodeJson(globalThis.nobleWallet.address));
+  } catch (error) {
+    return Promise.resolve(wrappedError(error));
+  }
+}
+
 export async function getNobleBalance(): Promise<String> {
   try {
     const client = await getNobleClient();
