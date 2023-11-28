@@ -28,6 +28,7 @@ export default class LocalWallet {
     address?: string;
     pubKey?: Secp256k1Pubkey;
     signer?: TransactionSigner;
+    offlineSigner?: OfflineSigner;
 
     static async fromOfflineSigner(signer:OfflineSigner): Promise<LocalWallet> {
       const wallet = new LocalWallet();
@@ -42,6 +43,7 @@ export default class LocalWallet {
     }
 
     async setSigner(signer: OfflineSigner): Promise<void> {
+      this.offlineSigner = signer;
       const stargateClient = await SigningStargateClient.offline(
         signer,
         {

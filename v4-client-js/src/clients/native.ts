@@ -8,7 +8,7 @@ import { Order_Side, Order_TimeInForce } from '@dydxprotocol/v4-proto/src/codege
 import * as AuthModule from 'cosmjs-types/cosmos/auth/v1beta1/query';
 import Long from 'long';
 
-import { BECH32_PREFIX } from '../lib/constants';
+import { BECH32_PREFIX, GAS_MULTIPLIER, NOBLE_BECH32_PREFIX } from '../lib/constants';
 import { UserError } from '../lib/errors';
 import { ByteArrayEncoding, encodeJson } from '../lib/helpers';
 import { deriveHDKeyFromEthereumSignature } from '../lib/onboarding';
@@ -19,6 +19,7 @@ import {
 } from './constants';
 import { FaucetClient } from './faucet-client';
 import LocalWallet from './modules/local-wallet';
+import { NobleClient } from './noble-client';
 import { SubaccountInfo } from './subaccount';
 import { OrderFlags } from './types';
 
@@ -29,6 +30,27 @@ declare global {
   var faucetClient: FaucetClient | null;
   // eslint-disable-next-line vars-on-top, no-var
   var wallet: LocalWallet;
+
+  // eslint-disable-next-line vars-on-top, no-var
+  var nobleValidatorUrl: string | undefined;
+  // eslint-disable-next-line vars-on-top, no-var
+  var nobleWallet: LocalWallet | undefined;
+  // eslint-disable-next-line vars-on-top, no-var
+  var nobleClient: NobleClient | undefined;
+}
+
+async function getNobleClient(): Promise<NobleClient | undefined> {
+  if (
+    globalThis.nobleClient === undefined &&
+    globalThis.nobleValidatorUrl !== undefined &&
+    globalThis.nobleWallet !== undefined
+  ) {
+    globalThis.nobleClient = await NobleClient.connect(
+      globalThis.nobleValidatorUrl,
+      globalThis.nobleWallet,
+    );
+  }
+  return Promise.resolve(globalThis.nobleClient);
 }
 
 export async function connectClient(
@@ -53,6 +75,7 @@ export async function connectNetwork(
       validatorUrl,
       chainId,
       faucetUrl,
+      nobleValidatorUrl,
       USDC_DENOM,
       USDC_DECIMALS,
       USDC_GAS_DENOM,
@@ -90,6 +113,8 @@ export async function connectNetwork(
     } else {
       globalThis.faucetClient = null;
     }
+    globalThis.nobleValidatorUrl = nobleValidatorUrl;
+    globalThis.nobleClient = undefined;
     return encodeJson(config);
   } catch (e) {
     return wrappedError(e);
@@ -101,6 +126,10 @@ export async function connectWallet(
 ): Promise<string> {
   try {
     globalThis.wallet = await LocalWallet.fromMnemonic(mnemonic, BECH32_PREFIX);
+    globalThis.nobleWallet = await LocalWallet.fromMnemonic(
+      mnemonic,
+      NOBLE_BECH32_PREFIX,
+    );
     const address = globalThis.wallet.address!;
     return encodeJson({ address });
   } catch (e) {
@@ -986,5 +1015,56 @@ export async function getMarketPrice(
     return encodeJson(marketPrice);
   } catch (e) {
     return wrappedError(e);
+  }
+}
+export async function getNobleBalance(): Promise<String> {
+  try {
+    const client = await getNobleClient();
+    if (client === undefined) {
+      throw new UserError(
+        'client is not connected.',
+      );
+    }
+    if (globalThis.nobleWallet?.address === undefined) {
+      throw new UserError('wallet is not set. Call connectWallet() first');
+    }
+    const coin = await client.getAccountBalance(globalThis.nobleWallet.address, 'uusdc');
+    return encodeJson(coin);
+  } catch (error) {
+    return wrappedError(error);
+  }
+}
+
+export async function sendNobleIBC(squidPayload: string): Promise<String> {
+  try {
+    const client = await getNobleClient();
+    if (client === undefined) {
+      throw new UserError(
+        'client is not connected.',
+      );
+    }
+    if (globalThis.nobleWallet?.address === undefined) {
+      throw new UserError('wallet is not set. Call connectWallet() first');
+    }
+
+    const decode = (str: string): string => Buffer.from(str, 'base64').toString('binary');
+    const decoded = decode(squidPayload);
+
+    const json = JSON.parse(decoded);
+
+    const ibcMsg: EncodeObject = {
+      typeUrl: json.msgTypeUrl, // '/ibc.applications.transfer.v1.MsgTransfer',
+      value: json.msg,
+    };
+    const fee = await client.simulateTransaction([ibcMsg]);
+
+    // take out fee from amount before sweeping
+    ibcMsg.value.token.amount = (parseInt(ibcMsg.value.token.amount, 10) -
+      Math.floor(parseInt(fee.amount[0].amount, 10) * GAS_MULTIPLIER)).toString();
+
+    const tx = await client.send([ibcMsg]);
+    return encodeJson(tx);
+  } catch (error) {
+    return wrappedError(error);
   }
 }
