@@ -1071,9 +1071,14 @@ export async function sendNobleIBC(squidPayload: string): Promise<String> {
     const fee = await client.simulateTransaction([ibcMsg]);
 
     // take out fee from amount before sweeping
-    ibcMsg.value.token.amount = (parseInt(ibcMsg.value.token.amount, 10) -
-      Math.floor(parseInt(fee.amount[0].amount, 10) * GAS_MULTIPLIER)).toString();
+    const amount = parseInt(ibcMsg.value.token.amount, 10) -
+      Math.floor(parseInt(fee.amount[0].amount, 10) * GAS_MULTIPLIER);
 
+    if (amount <= 0) {
+      throw new UserError('noble balance does not cover fees');
+    }
+
+    ibcMsg.value.token.amount = amount.toString();
     const tx = await client.send([ibcMsg]);
     return encodeJson(tx);
   } catch (error) {
