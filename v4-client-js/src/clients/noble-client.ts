@@ -15,11 +15,6 @@ export class NobleClient {
   private stargateClient?: SigningStargateClient;
   private wallet?: LocalWallet;
 
-  /**
-   * @description Connect to a validator client
-   *
-   * @returns The validator client
-   */
   static async connect(
     restEndpoint: string,
     wallet: LocalWallet,

@@ -70,6 +70,8 @@ async function test(): Promise<void> {
     console.log('Balances');
     console.log(JSON.stringify(coins));
 
+    // IBC from noble
+
     const ibcFromNobleMsg: EncodeObject = {
       typeUrl: '/ibc.applications.transfer.v1.MsgTransfer',
       value: {
