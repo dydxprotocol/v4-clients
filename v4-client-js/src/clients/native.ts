@@ -32,25 +32,7 @@ declare global {
   var wallet: LocalWallet;
 
   // eslint-disable-next-line vars-on-top, no-var
-  var nobleValidatorUrl: string | undefined;
-  // eslint-disable-next-line vars-on-top, no-var
-  var nobleWallet: LocalWallet | undefined;
-  // eslint-disable-next-line vars-on-top, no-var
   var nobleClient: NobleClient | undefined;
-}
-
-async function getNobleClient(): Promise<NobleClient | undefined> {
-  if (
-    globalThis.nobleClient === undefined &&
-    globalThis.nobleValidatorUrl !== undefined &&
-    globalThis.nobleWallet !== undefined
-  ) {
-    globalThis.nobleClient = await NobleClient.connect(
-      globalThis.nobleValidatorUrl,
-      globalThis.nobleWallet,
-    );
-  }
-  return Promise.resolve(globalThis.nobleClient);
 }
 
 export async function connectClient(
@@ -113,8 +95,7 @@ export async function connectNetwork(
     } else {
       globalThis.faucetClient = null;
     }
-    globalThis.nobleValidatorUrl = nobleValidatorUrl;
-    globalThis.nobleClient = undefined;
+    globalThis.nobleClient = new NobleClient(nobleValidatorUrl);
     return encodeJson(config);
   } catch (e) {
     return wrappedError(e);
@@ -126,10 +107,12 @@ export async function connectWallet(
 ): Promise<string> {
   try {
     globalThis.wallet = await LocalWallet.fromMnemonic(mnemonic, BECH32_PREFIX);
-    globalThis.nobleWallet = await LocalWallet.fromMnemonic(
+    const nobleWallet = await LocalWallet.fromMnemonic(
       mnemonic,
       NOBLE_BECH32_PREFIX,
     );
+    await globalThis.nobleClient?.connect(nobleWallet);
+
     const address = globalThis.wallet.address!;
     return encodeJson({ address });
   } catch (e) {
@@ -1018,29 +1001,15 @@ export async function getMarketPrice(
   }
 }
 
-export function getNobleAddress(): Promise<String> {
-  try {
-    if (globalThis.nobleWallet?.address === undefined) {
-      throw new UserError('wallet is not set. Call connectWallet() first');
-    }
-    return Promise.resolve(encodeJson(globalThis.nobleWallet.address));
-  } catch (error) {
-    return Promise.resolve(wrappedError(error));
-  }
-}
-
 export async function getNobleBalance(): Promise<String> {
   try {
-    const client = await getNobleClient();
-    if (client === undefined) {
+    const client = globalThis.nobleClient;
+    if (client === undefined || !client.isConnected) {
       throw new UserError(
         'client is not connected.',
       );
     }
-    if (globalThis.nobleWallet?.address === undefined) {
-      throw new UserError('wallet is not set. Call connectWallet() first');
-    }
-    const coin = await client.getAccountBalance(globalThis.nobleWallet.address, 'uusdc');
+    const coin = await client.getAccountBalance('uusdc');
     return encodeJson(coin);
   } catch (error) {
     return wrappedError(error);
@@ -1049,14 +1018,11 @@ export async function getNobleBalance(): Promise<String> {
 
 export async function sendNobleIBC(squidPayload: string): Promise<String> {
   try {
-    const client = await getNobleClient();
-    if (client === undefined) {
+    const client = globalThis.nobleClient;
+    if (client === undefined || !client.isConnected) {
       throw new UserError(
         'client is not connected.',
       );
-    }
-    if (globalThis.nobleWallet?.address === undefined) {
-      throw new UserError('wallet is not set. Call connectWallet() first');
     }
 
     const decode = (str: string): string => Buffer.from(str, 'base64').toString('binary');
