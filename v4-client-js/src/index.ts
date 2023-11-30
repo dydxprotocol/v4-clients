@@ -9,6 +9,7 @@ export * as onboarding from './lib/onboarding';
 export { default as LocalWallet } from './clients/modules/local-wallet';
 export { SubaccountInfo as SubaccountClient } from './clients/subaccount';
 export { CompositeClient } from './clients/composite-client';
+export { NobleClient } from './clients/noble-client';
 export { IndexerClient } from './clients/indexer-client';
 export { ValidatorClient } from './clients/validator-client';
 export { FaucetClient } from './clients/faucet-client';

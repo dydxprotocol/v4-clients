@@ -23,7 +23,8 @@ async function test(): Promise<void> {
     NOBLE_BECH32_PREFIX,
   );
 
-  const client = await NobleClient.connect('https://rpc.testnet.noble.strange.love', nobleWallet);
+  const client = new NobleClient('https://rpc.testnet.noble.strange.love');
+  await client.connect(nobleWallet);
 
   if (nobleWallet.address === undefined || dydxWallet.address === undefined) {
     throw new Error('Wallet not found');
@@ -66,7 +67,7 @@ async function test(): Promise<void> {
   await sleep(30000);
 
   try {
-    const coins = await client.getAccountBalances(nobleWallet.address);
+    const coins = await client.getAccountBalances();
     console.log('Balances');
     console.log(JSON.stringify(coins));
 
@@ -101,7 +102,7 @@ async function test(): Promise<void> {
   await sleep(30000);
 
   try {
-    const coin = await client.getAccountBalance(nobleWallet.address, 'uusdc');
+    const coin = await client.getAccountBalance('uusdc');
     console.log('Balance');
     console.log(JSON.stringify(coin));
   } catch (error) {

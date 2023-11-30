@@ -12,20 +12,19 @@ import { GAS_MULTIPLIER } from './constants';
 import LocalWallet from './modules/local-wallet';
 
 export class NobleClient {
-  private stargateClient?: SigningStargateClient;
   private wallet?: LocalWallet;
+  private restEndpoint: string;
+  private stargateClient?: SigningStargateClient;
 
-  static async connect(
-    restEndpoint: string,
-    wallet: LocalWallet,
-  ): Promise<NobleClient> {
-    const client = new NobleClient();
-    await client.initialize(restEndpoint, wallet);
-    return client;
+  constructor(restEndpoint: string) {
+    this.restEndpoint = restEndpoint;
   }
 
-  private async initialize(
-    restEndpoint: string,
+  get isConnected(): boolean {
+    return Boolean(this.stargateClient);
+  }
+
+  async connect(
     wallet: LocalWallet,
   ): Promise<void> {
     if (wallet?.offlineSigner === undefined) {
@@ -33,24 +32,24 @@ export class NobleClient {
     }
     this.wallet = wallet;
     this.stargateClient = await SigningStargateClient.connectWithSigner(
-      restEndpoint,
+      this.restEndpoint,
       wallet.offlineSigner,
       { registry: new Registry(defaultRegistryTypes) },
     );
   }
 
-  getAccountBalances(address: string): Promise<readonly Coin[]> {
-    if (!this.stargateClient) {
+  getAccountBalances(): Promise<readonly Coin[]> {
+    if (!this.stargateClient || this.wallet?.address === undefined) {
       throw new Error('stargateClient not initialized');
     }
-    return this.stargateClient.getAllBalances(address);
+    return this.stargateClient.getAllBalances(this.wallet.address);
   }
 
-  getAccountBalance(address: string, denom: string): Promise<Coin> {
-    if (!this.stargateClient) {
+  getAccountBalance(denom: string): Promise<Coin> {
+    if (!this.stargateClient || this.wallet?.address === undefined) {
       throw new Error('stargateClient not initialized');
     }
-    return this.stargateClient.getBalance(address, denom);
+    return this.stargateClient.getBalance(this.wallet.address, denom);
   }
 
   async send(
