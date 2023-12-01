@@ -59,7 +59,7 @@ export async function connectNetwork(
       validatorUrl,
       chainId,
       faucetUrl,
-      nobleValidatorUrl,
+      nobleValidator,
       USDC_DENOM,
       USDC_DECIMALS,
       USDC_GAS_DENOM,
@@ -97,7 +97,7 @@ export async function connectNetwork(
     } else {
       globalThis.faucetClient = null;
     }
-    globalThis.nobleClient = new NobleClient(nobleValidatorUrl);
+    globalThis.nobleClient = new NobleClient(nobleValidator);
     if (globalThis.nobleWallet) await globalThis.nobleClient.connect(globalThis.nobleWallet);
 
     return encodeJson(config);
