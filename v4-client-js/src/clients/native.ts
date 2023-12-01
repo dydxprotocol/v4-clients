@@ -1029,10 +1029,7 @@ export async function sendNobleIBC(squidPayload: string): Promise<String> {
       );
     }
 
-    const decode = (str: string): string => Buffer.from(str, 'base64').toString('binary');
-    const decoded = decode(squidPayload);
-
-    const json = JSON.parse(decoded);
+    const json = JSON.parse(squidPayload);
 
     const ibcMsg: EncodeObject = {
       typeUrl: json.msgTypeUrl, // '/ibc.applications.transfer.v1.MsgTransfer',
