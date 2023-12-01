@@ -33,6 +33,8 @@ declare global {
 
   // eslint-disable-next-line vars-on-top, no-var
   var nobleClient: NobleClient | undefined;
+  // eslint-disable-next-line vars-on-top, no-var
+  var nobleWallet: LocalWallet | undefined;
 }
 
 export async function connectClient(
@@ -96,6 +98,8 @@ export async function connectNetwork(
       globalThis.faucetClient = null;
     }
     globalThis.nobleClient = new NobleClient(nobleValidatorUrl);
+    if (globalThis.nobleWallet) await globalThis.nobleClient.connect(globalThis.nobleWallet);
+
     return encodeJson(config);
   } catch (e) {
     return wrappedError(e);
@@ -107,11 +111,11 @@ export async function connectWallet(
 ): Promise<string> {
   try {
     globalThis.wallet = await LocalWallet.fromMnemonic(mnemonic, BECH32_PREFIX);
-    const nobleWallet = await LocalWallet.fromMnemonic(
+    globalThis.nobleWallet = await LocalWallet.fromMnemonic(
       mnemonic,
       NOBLE_BECH32_PREFIX,
     );
-    await globalThis.nobleClient?.connect(nobleWallet);
+    await globalThis.nobleClient?.connect(globalThis.nobleWallet);
 
     const address = globalThis.wallet.address!;
     return encodeJson({ address });
