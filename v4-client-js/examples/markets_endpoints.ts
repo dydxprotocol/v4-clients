@@ -9,7 +9,7 @@ import { IndexerClient } from '../src/clients/indexer-client';
 export const MARKET_BTC_USD: string = 'BTC-USD';
 
 async function test(): Promise<void> {
-  const client = new IndexerClient(Network.testnet().indexerConfig);
+  const client = new IndexerClient(Network.local().indexerConfig);
 
   // Get perp markets
   try {

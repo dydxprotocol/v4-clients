@@ -9,16 +9,19 @@ export * from '../lib/constants';
 export const DEV_CHAIN_ID = 'dydxprotocol-testnet';
 export const STAGING_CHAIN_ID = 'dydxprotocol-testnet';
 export const TESTNET_CHAIN_ID = 'dydx-testnet-4';
+export const LOCAL_CHAIN_ID = 'localdydxprotocol';
 
 // ------------ API URLs ------------
 export enum IndexerApiHost {
   TESTNET = 'https://dydx-testnet.imperator.co',
+  LOCAL = 'http://localhost:3002'
   // TODO: Add MAINNET
 }
 
 export enum IndexerWSHost {
   TESTNET = 'wss://dydx-testnet.imperator.co/v4/ws',
   // TODO: Add MAINNET
+  LOCAL = 'ws://localhost:3003'
 }
 
 export enum FaucetApiHost {
@@ -28,6 +31,7 @@ export enum FaucetApiHost {
 export enum ValidatorApiHost {
   TESTNET = 'https://dydx-testnet-archive.allthatnode.com',
   // TODO: Add MAINNET
+  LOCAL = 'http://localhost:26657'
 }
 
 // ------------ Network IDs ------------
@@ -166,7 +170,7 @@ export class Network {
 
   static testnet(): Network {
     const indexerConfig = new IndexerConfig(
-      IndexerApiHost.TESTNET,
+      IndexerApiHost.LOCAL,
       IndexerWSHost.TESTNET,
     );
     const validatorConfig = new ValidatorConfig(ValidatorApiHost.TESTNET, TESTNET_CHAIN_ID,
@@ -178,6 +182,22 @@ export class Network {
         CHAINTOKEN_DECIMALS: 18,
       });
     return new Network('testnet', indexerConfig, validatorConfig);
+  }
+
+  static local(): Network {
+    const indexerConfig = new IndexerConfig(
+      IndexerApiHost.LOCAL,
+      IndexerWSHost.LOCAL,
+    );
+    const validatorConfig = new ValidatorConfig(ValidatorApiHost.LOCAL, LOCAL_CHAIN_ID,
+      {
+        CHAINTOKEN_DENOM: 'adv4tnt',
+        USDC_DENOM: 'ibc/8E27BA2D5493AF5636760E354E46004562C46AB7EC0CC4C1CA14E9E20E2545B5',
+        USDC_GAS_DENOM: 'uusdc',
+        USDC_DECIMALS: 6,
+        CHAINTOKEN_DECIMALS: 18,
+      });
+    return new Network('local', indexerConfig, validatorConfig);
   }
 
   // TODO: Add mainnet(): Network
