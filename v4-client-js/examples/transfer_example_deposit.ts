@@ -5,13 +5,13 @@ import { Network } from '../src/clients/constants';
 import LocalWallet from '../src/clients/modules/local-wallet';
 import { SubaccountInfo } from '../src/clients/subaccount';
 import { ValidatorClient } from '../src/clients/validator-client';
-import { DYDX_TEST_MNEMONIC } from './constants';
+import { DYDX_LOCAL_ADDRESS, DYDX_LOCAL_MNEMONIC, DYDX_TEST_MNEMONIC } from './constants';
 
 async function test(): Promise<void> {
-  const wallet = await LocalWallet.fromMnemonic(DYDX_TEST_MNEMONIC, BECH32_PREFIX);
+  const wallet = await LocalWallet.fromMnemonic(DYDX_LOCAL_MNEMONIC, BECH32_PREFIX);
   console.log(wallet);
 
-  const client = await ValidatorClient.connect(Network.testnet().validatorConfig);
+  const client = await ValidatorClient.connect(Network.local().validatorConfig);
   console.log('**Client**');
   console.log(client);
 

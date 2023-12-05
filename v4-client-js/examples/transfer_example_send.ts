@@ -8,11 +8,11 @@ import { Network } from '../src/clients/constants';
 import LocalWallet from '../src/clients/modules/local-wallet';
 import { SubaccountInfo } from '../src/clients/subaccount';
 import { ValidatorClient } from '../src/clients/validator-client';
-import { DYDX_TEST_MNEMONIC } from './constants';
+import { DYDX_LOCAL_MNEMONIC, DYDX_TEST_MNEMONIC } from './constants';
 
 async function test(): Promise<void> {
   const wallet = await LocalWallet.fromMnemonic(
-    DYDX_TEST_MNEMONIC,
+    DYDX_LOCAL_MNEMONIC,
     BECH32_PREFIX,
   );
   console.log(wallet);
@@ -28,7 +28,7 @@ async function test(): Promise<void> {
   const msgs: Promise<EncodeObject[]> = new Promise((resolve) => {
     const msg = client.post.composer.composeMsgSendToken(
       subaccount.address,
-      TEST_RECIPIENT_ADDRESS,
+      'dydx10fx7sy6ywd5senxae9dwytf8jxek3t2gcen2vs',
       client.config.denoms.CHAINTOKEN_DENOM,
       amount.toString(),
     );

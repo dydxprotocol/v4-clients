@@ -8,7 +8,7 @@ import { SubaccountInfo } from '../src/clients/subaccount';
 import { IPlaceOrder } from '../src/clients/types';
 import { ValidatorClient } from '../src/clients/validator-client';
 import { randomInt } from '../src/lib/utils';
-import { DYDX_TEST_MNEMONIC, defaultOrder } from './constants';
+import { DYDX_TEST_MNEMONIC, defaultOrder, DYDX_LOCAL_MNEMONIC } from './constants';
 import ordersParams from './raw_orders.json';
 
 // Required for encoding and decoding queries that are of type Long.
@@ -30,10 +30,10 @@ async function sleep(ms: number): Promise<void> {
 }
 
 async function test(): Promise<void> {
-  const wallet = await LocalWallet.fromMnemonic(DYDX_TEST_MNEMONIC, BECH32_PREFIX);
+  const wallet = await LocalWallet.fromMnemonic(DYDX_LOCAL_MNEMONIC, BECH32_PREFIX);
   console.log(wallet);
 
-  const client = await ValidatorClient.connect(Network.testnet().validatorConfig);
+  const client = await ValidatorClient.connect(Network.local().validatorConfig);
   console.log('**Client**');
   console.log(client);
 
