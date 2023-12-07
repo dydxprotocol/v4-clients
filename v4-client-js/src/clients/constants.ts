@@ -170,7 +170,7 @@ export class Network {
 
   static testnet(): Network {
     const indexerConfig = new IndexerConfig(
-      IndexerApiHost.LOCAL,
+      IndexerApiHost.TESTNET,
       IndexerWSHost.TESTNET,
     );
     const validatorConfig = new ValidatorConfig(ValidatorApiHost.TESTNET, TESTNET_CHAIN_ID,
