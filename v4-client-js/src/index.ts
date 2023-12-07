@@ -16,3 +16,4 @@ export { FaucetClient } from './clients/faucet-client';
 export { SocketClient } from './clients/socket-client';
 export { NetworkOptimizer } from './network_optimizer';
 export { encodeJson } from './lib/helpers';
+export { SubaccountInfo } from './clients/subaccount';
