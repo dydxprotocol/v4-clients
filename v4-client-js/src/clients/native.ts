@@ -1070,7 +1070,7 @@ export async function withdrawToNobleIBC(payload: string): Promise<String> {
 
     const msg = client.withdrawFromSubaccountMessage(
       new SubaccountInfo(wallet, subaccountNumber),
-      parseFloat(amount).toFixed(client.validatorClient.config.denoms.USDC_DECIMALS)
+      parseFloat(amount).toFixed(client.validatorClient.config.denoms.USDC_DECIMALS),
     );
     const ibcMsg: EncodeObject = {
       typeUrl: parsedIbcPayload.msgTypeUrl,
