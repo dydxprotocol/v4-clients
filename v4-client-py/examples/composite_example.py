@@ -46,7 +46,7 @@ async def main() -> None:
 
         post_only = orderParams.get("postOnly", False)
         try:
-            tx = client.place_order(
+            tx = client.place_order_message(
                 subaccount,
                 market='ETH-USD',
                 type=type,
@@ -69,29 +69,6 @@ async def main() -> None:
 
         await asyncio.sleep(5)  # wait for placeOrder to complete
 
-
-    try:
-        tx = client.place_order(
-            subaccount,
-            market='ETH-USD',
-            type=OrderType.STOP_MARKET,
-            side=OrderSide.SELL,
-            price=900.0,
-            size=0.01,
-            client_id=randrange(0, 100000000),
-            time_in_force=OrderTimeInForce.GTT,
-            good_til_block=0, # long term orders use GTBT
-            good_til_time_in_seconds=1000,
-            execution=OrderExecution.IOC,
-            post_only=False,
-            reduce_only=False,
-            trigger_price=1000,
-        )
-        print('**Order Tx**')
-        print(tx)
-    except Exception as error:
-        print('**Order Failed**')
-        print(str(error))
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
     asyncio.get_event_loop().run_until_complete(main())
