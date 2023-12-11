@@ -9,6 +9,7 @@ import {
 } from '@cosmjs/stargate';
 
 import { GAS_MULTIPLIER } from './constants';
+import { MsgDepositForBurn } from './lib/cctpProto';
 import LocalWallet from './modules/local-wallet';
 
 export class NobleClient {
@@ -24,9 +25,7 @@ export class NobleClient {
     return Boolean(this.stargateClient);
   }
 
-  async connect(
-    wallet: LocalWallet,
-  ): Promise<void> {
+  async connect(wallet: LocalWallet): Promise<void> {
     if (wallet?.offlineSigner === undefined) {
       throw new Error('Wallet signer not found');
     }
@@ -34,7 +33,12 @@ export class NobleClient {
     this.stargateClient = await SigningStargateClient.connectWithSigner(
       this.restEndpoint,
       wallet.offlineSigner,
-      { registry: new Registry(defaultRegistryTypes) },
+      {
+        registry: new Registry([
+          ['/circle.cctp.v1.MsgDepositForBurn', MsgDepositForBurn],
+          ...defaultRegistryTypes,
+        ]),
+      },
     );
   }
 

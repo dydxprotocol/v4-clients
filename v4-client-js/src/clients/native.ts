@@ -1052,3 +1052,76 @@ export async function sendNobleIBC(squidPayload: string): Promise<String> {
     return wrappedError(error);
   }
 }
+
+export async function withdrawToNobleIBC(payload: string): Promise<String> {
+  try {
+    const client = globalThis.client;
+    if (client === undefined) {
+      throw new UserError('client is not connected. Call connectClient() first');
+    }
+    const wallet = globalThis.wallet;
+    if (wallet === undefined) {
+      throw new UserError('wallet is not set. Call connectWallet() first');
+    }
+    const json = JSON.parse(payload);
+
+    const { subaccountNumber, amount, ibcPayload } = json ?? {};
+    const parsedIbcPayload = JSON.parse(ibcPayload);
+
+    const msg = client.withdrawFromSubaccountMessage(
+      new SubaccountInfo(wallet, subaccountNumber),
+      parseFloat(amount).toFixed(client.validatorClient.config.denoms.USDC_DECIMALS),
+    );
+    const ibcMsg: EncodeObject = {
+      typeUrl: parsedIbcPayload.msgTypeUrl,
+      value: parsedIbcPayload.msg,
+    };
+
+    const tx = await client.send(
+      wallet,
+      () => Promise.resolve([msg, ibcMsg]),
+      false,
+    );
+
+    return encodeJson({
+      txHash: `0x${Buffer.from(tx?.hash).toString('hex')}`,
+    });
+  } catch (error) {
+    return wrappedError(error);
+  }
+}
+
+export async function cctpWithdraw(squidPayload: string): Promise<String> {
+  try {
+    const client = globalThis.nobleClient;
+    if (client === undefined || !client.isConnected) {
+      throw new UserError(
+        'client is not connected.',
+      );
+    }
+
+    const json = JSON.parse(squidPayload);
+
+    const ibcMsg = {
+      typeUrl: json.typeUrl, // '/circle.cctp.v1.MsgDepositForBurn',
+      value: json.value,
+    };
+    const fee = await client.simulateTransaction([ibcMsg]);
+
+    // take out fee from amount before sweeping
+    const amount = parseInt(ibcMsg.value.amount, 10) -
+      Math.floor(parseInt(fee.amount[0].amount, 10) * GAS_MULTIPLIER);
+
+    if (amount <= 0) {
+      throw new Error('noble balance does not cover fees');
+    }
+
+    ibcMsg.value.amount = amount.toString();
+
+    const tx = await client.send([ibcMsg]);
+
+    return encodeJson(tx);
+  } catch (error) {
+    return wrappedError(error);
+  }
+}
