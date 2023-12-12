@@ -97,8 +97,15 @@ export async function connectNetwork(
     } else {
       globalThis.faucetClient = null;
     }
-    globalThis.nobleClient = new NobleClient(nobleValidatorUrl);
-    if (globalThis.nobleWallet) await globalThis.nobleClient.connect(globalThis.nobleWallet);
+
+    try {
+      globalThis.nobleClient = new NobleClient(nobleValidatorUrl);
+      if (globalThis.nobleWallet) {
+        await globalThis.nobleClient.connect(globalThis.nobleWallet);
+      }
+    } catch (e) {
+      console.error('Failed to connect to noble validator');
+    }
 
     return encodeJson(config);
   } catch (e) {
@@ -115,7 +122,12 @@ export async function connectWallet(
       mnemonic,
       NOBLE_BECH32_PREFIX,
     );
-    await globalThis.nobleClient?.connect(globalThis.nobleWallet);
+
+    try {
+      await globalThis.nobleClient?.connect(globalThis.nobleWallet);
+    } catch (e) {
+      console.error('Failed to connect to noble validator');
+    }
 
     const address = globalThis.wallet.address!;
     return encodeJson({ address });
