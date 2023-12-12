@@ -29,7 +29,7 @@ export enum FaucetApiHost {
 }
 
 export enum ValidatorApiHost {
-  TESTNET = 'https://dydx-testnet-archive.allthatnode.com',
+  TESTNET = 'https://test-dydx.kingnodes.com',
   // TODO: Add MAINNET
   LOCAL = 'http://localhost:26657'
 }
