@@ -1066,7 +1066,11 @@ export async function withdrawToNobleIBC(payload: string): Promise<String> {
     const json = JSON.parse(payload);
 
     const { subaccountNumber, amount, ibcPayload } = json ?? {};
-    const parsedIbcPayload = JSON.parse(ibcPayload);
+
+    const decode = (str: string):string => Buffer.from(str, 'base64').toString('binary');
+    const decoded = decode(ibcPayload);
+
+    const parsedIbcPayload = JSON.parse(decoded);
 
     const msg = client.withdrawFromSubaccountMessage(
       new SubaccountInfo(wallet, subaccountNumber),
