@@ -1,4 +1,4 @@
-import { Coin, } from '@cosmjs/proto-signing';
+import { Coin } from '@cosmjs/proto-signing';
 import {
   Account,
   accountFromAny,
@@ -149,7 +149,7 @@ export class Get {
     const requestData: Uint8Array = Uint8Array.from(
       BankModule.QueryBalanceRequest.encode({
         address,
-        denom
+        denom,
       })
         .finish(),
     );
@@ -363,7 +363,9 @@ export class Get {
    *
    * @returns Information on all equity tiers that are configured.
    */
-  async getEquityTierLimitConfiguration(): Promise<ClobModule.QueryEquityTierLimitConfigurationResponse> {
+  async getEquityTierLimitConfiguration(): Promise<
+    ClobModule.QueryEquityTierLimitConfigurationResponse
+    > {
     const requestData: Uint8Array = Uint8Array.from(
       ClobModule.QueryEquityTierLimitConfigurationRequest.encode({})
         .finish(),
@@ -456,7 +458,7 @@ export class Get {
       StakingModule.QueryValidatorsRequest
         .encode({
           status,
-          pagination: PAGE_REQUEST
+          pagination: PAGE_REQUEST,
         })
         .finish(),
     );
@@ -470,7 +472,7 @@ export class Get {
 
   private async sendQuery(requestUrl: string, requestData: Uint8Array): Promise<Uint8Array> {
     const resp: QueryAbciResponse = await
-      this.stargateQueryClient.queryAbci(requestUrl, requestData);
+    this.stargateQueryClient.queryAbci(requestUrl, requestData);
     return resp.value;
   }
 }
