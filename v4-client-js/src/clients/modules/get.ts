@@ -28,6 +28,7 @@ import {
   StatsModule,
 } from './proto-includes';
 import { TendermintClient } from './tendermintClient';
+import { QueryAbciResponse } from '@cosmjs/stargate/build/queryclient/queryclient';
 
 // Required for encoding and decoding queries that are of type Long.
 // Must be done once but since the individal modules should be usable without
@@ -447,6 +448,8 @@ export class Get {
   }
 
   private async sendQuery(requestUrl: string, requestData: Uint8Array): Promise<Uint8Array> {
-    return this.stargateQueryClient.queryUnverified(requestUrl, requestData);
+    const resp: QueryAbciResponse = await
+    this.stargateQueryClient.queryAbci(requestUrl, requestData);
+    return resp.value;
   }
 }

@@ -170,6 +170,8 @@ export class TendermintClient {
             }),
           };
         }),
+        // @ts-ignore
+        msgResponses: [],
       };
     } catch (error) {
       return this.queryHash(hash, time + Date.now() - now);
