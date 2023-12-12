@@ -305,16 +305,15 @@ export class Post {
         sequence,
       );
 
-      // Pull gasInfo out of simulated response.
-      const gasInfo: GasInfo | undefined = simulationResponse.gasInfo;
-
       // The promise should have been rejected if the gasInfo was undefined.
-      if (gasInfo === undefined) {
+      if (simulationResponse.gasInfo === undefined) {
         throw new UnexpectedClientError();
       }
 
       // Calculate and return fee from gasEstimate.
-      const gasEstimate: number = Uint53.fromString(gasInfo.gasUsed.toString()).toNumber();
+      const gasEstimate: number = Uint53.fromString(
+        simulationResponse.gasInfo.gasUsed.toString(),
+      ).toNumber();
       const fee = calculateFee(
         Math.floor(gasEstimate * GAS_MULTIPLIER),
         gasPrice,
