@@ -38,7 +38,7 @@ import { Composer } from './composer';
 import { Get } from './get';
 import LocalWallet from './local-wallet';
 import {
-  GasInfo, Order_Side, Order_TimeInForce, Any, MsgPlaceOrder, Order_ConditionType,
+  Order_Side, Order_TimeInForce, Any, MsgPlaceOrder, Order_ConditionType,
 } from './proto-includes';
 
 // Required for encoding and decoding queries that are of type Long.
