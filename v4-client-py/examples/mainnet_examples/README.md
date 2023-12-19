@@ -16,11 +16,5 @@ pip3 install -r requirements.txt
 ```
 export PYTHONPATH='cd ~/.../v4-clients/v4-client-py'
 ```
-4. Set in v4_client_py/clients/modules/post.py the mainnet network instead of testnet (lines 46 to 48)
-```
-# here to be selected testent or mainnet network
-#network = NetworkConfig.fetch_dydx_testnet()
-network = NetworkConfig.fetchai_mainnet()
-```
 
 Now you are ready to use the examples in this folder.
