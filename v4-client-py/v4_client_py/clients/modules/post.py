@@ -43,7 +43,9 @@ class Post:
         '''
 
         wallet = subaccount.wallet
-        network = NetworkConfig.fetch_dydx_testnet()
+        # here to be selected testent or mainnet network
+        #network = NetworkConfig.fetch_dydx_testnet()
+        network = NetworkConfig.fetchai_mainnet()
         ledger = LedgerClient(network)
         tx = Transaction()
         tx.add_message(msg)

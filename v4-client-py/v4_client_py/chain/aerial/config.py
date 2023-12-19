@@ -117,8 +117,8 @@ class NetworkConfig:
         :return: fetch mainnet configuration
         """
         return NetworkConfig(
-            chain_id="fetchhub-4",
-            url="grpc+https://grpc-fetchhub.fetch.ai",
+            chain_id="dydx-mainnet-1",
+            url="grpc+https://grpc.dydx.nodestake.top",
             fee_minimum_gas_price=0,
             fee_denomination="afet",
             staking_denomination="afet",
