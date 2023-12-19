@@ -1,13 +1,7 @@
 from v4_client_py.clients import IndexerClient, Subaccount
 from v4_client_py.clients.constants import Network
-import os
-import sys
 
-# Set the mnemonic as a variable in your shell
-MNEMONIC = os.environ.get("MNEMONIC")
-if MNEMONIC is None:
-    print("MNEMONIC not provided.")
-    sys.exit(1)
+MNEMONIC = "<place your MNEMONIC here>"
 
 client = IndexerClient(
     config=Network.mainnet().indexer_config,

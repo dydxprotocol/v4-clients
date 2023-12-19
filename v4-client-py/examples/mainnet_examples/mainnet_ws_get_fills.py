@@ -1,16 +1,10 @@
 import asyncio
 import json
-import os
-import sys
 
 from v4_client_py.clients.dydx_socket_client import SocketClient
 from v4_client_py.clients.constants import Network
 
-ADDRESS = os.environ.get("ADDRESS")
-if ADDRESS is None:
-    print("ADDRESS not provided.")
-    sys.exit(1)
-
+ADDRESS = "<place your ADDRESS here>"
 
 def for_fills(fills_data):
     try:

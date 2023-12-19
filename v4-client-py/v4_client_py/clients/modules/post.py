@@ -13,6 +13,7 @@ from ...chain.aerial.tx import Transaction
 from ...chain.aerial.tx_helpers import SubmittedTx
 from ...chain.aerial.client import LedgerClient, NetworkConfig
 from ...chain.aerial.client.utils import prepare_and_broadcast_basic_transaction
+from v4_client_py.clients.constants import NETWORK_ID_MAINNET, NETWORK_ID_TESTNET
 
 class Post:
     def __init__(
@@ -21,6 +22,17 @@ class Post:
     ):
         self.config = config
         self.composer = Composer()
+        
+    def fetch_network_config(self):
+        if self.config.chain_id == NETWORK_ID_MAINNET:
+            return NetworkConfig.fetchai_mainnet()
+        elif self.config.chain_id == NETWORK_ID_TESTNET:
+            return NetworkConfig.fetch_dydx_testnet()
+        else:
+            raise Exception (
+                'Do not which network config to choose...'
+                'Please set a proper one in /v4_client_py/clients/constants.py'
+            )
 
     def send_message(
         self,
@@ -43,10 +55,9 @@ class Post:
         '''
 
         wallet = subaccount.wallet
-        # here to be selected testent or mainnet network
-        #network = NetworkConfig.fetch_dydx_testnet()
-        network = NetworkConfig.fetchai_mainnet()
+        network = self.fetch_network_config()
         ledger = LedgerClient(network)
+        
         tx = Transaction()
         tx.add_message(msg)
         gas_limit = 0 if zeroFee else None

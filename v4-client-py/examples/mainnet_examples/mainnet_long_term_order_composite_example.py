@@ -1,7 +1,5 @@
 import asyncio
 import logging
-import os
-import sys
 from random import randrange
 
 from v4_client_py.chain.aerial.wallet import LocalWallet
@@ -18,11 +16,7 @@ from v4_client_py.clients.helpers.chain_helpers import (
 
 from tests.constants import MAX_CLIENT_ID
 
-# Set the mnemonic as a variable in your shell
-MNEMONIC = os.environ.get("MNEMONIC")
-if MNEMONIC is None:
-    print("MNEMONIC not provided.")
-    sys.exit(1)
+MNEMONIC = "<place your MNEMONIC here>"
 
 # define objects to be used with the SDK
 wallet = LocalWallet.from_mnemonic(MNEMONIC, BECH32_PREFIX)
