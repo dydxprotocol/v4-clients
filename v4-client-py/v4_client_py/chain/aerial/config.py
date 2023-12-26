@@ -1,15 +1,23 @@
-
 """Network configurations."""
 
 import warnings
 from dataclasses import dataclass
 from typing import Optional, Union
 
+from v4_client_py.clients.constants import (
+    AERIAL_CONFIG_CHAIN_ID_TESTNET,
+    AERIAL_CONFIG_URL_TESTNET,
+    AERIAL_CONFIG_CHAIN_ID_MAINNET,
+    AERIAL_CONFIG_URL_MAINNET,
+)
+
+
 class NetworkConfigError(RuntimeError):
     """Network config error.
 
     :param RuntimeError: Runtime error
     """
+
 
 URL_PREFIXES = (
     "grpc+https",
@@ -45,16 +53,12 @@ class NetworkConfig:
             raise NetworkConfigError("URL must be set")
         if not any(
             map(
-                lambda x: self.url.startswith(  # noqa: # pylint: disable=unnecessary-lambda
-                    x
-                ),
+                lambda x: self.url.startswith(x),  # noqa: # pylint: disable=unnecessary-lambda
                 URL_PREFIXES,
             )
         ):
             prefix_list = ", ".join(map(lambda x: f'"{x}"', URL_PREFIXES))
-            raise NetworkConfigError(
-                f"URL must start with one of the following prefixes: {prefix_list}"
-            )
+            raise NetworkConfigError(f"URL must start with one of the following prefixes: {prefix_list}")
 
     @classmethod
     def fetchai_dorado_testnet(cls) -> "NetworkConfig":
@@ -78,8 +82,8 @@ class NetworkConfig:
         :return: Network configuration
         """
         return NetworkConfig(
-            chain_id="dydx-testnet-4",
-            url="grpc+https://dydx-testnet-archive.allthatnode.com:9090",
+            chain_id=AERIAL_CONFIG_CHAIN_ID_TESTNET,
+            url=f"grpc+{AERIAL_CONFIG_URL_TESTNET}",
             fee_minimum_gas_price=4630550000000000,
             fee_denomination="adv4tnt",
             staking_denomination="dv4tnt",
@@ -117,8 +121,8 @@ class NetworkConfig:
         :return: fetch mainnet configuration
         """
         return NetworkConfig(
-            chain_id="dydx-mainnet-1",
-            url="grpc+https://grpc.dydx.nodestake.top",
+            chain_id=AERIAL_CONFIG_CHAIN_ID_MAINNET,
+            url=f"rest+{AERIAL_CONFIG_URL_MAINNET}",
             fee_minimum_gas_price=0,
             fee_denomination="afet",
             staking_denomination="afet",

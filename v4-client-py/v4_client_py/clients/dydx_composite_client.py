@@ -61,8 +61,7 @@ class CompositeClient:
         good_til_block: int,
         good_til_time_in_seconds: int,
     ) -> Tuple[int, int]:
-        is_stateful_order = is_order_flag_stateful_order(order_flags)
-        if is_stateful_order:
+        if is_stateful_order := is_order_flag_stateful_order(order_flags):
             return 0, self.calculate_good_til_block_time(good_til_time_in_seconds)
         else:
             return good_til_block, 0

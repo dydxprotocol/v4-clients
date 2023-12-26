@@ -11,9 +11,9 @@ from v4_client_py.clients.helpers.chain_helpers import (
     Order_TimeInForce,
     OrderSide,
 )
-from tests.constants import MAX_CLIENT_ID
+from tests.constants import MAX_CLIENT_ID, DYDX_TEST_MNEMONIC
 
-MNEMONIC = "<place your MNEMONIC here>"
+MNEMONIC = DYDX_TEST_MNEMONIC
 
 # define objects to be used with the SDK
 wallet = LocalWallet.from_mnemonic(MNEMONIC, BECH32_PREFIX)

@@ -1,7 +1,8 @@
 from v4_client_py.clients import IndexerClient, Subaccount
 from v4_client_py.clients.constants import Network
+from tests.constants import DYDX_TEST_MNEMONIC
 
-MNEMONIC = "<place your MNEMONIC here>"
+MNEMONIC = DYDX_TEST_MNEMONIC
 
 client = IndexerClient(
     config=Network.mainnet().indexer_config,
