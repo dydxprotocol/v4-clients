@@ -15,7 +15,7 @@ VALIDATOR_API_HOST_TESTNET = 'https://dydx-testnet-archive.allthatnode.com'
 VALIDATOR_GRPC_MAINNET =  None
 VALIDATOR_GRPC_TESTNET = 'dydx-testnet-archive.allthatnode.com:9090'
 
-# ------------ Ethereum Network IDs../../v4_client_py/clients/constants.py ------------
+# ------------ Ethereum Network IDs------------
 NETWORK_ID_MAINNET = None
 NETWORK_ID_TESTNET = 'dydx-testnet-4'
 
