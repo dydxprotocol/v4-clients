@@ -1,5 +1,6 @@
 from enum import Enum
 
+#TODO: Add mainnet
 # ------------ API URLs ------------
 INDEXER_API_HOST_MAINNET = None
 INDEXER_API_HOST_TESTNET = 'https://dydx-testnet.imperator.co'
