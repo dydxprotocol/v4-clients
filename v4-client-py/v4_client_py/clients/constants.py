@@ -11,7 +11,7 @@ INDEXER_WS_HOST_TESTNET = 'wss://indexer.v4testnet.dydx.exchange/v4/ws'
 FAUCET_API_HOST_TESTNET = 'https://faucet.v4testnet.dydx.exchange'
 
 VALIDATOR_API_HOST_MAINNET = None
-VALIDATOR_API_HOST_TESTNET = 'https://dydx-testnet-archive.allthatnode.com'
+VALIDATOR_API_HOST_TESTNET = 'https://test-dydx.kingnodes.com'
 
 VALIDATOR_GRPC_MAINNET =  None
 VALIDATOR_GRPC_TESTNET = 'https://test-dydx-grpc.kingnodes.com:443'
