@@ -9,6 +9,7 @@ from v4_client_py.clients.constants import (
     AERIAL_CONFIG_URL_TESTNET,
     AERIAL_CONFIG_CHAIN_ID_MAINNET,
     AERIAL_CONFIG_URL_MAINNET,
+    GRPC_OR_REST,
 )
 
 
@@ -83,7 +84,7 @@ class NetworkConfig:
         """
         return NetworkConfig(
             chain_id=AERIAL_CONFIG_CHAIN_ID_TESTNET,
-            url=f"grpc+{AERIAL_CONFIG_URL_TESTNET}",
+            url=f"{GRPC_OR_REST}+{AERIAL_CONFIG_URL_TESTNET}",
             fee_minimum_gas_price=4630550000000000,
             fee_denomination="adv4tnt",
             staking_denomination="dv4tnt",
@@ -122,7 +123,7 @@ class NetworkConfig:
         """
         return NetworkConfig(
             chain_id=AERIAL_CONFIG_CHAIN_ID_MAINNET,
-            url=f"rest+{AERIAL_CONFIG_URL_MAINNET}",
+            url=f"{GRPC_OR_REST}+{AERIAL_CONFIG_URL_MAINNET}",
             fee_minimum_gas_price=0,
             fee_denomination="afet",
             staking_denomination="afet",
