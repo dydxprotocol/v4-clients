@@ -14,7 +14,7 @@ VALIDATOR_API_HOST_MAINNET = None
 VALIDATOR_API_HOST_TESTNET = 'https://dydx-testnet-archive.allthatnode.com'
 
 VALIDATOR_GRPC_MAINNET =  None
-VALIDATOR_GRPC_TESTNET = 'dydx-testnet-archive.allthatnode.com:9090'
+VALIDATOR_GRPC_TESTNET = 'https://test-dydx-grpc.kingnodes.com:443'
 
 # ------------ Ethereum Network IDs------------
 NETWORK_ID_MAINNET = None
@@ -27,7 +27,7 @@ AERIAL_CONFIG_CHAIN_ID_MAINNET = None
 GRPC_OR_REST_TESTNET = 'grpc'
 GRPC_OR_REST_MAINNET = None
 
-AERIAL_CONFIG_URL_TESTNET = "https://dydx-testnet-archive.allthatnode.com:9090"
+AERIAL_CONFIG_URL_TESTNET = 'https://test-dydx-grpc.kingnodes.com:443'
 AERIAL_CONFIG_URL_MAINNET = None
 
 # ------------ Market Statistic Day Types ------------
