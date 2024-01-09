@@ -24,7 +24,9 @@ NETWORK_ID_TESTNET = 'dydx-testnet-4'
 AERIAL_CONFIG_CHAIN_ID_TESTNET = "dydx-testnet-4"
 AERIAL_CONFIG_CHAIN_ID_MAINNET = None
 
-GRPC_OR_REST = 'grpc'
+GRPC_OR_REST_TESTNET = 'grpc'
+GRPC_OR_REST_MAINNET = None
+
 AERIAL_CONFIG_URL_TESTNET = "https://dydx-testnet-archive.allthatnode.com:9090"
 AERIAL_CONFIG_URL_MAINNET = None
 
