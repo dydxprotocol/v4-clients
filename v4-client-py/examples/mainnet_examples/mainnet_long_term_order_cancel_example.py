@@ -38,7 +38,7 @@ def define_order() -> dict:
         "size": 0.01,
         "client_id": randrange(0, MAX_CLIENT_ID),
         "time_in_force": OrderTimeInForce.GTT,
-        "good_till_block": 0,
+        "good_til_block": 0,
         # long term orders use GTBT
         "good_til_time_in_seconds": 60,
         "execution": OrderExecution.DEFAULT,
@@ -70,7 +70,7 @@ async def main() -> None:
             size=order["size"],
             client_id=order["client_id"],
             time_in_force=order["time_in_force"],
-            good_til_block=order["good_till_block"],
+            good_til_block=order["good_til_block"],
             good_til_time_in_seconds=order["good_til_time_in_seconds"],
             execution=order["execution"],
             post_only=order["post_only"],
@@ -90,7 +90,7 @@ async def main() -> None:
             market=order["market"],
             order_flags=ORDER_FLAGS_LONG_TERM,
             good_til_time_in_seconds=order["good_til_time_in_seconds"],
-            good_til_block=order["good_till_block"],  # long term orders use GTBT
+            good_til_block=order["good_til_block"],  # long term orders use GTBT
         )
         print("**Cancel Long Term Order Tx**")
         print(tx.tx_hash)

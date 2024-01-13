@@ -32,7 +32,7 @@ def define_order() -> dict:
         "price": 40000,
         "size": 0.01,
         "client_id": randrange(0, MAX_CLIENT_ID),
-        "good_till_block": client.get_current_block() + 11,
+        "good_til_block": client.get_current_block() + 11,
         # Note, you can change this to any number between `current_block+1`
         # to `current_block+1 + SHORT_BLOCK_WINDOW`
         "time_in_force": Order_TimeInForce.TIME_IN_FORCE_UNSPECIFIED,
@@ -50,7 +50,7 @@ async def main() -> None:
             price=order["price"],
             size=order["size"],
             client_id=order["client_id"],
-            good_til_block=order["good_till_block"],
+            good_til_block=order["good_til_block"],
             time_in_force=order["time_in_force"],
             reduce_only=order["reduce_only"],
         )
