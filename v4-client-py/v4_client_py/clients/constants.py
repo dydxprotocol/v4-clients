@@ -1,25 +1,36 @@
 from enum import Enum
+from typing import Optional, Union
 from ..chain.aerial.config import NetworkConfig
 
 
 # ------------ API URLs ------------
-INDEXER_API_HOST_MAINNET = None
+INDEXER_API_HOST_MAINNET = ''
 INDEXER_API_HOST_TESTNET = 'https://dydx-testnet.imperator.co'
 
-INDEXER_WS_HOST_MAINNET = None
+INDEXER_WS_HOST_MAINNET = ''
 INDEXER_WS_HOST_TESTNET = 'wss://indexer.v4testnet.dydx.exchange/v4/ws'
 
 FAUCET_API_HOST_TESTNET = 'https://faucet.v4testnet.dydx.exchange'
 
-VALIDATOR_API_HOST_MAINNET = None
+VALIDATOR_API_HOST_MAINNET = ''
 VALIDATOR_API_HOST_TESTNET = 'https://dydx-testnet-archive.allthatnode.com'
 
-VALIDATOR_GRPC_MAINNET = None
+VALIDATOR_GRPC_MAINNET = ''
 VALIDATOR_GRPC_TESTNET = 'dydx-testnet-archive.allthatnode.com:9090'
 
 # ------------ Ethereum Network IDs ------------
-NETWORK_ID_MAINNET = None
+NETWORK_ID_MAINNET = ''
 NETWORK_ID_TESTNET = 'dydx-testnet-4'
+
+# ------------ Network Config ------------
+FEE_MINIMUM_MAINNET = 0 
+FEE_MINIMUM_TESTNET = 4630550000000000
+
+FEE_DENOM_MAINNET = ''
+FEE_DENOM_TESTNET = 'adv4tnt'
+
+STAKE_DENOM_MAINNET = ''
+STAKE_DENOM_TESTNET = 'dv4tnt'
 
 # ------------ Market Statistic Day Types ------------
 MARKET_STATISTIC_DAY_ONE = '1'
@@ -101,17 +112,19 @@ class IndexerConfig:
         self.rest_endpoint = rest_endpoint
         self.websocket_endpoint = websocket_endpoint
 
+
 class ValidatorConfig:
     def __init__(
         self,
         grpc_endpoint: str,
         chain_id: str,
         ssl_enabled: bool,
+        network_config: NetworkConfig,
     ):
         self.grpc_endpoint = grpc_endpoint
         self.chain_id = chain_id
         self.ssl_enabled = ssl_enabled
-
+        self.network_config = network_config
 
 class Network:
     def __init__(
@@ -119,7 +132,7 @@ class Network:
         env: str,
         validator_config: ValidatorConfig,
         indexer_config: IndexerConfig,
-        faucet_endpoint: str,
+        faucet_endpoint: Optional[str]=None,
     ):
         self.env = env
         self.validator_config = validator_config
@@ -133,7 +146,15 @@ class Network:
         validator_config=ValidatorConfig(
             grpc_endpoint=VALIDATOR_GRPC_TESTNET,
             chain_id=NETWORK_ID_TESTNET, 
-            ssl_enabled=True
+            ssl_enabled=True,
+            network_config=NetworkConfig(
+                chain_id=NETWORK_ID_TESTNET,
+                url='grpc+https://' + VALIDATOR_GRPC_TESTNET,
+                fee_minimum_gas_price=FEE_MINIMUM_TESTNET,
+                fee_denomination=FEE_DENOM_TESTNET,
+                staking_denomination=STAKE_DENOM_TESTNET,
+                faucet_url=FAUCET_API_HOST_TESTNET,
+            ),
         )
         indexer_config=IndexerConfig(
             rest_endpoint=INDEXER_API_HOST_TESTNET,
@@ -151,7 +172,15 @@ class Network:
         validator_config=ValidatorConfig(
             grpc_endpoint=VALIDATOR_GRPC_MAINNET,
             chain_id=NETWORK_ID_MAINNET, 
-            ssl_enabled=True
+            ssl_enabled=True,
+            network_config=NetworkConfig(
+                chain_id=NETWORK_ID_MAINNET,
+                url='grpc+https://' + VALIDATOR_GRPC_MAINNET,
+                fee_minimum_gas_price=FEE_MINIMUM_MAINNET,
+                fee_denomination=FEE_DENOM_MAINNET,
+                staking_denomination=STAKE_DENOM_MAINNET,
+                faucet_url=None,
+            ),
         )
         indexer_config=IndexerConfig(
             rest_endpoint=INDEXER_API_HOST_MAINNET,
@@ -162,6 +191,42 @@ class Network:
             validator_config=validator_config,
             indexer_config=indexer_config,
             faucet_endpoint=None,
+        )
+
+    @classmethod
+    def customnet(cls,
+        grpc_endpoint: str,
+        chain_id: str,
+        rest_endpoint: str,
+        websocket_endpoint: str,
+        fee_minimum_gas_price: Union[int, float],
+        fee_denomination: str,
+        staking_denomination: str,
+        ssl_enabled: bool=True,
+        faucet_endpoint: Optional[str]=None,
+    ):
+        validator_config = ValidatorConfig(
+            grpc_endpoint=grpc_endpoint,
+            chain_id=chain_id,
+            ssl_enabled=ssl_enabled,
+            network_config=NetworkConfig(
+                chain_id=chain_id,
+                url=['grpc+http://', 'grpc+https://'][ssl_enabled] + grpc_endpoint,
+                fee_minimum_gas_price=fee_minimum_gas_price,
+                fee_denomination=fee_denomination,
+                staking_denomination=staking_denomination,
+                faucet_url=faucet_endpoint,
+            )
+        )
+        indexer_config = IndexerConfig(
+            rest_endpoint=rest_endpoint,
+            websocket_endpoint=websocket_endpoint,
+        )
+        return cls(
+            env='customnet',
+            validator_config=validator_config,
+            indexer_config=indexer_config,
+            faucet_endpoint=faucet_endpoint,
         )
 
     def string(self):

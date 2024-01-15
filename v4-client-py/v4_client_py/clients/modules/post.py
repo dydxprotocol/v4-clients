@@ -43,7 +43,7 @@ class Post:
         '''
 
         wallet = subaccount.wallet
-        network = NetworkConfig.fetch_dydx_testnet()
+        network = self.config.network_config
         ledger = LedgerClient(network)
         tx = Transaction()
         tx.add_message(msg)
