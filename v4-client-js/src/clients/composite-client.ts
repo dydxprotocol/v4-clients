@@ -355,6 +355,7 @@ export class CompositeClient {
     triggerPrice?: number,
     marketInfo?: MarketInfo,
     currentHeight?: number,
+    affiliateAddress?: string,
   ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
     const msgs: Promise<EncodeObject[]> = new Promise((resolve) => {
       const msg = this.placeOrderMessage(
@@ -375,7 +376,10 @@ export class CompositeClient {
         marketInfo,
         currentHeight,
       );
-      msg.then((it) => resolve([it])).catch((err) => {
+      const affiliateMessage = (affiliateAddress != null) ? this.sendTokenMessage(wallet, '0.1', affiliateAddress) : null;
+      msg.then((it) => resolve(
+        (affiliateMessage != null) ? [it, affiliateMessage] : [it],
+      )).catch((err) => {
         console.log(err);
       });
     });

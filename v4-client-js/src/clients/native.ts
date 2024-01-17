@@ -35,6 +35,15 @@ declare global {
   var nobleClient: NobleClient | undefined;
   // eslint-disable-next-line vars-on-top, no-var
   var nobleWallet: LocalWallet | undefined;
+
+  // eslint-disable-next-line vars-on-top, no-var
+  var affiliateAddress: string | undefined;
+}
+
+export function setAffilicateAddress(
+  affiliateAddress: string,
+): void {
+  globalThis.affiliateAddress = affiliateAddress;
 }
 
 export async function connectClient(
@@ -297,6 +306,7 @@ export async function placeOrder(
       triggerPrice,
       marketInfo,
       currentHeight,
+      affiliateAddress,
     );
     return encodeJson(tx);
   } catch (error) {

@@ -1,6 +1,6 @@
 {
   "name": "@dydxprotocol/v4-client-js",
-  "version": "1.0.13",
+  "version": "0.99.99",
   "description": "General client library for the new dYdX system (v4 decentralized)",
   "main": "build/src/index.js",
   "scripts": {
@@ -38,6 +38,7 @@
     "@cosmjs/tendermint-rpc": "^0.32.1",
     "@cosmjs/utils": "^0.32.1",
     "@dydxprotocol/v4-proto": "3.0.0-dev.0",
+    "@dydxprotocol/v4-abacus": "1.2.4",
     "@osmonauts/lcd": "^0.6.0",
     "@scure/bip32": "^1.1.5",
     "@scure/bip39": "^1.1.1",
@@ -66,6 +67,7 @@
     "buffer": "^6.0.3",
     "cosmjs-types": "^0.9.0",
     "crypto-browserify": "^3.12.0",
+    "node-fetch": "^3.3.1",
     "grpc-tools": "^1.12.4",
     "https-browserify": "^1.0.0",
     "node-polyfill-webpack-plugin": "^2.0.1",
