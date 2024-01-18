@@ -16,16 +16,13 @@ from v4_client_py.clients.helpers.chain_helpers import (
 
 from tests.constants import DYDX_TEST_MNEMONIC, MAX_CLIENT_ID
 
-MNEMONIC = DYDX_TEST_MNEMONIC
-
-
-# define objects to be used with the SDK
-wallet = LocalWallet.from_mnemonic(MNEMONIC, BECH32_PREFIX)
-network = Network.mainnet()
+wallet = LocalWallet.from_mnemonic(DYDX_TEST_MNEMONIC, BECH32_PREFIX)
+network = Network.config_network()
 client = CompositeClient(
     network,
 )
 subaccount = Subaccount(wallet, 0)
+
 
 
 def define_order() -> dict:

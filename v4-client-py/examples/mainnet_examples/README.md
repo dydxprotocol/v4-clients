@@ -19,7 +19,8 @@ export PYTHONPATH='~/.../v4-clients/v4-client-py'
 
 Now you are ready to use the examples in this folder.
 
-# Set up your configurations to run example files
+# Set up your configurations in constants.py 
+~/.../v4-clients/v4-client-py/v4_client_py/clients/constats.py
 
 ```
 VALIDATOR_GRPC_ENDPOINT = <>

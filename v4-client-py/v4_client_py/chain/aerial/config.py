@@ -4,15 +4,6 @@ import warnings
 from dataclasses import dataclass
 from typing import Optional, Union
 
-from v4_client_py.clients.constants import (
-    AERIAL_CONFIG_CHAIN_ID_TESTNET,
-    AERIAL_CONFIG_URL_TESTNET,
-    AERIAL_CONFIG_CHAIN_ID_MAINNET,
-    AERIAL_CONFIG_URL_MAINNET,
-    GRPC_OR_REST_MAINNET,
-    GRPC_OR_REST_TESTNET,
-)
-
 
 class NetworkConfigError(RuntimeError):
     """Network config error.
@@ -78,21 +69,6 @@ class NetworkConfig:
         )
 
     @classmethod
-    def fetch_dydx_testnet(cls) -> "NetworkConfig":
-        """Dydx testnet.
-
-        :return: Network configuration
-        """
-        return NetworkConfig(
-            chain_id=AERIAL_CONFIG_CHAIN_ID_TESTNET,
-            url=f"{GRPC_OR_REST_TESTNET}+{AERIAL_CONFIG_URL_TESTNET}",
-            fee_minimum_gas_price=4630550000000000,
-            fee_denomination="adv4tnt",
-            staking_denomination="dv4tnt",
-            faucet_url="http://faucet.v4testnet.dydx.exchange",
-        )
-
-    @classmethod
     def fetchai_alpha_testnet(cls):
         """Get the fetchai alpha testnet.
 
@@ -117,33 +93,6 @@ class NetworkConfig:
         return cls.fetch_dydx_testnet()
 
     @classmethod
-    def fetchai_mainnet(cls) -> "NetworkConfig":
-        """Get the fetchai mainnet configuration.
-
-        :return: fetch mainnet configuration
-        """
-        return NetworkConfig(
-            chain_id=AERIAL_CONFIG_CHAIN_ID_MAINNET,
-            url=f"{GRPC_OR_REST_MAINNET}+{AERIAL_CONFIG_URL_MAINNET}",
-            fee_minimum_gas_price=0,
-            fee_denomination="afet",
-            staking_denomination="afet",
-            faucet_url=None,
-        )
-
-    @classmethod
-    def fetch_mainnet(cls) -> "NetworkConfig":
-        """Get the fetch mainnet.
-
-        :return: fetch mainnet configurations
-        """
-        warnings.warn(
-            "fetch_mainnet is deprecated, use fetchai_mainnet instead",
-            DeprecationWarning,
-        )
-        return cls.fetchai_mainnet()
-
-    @classmethod
     def latest_stable_testnet(cls) -> "NetworkConfig":
         """Get the latest stable testnet.
 
@@ -154,3 +103,18 @@ class NetworkConfig:
             DeprecationWarning,
         )
         return cls.fetch_dydx_stable_testnet()
+
+    @classmethod
+    def fetchai_network_config(cls, chain_id: str, url_prefix: str, url: str) -> "NetworkConfig":
+        """Get the fetchai mainnet configuration.
+
+        :return: fetch mainnet configuration
+        """
+        return cls(
+            chain_id=chain_id,
+            url=f"{url_prefix}+{url}",
+            fee_minimum_gas_price=0,
+            fee_denomination="afet",
+            staking_denomination="afet",
+            faucet_url=None,
+        )

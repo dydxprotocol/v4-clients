@@ -10,9 +10,9 @@ from tests.constants import DYDX_TEST_MNEMONIC
 
 
 async def main() -> None:
-    network = Network.testnet()
+    network = Network.config_network()
     client = ValidatorClient(network.validator_config)
-    wallet = LocalWallet.from_mnemonic(DYDX_TEST_MNEMONIC, BECH32_PREFIX);
+    wallet = LocalWallet.from_mnemonic(DYDX_TEST_MNEMONIC, BECH32_PREFIX)
     subaccount = Subaccount(wallet, 0)
     try:
         tx = client.post.deposit(
@@ -20,13 +20,12 @@ async def main() -> None:
             0,
             5_000_000,
         )
-        print('**Deposit Tx**')
+        print("**Deposit Tx**")
         print(tx)
     except Exception as e:
         print(e)
 
-    
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
     asyncio.get_event_loop().run_until_complete(main())

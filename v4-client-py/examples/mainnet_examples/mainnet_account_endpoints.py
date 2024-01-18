@@ -2,14 +2,12 @@ from v4_client_py.clients import IndexerClient, Subaccount
 from v4_client_py.clients.constants import Network
 from tests.constants import DYDX_TEST_MNEMONIC
 
-MNEMONIC = DYDX_TEST_MNEMONIC
-
 client = IndexerClient(
-    config=Network.mainnet().indexer_config,
+    config=Network.config_network().indexer_config,
 )
 
 try:
-    subaccount = Subaccount.from_mnemonic(MNEMONIC)
+    subaccount = Subaccount.from_mnemonic(DYDX_TEST_MNEMONIC)
     address = subaccount.address
 
     # Get subaccounts
