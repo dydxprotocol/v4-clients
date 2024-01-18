@@ -1,6 +1,4 @@
-# User guide to test mainnet examples
-
-The examples present in this folder are meant to be used in the mainnet, thus, with real money. Use them at your own risk.
+# User guide to test examples
 
 1. Go to your repository location for the Python client
 ```
@@ -20,7 +18,7 @@ export PYTHONPATH='~/.../v4-clients/v4-client-py'
 Now you are ready to use the examples in this folder.
 
 # Set up your configurations in constants.py 
-~/.../v4-clients/v4-client-py/v4_client_py/clients/constats.py
+~/.../v4-clients/v4-client-py/v4_client_py/clients/constants.py
 
 ```
 VALIDATOR_GRPC_ENDPOINT = <>
