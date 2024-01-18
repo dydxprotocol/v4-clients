@@ -15,9 +15,26 @@ from tests.constants import MAX_CLIENT_ID, DYDX_TEST_MNEMONIC
 
 MNEMONIC = DYDX_TEST_MNEMONIC
 
+VALIDATOR_GRPC_ENDPOINT = "test-dydx-grpc.kingnodes.com:443"
+AERIAL_CONFIG_URL = "https://test-dydx-grpc.kingnodes.com:443"
+AERIAL_GRPC_OR_REST_PREFIX = "grpc"
+INDEXER_REST_ENDPOINT = "https://dydx-testnet.imperator.co"
+INDEXER_WS_ENDPOINT = "wss://indexer.v4testnet.dydx.exchange/v4/ws"
+CHAIN_ID = "dydx-testnet-4"
+ENV = "testnet"
+
+
 # define objects to be used with the SDK
 wallet = LocalWallet.from_mnemonic(MNEMONIC, BECH32_PREFIX)
-network = Network.mainnet()
+network = Network.config_network(
+    validator_grpc_endpoint=VALIDATOR_GRPC_ENDPOINT,
+    rest_endpoint=INDEXER_REST_ENDPOINT,
+    grpc_or_rest_prefix=AERIAL_GRPC_OR_REST_PREFIX,
+    aerial_url=AERIAL_CONFIG_URL,
+    websocket_endpoint=INDEXER_WS_ENDPOINT,
+    chain_id=CHAIN_ID,
+    env=ENV,
+)
 client = CompositeClient(
     network,
 )

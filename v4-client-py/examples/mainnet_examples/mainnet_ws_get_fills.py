@@ -6,6 +6,7 @@ from v4_client_py.clients.constants import Network
 
 ADDRESS = "<place your ADDRESS here>"
 
+
 def for_fills(fills_data):
     try:
         for fill in fills_data:

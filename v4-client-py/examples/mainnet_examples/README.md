@@ -14,7 +14,20 @@ pip3 install -r requirements.txt
 ```
 3. Export PYTHONPATH for your current location
 ```
-export PYTHONPATH='cd ~/.../v4-clients/v4-client-py'
+export PYTHONPATH='~/.../v4-clients/v4-client-py'
 ```
 
 Now you are ready to use the examples in this folder.
+
+# Set up your configurations to run example files
+
+```
+VALIDATOR_GRPC_ENDPOINT = <>
+AERIAL_CONFIG_URL = <>
+AERIAL_GRPC_OR_REST_PREFIX = <>
+INDEXER_REST_ENDPOINT = <>
+INDEXER_WS_ENDPOINT = <>
+CHAIN_ID = <>
+ENV = <>
+```
+
