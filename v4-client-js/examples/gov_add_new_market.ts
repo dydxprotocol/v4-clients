@@ -19,6 +19,7 @@ import {
 import { ValidatorClient } from '@dydxprotocol/v4-client-js';
 import { Wallet } from 'ethers';
 import { generateRegistry } from '../src/clients/lib/registry';
+import { MsgCreatePerpetual } from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/perpetuals/tx';
 
 const GOV_ADDRESS = "dydx10d07y265gmmuvt4z0w9aw880jnsr700jnmapky"
 const DELAY_ADDRESS = "dydx1mkkvp26dngu6n8rmalaxyp3gwkjuzztq5zx6tr"
@@ -36,8 +37,8 @@ const TYPE_URL_MSG_SUBMIT_PROPOSAL = "/cosmos.gov.v1.MsgSubmitProposal"
 const MOCK_DATA = {
   id: 34, // new
   defaultFundingPpm: 0, // new
-  delayBlocks: 10, // new
-  symbol: '1INCH',
+  delayBlocks: 100, // new
+  symbol: '1INCH-USD', // updated
   referencePrice: 0.438319018,
   numOracles: 4,
   liquidityTier: 2,
@@ -53,6 +54,13 @@ const MOCK_DATA = {
   quantumConversionExponent: -9,
 }
 
+// Confirmed that the proposals have the exact same content.
+// 1. submit using CLI and json file
+//   dydxprotocold tx gov submit-proposal ~/Desktop/example.json --from alice --keyring-backend test --gas auto --fees 9553225000000000adv4tnt
+//   dydxprotocold query gov proposals
+// 2. submit using this file
+//   npm run build && node build/examples/gov_add_new_market.js
+//   dydxprotocold query gov proposals
 async function test(): Promise<void> {
   console.log('**Start**');
 
@@ -63,6 +71,7 @@ async function test(): Promise<void> {
   console.log('**Client**');
   console.log(client);
 
+  const registry: Registry = generateRegistry()
   const msgs: EncodeObject[] = [];
   const createOracleMarket = composeMsgCreateOracleMarket(
     MOCK_DATA.id,
@@ -97,7 +106,7 @@ async function test(): Promise<void> {
     MOCK_DATA.subticksPerTick,
   );
   const delayMessage = composeMsgDelayMessage(
-    updateClobPair,
+    wrapMessageAsAny(registry, updateClobPair), // IMPORTANT
     MOCK_DATA.delayBlocks,
   );
   msgs.push(createOracleMarket);
@@ -120,7 +129,7 @@ async function test(): Promise<void> {
     getTitle(MOCK_DATA.symbol),
     INITIAL_DEPOSIT_AMOUNT,
     getSummary(MOCK_DATA.symbol, MOCK_DATA.delayBlocks),
-    wrapMessagesAsAny(msgs), // IMPORTANT: must wrap messages in Any type.
+    wrapMessageArrAsAny(registry, msgs), // IMPORTANT: must wrap messages in Any type.
     wallet.address!,
   );
 
@@ -318,12 +327,16 @@ function getSummary(
   return `Add the x/prices, x/perpetuals and x/clob parameters needed for a ${ticker} perpetual market. Create the market in INITIALIZING status and transition it to ACTIVE status after ${delay_blocks} blocks.`;
 }
 
-function wrapMessagesAsAny(
+function wrapMessageAsAny(registry: Registry, message: EncodeObject): Any {
+  return registry.encodeAsAny(message);
+}
+
+function wrapMessageArrAsAny(
+  registry: Registry,
   messages: EncodeObject[],
 ): Any[] {
-  const registry: Registry = generateRegistry()
   const encodedMessages: Any[] = messages.map(
-    (message: EncodeObject) => registry.encodeAsAny(message),
+    (message: EncodeObject) => wrapMessageAsAny(registry, message)
   );
   return encodedMessages;
 }
