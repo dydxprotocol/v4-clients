@@ -5,7 +5,7 @@ from ..chain.aerial.config import NetworkConfig
 
 # ------------ API URLs ------------
 INDEXER_API_HOST_MAINNET = ''
-INDEXER_API_HOST_TESTNET = 'https://dydx-testnet.imperator.co'
+INDEXER_API_HOST_TESTNET = 'https://indexer.v4testnet.dydx.exchange'
 
 INDEXER_WS_HOST_MAINNET = ''
 INDEXER_WS_HOST_TESTNET = 'wss://indexer.v4testnet.dydx.exchange/v4/ws'
@@ -13,17 +13,17 @@ INDEXER_WS_HOST_TESTNET = 'wss://indexer.v4testnet.dydx.exchange/v4/ws'
 FAUCET_API_HOST_TESTNET = 'https://faucet.v4testnet.dydx.exchange'
 
 VALIDATOR_API_HOST_MAINNET = ''
-VALIDATOR_API_HOST_TESTNET = 'https://dydx-testnet-archive.allthatnode.com'
+VALIDATOR_API_HOST_TESTNET = 'https://test-dydx.kingnodes.com'
 
 VALIDATOR_GRPC_MAINNET = ''
-VALIDATOR_GRPC_TESTNET = 'dydx-testnet-archive.allthatnode.com:9090'
+VALIDATOR_GRPC_TESTNET = 'test-dydx-grpc.kingnodes.com:443'
 
 # ------------ Ethereum Network IDs ------------
 NETWORK_ID_MAINNET = ''
 NETWORK_ID_TESTNET = 'dydx-testnet-4'
 
 # ------------ Network Config ------------
-FEE_MINIMUM_MAINNET = 0 
+FEE_MINIMUM_MAINNET = 0
 FEE_MINIMUM_TESTNET = 4630550000000000
 
 FEE_DENOM_MAINNET = ''
@@ -96,6 +96,7 @@ MAX_MEMO_CHARACTERS = 256
 
 BECH32_PREFIX = 'dydx'
 
+
 class BroadcastMode(Enum):
     BroadcastTxSync = 0
     BroadcastTxCommit = 1
@@ -126,13 +127,14 @@ class ValidatorConfig:
         self.ssl_enabled = ssl_enabled
         self.network_config = network_config
 
+
 class Network:
     def __init__(
         self,
         env: str,
         validator_config: ValidatorConfig,
         indexer_config: IndexerConfig,
-        faucet_endpoint: Optional[str]=None,
+        faucet_endpoint: Optional[str] = None,
     ):
         self.env = env
         self.validator_config = validator_config
@@ -143,9 +145,9 @@ class Network:
 
     @classmethod
     def testnet(cls):
-        validator_config=ValidatorConfig(
+        validator_config = ValidatorConfig(
             grpc_endpoint=VALIDATOR_GRPC_TESTNET,
-            chain_id=NETWORK_ID_TESTNET, 
+            chain_id=NETWORK_ID_TESTNET,
             ssl_enabled=True,
             network_config=NetworkConfig(
                 chain_id=NETWORK_ID_TESTNET,
@@ -156,7 +158,7 @@ class Network:
                 faucet_url=FAUCET_API_HOST_TESTNET,
             ),
         )
-        indexer_config=IndexerConfig(
+        indexer_config = IndexerConfig(
             rest_endpoint=INDEXER_API_HOST_TESTNET,
             websocket_endpoint=INDEXER_WS_HOST_TESTNET,
         )
@@ -169,9 +171,9 @@ class Network:
 
     @classmethod
     def mainnet(cls):
-        validator_config=ValidatorConfig(
+        validator_config = ValidatorConfig(
             grpc_endpoint=VALIDATOR_GRPC_MAINNET,
-            chain_id=NETWORK_ID_MAINNET, 
+            chain_id=NETWORK_ID_MAINNET,
             ssl_enabled=True,
             network_config=NetworkConfig(
                 chain_id=NETWORK_ID_MAINNET,
@@ -182,7 +184,7 @@ class Network:
                 faucet_url=None,
             ),
         )
-        indexer_config=IndexerConfig(
+        indexer_config = IndexerConfig(
             rest_endpoint=INDEXER_API_HOST_MAINNET,
             websocket_endpoint=INDEXER_WS_HOST_MAINNET,
         )
@@ -194,7 +196,8 @@ class Network:
         )
 
     @classmethod
-    def customnet(cls,
+    def customnet(
+        cls,
         grpc_endpoint: str,
         chain_id: str,
         rest_endpoint: str,
@@ -202,8 +205,8 @@ class Network:
         fee_minimum_gas_price: Union[int, float],
         fee_denomination: str,
         staking_denomination: str,
-        ssl_enabled: bool=True,
-        faucet_endpoint: Optional[str]=None,
+        ssl_enabled: bool = True,
+        faucet_endpoint: Optional[str] = None,
     ):
         validator_config = ValidatorConfig(
             grpc_endpoint=grpc_endpoint,
