@@ -6,6 +6,7 @@ import {
   StdFee,
   defaultRegistryTypes,
   SigningStargateClient,
+  MsgTransferEncodeObject,
 } from '@cosmjs/stargate';
 
 import { GAS_MULTIPLIER } from './constants';
@@ -54,6 +55,11 @@ export class NobleClient {
       throw new Error('stargateClient not initialized');
     }
     return this.stargateClient.getBalance(this.wallet.address, denom);
+  }
+
+  async IBCTransfer(message: MsgTransferEncodeObject): Promise<DeliverTxResponse> {
+    const tx = await this.send([message]);
+    return tx;
   }
 
   async send(
