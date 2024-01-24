@@ -12,7 +12,7 @@ const INITIAL_DEPOSIT_AMOUNT = 10_000_000_000_000 // 10,000 whole native tokens.
 const MOCK_DATA = {
   // common
   id: 34,
-  symbol: 'BONK-USD',
+  ticker: 'BONK-USD',
 
   // x/prices
   priceExponent: -14,
@@ -72,7 +72,7 @@ async function test(): Promise<void> {
   // x/prices.MsgCreateOracleMarket
   const createOracleMarket = composer.composeMsgCreateOracleMarket(
     MOCK_DATA.id,
-    MOCK_DATA.symbol,
+    MOCK_DATA.ticker,
     MOCK_DATA.priceExponent,
     MOCK_DATA.minExchanges,
     MOCK_DATA.minPriceChange,
@@ -83,7 +83,7 @@ async function test(): Promise<void> {
   const createPerpetual = composer.composeMsgCreatePerpetual(
     MOCK_DATA.id,
     MOCK_DATA.id,
-    MOCK_DATA.symbol,
+    MOCK_DATA.ticker,
     MOCK_DATA.atomicResolution,
     MOCK_DATA.defaultFundingPpm,
     MOCK_DATA.liquidityTier,
@@ -120,10 +120,10 @@ async function test(): Promise<void> {
 
   // x/gov.v1.MsgSubmitProposal
   const submitProposal = composer.composeMsgSubmitProposal(
-    getTitle(MOCK_DATA.symbol),
+    getTitle(MOCK_DATA.ticker),
     INITIAL_DEPOSIT_AMOUNT,
     client.validatorClient.config.denoms,
-    getSummary(MOCK_DATA.symbol, MOCK_DATA.delayBlocks),
+    getSummary(MOCK_DATA.ticker, MOCK_DATA.delayBlocks),
     // IMPORTANT: must wrap messages in Any type for gov's submit proposal.
     composer.wrapMessageArrAsAny(registry, msgs),
     wallet.address!, // proposer
