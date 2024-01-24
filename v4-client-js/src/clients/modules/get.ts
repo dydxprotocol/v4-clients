@@ -472,6 +472,15 @@ export class Get {
     return StakingModule.QueryValidatorsResponse.decode(data);
   }
 
+  /**
+   * @description Get all gov proposals.
+   *
+   * @param proposalStatus Status of the proposal to filter by.
+   * @param voter Voter to filter by.
+   * @param depositor Depositor to filter by.
+   *
+   * @returns All gov proposals that match the filters above.
+   */
   async getAllGovProposals(
     proposalStatus: ProposalStatus = ProposalStatus.PROPOSAL_STATUS_VOTING_PERIOD,
     voter: string = '',
