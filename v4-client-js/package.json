@@ -1,6 +1,6 @@
 {
   "name": "@dydxprotocol/v4-client-js",
-  "version": "1.0.14",
+  "version": "1.0.15",
   "description": "General client library for the new dYdX system (v4 decentralized)",
   "main": "build/src/index.js",
   "scripts": {
@@ -37,7 +37,6 @@
     "@cosmjs/stargate": "^0.32.1",
     "@cosmjs/tendermint-rpc": "^0.32.1",
     "@cosmjs/utils": "^0.32.1",
-    "@dydxprotocol/v4-client-js": "^1.0.13",
     "@dydxprotocol/v4-proto": "3.0.0-dev.0",
     "@osmonauts/lcd": "^0.6.0",
     "@scure/bip32": "^1.1.5",
