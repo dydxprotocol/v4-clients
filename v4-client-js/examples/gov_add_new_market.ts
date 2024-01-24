@@ -2,13 +2,18 @@ import { BECH32_PREFIX } from '../src';
 import { CompositeClient } from '../src/clients/composite-client';
 import { Network } from '../src/clients/constants';
 import LocalWallet from '../src/clients/modules/local-wallet';
-import { DYDX_LOCAL_MNEMONIC, MAX_CLIENT_ID } from './constants';
+
+import { DYDX_LOCAL_MNEMONIC } from './constants';
+
 import { EncodeObject, Registry } from '@cosmjs/proto-signing';
+
 import Long from 'long';
+
 import { generateRegistry } from '../src/clients/lib/registry';
+
 import { Composer } from '../src/clients/modules/composer';
 
-const INITIAL_DEPOSIT_AMOUNT = 10_000_000_000_000 // 10,000 whole native tokens.
+const INITIAL_DEPOSIT_AMOUNT = 10_000_000_000_000; // 10,000 whole native tokens.
 const MOCK_DATA = {
   // common
   id: 34,
@@ -26,7 +31,7 @@ const MOCK_DATA = {
       { exchangeName: 'Kucoin', ticker: 'BONK-USDT', adjustByMarket: 'USDT-USD' },
       { exchangeName: 'Okx', ticker: 'BONK-USDT', adjustByMarket: 'USDT-USD' },
       { exchangeName: 'Mexc', ticker: 'BONK_USDT', adjustByMarket: 'USDT-USD' },
-    ]
+    ],
   }),
 
   // x/perpetuals
@@ -41,7 +46,7 @@ const MOCK_DATA = {
 
   // x/delaymsg
   delayBlocks: 5,
-}
+};
 
 
 // To run this test:
