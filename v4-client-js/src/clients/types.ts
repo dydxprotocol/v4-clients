@@ -96,6 +96,7 @@ export interface ComplianceResponse {
   restricted: boolean;
 }
 
+// ------------ Squid ------------ //
 export type SquidIBCPayload = {
   msgTypeUrl: '/ibc.applications.transfer.v1.MsgTransfer';
   msg: Partial<{
@@ -107,6 +108,31 @@ export type SquidIBCPayload = {
     timeoutTimestamp: Long;
     memo: string;
   }>;
+};
+
+// ------------ x/gov: Add New Market ------------ //
+export type GovAddNewMarketParams = {
+  // common
+  id: number;
+  ticker: string;
+
+  // x/prices
+  priceExponent: number;
+  minPriceChange: number;
+  minExchanges: number;
+  exchangeConfigJson: string;
+
+  // x/perpetuals
+  liquidityTier: number;
+  atomicResolution: number;
+
+  // x/clob
+  quantumConversionExponent: number;
+  stepBaseQuantums: Long;
+  subticksPerTick: number;
+
+  // x/delaymsg
+  delayBlocks: number;
 };
 
 export * from './modules/proto-includes';
