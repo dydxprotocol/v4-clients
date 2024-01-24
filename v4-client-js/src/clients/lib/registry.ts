@@ -13,9 +13,8 @@ import {
   MsgWithdrawFromSubaccount,
   MsgDepositToSubaccount,
 } from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/sending/transfer';
-import {
-  MsgCreateTransfer,
-} from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/sending/tx';
+import { MsgCreateTransfer } from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/sending/tx';
+
 import {
   TYPE_URL_MSG_PLACE_ORDER,
   TYPE_URL_MSG_CANCEL_ORDER,

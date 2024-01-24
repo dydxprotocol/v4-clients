@@ -160,4 +160,6 @@ function getSummary(
   return `Add the x/prices, x/perpetuals and x/clob parameters needed for a ${ticker} perpetual market. Create the market in INITIALIZING status and transition it to ACTIVE status after ${delayBlocks} blocks.`;
 }
 
-test();
+test().catch((error) => {
+  console.error(error);
+});
