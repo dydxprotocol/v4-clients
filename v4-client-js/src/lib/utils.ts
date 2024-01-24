@@ -50,7 +50,7 @@ export async function sleep(ms: number): Promise<void> {
  * @param ticker ticker symbol for the new market.
  * @returns title for the gov proposal.
  */
-export function getAddNewMarketTitle(ticker: string): string {
+export function getGovAddNewMarketTitle(ticker: string): string {
   return `Add ${ticker} perpetual market`;
 }
 
@@ -61,7 +61,7 @@ export function getAddNewMarketTitle(ticker: string): string {
  * @param delayBlocks number of blocks to wait before activating the market.
  * @returns summary for the gov proposal.
  */
-export function getAddNewMarketSummary(
+export function getGovAddNewMarketSummary(
   ticker: string,
   delayBlocks: number,
 ): string {

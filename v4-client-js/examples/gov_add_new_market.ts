@@ -3,7 +3,7 @@ import Long from 'long';
 import { GovAddNewMarketParams, LocalWallet, ProposalStatus } from '../src';
 import { CompositeClient } from '../src/clients/composite-client';
 import { BECH32_PREFIX, Network } from '../src/clients/constants';
-import { getAddNewMarketSummary, getAddNewMarketTitle, sleep } from '../src/lib/utils';
+import { getGovAddNewMarketSummary, getGovAddNewMarketTitle, sleep } from '../src/lib/utils';
 import { DYDX_LOCAL_MNEMONIC } from './constants';
 
 const INITIAL_DEPOSIT_AMOUNT = 10_000_000_000_000; // 10,000 whole native tokens.
@@ -66,8 +66,8 @@ async function test(): Promise<void> {
   const tx = await client.submitGovAddNewMarketProposal(
     wallet,
     MOCK_DATA,
-    getAddNewMarketTitle(MOCK_DATA.ticker),
-    getAddNewMarketSummary(MOCK_DATA.ticker, MOCK_DATA.delayBlocks),
+    getGovAddNewMarketTitle(MOCK_DATA.ticker),
+    getGovAddNewMarketSummary(MOCK_DATA.ticker, MOCK_DATA.delayBlocks),
     INITIAL_DEPOSIT_AMOUNT,
   );
   console.log('**Tx**');
