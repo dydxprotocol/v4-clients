@@ -1,39 +1,23 @@
 import { EncodeObject, Registry } from '@cosmjs/proto-signing';
-import { MsgSend } from 'cosmjs-types/cosmos/bank/v1beta1/tx';
 import {
   MsgSubmitProposal,
 } from '@dydxprotocol/v4-proto/src/codegen/cosmos/gov/v1/tx';
 import {
+  ClobPair_Status,
+} from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/clob/clob_pair';
+import {
   MsgCreateClobPair,
   MsgUpdateClobPair,
 } from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/clob/tx';
-import {
-  ClobPair_Status
-} from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/clob/clob_pair';
 import { MsgDelayMessage } from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/delaymsg/tx';
 import { MsgCreatePerpetual } from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/perpetuals/tx';
 import { MsgCreateOracleMarket } from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/prices/tx';
-
+import { MsgSend } from 'cosmjs-types/cosmos/bank/v1beta1/tx';
 import { Coin } from 'cosmjs-types/cosmos/base/v1beta1/coin';
 import { Any } from 'cosmjs-types/google/protobuf/any';
 import Long from 'long';
 import protobuf from 'protobufjs';
 
-import {
-  OrderId,
-  Order,
-  Order_ConditionType,
-  Order_Side,
-  Order_TimeInForce,
-  MsgPlaceOrder,
-  MsgCancelOrder,
-  SubaccountId,
-  MsgCreateTransfer,
-  Transfer,
-  MsgDepositToSubaccount,
-  MsgWithdrawFromSubaccount,
-} from './proto-includes';
-import { DenomConfig } from '../types';
 import {
   GOV_MODULE_ADDRESS,
   DELAYMSG_MODULE_ADDRESS,
@@ -50,7 +34,21 @@ import {
   TYPE_URL_MSG_WITHDRAW_FROM_SUBACCOUNT,
   TYPE_URL_MSG_DEPOSIT_TO_SUBACCOUNT,
 } from '../constants';
-
+import { DenomConfig } from '../types';
+import {
+  OrderId,
+  Order,
+  Order_ConditionType,
+  Order_Side,
+  Order_TimeInForce,
+  MsgPlaceOrder,
+  MsgCancelOrder,
+  SubaccountId,
+  MsgCreateTransfer,
+  Transfer,
+  MsgDepositToSubaccount,
+  MsgWithdrawFromSubaccount,
+} from './proto-includes';
 
 protobuf.util.Long = Long;
 protobuf.configure();
@@ -146,23 +144,23 @@ export class Composer {
   }
 
   public composeMsgCreateClobPair(
-    clob_id: number,
-    perpetual_id: number,
-    quantum_conversion_exponent: number,
-    step_base_quantums: Long,
-    subticks_per_tick: number,
+    clobId: number,
+    perpetualId: number,
+    quantumConversionExponent: number,
+    stepBaseQuantums: Long,
+    subticksPerTick: number,
   ): EncodeObject {
     const msg: MsgCreateClobPair = {
       // uses x/gov module account since creating the clob pair is a governance action.
       authority: GOV_MODULE_ADDRESS,
       clobPair: {
-        id: clob_id,
+        id: clobId,
         perpetualClobMetadata: {
-          perpetualId: perpetual_id,
+          perpetualId,
         },
-        quantumConversionExponent: quantum_conversion_exponent,
-        stepBaseQuantums: step_base_quantums,
-        subticksPerTick: subticks_per_tick,
+        quantumConversionExponent,
+        stepBaseQuantums,
+        subticksPerTick,
         status: ClobPair_Status.STATUS_INITIALIZING,
       },
     };
@@ -174,23 +172,23 @@ export class Composer {
   }
 
   public composeMsgUpdateClobPair(
-    clob_id: number,
-    perpetual_id: number,
-    quantum_conversion_exponent: number,
-    step_base_quantums: Long,
-    subticks_per_tick: number,
+    clobId: number,
+    perpetualId: number,
+    quantumConversionExponent: number,
+    stepBaseQuantums: Long,
+    subticksPerTick: number,
   ): EncodeObject {
     const msg: MsgUpdateClobPair = {
       // uses x/delaymsg module account since updating the clob pair is a delayedmsg action.
       authority: DELAYMSG_MODULE_ADDRESS,
       clobPair: {
-        id: clob_id,
+        id: clobId,
         perpetualClobMetadata: {
-          perpetualId: perpetual_id,
+          perpetualId,
         },
-        quantumConversionExponent: quantum_conversion_exponent,
-        stepBaseQuantums: step_base_quantums,
-        subticksPerTick: subticks_per_tick,
+        quantumConversionExponent,
+        stepBaseQuantums,
+        subticksPerTick,
         status: ClobPair_Status.STATUS_ACTIVE,
       },
     };
@@ -311,23 +309,23 @@ export class Composer {
 
   // ------------ x/prices ------------
   public composeMsgCreateOracleMarket(
-    market_id: number,
+    marketId: number,
     pair: string,
     exponent: number,
-    min_exchanges: number,
-    min_price_change_ppm: number,
-    exchange_config_json: string,
+    minExchanges: number,
+    minPriceChangePpm: number,
+    exchangeConfigJson: string,
   ): EncodeObject {
     const msg: MsgCreateOracleMarket = {
       // uses x/gov module account since creating the oracle market is a governance action.
       authority: GOV_MODULE_ADDRESS,
       params: {
-        id: market_id,
-        pair: pair,
-        exponent: exponent,
-        minExchanges: min_exchanges,
-        minPriceChangePpm: min_price_change_ppm,
-        exchangeConfigJson: exchange_config_json,
+        id: marketId,
+        pair,
+        exponent,
+        minExchanges,
+        minPriceChangePpm,
+        exchangeConfigJson,
       },
     };
 
@@ -339,23 +337,23 @@ export class Composer {
 
   // ------------ x/perpetuals ------------
   public composeMsgCreatePerpetual(
-    perpetual_id: number,
-    market_id: number,
+    perpetualId: number,
+    marketId: number,
     ticker: string,
-    atomic_resolution: number,
-    default_funding_ppm: number,
-    liquidity_tier: number,
+    atomicResolution: number,
+    defaultFundingPpm: number,
+    liquidityTier: number,
   ): EncodeObject {
     const msg: MsgCreatePerpetual = {
       // uses x/gov module account since creating the perpetual is a governance action.
       authority: GOV_MODULE_ADDRESS,
       params: {
-        id: perpetual_id,
-        marketId: market_id,
-        ticker: ticker,
-        atomicResolution: atomic_resolution,
-        defaultFundingPpm: default_funding_ppm,
-        liquidityTier: liquidity_tier,
+        id: perpetualId,
+        marketId,
+        ticker,
+        atomicResolution,
+        defaultFundingPpm,
+        liquidityTier,
       },
     };
 
@@ -368,46 +366,46 @@ export class Composer {
   // ------------ x/delaymsg ------------
   public composeMsgDelayMessage(
     embeddedMsg: EncodeObject,
-    delay_blocks: number,
+    delayBlocks: number,
   ): EncodeObject {
     const msg: MsgDelayMessage = {
       // all msgs sent to x/delay must be from x/gov module account.
       authority: GOV_MODULE_ADDRESS,
       msg: embeddedMsg,
-      delayBlocks: delay_blocks,
-    }
+      delayBlocks,
+    };
 
     return {
       typeUrl: TYPE_URL_MSG_DELAY_MESSAGE,
       value: msg,
-    }
+    };
   }
 
   // ------------ x/gov ------------
   public composeMsgSubmitProposal(
     title: string,
-    initial_deposit_amount: number,
-    initial_deposit_denom_config: DenomConfig,
+    initialDepositAmount: number,
+    initialDepositDenomConfig: DenomConfig,
     summary: string,
     messages: EncodeObject[],
     proposer: string,
     metadata: string = '',
     expedited: boolean = false,
   ): EncodeObject {
-    const initial_deposit: Coin[] = [{
-      amount: initial_deposit_amount.toString(),
-      denom: initial_deposit_denom_config.CHAINTOKEN_DENOM,
+    const initialDeposit: Coin[] = [{
+      amount: initialDepositAmount.toString(),
+      denom: initialDepositDenomConfig.CHAINTOKEN_DENOM,
     }];
 
     const msg: MsgSubmitProposal = {
       title,
-      initialDeposit: initial_deposit,
+      initialDeposit,
       summary,
       messages,
       proposer,
-      metadata: metadata,
-      expedited: expedited,
-    }
+      metadata,
+      expedited,
+    };
 
     return {
       typeUrl: TYPE_URL_MSG_SUBMIT_PROPOSAL,
@@ -437,7 +435,7 @@ export class Composer {
     messages: EncodeObject[],
   ): Any[] {
     const encodedMessages: Any[] = messages.map(
-      (message: EncodeObject) => this.wrapMessageAsAny(registry, message)
+      (message: EncodeObject) => this.wrapMessageAsAny(registry, message),
     );
     return encodedMessages;
   }
