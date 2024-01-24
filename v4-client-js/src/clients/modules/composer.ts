@@ -1,6 +1,21 @@
-import { EncodeObject } from '@cosmjs/proto-signing';
+import { EncodeObject, Registry } from '@cosmjs/proto-signing';
 import { MsgSend } from 'cosmjs-types/cosmos/bank/v1beta1/tx';
+import {
+  MsgSubmitProposal,
+} from '@dydxprotocol/v4-proto/src/codegen/cosmos/gov/v1/tx';
+import {
+  MsgCreateClobPair,
+  MsgUpdateClobPair,
+} from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/clob/tx';
+import {
+  ClobPair_Status
+} from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/clob/clob_pair';
+import { MsgDelayMessage } from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/delaymsg/tx';
+import { MsgCreatePerpetual } from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/perpetuals/tx';
+import { MsgCreateOracleMarket } from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/prices/tx';
+
 import { Coin } from 'cosmjs-types/cosmos/base/v1beta1/coin';
+import { Any } from 'cosmjs-types/google/protobuf/any';
 import Long from 'long';
 import protobuf from 'protobufjs';
 
@@ -18,11 +33,31 @@ import {
   MsgDepositToSubaccount,
   MsgWithdrawFromSubaccount,
 } from './proto-includes';
+import { DenomConfig } from '../types';
+import {
+  GOV_MODULE_ADDRESS,
+  DELAYMSG_MODULE_ADDRESS,
+  TYPE_URL_MSG_SEND,
+  TYPE_URL_MSG_SUBMIT_PROPOSAL,
+  TYPE_URL_MSG_PLACE_ORDER,
+  TYPE_URL_MSG_CANCEL_ORDER,
+  TYPE_URL_MSG_CREATE_CLOB_PAIR,
+  TYPE_URL_MSG_UPDATE_CLOB_PAIR,
+  TYPE_URL_MSG_DELAY_MESSAGE,
+  TYPE_URL_MSG_CREATE_PERPETUAL,
+  TYPE_URL_MSG_CREATE_ORACLE_MARKET,
+  TYPE_URL_MSG_CREATE_TRANSFER,
+  TYPE_URL_MSG_WITHDRAW_FROM_SUBACCOUNT,
+  TYPE_URL_MSG_DEPOSIT_TO_SUBACCOUNT,
+} from '../constants';
+
 
 protobuf.util.Long = Long;
 protobuf.configure();
 
 export class Composer {
+
+  // ------------ x/clob ------------
   public composeMsgPlaceOrder(
     address: string,
     subaccountNumber: number,
@@ -70,7 +105,7 @@ export class Composer {
       order,
     };
     return {
-      typeUrl: '/dydxprotocol.clob.MsgPlaceOrder',
+      typeUrl: TYPE_URL_MSG_PLACE_ORDER,
       value: msg,
     };
   }
@@ -105,11 +140,67 @@ export class Composer {
     };
 
     return {
-      typeUrl: '/dydxprotocol.clob.MsgCancelOrder',
+      typeUrl: TYPE_URL_MSG_CANCEL_ORDER,
       value: msg,
     };
   }
 
+  public composeMsgCreateClobPair(
+    clob_id: number,
+    perpetual_id: number,
+    quantum_conversion_exponent: number,
+    step_base_quantums: Long,
+    subticks_per_tick: number,
+  ): EncodeObject {
+    const msg: MsgCreateClobPair = {
+      authority: GOV_MODULE_ADDRESS,
+      clobPair: {
+        id: clob_id,
+        perpetualClobMetadata: {
+          perpetualId: perpetual_id,
+        },
+        quantumConversionExponent: quantum_conversion_exponent,
+        stepBaseQuantums: step_base_quantums,
+        subticksPerTick: subticks_per_tick,
+        status: ClobPair_Status.STATUS_INITIALIZING,
+      },
+    };
+
+    return {
+      typeUrl: TYPE_URL_MSG_CREATE_CLOB_PAIR,
+      value: msg,
+    };
+  }
+
+  public composeMsgUpdateClobPair(
+    clob_id: number,
+    perpetual_id: number,
+    quantum_conversion_exponent: number,
+    step_base_quantums: Long,
+    subticks_per_tick: number,
+  ): EncodeObject {
+    const msg: MsgUpdateClobPair = {
+      // uses x/delaymsg module account since updating the clob pair is a delayed action.
+      authority: DELAYMSG_MODULE_ADDRESS,
+      clobPair: {
+        id: clob_id,
+        perpetualClobMetadata: {
+          perpetualId: perpetual_id,
+        },
+        quantumConversionExponent: quantum_conversion_exponent,
+        stepBaseQuantums: step_base_quantums,
+        subticksPerTick: subticks_per_tick,
+        status: ClobPair_Status.STATUS_ACTIVE,
+      },
+    };
+
+    return {
+      typeUrl: TYPE_URL_MSG_UPDATE_CLOB_PAIR,
+      value: msg,
+    };
+  }
+
+  // ------------ x/sending ------------
   public composeMsgTransfer(
     address: string,
     subaccountNumber: number,
@@ -139,7 +230,7 @@ export class Composer {
     };
 
     return {
-      typeUrl: '/dydxprotocol.sending.MsgCreateTransfer',
+      typeUrl: TYPE_URL_MSG_CREATE_TRANSFER,
       value: msg,
     };
   }
@@ -163,7 +254,7 @@ export class Composer {
     };
 
     return {
-      typeUrl: '/dydxprotocol.sending.MsgDepositToSubaccount',
+      typeUrl: TYPE_URL_MSG_DEPOSIT_TO_SUBACCOUNT,
       value: msg,
     };
   }
@@ -188,11 +279,12 @@ export class Composer {
     };
 
     return {
-      typeUrl: '/dydxprotocol.sending.MsgWithdrawFromSubaccount',
+      typeUrl: TYPE_URL_MSG_WITHDRAW_FROM_SUBACCOUNT,
       value: msg,
     };
   }
 
+  // ------------ x/bank ------------
   public composeMsgSendToken(
     address: string,
     recipient: string,
@@ -211,11 +303,116 @@ export class Composer {
     };
 
     return {
-      typeUrl: '/cosmos.bank.v1beta1.MsgSend',
+      typeUrl: TYPE_URL_MSG_SEND,
       value: msg,
     };
   }
 
+  // ------------ x/prices ------------
+  public composeMsgCreateOracleMarket(
+    market_id: number,
+    pair: string,
+    exponent: number,
+    min_exchanges: number,
+    min_price_change_ppm: number,
+    exchange_config_json: string,
+  ): EncodeObject {
+    const msg: MsgCreateOracleMarket = {
+      authority: GOV_MODULE_ADDRESS,
+      params: {
+        id: market_id,
+        pair: pair,
+        exponent: exponent,
+        minExchanges: min_exchanges,
+        minPriceChangePpm: min_price_change_ppm,
+        exchangeConfigJson: exchange_config_json,
+      },
+    };
+
+    return {
+      typeUrl: TYPE_URL_MSG_CREATE_ORACLE_MARKET,
+      value: msg,
+    };
+  }
+
+  // ------------ x/perpetuals ------------
+  public composeMsgCreatePerpetual(
+    perpetual_id: number,
+    market_id: number,
+    ticker: string,
+    atomic_resolution: number,
+    default_funding_ppm: number,
+    liquidity_tier: number,
+  ): EncodeObject {
+    const msg: MsgCreatePerpetual = {
+      authority: GOV_MODULE_ADDRESS,
+      params: {
+        id: perpetual_id,
+        marketId: market_id,
+        ticker: ticker,
+        atomicResolution: atomic_resolution,
+        defaultFundingPpm: default_funding_ppm,
+        liquidityTier: liquidity_tier,
+      },
+    };
+
+    return {
+      typeUrl: TYPE_URL_MSG_CREATE_PERPETUAL,
+      value: msg,
+    };
+  }
+
+  // ------------ x/delaymsg ------------
+  public composeMsgDelayMessage(
+    embeddedMsg: EncodeObject,
+    delay_blocks: number,
+  ): EncodeObject {
+    const msg: MsgDelayMessage = {
+      // all msgs sent to x/delay must be from x/gov module account.
+      authority: GOV_MODULE_ADDRESS,
+      msg: embeddedMsg,
+      delayBlocks: delay_blocks,
+    }
+
+    return {
+      typeUrl: TYPE_URL_MSG_DELAY_MESSAGE,
+      value: msg,
+    }
+  }
+
+  // ------------ x/gov ------------
+  public composeMsgSubmitProposal(
+    title: string,
+    initial_deposit_amount: number,
+    denom_config: DenomConfig,
+    summary: string,
+    messages: EncodeObject[],
+    proposer: string,
+    metadata: string = '',
+    expedited: boolean = false,
+  ): EncodeObject {
+    const initial_deposit: Coin[] = [{
+      amount: initial_deposit_amount.toString(),
+      denom: denom_config.CHAINTOKEN_DENOM,
+    }];
+
+    const msg: MsgSubmitProposal = {
+      title,
+      initialDeposit: initial_deposit,
+      summary,
+      messages,
+      proposer,
+      metadata: metadata,
+      expedited: expedited,
+    }
+
+    return {
+      typeUrl: TYPE_URL_MSG_SUBMIT_PROPOSAL,
+      value: msg,
+    };
+  }
+
+  // ------------ util ------------
   public validateGoodTilBlockAndTime(
     orderFlags: number,
     goodTilBlock: number,
@@ -226,5 +423,19 @@ export class Composer {
     } else if (orderFlags !== 0 && goodTilBlockTime === 0) {
       throw new Error('goodTilBlockTime must be set if orderFlags is not 0');
     }
+  }
+
+  public wrapMessageAsAny(registry: Registry, message: EncodeObject): Any {
+    return registry.encodeAsAny(message);
+  }
+
+  public wrapMessageArrAsAny(
+    registry: Registry,
+    messages: EncodeObject[],
+  ): Any[] {
+    const encodedMessages: Any[] = messages.map(
+      (message: EncodeObject) => this.wrapMessageAsAny(registry, message)
+    );
+    return encodedMessages;
   }
 }
