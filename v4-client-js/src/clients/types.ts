@@ -1,3 +1,4 @@
+import { Coin } from '@cosmjs/proto-signing';
 import { Method } from '@cosmjs/tendermint-rpc';
 import { Order_ConditionType, Order_Side, Order_TimeInForce } from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/clob/order';
 import BigNumber from 'bignumber.js';
@@ -94,5 +95,18 @@ export interface HeightResponse {
 export interface ComplianceResponse {
   restricted: boolean;
 }
+
+export type SquidIBCPayload = {
+  msgTypeUrl: '/ibc.applications.transfer.v1.MsgTransfer';
+  msg: Partial<{
+    sourcePort: string;
+    sourceChannel: string;
+    token: Coin;
+    sender: string;
+    receiver: string;
+    timeoutTimestamp: Long;
+    memo: string;
+  }>;
+};
 
 export * from './modules/proto-includes';
