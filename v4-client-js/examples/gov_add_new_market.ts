@@ -3,7 +3,7 @@ import Long from 'long';
 import { GovAddNewMarketParams, LocalWallet, ProposalStatus } from '../src';
 import { CompositeClient } from '../src/clients/composite-client';
 import { BECH32_PREFIX, Network } from '../src/clients/constants';
-import { sleep } from '../src/lib/utils';
+import { getAddNewMarketSummary, getAddNewMarketTitle, sleep } from '../src/lib/utils';
 import { DYDX_LOCAL_MNEMONIC } from './constants';
 
 const INITIAL_DEPOSIT_AMOUNT = 10_000_000_000_000; // 10,000 whole native tokens.
@@ -66,8 +66,8 @@ async function test(): Promise<void> {
   const tx = await client.submitGovAddNewMarketProposal(
     wallet,
     MOCK_DATA,
-    getTitle(MOCK_DATA.ticker),
-    getSummary(MOCK_DATA.ticker, MOCK_DATA.delayBlocks),
+    getAddNewMarketTitle(MOCK_DATA.ticker),
+    getAddNewMarketSummary(MOCK_DATA.ticker, MOCK_DATA.delayBlocks),
     INITIAL_DEPOSIT_AMOUNT,
   );
   console.log('**Tx**');
@@ -86,19 +86,6 @@ async function test(): Promise<void> {
   );
   console.log('**Voting Proposals**');
   console.log(votingProposals);
-}
-
-function getTitle(
-  ticker: string,
-): string {
-  return `Add ${ticker} perpetual market`;
-}
-
-function getSummary(
-  ticker: string,
-  delayBlocks: number,
-): string {
-  return `Add the x/prices, x/perpetuals and x/clob parameters needed for a ${ticker} perpetual market. Create the market in INITIALIZING status and transition it to ACTIVE status after ${delayBlocks} blocks.`;
 }
 
 test().catch((error) => {

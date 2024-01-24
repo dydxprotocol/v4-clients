@@ -43,3 +43,27 @@ export function clientIdFromString(
 export async function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
+
+/**
+ * Returns a title to use for a gov proposal that adds a new market.
+ *
+ * @param ticker ticker symbol for the new market.
+ * @returns title for the gov proposal.
+ */
+export function getAddNewMarketTitle(ticker: string): string {
+  return `Add ${ticker} perpetual market`;
+}
+
+/**
+ * Returns a summary to use for a gov proposal that adds a new market.
+ *
+ * @param ticker ticker symbol for the new market.
+ * @param delayBlocks number of blocks to wait before activating the market.
+ * @returns summary for the gov proposal.
+ */
+export function getAddNewMarketSummary(
+  ticker: string,
+  delayBlocks: number,
+): string {
+  return `Add the x/prices, x/perpetuals and x/clob parameters needed for a ${ticker} perpetual market. Create the market in INITIALIZING status and transition it to ACTIVE status after ${delayBlocks} blocks.`;
+}
