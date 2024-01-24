@@ -1,9 +1,10 @@
 import Long from 'long';
 
-import { GovAddNewMarketParams, ProposalStatus } from '../src';
+import { GovAddNewMarketParams, LocalWallet, ProposalStatus } from '../src';
 import { CompositeClient } from '../src/clients/composite-client';
-import { Network } from '../src/clients/constants';
+import { BECH32_PREFIX, Network } from '../src/clients/constants';
 import { sleep } from '../src/lib/utils';
+import { DYDX_LOCAL_MNEMONIC } from './constants';
 
 const INITIAL_DEPOSIT_AMOUNT = 10_000_000_000_000; // 10,000 whole native tokens.
 const MOCK_DATA: GovAddNewMarketParams = {
@@ -54,12 +55,16 @@ const MOCK_DATA: GovAddNewMarketParams = {
 async function test(): Promise<void> {
   console.log('**Start**');
 
+  const wallet = await LocalWallet.fromMnemonic(DYDX_LOCAL_MNEMONIC, BECH32_PREFIX);
+  console.log(wallet);
+
   const network = Network.local();
   const client = await CompositeClient.connect(network);
   console.log('**Client**');
   console.log(client);
 
   const tx = await client.submitGovAddNewMarketProposal(
+    wallet,
     MOCK_DATA,
     getTitle(MOCK_DATA.ticker),
     getSummary(MOCK_DATA.ticker, MOCK_DATA.delayBlocks),
@@ -68,7 +73,7 @@ async function test(): Promise<void> {
   console.log('**Tx**');
   console.log(tx);
 
-  await sleep(3000);
+  await sleep(5000);
 
   const depositProposals = await client.validatorClient.get.getAllGovProposals(
     ProposalStatus.PROPOSAL_STATUS_DEPOSIT_PERIOD,

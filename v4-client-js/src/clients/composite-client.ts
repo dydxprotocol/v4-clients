@@ -1014,6 +1014,7 @@ export class CompositeClient {
    * @returns the transaction hash.
    */
   async submitGovAddNewMarketProposal(
+    wallet: LocalWallet,
     params: GovAddNewMarketParams,
     title: string,
     summary: string,
@@ -1078,7 +1079,7 @@ export class CompositeClient {
       const submitProposal = composer.composeMsgSubmitProposal(
         title,
         initialDepositAmount,
-        client.validatorClient.config.denoms, // use the client denom.
+        this.validatorClient.config.denoms, // use the client denom.
         summary,
         // IMPORTANT: must wrap messages in Any type for gov's submit proposal.
         composer.wrapMessageArrAsAny(registry, msgs),
