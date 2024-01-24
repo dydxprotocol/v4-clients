@@ -65,7 +65,7 @@ export function encodeJson(
     if (value instanceof BigNumber) {
       return value.toString();
     }
-    if (value instanceof BigInt) {
+    if (typeof value === 'bigint') {
       return value.toString();
     }
     if (value instanceof Long) {

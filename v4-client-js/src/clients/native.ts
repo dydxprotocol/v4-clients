@@ -1112,7 +1112,7 @@ export async function withdrawToNobleIBC(payload: string): Promise<String> {
         ...parsedIbcPayload.msg,
         // Squid returns timeoutTimestamp as Long, but the signer expects BigInt
         timeoutTimestamp: parsedIbcPayload.msg.timeoutTimestamp
-          ? BigInt(Long.fromValue(json.msg.timeoutTimestamp).toString())
+          ? BigInt(Long.fromValue(parsedIbcPayload.msg.timeoutTimestamp).toString())
           : undefined,
       },
     };
