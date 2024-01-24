@@ -341,7 +341,6 @@ export class Composer {
     marketId: number,
     ticker: string,
     atomicResolution: number,
-    defaultFundingPpm: number,
     liquidityTier: number,
   ): EncodeObject {
     const msg: MsgCreatePerpetual = {
@@ -352,7 +351,7 @@ export class Composer {
         marketId,
         ticker,
         atomicResolution,
-        defaultFundingPpm,
+        defaultFundingPpm: 0, // default funding should be 0 to start.
         liquidityTier,
       },
     };
