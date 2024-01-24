@@ -153,6 +153,7 @@ export class Composer {
     subticks_per_tick: number,
   ): EncodeObject {
     const msg: MsgCreateClobPair = {
+      // uses x/gov module account since creating the clob pair is a governance action.
       authority: GOV_MODULE_ADDRESS,
       clobPair: {
         id: clob_id,
@@ -180,7 +181,7 @@ export class Composer {
     subticks_per_tick: number,
   ): EncodeObject {
     const msg: MsgUpdateClobPair = {
-      // uses x/delaymsg module account since updating the clob pair is a delayed action.
+      // uses x/delaymsg module account since updating the clob pair is a delayedmsg action.
       authority: DELAYMSG_MODULE_ADDRESS,
       clobPair: {
         id: clob_id,
@@ -318,6 +319,7 @@ export class Composer {
     exchange_config_json: string,
   ): EncodeObject {
     const msg: MsgCreateOracleMarket = {
+      // uses x/gov module account since creating the oracle market is a governance action.
       authority: GOV_MODULE_ADDRESS,
       params: {
         id: market_id,
@@ -345,6 +347,7 @@ export class Composer {
     liquidity_tier: number,
   ): EncodeObject {
     const msg: MsgCreatePerpetual = {
+      // uses x/gov module account since creating the perpetual is a governance action.
       authority: GOV_MODULE_ADDRESS,
       params: {
         id: perpetual_id,
@@ -384,7 +387,7 @@ export class Composer {
   public composeMsgSubmitProposal(
     title: string,
     initial_deposit_amount: number,
-    denom_config: DenomConfig,
+    initial_deposit_denom_config: DenomConfig,
     summary: string,
     messages: EncodeObject[],
     proposer: string,
@@ -393,7 +396,7 @@ export class Composer {
   ): EncodeObject {
     const initial_deposit: Coin[] = [{
       amount: initial_deposit_amount.toString(),
-      denom: denom_config.CHAINTOKEN_DENOM,
+      denom: initial_deposit_denom_config.CHAINTOKEN_DENOM,
     }];
 
     const msg: MsgSubmitProposal = {
