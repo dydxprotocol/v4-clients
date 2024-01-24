@@ -1,17 +1,13 @@
+import { EncodeObject, Registry } from '@cosmjs/proto-signing';
+import Long from 'long';
+
 import { BECH32_PREFIX } from '../src';
 import { CompositeClient } from '../src/clients/composite-client';
 import { Network } from '../src/clients/constants';
-import LocalWallet from '../src/clients/modules/local-wallet';
-
-import { DYDX_LOCAL_MNEMONIC } from './constants';
-
-import { EncodeObject, Registry } from '@cosmjs/proto-signing';
-
-import Long from 'long';
-
 import { generateRegistry } from '../src/clients/lib/registry';
-
 import { Composer } from '../src/clients/modules/composer';
+import LocalWallet from '../src/clients/modules/local-wallet';
+import { DYDX_LOCAL_MNEMONIC } from './constants';
 
 const INITIAL_DEPOSIT_AMOUNT = 10_000_000_000_000; // 10,000 whole native tokens.
 const MOCK_DATA = {
@@ -48,7 +44,6 @@ const MOCK_DATA = {
   delayBlocks: 5,
 };
 
-
 // To run this test:
 //  npm run build && node build/examples/gov_add_new_market.js
 //
@@ -71,7 +66,7 @@ async function test(): Promise<void> {
   console.log(client);
 
   const composer: Composer = client.validatorClient.post.composer;
-  const registry: Registry = generateRegistry()
+  const registry: Registry = generateRegistry();
   const msgs: EncodeObject[] = [];
 
   // x/prices.MsgCreateOracleMarket
@@ -160,9 +155,9 @@ function getTitle(
 
 function getSummary(
   ticker: string,
-  delay_blocks: number,
+  delayBlocks: number,
 ): string {
-  return `Add the x/prices, x/perpetuals and x/clob parameters needed for a ${ticker} perpetual market. Create the market in INITIALIZING status and transition it to ACTIVE status after ${delay_blocks} blocks.`;
+  return `Add the x/prices, x/perpetuals and x/clob parameters needed for a ${ticker} perpetual market. Create the market in INITIALIZING status and transition it to ACTIVE status after ${delayBlocks} blocks.`;
 }
 
 test();
