@@ -14,6 +14,9 @@ export * from '@dydxprotocol/v4-proto/src/codegen/cosmos/base/abci/v1beta1/abci'
 export * from '@dydxprotocol/v4-proto/src/codegen/cosmos/gov/v1/gov';
 export * from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/clob/order';
 export * from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/clob/tx';
+export * from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/delaymsg/tx';
+export * from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/perpetuals/tx';
+export * from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/prices/tx';
 export * from '@dydxprotocol/v4-proto/src/codegen/google/protobuf/any';
 export * from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/subaccounts/subaccount';
 export * from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/sending/tx';

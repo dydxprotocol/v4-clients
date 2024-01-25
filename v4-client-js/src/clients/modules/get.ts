@@ -20,6 +20,7 @@ import {
   ClobModule,
   FeeTierModule,
   GovV1Module,
+  MsgCreateOracleMarket,
   PerpetualsModule,
   PricesModule,
   ProposalStatus,
