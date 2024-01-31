@@ -23,6 +23,7 @@ import {
   PerpetualsModule,
   PricesModule,
   ProposalStatus,
+  RateLimitModule,
   RewardsModule,
   StakingModule,
   StatsModule,
@@ -501,6 +502,41 @@ export class Get {
       requestData,
     );
     return GovV1Module.QueryProposalsResponse.decode(data);
+  }
+
+  async getWithdrawGatingStatus(
+  ): Promise<SubaccountsModule.QueryGetWithdrawalAndTransfersBlockedInfoResponse> {
+    const requestData = Uint8Array.from(
+      SubaccountsModule.QueryGetWithdrawalAndTransfersBlockedInfoRequest
+        .encode({})
+        .finish(),
+    );
+
+    const data = await this.sendQuery(
+      '/dydxprotocol.subaccounts.Query/GetWithdrawalAndTransfersBlockedInfo',
+      requestData,
+    );
+
+    return SubaccountsModule.QueryGetWithdrawalAndTransfersBlockedInfoResponse.decode(data);
+  }
+
+  async getWithdrawLimitForSubaccount(
+    denom: string,
+  ): Promise<RateLimitModule.QueryCapacityByDenomResponse> {
+    const requestData = Uint8Array.from(
+      RateLimitModule.QueryCapacityByDenomRequest
+        .encode({
+          denom,
+        })
+        .finish(),
+    );
+
+    const data = await this.sendQuery(
+      '/dydxprotocol.ratelimit.Query/CapacityByDenom',
+      requestData,
+    );
+
+    return RateLimitModule.QueryCapacityByDenomResponse.decode(data);
   }
 
   private async sendQuery(requestUrl: string, requestData: Uint8Array): Promise<Uint8Array> {
