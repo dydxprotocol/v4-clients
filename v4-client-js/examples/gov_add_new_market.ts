@@ -68,7 +68,7 @@ async function test(): Promise<void> {
     MOCK_DATA,
     getGovAddNewMarketTitle(MOCK_DATA.ticker),
     getGovAddNewMarketSummary(MOCK_DATA.ticker, MOCK_DATA.delayBlocks),
-    INITIAL_DEPOSIT_AMOUNT,
+    BigInt(INITIAL_DEPOSIT_AMOUNT).toString(),
   );
   console.log('**Tx**');
   console.log(tx);
