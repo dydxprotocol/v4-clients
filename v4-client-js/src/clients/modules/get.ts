@@ -504,7 +504,7 @@ export class Get {
     return GovV1Module.QueryProposalsResponse.decode(data);
   }
 
-  async getWithdrawGatingStatus(
+  async GetWithdrawalAndTransferGatingStatus(
   ): Promise<SubaccountsModule.QueryGetWithdrawalAndTransfersBlockedInfoResponse> {
     const requestData = Uint8Array.from(
       SubaccountsModule.QueryGetWithdrawalAndTransfersBlockedInfoRequest
@@ -520,7 +520,7 @@ export class Get {
     return SubaccountsModule.QueryGetWithdrawalAndTransfersBlockedInfoResponse.decode(data);
   }
 
-  async getWithdrawLimitForSubaccount(
+  async getWithdrawalCapacityByDenom(
     denom: string,
   ): Promise<RateLimitModule.QueryCapacityByDenomResponse> {
     const requestData = Uint8Array.from(
