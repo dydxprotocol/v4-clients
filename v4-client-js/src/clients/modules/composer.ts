@@ -383,7 +383,7 @@ export class Composer {
   // ------------ x/gov ------------
   public composeMsgSubmitProposal(
     title: string,
-    initialDepositAmount: number,
+    initialDepositAmount: string,
     initialDepositDenomConfig: DenomConfig,
     summary: string,
     messages: EncodeObject[],
@@ -392,7 +392,7 @@ export class Composer {
     expedited: boolean = false,
   ): EncodeObject {
     const initialDeposit: Coin[] = [{
-      amount: initialDepositAmount.toString(),
+      amount: initialDepositAmount,
       denom: initialDepositDenomConfig.CHAINTOKEN_DENOM,
     }];
 

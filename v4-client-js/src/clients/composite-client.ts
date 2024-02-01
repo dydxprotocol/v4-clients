@@ -1018,7 +1018,7 @@ export class CompositeClient {
     params: GovAddNewMarketParams,
     title: string,
     summary: string,
-    initialDepositAmount: number,
+    initialDepositAmount: string,
   ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
     const msg: Promise<EncodeObject[]> = new Promise((resolve) => {
       const composer = this.validatorClient.post.composer;
