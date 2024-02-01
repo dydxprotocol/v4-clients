@@ -6,6 +6,7 @@ export * as PerpetualsModule from '@dydxprotocol/v4-proto/src/codegen/dydxprotoc
 export * as PricesModule from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/prices/query';
 export * as SubaccountsModule from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/subaccounts/query';
 export * as FeeTierModule from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/feetiers/query';
+export * as RateLimitModule from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/ratelimit/query';
 export * as RewardsModule from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/rewards/query';
 export * as StakingModule from '@dydxprotocol/v4-proto/src/codegen/cosmos/staking/v1beta1/query';
 export * as BridgeModule from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/bridge/query';
