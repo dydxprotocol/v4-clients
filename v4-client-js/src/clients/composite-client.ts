@@ -1032,7 +1032,7 @@ export class CompositeClient {
     params: GovAddNewMarketParams,
     title: string,
     summary: string,
-    initialDepositAmount: number,
+    initialDepositAmount: string,
     memo?: string,
   ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
     const msg: Promise<EncodeObject[]> = new Promise((resolve) => {
