@@ -180,18 +180,21 @@ export class ValidatorConfig {
   public chainId: string;
   public denoms: DenomConfig;
   public broadcastOptions?: BroadcastOptions;
+  public defaultClientMemo?: string;
 
   constructor(
     restEndpoint: string,
     chainId: string,
     denoms: DenomConfig,
     broadcastOptions?: BroadcastOptions,
+    defaultClientMemo?: string,
   ) {
     this.restEndpoint = restEndpoint?.endsWith('/') ? restEndpoint.slice(0, -1) : restEndpoint;
     this.chainId = chainId;
 
     this.denoms = denoms;
     this.broadcastOptions = broadcastOptions;
+    this.defaultClientMemo = defaultClientMemo;
   }
 }
 
@@ -214,7 +217,7 @@ export class Network {
         USDC_GAS_DENOM: 'uusdc',
         USDC_DECIMALS: 6,
         CHAINTOKEN_DECIMALS: 18,
-      });
+      }, undefined, 'Client Example');
     return new Network('testnet', indexerConfig, validatorConfig);
   }
 
@@ -230,7 +233,7 @@ export class Network {
         USDC_GAS_DENOM: 'uusdc',
         USDC_DECIMALS: 6,
         CHAINTOKEN_DECIMALS: 18,
-      });
+      }, undefined, 'Client Example');
     return new Network('local', indexerConfig, validatorConfig);
   }
 
