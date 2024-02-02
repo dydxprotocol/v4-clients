@@ -54,6 +54,7 @@ export class Post {
     private readonly chainId: string;
     public readonly get: Get;
     public readonly denoms: DenomConfig;
+    public readonly defaultClientMemo?: string;
 
     public readonly defaultGasPrice: GasPrice;
     public readonly defaultDydxGasPrice: GasPrice;
@@ -64,12 +65,14 @@ export class Post {
       get: Get,
       chainId: string,
       denoms: DenomConfig,
+      defaultClientMemo?: string,
     ) {
       this.get = get;
       this.chainId = chainId;
       this.registry = generateRegistry();
       this.composer = new Composer();
       this.denoms = denoms;
+      this.defaultClientMemo = defaultClientMemo;
       this.defaultGasPrice = GasPrice
         .fromString(`0.025${denoms.USDC_GAS_DENOM !== undefined ? denoms.USDC_GAS_DENOM : denoms.USDC_DENOM}`);
       this.defaultDydxGasPrice = GasPrice
@@ -156,7 +159,7 @@ export class Post {
         msgs,
         zeroFee,
         gasPrice,
-        memo,
+        memo ?? this.defaultClientMemo,
         broadcastMode ?? this.defaultBroadcastMode(msgs),
       );
     }
