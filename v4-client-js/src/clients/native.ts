@@ -37,6 +37,8 @@ declare global {
   var nobleWallet: LocalWallet | undefined;
 }
 
+const DEFAULT_NATIVE_MEMO = 'dYdX Frontend (native)';
+
 export async function connectClient(
   network: Network,
 ): Promise<string> {
@@ -81,15 +83,22 @@ export async function connectNetwork(
       throw new UserError('Missing required token params');
     }
 
-    const indexerConfig = new IndexerConfig(indexerUrl, websocketUrl);
-    const validatorConfig = new ValidatorConfig(validatorUrl, chainId, {
+    const denomConfig = {
       USDC_DENOM,
       USDC_DECIMALS,
       USDC_GAS_DENOM,
       CHAINTOKEN_DENOM,
       CHAINTOKEN_DECIMALS,
       CHAINTOKEN_GAS_DENOM,
-    });
+    };
+    const indexerConfig = new IndexerConfig(indexerUrl, websocketUrl);
+    const validatorConfig = new ValidatorConfig(
+      validatorUrl,
+      chainId,
+      denomConfig,
+      undefined,
+      DEFAULT_NATIVE_MEMO,
+    );
     const config = new Network('native', indexerConfig, validatorConfig);
     globalThis.client = await CompositeClient.connect(config);
     if (faucetUrl !== undefined) {
@@ -99,7 +108,7 @@ export async function connectNetwork(
     }
 
     try {
-      globalThis.nobleClient = new NobleClient(nobleValidatorUrl);
+      globalThis.nobleClient = new NobleClient(nobleValidatorUrl, DEFAULT_NATIVE_MEMO);
       if (globalThis.nobleWallet) {
         await globalThis.nobleClient.connect(globalThis.nobleWallet);
       }
