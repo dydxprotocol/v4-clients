@@ -1184,3 +1184,23 @@ export async function cctpWithdraw(squidPayload: string): Promise<String> {
     return wrappedError(error);
   }
 }
+
+export async function getWithdrawalCapacityByDenom(denom: string): Promise<string> {
+  try {
+    const validatorClient = globalThis.client.validatorClient;
+    const result = await validatorClient.get.getWithdrawalCapacityByDenom(denom);
+    return encodeJson(result);
+  } catch (e) {
+    return wrappedError(e);
+  }
+}
+
+export async function getWithdrawalAndTransferGatingStatus(): Promise<string> {
+  try {
+    const validatorClient = globalThis.client.validatorClient;
+    const result = await validatorClient.get.GetWithdrawalAndTransferGatingStatus();
+    return encodeJson(result);
+  } catch (e) {
+    return wrappedError(e);
+  }
+}
