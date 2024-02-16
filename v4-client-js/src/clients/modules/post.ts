@@ -38,7 +38,7 @@ import { Composer } from './composer';
 import { Get } from './get';
 import LocalWallet from './local-wallet';
 import {
-  Order_Side, Order_TimeInForce, Any, MsgPlaceOrder, Order_ConditionType,
+  Order_Side, Order_TimeInForce, Any, MsgPlaceOrder, MsgCancelOrder, Order_ConditionType,
 } from './proto-includes';
 
 // Required for encoding and decoding queries that are of type Long.
@@ -168,9 +168,15 @@ export class Post {
      * @description Calculate the default broadcast mode.
      */
     private defaultBroadcastMode(msgs: EncodeObject[]): BroadcastMode {
-      if (msgs.length === 1 && msgs[0].typeUrl === '/dydxprotocol.clob.MsgPlaceOrder') {
-        const msg = msgs[0].value as MsgPlaceOrder;
-        const orderFlags = msg.order?.orderId?.orderFlags;
+      if (
+        msgs.length === 1 &&
+        (msgs[0].typeUrl === '/dydxprotocol.clob.MsgPlaceOrder' ||
+          msgs[0].typeUrl === '/dydxprotocol.clob.MsgCancelOrder')
+      ) {
+        const orderFlags = msgs[0].typeUrl === '/dydxprotocol.clob.MsgPlaceOrder'
+          ? (msgs[0].value as MsgPlaceOrder).order?.orderId?.orderFlags
+          : (msgs[0].value as MsgCancelOrder).orderId?.orderFlags;
+
         switch (orderFlags) {
           case OrderFlags.SHORT_TERM:
             return Method.BroadcastTxSync;
