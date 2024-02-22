@@ -15,6 +15,12 @@ Python client for dYdX (v4 API).
 
 The library is currently tested against Python versions 3.9, and 3.11.
 
+# Third-party Client
+
+[Python Client](https://github.com/kaloureyes3/v4-clients/tree/main/v4-client-py)
+
+By clicking the above links to third-party clients, you will leave the dYdX Trading Inc. (“dYdX”) GitHub repository and join repositories made available by third parties, which are independent from and unaffiliated with dYdX. dYdX is not responsible for any action taken or content on third-party repositories.
+
 ## Installation
 
 The `v4-client-py` package is available on [PyPI](https://pypi.org/project/v4-client-py). Install with `pip`:
