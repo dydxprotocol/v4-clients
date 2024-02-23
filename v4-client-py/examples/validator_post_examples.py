@@ -28,6 +28,7 @@ default_order = {
     "client_metadata": 0,
 }
 
+
 def dummy_order(height):
     placeOrder = default_order.copy()
     placeOrder["client_id"] = random.randint(0, 1000000000)
@@ -40,12 +41,13 @@ def dummy_order(height):
         placeOrder["side"] = Order.SIDE_SELL
     return placeOrder
 
+
 async def main() -> None:
-    network = Network.testnet()
+    network = Network.config_network()
     client = ValidatorClient(network.validator_config)
-    wallet = LocalWallet.from_mnemonic(DYDX_TEST_MNEMONIC, BECH32_PREFIX);
+    wallet = LocalWallet.from_mnemonic(DYDX_TEST_MNEMONIC, BECH32_PREFIX)
     subaccount = Subaccount(wallet, 0)
-    ordersParams = loadJson('raw_orders.json')
+    ordersParams = loadJson("raw_orders.json")
     for orderParams in ordersParams:
         last_block = client.get.latest_block()
         height = last_block.block.header.height
@@ -70,14 +72,15 @@ async def main() -> None:
                 place_order["good_til_block_time"] = 0
 
             tx = client.post.place_order_object(subaccount, place_order)
-            print('**Order Tx**')
+            print("**Order Tx**")
             print(tx)
         except Exception as error:
-            print('**Order Failed**')
+            print("**Order Failed**")
             print(str(error))
 
         await asyncio.sleep(5)  # wait for placeOrder to complete
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
     asyncio.get_event_loop().run_until_complete(main())

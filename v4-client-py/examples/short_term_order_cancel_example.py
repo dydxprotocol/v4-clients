@@ -1,7 +1,7 @@
-'''Example for trading with human readable numbers
+"""Example for trading with human readable numbers
 
 Usage: python -m examples.composite_example
-'''
+"""
 import asyncio
 import logging
 from random import randrange
@@ -12,14 +12,14 @@ from v4_client_py.clients.constants import BECH32_PREFIX, Network
 from v4_client_py.clients.helpers.chain_helpers import (
     ORDER_FLAGS_SHORT_TERM,
     Order_TimeInForce,
-    OrderSide, 
+    OrderSide,
 )
 from tests.constants import DYDX_TEST_MNEMONIC, MAX_CLIENT_ID
 
 
 async def main() -> None:
     wallet = LocalWallet.from_mnemonic(DYDX_TEST_MNEMONIC, BECH32_PREFIX)
-    network = Network.testnet()
+    network = Network.config_network()
     client = CompositeClient(
         network,
     )
@@ -36,19 +36,19 @@ async def main() -> None:
     try:
         tx = client.place_short_term_order(
             subaccount,
-            market='ETH-USD',
+            market="ETH-USD",
             side=OrderSide.SELL,
             price=40000,
             size=0.01,
             client_id=short_term_client_id,
             good_til_block=good_til_block,
             time_in_force=Order_TimeInForce.TIME_IN_FORCE_UNSPECIFIED,
-            reduce_only=False
+            reduce_only=False,
         )
-        print('**Short Term Order Tx**')
+        print("**Short Term Order Tx**")
         print(tx.tx_hash)
     except Exception as error:
-        print('**Short Term Order Failed**')
+        print("**Short Term Order Failed**")
         print(str(error))
 
     # cancel a short term order.
@@ -56,18 +56,18 @@ async def main() -> None:
         tx = client.cancel_order(
             subaccount,
             short_term_client_id,
-            'ETH-USD',
+            "ETH-USD",
             ORDER_FLAGS_SHORT_TERM,
-            good_til_time_in_seconds=0, # short term orders use GTB.
-            good_til_block=good_til_block, # GTB should be the same or greater than order to cancel
+            good_til_time_in_seconds=0,  # short term orders use GTB.
+            good_til_block=good_til_block,  # GTB should be the same or greater than order to cancel
         )
-        print('**Cancel Short Term Order Tx**')
+        print("**Cancel Short Term Order Tx**")
         print(tx.tx_hash)
     except Exception as error:
-        print('**Cancel Short Term Order Failed**')
+        print("**Cancel Short Term Order Failed**")
         print(str(error))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
     asyncio.get_event_loop().run_until_complete(main())
