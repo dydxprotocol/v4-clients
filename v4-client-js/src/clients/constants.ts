@@ -43,6 +43,40 @@ export enum NetworkId {
 export const NETWORK_ID_MAINNET: string | null = null;
 export const NETWORK_ID_TESTNET: string = 'dydxprotocol-testnet';
 
+// ------------ MsgType URLs ------------
+// Default CosmosSDK
+// x/bank
+export const TYPE_URL_MSG_SEND = '/cosmos.bank.v1beta1.MsgSend';
+
+// x/gov
+export const TYPE_URL_MSG_SUBMIT_PROPOSAL = '/cosmos.gov.v1.MsgSubmitProposal';
+
+// dYdX Specific
+// x/clob
+export const TYPE_URL_MSG_PLACE_ORDER = '/dydxprotocol.clob.MsgPlaceOrder';
+export const TYPE_URL_MSG_CANCEL_ORDER = '/dydxprotocol.clob.MsgCancelOrder';
+export const TYPE_URL_MSG_CREATE_CLOB_PAIR = '/dydxprotocol.clob.MsgCreateClobPair';
+export const TYPE_URL_MSG_UPDATE_CLOB_PAIR = '/dydxprotocol.clob.MsgUpdateClobPair';
+
+// x/delaymsg
+export const TYPE_URL_MSG_DELAY_MESSAGE = '/dydxprotocol.delaymsg.MsgDelayMessage';
+
+// x/perpetuals
+export const TYPE_URL_MSG_CREATE_PERPETUAL = '/dydxprotocol.perpetuals.MsgCreatePerpetual';
+
+// x/prices
+export const TYPE_URL_MSG_CREATE_ORACLE_MARKET = '/dydxprotocol.prices.MsgCreateOracleMarket';
+
+// x/sending
+export const TYPE_URL_MSG_CREATE_TRANSFER = '/dydxprotocol.sending.MsgCreateTransfer';
+export const TYPE_URL_MSG_WITHDRAW_FROM_SUBACCOUNT = '/dydxprotocol.sending.MsgWithdrawFromSubaccount';
+export const TYPE_URL_MSG_DEPOSIT_TO_SUBACCOUNT = '/dydxprotocol.sending.MsgDepositToSubaccount';
+
+// ------------ Chain Constants ------------
+// The following are same across different networks / deployments.
+export const GOV_MODULE_ADDRESS = 'dydx10d07y265gmmuvt4z0w9aw880jnsr700jnmapky';
+export const DELAYMSG_MODULE_ADDRESS = 'dydx1mkkvp26dngu6n8rmalaxyp3gwkjuzztq5zx6tr';
+
 // ------------ Market Statistic Day Types ------------
 export enum MarketStatisticDay {
   ONE = '1',
@@ -131,14 +165,14 @@ export const PAGE_REQUEST: PageRequest = {
 };
 
 export class IndexerConfig {
-    public restEndpoint: string;
-    public websocketEndpoint: string;
+  public restEndpoint: string;
+  public websocketEndpoint: string;
 
-    constructor(restEndpoint: string,
-      websocketEndpoint: string) {
-      this.restEndpoint = restEndpoint;
-      this.websocketEndpoint = websocketEndpoint;
-    }
+  constructor(restEndpoint: string,
+    websocketEndpoint: string) {
+    this.restEndpoint = restEndpoint;
+    this.websocketEndpoint = websocketEndpoint;
+  }
 }
 
 export class ValidatorConfig {
@@ -146,18 +180,21 @@ export class ValidatorConfig {
   public chainId: string;
   public denoms: DenomConfig;
   public broadcastOptions?: BroadcastOptions;
+  public defaultClientMemo?: string;
 
   constructor(
     restEndpoint: string,
     chainId: string,
     denoms: DenomConfig,
     broadcastOptions?: BroadcastOptions,
+    defaultClientMemo?: string,
   ) {
     this.restEndpoint = restEndpoint?.endsWith('/') ? restEndpoint.slice(0, -1) : restEndpoint;
     this.chainId = chainId;
 
     this.denoms = denoms;
     this.broadcastOptions = broadcastOptions;
+    this.defaultClientMemo = defaultClientMemo;
   }
 }
 
@@ -166,7 +203,7 @@ export class Network {
     public env: string,
     public indexerConfig: IndexerConfig,
     public validatorConfig: ValidatorConfig,
-  ) {}
+  ) { }
 
   static testnet(): Network {
     const indexerConfig = new IndexerConfig(
@@ -180,7 +217,7 @@ export class Network {
         USDC_GAS_DENOM: 'uusdc',
         USDC_DECIMALS: 6,
         CHAINTOKEN_DECIMALS: 18,
-      });
+      }, undefined, 'Client Example');
     return new Network('testnet', indexerConfig, validatorConfig);
   }
 
@@ -196,7 +233,7 @@ export class Network {
         USDC_GAS_DENOM: 'uusdc',
         USDC_DECIMALS: 6,
         CHAINTOKEN_DECIMALS: 18,
-      });
+      }, undefined, 'Client Example');
     return new Network('local', indexerConfig, validatorConfig);
   }
 

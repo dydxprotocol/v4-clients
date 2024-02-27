@@ -2,8 +2,8 @@
     Native app can call JS functions with primitives.
 */
 
-import { EncodeObject } from '@cosmjs/proto-signing';
-import { accountFromAny } from '@cosmjs/stargate';
+import { EncodeObject, coin as createCoin } from '@cosmjs/proto-signing';
+import { MsgTransferEncodeObject, accountFromAny } from '@cosmjs/stargate';
 import { Order_Side, Order_TimeInForce } from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/clob/order';
 import * as AuthModule from 'cosmjs-types/cosmos/auth/v1beta1/query';
 import Long from 'long';
@@ -21,7 +21,7 @@ import { FaucetClient } from './faucet-client';
 import LocalWallet from './modules/local-wallet';
 import { NobleClient } from './noble-client';
 import { SubaccountInfo } from './subaccount';
-import { OrderFlags } from './types';
+import { OrderFlags, SquidIBCPayload } from './types';
 
 declare global {
   // eslint-disable-next-line vars-on-top, no-var
@@ -36,6 +36,8 @@ declare global {
   // eslint-disable-next-line vars-on-top, no-var
   var nobleWallet: LocalWallet | undefined;
 }
+
+const DEFAULT_NATIVE_MEMO = 'dYdX Frontend (native)';
 
 export async function connectClient(
   network: Network,
@@ -81,15 +83,22 @@ export async function connectNetwork(
       throw new UserError('Missing required token params');
     }
 
-    const indexerConfig = new IndexerConfig(indexerUrl, websocketUrl);
-    const validatorConfig = new ValidatorConfig(validatorUrl, chainId, {
+    const denomConfig = {
       USDC_DENOM,
       USDC_DECIMALS,
       USDC_GAS_DENOM,
       CHAINTOKEN_DENOM,
       CHAINTOKEN_DECIMALS,
       CHAINTOKEN_GAS_DENOM,
-    });
+    };
+    const indexerConfig = new IndexerConfig(indexerUrl, websocketUrl);
+    const validatorConfig = new ValidatorConfig(
+      validatorUrl,
+      chainId,
+      denomConfig,
+      undefined,
+      DEFAULT_NATIVE_MEMO,
+    );
     const config = new Network('native', indexerConfig, validatorConfig);
     globalThis.client = await CompositeClient.connect(config);
     if (faucetUrl !== undefined) {
@@ -99,7 +108,7 @@ export async function connectNetwork(
     }
 
     try {
-      globalThis.nobleClient = new NobleClient(nobleValidatorUrl);
+      globalThis.nobleClient = new NobleClient(nobleValidatorUrl, DEFAULT_NATIVE_MEMO);
       if (globalThis.nobleWallet) {
         await globalThis.nobleClient.connect(globalThis.nobleWallet);
       }
@@ -475,11 +484,17 @@ export async function withdrawToIBC(
     const decode = (str: string):string => Buffer.from(str, 'base64').toString('binary');
     const decoded = decode(payload);
 
-    const json = JSON.parse(decoded);
+    const json: SquidIBCPayload = JSON.parse(decoded);
 
-    const ibcMsg: EncodeObject = {
+    const ibcMsg: MsgTransferEncodeObject = {
       typeUrl: json.msgTypeUrl, // '/ibc.applications.transfer.v1.MsgTransfer',
-      value: json.msg,
+      value: {
+        ...json.msg,
+        // Squid returns timeoutTimestamp as Long, but the signer expects BigInt
+        timeoutTimestamp: json.msg.timeoutTimestamp
+          ? BigInt(Long.fromValue(json.msg.timeoutTimestamp).toString())
+          : undefined,
+      },
     };
 
     const subaccount = new SubaccountInfo(wallet, subaccountNumber);
@@ -1041,13 +1056,25 @@ export async function sendNobleIBC(squidPayload: string): Promise<String> {
       );
     }
 
-    const json = JSON.parse(squidPayload);
+    const json: SquidIBCPayload = JSON.parse(squidPayload);
 
-    const ibcMsg: EncodeObject = {
-      typeUrl: json.msgTypeUrl, // '/ibc.applications.transfer.v1.MsgTransfer',
-      value: json.msg,
+    const ibcMsg: MsgTransferEncodeObject = {
+      typeUrl: json.msgTypeUrl,
+      value: {
+        ...json.msg,
+        // Squid returns timeoutTimestamp as Long, but the signer expects BigInt
+        timeoutTimestamp: json.msg.timeoutTimestamp
+          ? BigInt(Long.fromValue(json.msg.timeoutTimestamp).toString())
+          : undefined,
+      },
     };
     const fee = await client.simulateTransaction([ibcMsg]);
+
+    if (!ibcMsg.value.token) {
+      throw new UserError(
+        'Payload missing token field',
+      );
+    }
 
     // take out fee from amount before sweeping
     const amount = parseInt(ibcMsg.value.token.amount, 10) -
@@ -1057,8 +1084,8 @@ export async function sendNobleIBC(squidPayload: string): Promise<String> {
       throw new UserError('noble balance does not cover fees');
     }
 
-    ibcMsg.value.token.amount = amount.toString();
-    const tx = await client.send([ibcMsg]);
+    ibcMsg.value.token = createCoin(amount.toString(), ibcMsg.value.token.denom);
+    const tx = await client.IBCTransfer(ibcMsg);
     return encodeJson(tx);
   } catch (error) {
     return wrappedError(error);
@@ -1082,15 +1109,21 @@ export async function withdrawToNobleIBC(payload: string): Promise<String> {
     const decode = (str: string):string => Buffer.from(str, 'base64').toString('binary');
     const decoded = decode(ibcPayload);
 
-    const parsedIbcPayload = JSON.parse(decoded);
+    const parsedIbcPayload: SquidIBCPayload = JSON.parse(decoded);
 
     const msg = client.withdrawFromSubaccountMessage(
       new SubaccountInfo(wallet, subaccountNumber),
       parseFloat(amount).toFixed(client.validatorClient.config.denoms.USDC_DECIMALS),
     );
-    const ibcMsg: EncodeObject = {
+    const ibcMsg: MsgTransferEncodeObject = {
       typeUrl: parsedIbcPayload.msgTypeUrl,
-      value: parsedIbcPayload.msg,
+      value: {
+        ...parsedIbcPayload.msg,
+        // Squid returns timeoutTimestamp as Long, but the signer expects BigInt
+        timeoutTimestamp: parsedIbcPayload.msg.timeoutTimestamp
+          ? BigInt(Long.fromValue(parsedIbcPayload.msg.timeoutTimestamp).toString())
+          : undefined,
+      },
     };
 
     const tx = await client.send(

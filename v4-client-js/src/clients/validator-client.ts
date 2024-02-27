@@ -69,6 +69,11 @@ export class ValidatorClient {
       setupTxExtension,
     );
     this._get = new Get(tendermintClient, queryClient);
-    this._post = new Post(this._get!, this.config.chainId, this.config.denoms);
+    this._post = new Post(
+      this._get!,
+      this.config.chainId,
+      this.config.denoms,
+      this.config.defaultClientMemo,
+    );
   }
 }

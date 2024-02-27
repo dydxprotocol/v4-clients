@@ -1,0 +1,64 @@
+{
+  "title": "Add BONK-USD perpetual market",
+  "deposit": "10000000000000adv4tnt",
+  "summary": "Add the x/prices, x/perpetuals and x/clob parameters needed for a BONK-USD perpetual market. Create the market in INITIALIZING status and transition it to ACTIVE status after 5 blocks.",
+  "messages": [
+    {
+      "@type": "/dydxprotocol.prices.MsgCreateOracleMarket",
+      "authority": "dydx10d07y265gmmuvt4z0w9aw880jnsr700jnmapky",
+      "params": {
+        "id": 34,
+        "pair": "BONK-USD",
+        "exponent": -14,
+        "minExchanges": 3,
+        "minPriceChangePpm": 4000,
+        "exchangeConfigJson": "{\"exchanges\":[{\"exchangeName\":\"Binance\",\"ticker\":\"BONKUSDT\",\"adjustByMarket\":\"USDT-USD\"},{\"exchangeName\":\"Bybit\",\"ticker\":\"BONKUSDT\",\"adjustByMarket\":\"USDT-USD\"},{\"exchangeName\":\"CoinbasePro\",\"ticker\":\"BONK-USD\"},{\"exchangeName\":\"Kucoin\",\"ticker\":\"BONK-USDT\",\"adjustByMarket\":\"USDT-USD\"},{\"exchangeName\":\"Okx\",\"ticker\":\"BONK-USDT\",\"adjustByMarket\":\"USDT-USD\"},{\"exchangeName\":\"Mexc\",\"ticker\":\"BONK_USDT\",\"adjustByMarket\":\"USDT-USD\"}]}"
+      }
+    },
+    {
+      "@type": "/dydxprotocol.perpetuals.MsgCreatePerpetual",
+      "authority": "dydx10d07y265gmmuvt4z0w9aw880jnsr700jnmapky",
+      "params": {
+        "id": 34,
+        "marketId": 34,
+        "ticker": "BONK-USD",
+        "atomicResolution": -1,
+        "defaultFundingPpm": 0,
+        "liquidityTier": 2
+      }
+    },
+    {
+      "@type": "/dydxprotocol.clob.MsgCreateClobPair",
+      "authority": "dydx10d07y265gmmuvt4z0w9aw880jnsr700jnmapky",
+      "clob_pair": {
+        "id": 34,
+        "perpetual_clob_metadata": {
+          "perpetual_id": 34
+        },
+        "quantum_conversion_exponent": -9,
+        "status": "STATUS_INITIALIZING",
+        "step_base_quantums": 1000000,
+        "subticks_per_tick": 1000000
+      }
+    },
+    {
+      "@type": "/dydxprotocol.delaymsg.MsgDelayMessage",
+      "authority": "dydx10d07y265gmmuvt4z0w9aw880jnsr700jnmapky",
+      "msg": {
+        "@type": "/dydxprotocol.clob.MsgUpdateClobPair",
+        "authority": "dydx1mkkvp26dngu6n8rmalaxyp3gwkjuzztq5zx6tr",
+        "clob_pair": {
+          "id": 34,
+          "perpetual_clob_metadata": {
+            "perpetual_id": 34
+          },
+          "quantum_conversion_exponent": -9,
+          "status": "STATUS_ACTIVE",
+          "step_base_quantums": 1000000,
+          "subticks_per_tick": 1000000
+        }
+      },
+      "delay_blocks": 5
+    }
+  ]
+}

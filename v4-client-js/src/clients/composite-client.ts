@@ -9,7 +9,7 @@ import Long from 'long';
 import protobuf from 'protobufjs';
 
 import { isStatefulOrder, verifyOrderFlags } from '../lib/validation';
-import { OrderFlags } from '../types';
+import { GovAddNewMarketParams, OrderFlags } from '../types';
 import {
   Network,
   OrderExecution,
@@ -31,6 +31,7 @@ import {
 } from './helpers/chain-helpers';
 import { IndexerClient } from './indexer-client';
 import { UserError } from './lib/errors';
+import { generateRegistry } from './lib/registry';
 import LocalWallet from './modules/local-wallet';
 import { SubaccountInfo } from './subaccount';
 import { ValidatorClient } from './validator-client';
@@ -277,6 +278,7 @@ export class CompositeClient {
     goodTilBlock: number,
     timeInForce: Order_TimeInForce,
     reduceOnly: boolean,
+    memo?: string,
   ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
     const msgs: Promise<EncodeObject[]> = new Promise((resolve) => {
       const msg = this.placeShortTermOrderMessage(
@@ -303,7 +305,7 @@ export class CompositeClient {
       () => msgs,
       true,
       undefined,
-      undefined,
+      memo,
       () => account,
     );
   }
@@ -355,6 +357,7 @@ export class CompositeClient {
     triggerPrice?: number,
     marketInfo?: MarketInfo,
     currentHeight?: number,
+    memo?: string,
   ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
     const msgs: Promise<EncodeObject[]> = new Promise((resolve) => {
       const msg = this.placeOrderMessage(
@@ -389,7 +392,7 @@ export class CompositeClient {
       () => msgs,
       true,
       undefined,
-      undefined,
+      memo,
       () => account,
     );
   }
@@ -498,7 +501,7 @@ export class CompositeClient {
     );
   }
 
-  private async retrieveMarketInfo(marketId: string, marketInfo?:MarketInfo): Promise<MarketInfo> {
+  private async retrieveMarketInfo(marketId: string, marketInfo?: MarketInfo): Promise<MarketInfo> {
     if (marketInfo) {
       return Promise.resolve(marketInfo);
     } else {
@@ -703,6 +706,7 @@ export class CompositeClient {
     recipientAddress: string,
     recipientSubaccountNumber: number,
     amount: string,
+    memo?: string,
   ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
     const msgs: Promise<EncodeObject[]> = new Promise((resolve) => {
       const msg = this.transferToSubaccountMessage(
@@ -716,7 +720,10 @@ export class CompositeClient {
     return this.send(
       subaccount.wallet,
       () => msgs,
-      true);
+      true,
+      undefined,
+      memo,
+    );
   }
 
   /**
@@ -773,6 +780,7 @@ export class CompositeClient {
   async depositToSubaccount(
     subaccount: SubaccountInfo,
     amount: string,
+    memo?: string,
   ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
     const msgs: Promise<EncodeObject[]> = new Promise((resolve) => {
       const msg = this.depositToSubaccountMessage(
@@ -783,7 +791,10 @@ export class CompositeClient {
     });
     return this.validatorClient.post.send(subaccount.wallet,
       () => msgs,
-      false);
+      false,
+      undefined,
+      memo,
+    );
   }
 
   /**
@@ -835,6 +846,7 @@ export class CompositeClient {
     subaccount: SubaccountInfo,
     amount: string,
     recipient?: string,
+    memo?: string,
   ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
     const msgs: Promise<EncodeObject[]> = new Promise((resolve) => {
       const msg = this.withdrawFromSubaccountMessage(
@@ -847,7 +859,10 @@ export class CompositeClient {
     return this.send(
       subaccount.wallet,
       () => msgs,
-      false);
+      false,
+      undefined,
+      memo,
+    );
   }
 
   /**
@@ -999,5 +1014,102 @@ export class CompositeClient {
     );
 
     return Buffer.from(signature).toString('base64');
+  }
+
+  /**
+   * @description Submit a governance proposal to add a new market.
+   *
+   * @param params Parameters neeeded to create a new market.
+   * @param title Title of the gov proposal.
+   * @param summary Summary of the gov proposal.
+   * @param initialDepositAmount Initial deposit amount of the gov proposal.
+   * @param proposer proposer of the gov proposal.
+   *
+   * @returns the transaction hash.
+   */
+  async submitGovAddNewMarketProposal(
+    wallet: LocalWallet,
+    params: GovAddNewMarketParams,
+    title: string,
+    summary: string,
+    initialDepositAmount: string,
+    memo?: string,
+  ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
+    const msg: Promise<EncodeObject[]> = new Promise((resolve) => {
+      const composer = this.validatorClient.post.composer;
+      const registry = generateRegistry();
+      const msgs: EncodeObject[] = [];
+
+      // x/prices.MsgCreateOracleMarket
+      const createOracleMarket = composer.composeMsgCreateOracleMarket(
+        params.id,
+        params.ticker,
+        params.priceExponent,
+        params.minExchanges,
+        params.minPriceChange,
+        params.exchangeConfigJson,
+      );
+
+      // x/perpetuals.MsgCreatePerpetual
+      const createPerpetual = composer.composeMsgCreatePerpetual(
+        params.id,
+        params.id,
+        params.ticker,
+        params.atomicResolution,
+        params.liquidityTier,
+      );
+
+      // x/clob.MsgCreateClobPair
+      const createClobPair = composer.composeMsgCreateClobPair(
+        params.id,
+        params.id,
+        params.quantumConversionExponent,
+        params.stepBaseQuantums,
+        params.subticksPerTick,
+      );
+
+      // x/clob.MsgUpdateClobPair
+      const updateClobPair = composer.composeMsgUpdateClobPair(
+        params.id,
+        params.id,
+        params.quantumConversionExponent,
+        params.stepBaseQuantums,
+        params.subticksPerTick,
+      );
+
+      // x/delaymsg.MsgDelayMessage
+      const delayMessage = composer.composeMsgDelayMessage(
+        // IMPORTANT: must wrap messages in Any type to fit into delaymsg.
+        composer.wrapMessageAsAny(registry, updateClobPair),
+        params.delayBlocks,
+      );
+
+      // The order matters.
+      msgs.push(createOracleMarket);
+      msgs.push(createPerpetual);
+      msgs.push(createClobPair);
+      msgs.push(delayMessage);
+
+      // x/gov.v1.MsgSubmitProposal
+      const submitProposal = composer.composeMsgSubmitProposal(
+        title,
+        initialDepositAmount,
+        this.validatorClient.config.denoms, // use the client denom.
+        summary,
+        // IMPORTANT: must wrap messages in Any type for gov's submit proposal.
+        composer.wrapMessageArrAsAny(registry, msgs),
+        wallet.address!, // proposer
+      );
+
+      resolve([submitProposal]);
+    });
+
+    return this.send(
+      wallet,
+      () => msg,
+      false,
+      undefined,
+      memo,
+    );
   }
 }

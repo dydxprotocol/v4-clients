@@ -38,7 +38,7 @@ import { Composer } from './composer';
 import { Get } from './get';
 import LocalWallet from './local-wallet';
 import {
-  Order_Side, Order_TimeInForce, Any, MsgPlaceOrder, Order_ConditionType,
+  Order_Side, Order_TimeInForce, Any, MsgPlaceOrder, MsgCancelOrder, Order_ConditionType,
 } from './proto-includes';
 
 // Required for encoding and decoding queries that are of type Long.
@@ -54,6 +54,7 @@ export class Post {
     private readonly chainId: string;
     public readonly get: Get;
     public readonly denoms: DenomConfig;
+    public readonly defaultClientMemo?: string;
 
     public readonly defaultGasPrice: GasPrice;
     public readonly defaultDydxGasPrice: GasPrice;
@@ -64,12 +65,14 @@ export class Post {
       get: Get,
       chainId: string,
       denoms: DenomConfig,
+      defaultClientMemo?: string,
     ) {
       this.get = get;
       this.chainId = chainId;
       this.registry = generateRegistry();
       this.composer = new Composer();
       this.denoms = denoms;
+      this.defaultClientMemo = defaultClientMemo;
       this.defaultGasPrice = GasPrice
         .fromString(`0.025${denoms.USDC_GAS_DENOM !== undefined ? denoms.USDC_GAS_DENOM : denoms.USDC_DENOM}`);
       this.defaultDydxGasPrice = GasPrice
@@ -156,7 +159,7 @@ export class Post {
         msgs,
         zeroFee,
         gasPrice,
-        memo,
+        memo ?? this.defaultClientMemo,
         broadcastMode ?? this.defaultBroadcastMode(msgs),
       );
     }
@@ -165,9 +168,15 @@ export class Post {
      * @description Calculate the default broadcast mode.
      */
     private defaultBroadcastMode(msgs: EncodeObject[]): BroadcastMode {
-      if (msgs.length === 1 && msgs[0].typeUrl === '/dydxprotocol.clob.MsgPlaceOrder') {
-        const msg = msgs[0].value as MsgPlaceOrder;
-        const orderFlags = msg.order?.orderId?.orderFlags;
+      if (
+        msgs.length === 1 &&
+        (msgs[0].typeUrl === '/dydxprotocol.clob.MsgPlaceOrder' ||
+          msgs[0].typeUrl === '/dydxprotocol.clob.MsgCancelOrder')
+      ) {
+        const orderFlags = msgs[0].typeUrl === '/dydxprotocol.clob.MsgPlaceOrder'
+          ? (msgs[0].value as MsgPlaceOrder).order?.orderId?.orderFlags
+          : (msgs[0].value as MsgCancelOrder).orderId?.orderFlags;
+
         switch (orderFlags) {
           case OrderFlags.SHORT_TERM:
             return Method.BroadcastTxSync;

@@ -19,8 +19,11 @@ import {
   BridgeModule,
   ClobModule,
   FeeTierModule,
+  GovV1Module,
   PerpetualsModule,
   PricesModule,
+  ProposalStatus,
+  RateLimitModule,
   RewardsModule,
   StakingModule,
   StatsModule,
@@ -365,7 +368,7 @@ export class Get {
    */
   async getEquityTierLimitConfiguration(): Promise<
     ClobModule.QueryEquityTierLimitConfigurationResponse
-    > {
+  > {
     const requestData: Uint8Array = Uint8Array.from(
       ClobModule.QueryEquityTierLimitConfigurationRequest.encode({})
         .finish(),
@@ -470,9 +473,75 @@ export class Get {
     return StakingModule.QueryValidatorsResponse.decode(data);
   }
 
+  /**
+   * @description Get all gov proposals.
+   *
+   * @param proposalStatus Status of the proposal to filter by.
+   * @param voter Voter to filter by.
+   * @param depositor Depositor to filter by.
+   *
+   * @returns All gov proposals that match the filters above.
+   */
+  async getAllGovProposals(
+    proposalStatus: ProposalStatus = ProposalStatus.PROPOSAL_STATUS_VOTING_PERIOD,
+    voter: string = '',
+    depositor: string = '',
+  ): Promise<GovV1Module.QueryProposalsResponse> {
+    const requestData = Uint8Array.from(
+      GovV1Module.QueryProposalsRequest
+        .encode({
+          proposalStatus,
+          voter,
+          depositor,
+          pagination: PAGE_REQUEST,
+        })
+        .finish(),
+    );
+    const data: Uint8Array = await this.sendQuery(
+      '/cosmos.gov.v1.Query/Proposals',
+      requestData,
+    );
+    return GovV1Module.QueryProposalsResponse.decode(data);
+  }
+
+  async GetWithdrawalAndTransferGatingStatus(
+  ): Promise<SubaccountsModule.QueryGetWithdrawalAndTransfersBlockedInfoResponse> {
+    const requestData = Uint8Array.from(
+      SubaccountsModule.QueryGetWithdrawalAndTransfersBlockedInfoRequest
+        .encode({})
+        .finish(),
+    );
+
+    const data = await this.sendQuery(
+      '/dydxprotocol.subaccounts.Query/GetWithdrawalAndTransfersBlockedInfo',
+      requestData,
+    );
+
+    return SubaccountsModule.QueryGetWithdrawalAndTransfersBlockedInfoResponse.decode(data);
+  }
+
+  async getWithdrawalCapacityByDenom(
+    denom: string,
+  ): Promise<RateLimitModule.QueryCapacityByDenomResponse> {
+    const requestData = Uint8Array.from(
+      RateLimitModule.QueryCapacityByDenomRequest
+        .encode({
+          denom,
+        })
+        .finish(),
+    );
+
+    const data = await this.sendQuery(
+      '/dydxprotocol.ratelimit.Query/CapacityByDenom',
+      requestData,
+    );
+
+    return RateLimitModule.QueryCapacityByDenomResponse.decode(data);
+  }
+
   private async sendQuery(requestUrl: string, requestData: Uint8Array): Promise<Uint8Array> {
-    const resp: QueryAbciResponse = await
-    this.stargateQueryClient.queryAbci(requestUrl, requestData);
+    // eslint-disable-next-line max-len
+    const resp: QueryAbciResponse = await this.stargateQueryClient.queryAbci(requestUrl, requestData);
     return resp.value;
   }
 }

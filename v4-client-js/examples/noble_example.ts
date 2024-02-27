@@ -23,7 +23,7 @@ async function test(): Promise<void> {
     NOBLE_BECH32_PREFIX,
   );
 
-  const client = new NobleClient('https://rpc.testnet.noble.strange.love');
+  const client = new NobleClient('https://rpc.testnet.noble.strange.love', 'Noble example');
   await client.connect(nobleWallet);
 
   if (nobleWallet.address === undefined || dydxWallet.address === undefined) {

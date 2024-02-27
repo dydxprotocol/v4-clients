@@ -6,6 +6,7 @@ import {
   StdFee,
   defaultRegistryTypes,
   SigningStargateClient,
+  MsgTransferEncodeObject,
 } from '@cosmjs/stargate';
 
 import { GAS_MULTIPLIER } from './constants';
@@ -16,9 +17,11 @@ export class NobleClient {
   private wallet?: LocalWallet;
   private restEndpoint: string;
   private stargateClient?: SigningStargateClient;
+  private defaultClientMemo?: string;
 
-  constructor(restEndpoint: string) {
+  constructor(restEndpoint: string, defaultClientMemo?: string) {
     this.restEndpoint = restEndpoint;
+    this.defaultClientMemo = defaultClientMemo;
   }
 
   get isConnected(): boolean {
@@ -56,6 +59,11 @@ export class NobleClient {
     return this.stargateClient.getBalance(this.wallet.address, denom);
   }
 
+  async IBCTransfer(message: MsgTransferEncodeObject): Promise<DeliverTxResponse> {
+    const tx = await this.send([message]);
+    return tx;
+  }
+
   async send(
     messages: EncodeObject[],
     gasPrice: GasPrice = GasPrice.fromString('0.025uusdc'),
@@ -68,14 +76,14 @@ export class NobleClient {
       throw new Error('NobleClient wallet not initialized');
     }
     // Simulate to get the gas estimate
-    const fee = await this.simulateTransaction(messages, gasPrice, memo);
+    const fee = await this.simulateTransaction(messages, gasPrice, memo ?? this.defaultClientMemo);
 
     // Sign and broadcast the transaction
     return this.stargateClient.signAndBroadcast(
       this.wallet.address,
       messages,
       fee,
-      memo ?? '',
+      memo ?? this.defaultClientMemo,
     );
   }
 
