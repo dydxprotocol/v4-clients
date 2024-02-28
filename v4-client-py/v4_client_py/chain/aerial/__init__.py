@@ -1,2 +1,0 @@
-
-"""Cosmpy aerial module."""
