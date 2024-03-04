@@ -462,7 +462,7 @@ export async function faucet(
 
     const response = await faucetClient.fill(wallet.address!, subaccountNumber, amount);
 
-    return encodeJson(response);
+    return encodeJson(response.data);
   } catch (error) {
     return wrappedError(error);
   }

@@ -4,6 +4,7 @@ import {
   connect,
   connectWallet,
   deposit,
+  faucet,
   getAccountBalances,
   getOptimalNode,
   getUserStats,
@@ -32,6 +33,12 @@ async function test(): Promise<void> {
 
     const wallet = await connectWallet(DYDX_TEST_MNEMONIC);
     console.log(wallet);
+
+    const params3 = `
+    {"subaccountNumber":0,"amount":100.0}
+    `;
+    const result3 = await faucet(params3);
+    console.log(result3);
 
     const address = await connect(Network.testnet(), DYDX_TEST_MNEMONIC);
     console.log(address);
