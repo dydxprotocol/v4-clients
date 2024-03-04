@@ -2,7 +2,6 @@ import { Network } from '../src/clients/constants';
 import { UserError } from '../src/clients/lib/errors';
 import {
   connect,
-  connectNetwork,
   connectWallet,
   deposit,
   faucet,
