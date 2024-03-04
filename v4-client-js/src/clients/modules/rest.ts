@@ -32,7 +32,6 @@ export default class RestClient {
       headers: {} = {},
     ): Promise<Response> {
       const url = `${this.host}${generateQueryPath(requestPath, params)}`;
-      const response = await request(url, RequestMethod.POST, body, headers);
-      return response.data;
+      return request(url, RequestMethod.POST, body, headers);
     }
 }
