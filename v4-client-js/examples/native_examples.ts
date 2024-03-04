@@ -2,8 +2,10 @@ import { Network } from '../src/clients/constants';
 import { UserError } from '../src/clients/lib/errors';
 import {
   connect,
+  connectNetwork,
   connectWallet,
   deposit,
+  faucet,
   getAccountBalances,
   getOptimalNode,
   getUserStats,
@@ -30,8 +32,20 @@ async function test(): Promise<void> {
     const result = await getOptimalNode(paramsInJson);
     console.log(result);
 
+    const params2 = `
+      {"indexerUrl":"https://indexer.v4testnet.dydx.exchange","websocketUrl":"wss://indexer.v4testnet.dydx.exchange/v4/ws","validatorUrl":"https://dydx-testnet-full-rpc.public.blastapi.io","chainId":"dydx-testnet-4","faucetUrl":"https://faucet.v4testnet.dydx.exchange","nobleValidatorUrl":"https://noble-testnet-rpc.polkachu.com/","USDC_DENOM":"ibc/8E27BA2D5493AF5636760E354E46004562C46AB7EC0CC4C1CA14E9E20E2545B5","USDC_DECIMALS":6,"USDC_GAS_DENOM":"uusdc","CHAINTOKEN_DENOM":"adv4tnt","CHAINTOKEN_DECIMALS":18}
+    `;
+    const result2 = await connectNetwork(params2);
+    console.log(result2);
+
     const wallet = await connectWallet(DYDX_TEST_MNEMONIC);
     console.log(wallet);
+
+    const params3 = `
+    {"subaccountNumber":0,"amount":100.0}
+    `;
+    const result3 = await faucet(params3);
+    console.log(result3);
 
     const address = await connect(Network.testnet(), DYDX_TEST_MNEMONIC);
     console.log(address);

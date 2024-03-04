@@ -58,8 +58,19 @@ export function encodeJson(
   object?: Object,
   byteArrayEncoding: ByteArrayEncoding = ByteArrayEncoding.HEX,
 ): string {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const cache: any[] = [];
   // eslint-disable-next-line prefer-arrow-callback
   return JSON.stringify(object, function replacer(_key, value) {
+    if (typeof value === 'object' && value !== null) {
+      if (cache.indexOf(value) !== -1) {
+        // Circular reference found, discard key
+        return;
+      }
+      // Store value in our collection
+      cache.push(value);
+    }
+
     // Even though we set the an UInt8Array as the value,
     // it comes in here as an object with UInt8Array as the buffer property.
     if (value instanceof BigNumber) {
