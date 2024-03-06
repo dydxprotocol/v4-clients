@@ -18,11 +18,11 @@ import {
   Network, OrderType, OrderSide, OrderTimeInForce, OrderExecution, IndexerConfig, ValidatorConfig,
 } from './constants';
 import { FaucetClient } from './faucet-client';
+import { Response } from './lib/axios';
 import LocalWallet from './modules/local-wallet';
 import { NobleClient } from './noble-client';
 import { SubaccountInfo } from './subaccount';
 import { OrderFlags, SquidIBCPayload } from './types';
-import { Response } from './lib/axios';
 
 declare global {
   // eslint-disable-next-line vars-on-top, no-var
