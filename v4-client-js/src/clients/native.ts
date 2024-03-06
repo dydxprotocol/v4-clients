@@ -22,6 +22,7 @@ import LocalWallet from './modules/local-wallet';
 import { NobleClient } from './noble-client';
 import { SubaccountInfo } from './subaccount';
 import { OrderFlags, SquidIBCPayload } from './types';
+import { Response } from './lib/axios';
 
 declare global {
   // eslint-disable-next-line vars-on-top, no-var
@@ -461,8 +462,13 @@ export async function faucet(
     }
 
     const response = await faucetClient.fill(wallet.address!, subaccountNumber, amount);
+    const sanitized: Response = {
+      data: response.data,
+      status: response.status,
+      headers: response.headers,
+    };
 
-    return encodeJson(response.data);
+    return encodeJson(sanitized);
   } catch (error) {
     return wrappedError(error);
   }
