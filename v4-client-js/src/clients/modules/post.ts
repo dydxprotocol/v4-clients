@@ -182,6 +182,7 @@ export class Post {
             return Method.BroadcastTxSync;
 
           case OrderFlags.LONG_TERM:
+          case OrderFlags.CONDITIONAL:
             return Method.BroadcastTxCommit;
 
           default:
