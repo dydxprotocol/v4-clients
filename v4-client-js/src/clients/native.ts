@@ -18,6 +18,7 @@ import {
   Network, OrderType, OrderSide, OrderTimeInForce, OrderExecution, IndexerConfig, ValidatorConfig,
 } from './constants';
 import { FaucetClient } from './faucet-client';
+import { Response } from './lib/axios';
 import LocalWallet from './modules/local-wallet';
 import { NobleClient } from './noble-client';
 import { SubaccountInfo } from './subaccount';
@@ -461,8 +462,13 @@ export async function faucet(
     }
 
     const response = await faucetClient.fill(wallet.address!, subaccountNumber, amount);
+    const sanitized: Response = {
+      data: response.data,
+      status: response.status,
+      headers: response.headers,
+    };
 
-    return encodeJson(response.data);
+    return encodeJson(sanitized);
   } catch (error) {
     return wrappedError(error);
   }
