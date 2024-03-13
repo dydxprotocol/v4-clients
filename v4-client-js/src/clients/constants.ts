@@ -5,6 +5,13 @@ import { BroadcastOptions, DenomConfig } from './types';
 
 export * from '../lib/constants';
 
+/**
+ * Disclaimer: Note that as of the date hereof, the testnet and dYdX Chain deployment by DYDX
+ * token holders are the only known deployments of the dYdX v4 software, and other deployment
+ * options may be added.
+ * For more information, please see https://dydx.exchange/dydx-chain-front-end-options
+ */
+
 // Chain ID
 export const DEV_CHAIN_ID = 'dydxprotocol-testnet';
 export const STAGING_CHAIN_ID = 'dydxprotocol-testnet';
@@ -244,14 +251,7 @@ export class Network {
     return new Network('local', indexerConfig, validatorConfig);
   }
 
-  /**
-   * For the deployment by DYDX token holders.
-   *
-   * Disclaimer: Note that as of the date hereof, the testnet and dYdX Chain deployment by DYDX
-   * token holders are the only known deployments of the dYdX v4 software, and other deployment
-   * options may be added.
-   * For more information, please see https://dydx.exchange/dydx-chain-front-end-options
-   */
+  // For the deployment by DYDX token holders.
   static mainnet(): Network {
     const indexerConfig = new IndexerConfig(
       IndexerApiHost.MAINNET,
