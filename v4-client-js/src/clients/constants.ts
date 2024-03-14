@@ -5,23 +5,34 @@ import { BroadcastOptions, DenomConfig } from './types';
 
 export * from '../lib/constants';
 
+/**
+ * Disclaimer: Note that as of the date hereof, the testnet and dYdX Chain deployment by DYDX
+ * token holders are the only known deployments of the dYdX v4 software, and other deployment
+ * options may be added.
+ * For more information, please see https://dydx.exchange/dydx-chain-front-end-options
+ */
+
 // Chain ID
 export const DEV_CHAIN_ID = 'dydxprotocol-testnet';
 export const STAGING_CHAIN_ID = 'dydxprotocol-testnet';
 export const TESTNET_CHAIN_ID = 'dydx-testnet-4';
 export const LOCAL_CHAIN_ID = 'localdydxprotocol';
+// For the deployment by DYDX token holders
+export const MAINNET_CHAIN_ID = 'dydx-mainnet-1';
 
 // ------------ API URLs ------------
 export enum IndexerApiHost {
   TESTNET = 'https://dydx-testnet.imperator.co',
-  LOCAL = 'http://localhost:3002'
-  // TODO: Add MAINNET
+  LOCAL = 'http://localhost:3002',
+  // For the deployment by DYDX token holders
+  MAINNET = 'https://indexer.dydx.trade'
 }
 
 export enum IndexerWSHost {
   TESTNET = 'wss://dydx-testnet.imperator.co/v4/ws',
-  // TODO: Add MAINNET
-  LOCAL = 'ws://localhost:3003'
+  LOCAL = 'ws://localhost:3003',
+  // For the deployment by DYDX token holders
+  MAINNET = 'wss://indexer.dydx.trade/v4/ws',
 }
 
 export enum FaucetApiHost {
@@ -29,19 +40,22 @@ export enum FaucetApiHost {
 }
 
 export enum ValidatorApiHost {
-  TESTNET = 'https://test-dydx.kingnodes.com',
-  // TODO: Add MAINNET
-  LOCAL = 'http://localhost:26657'
+  TESTNET = 'https://dydx-ops-rest.kingnodes.com:443',
+  LOCAL = 'http://localhost:26657',
+  // For the deployment by DYDX token holders
+  MAINNET = 'https://dydx-ops-rpc.kingnodes.com:443'
 }
 
 // ------------ Network IDs ------------
 
 export enum NetworkId {
   TESTNET = 'dydx-testnet-4',
-  // TODO: Add MAINNET
+  // For the deployment by DYDX token holders
+  MAINNET = 'dydx-mainnet-1'
 }
-export const NETWORK_ID_MAINNET: string | null = null;
 export const NETWORK_ID_TESTNET: string = 'dydxprotocol-testnet';
+// For the deployment by DYDX token holders
+export const NETWORK_ID_MAINNET: string = 'dydx-mainnet-1';
 
 // ------------ MsgType URLs ------------
 // Default CosmosSDK
@@ -237,7 +251,22 @@ export class Network {
     return new Network('local', indexerConfig, validatorConfig);
   }
 
-  // TODO: Add mainnet(): Network
+  // For the deployment by DYDX token holders.
+  static mainnet(): Network {
+    const indexerConfig = new IndexerConfig(
+      IndexerApiHost.MAINNET,
+      IndexerWSHost.MAINNET,
+    );
+    const validatorConfig = new ValidatorConfig(ValidatorApiHost.MAINNET, MAINNET_CHAIN_ID,
+      {
+        CHAINTOKEN_DENOM: 'adydx',
+        USDC_DENOM: 'ibc/8E27BA2D5493AF5636760E354E46004562C46AB7EC0CC4C1CA14E9E20E2545B5',
+        USDC_GAS_DENOM: 'uusdc',
+        USDC_DECIMALS: 6,
+        CHAINTOKEN_DECIMALS: 18,
+      }, undefined, 'Client Example');
+    return new Network('mainnet', indexerConfig, validatorConfig);
+  }
 
   getString(): string {
     return this.env;
