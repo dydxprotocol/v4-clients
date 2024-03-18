@@ -1,11 +1,12 @@
 import Long from 'long';
 
-import { BECH32_PREFIX } from '../src';
+import { BECH32_PREFIX, IWithdraw } from '../src';
 import { Network } from '../src/clients/constants';
 import LocalWallet from '../src/clients/modules/local-wallet';
 import { SubaccountInfo } from '../src/clients/subaccount';
 import { ValidatorClient } from '../src/clients/validator-client';
 import { DYDX_TEST_MNEMONIC } from './constants';
+import { TransactionMsg, TransactionType } from '../src/clients/modules/post';
 
 // TODO: Test after testnet deploy latest transfer contracts.
 
@@ -26,6 +27,22 @@ async function test(): Promise<void> {
   );
   console.log('**Withdraw Tx**');
   console.log(tx);
+
+  const params: IWithdraw = {
+    quantums: new Long(10_000_000),
+    assetId: 0,
+    recipient: wallet.address,
+  };
+  const tx2 = await client.post.sendMsg(
+    subaccount,
+    new TransactionMsg(
+      TransactionType.WITHDRAW,
+      params,
+      false,
+    ),
+  );
+  console.log('**Withdraw Tx**');
+  console.log(tx2);
 }
 
 test().then(() => {

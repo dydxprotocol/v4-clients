@@ -55,6 +55,30 @@ export interface IPlaceOrder extends IBasicOrder {
 export interface ICancelOrder extends IBasicOrder {
 }
 
+export interface ITransfer {
+  recipientAddress: string,
+  recipientSubaccountNumber: number,
+  assetId: number,
+  amount: Long,
+}
+
+export interface IDeposit {
+  assetId: number,
+  quantums: Long,
+}
+
+export interface IWithdraw {
+  assetId: number,
+  quantums: Long,
+  recipient?: string,
+}
+
+export interface ISendToken {
+  recipient: string,
+  coinDenom: string,
+  quantums: string,
+}
+
 // How long to wait and how often to check when calling Broadcast with
 // Method.BroadcastTxCommit
 export interface BroadcastOptions {
