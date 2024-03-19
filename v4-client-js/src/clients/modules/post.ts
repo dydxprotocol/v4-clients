@@ -63,14 +63,29 @@ export enum TransactionType {
 
 export class TransactionMsg {
   public type: TransactionType;
-  public params: object;
+  public params: (
+    IPlaceOrder |
+    ICancelOrder |
+    ITransfer |
+    IDeposit |
+    IWithdraw |
+    ISendToken
+  );
+
   public zeroFee?: boolean;
   public memo?: string;
   public broadcastMode?: BroadcastMode;
 
   constructor(
     type: TransactionType,
-    params: object,
+    params: (
+      IPlaceOrder |
+      ICancelOrder |
+      ITransfer |
+      IDeposit |
+      IWithdraw |
+      ISendToken
+    ),
     zeroFee?: boolean,
     memo?: string,
     broadcastMode?: BroadcastMode,
@@ -272,7 +287,16 @@ export class Post {
      * For long term and conditional orders, a round trip to validator must be made.
      */
     public async account(address: string, orderFlags?: OrderFlags): Promise<Account> {
-      if (orderFlags === OrderFlags.SHORT_TERM) {
+      return this.updatedAccount(address, (orderFlags === OrderFlags.SHORT_TERM));
+    }
+
+    /**
+     * @description Retrieve an account structure for transactions.
+     * For short term orders, the sequence doesn't matter. Use cached if available.
+     * For long term and conditional orders, a round trip to validator must be made.
+     */
+    public async updatedAccount(address: string, cached: boolean): Promise<Account> {
+      if (cached) {
         if (this.accountNumberCache.has(address)) {
           // For SHORT_TERM orders, the sequence doesn't matter
           return this.accountNumberCache.get(address)!;

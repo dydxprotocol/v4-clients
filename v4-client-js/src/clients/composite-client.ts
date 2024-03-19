@@ -6,13 +6,15 @@ import { BroadcastTxAsyncResponse, BroadcastTxSyncResponse } from '@cosmjs/tende
 import { Order_ConditionType, Order_TimeInForce } from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/clob/order';
 import { parseUnits } from 'ethers';
 import Long from 'long';
-import protobuf from 'protobufjs';
+import protobuf, { Method } from 'protobufjs';
 
 import { isStatefulOrder, verifyOrderFlags } from '../lib/validation';
 import {
+  BroadcastMode,
   GovAddNewMarketParams,
   ICancelOrder, IHumanReadableDeposit,
   IHumanReadableOrder,
+  IHumanReadableRequest,
   IHumanReadableSendToken,
   IHumanReadableShortTermOrder,
   IHumanReadableTransfer,
@@ -23,6 +25,7 @@ import {
   OrderSide,
   OrderTimeInForce,
   OrderType,
+  RequestType,
 } from '../types';
 import {
   Network,
@@ -613,19 +616,8 @@ export class CompositeClient {
 
   async cancelOrderMsg(
     subaccount: SubaccountInfo,
-    clientId: number,
-    orderFlags: OrderFlags,
-    clobPairId: number,
-    goodTilBlock?: number,
-    goodTilBlockTime?: number,
+    params: ICancelOrder,
   ): Promise<EncodeObject> {
-    const params: ICancelOrder = {
-      clientId,
-      orderFlags,
-      clobPairId,
-      goodTilBlock,
-      goodTilBlockTime,
-    };
     return this.validatorClient.post.cancelOrderMsg(
       subaccount,
       params,
@@ -1023,17 +1015,21 @@ export class CompositeClient {
     goodTilBlock: number,
     goodTilBlockTime: number,
   ): Promise<string> {
+    const params: ICancelOrder = {
+      clientId,
+      orderFlags,
+      clobPairId,
+      goodTilBlock,
+      goodTilBlockTime,
+    };
     const msgs: Promise<EncodeObject[]> = new Promise((resolve) => {
-      const msg = this.validatorClient.post.composer.composeMsgCancelOrder(
-        subaccount.address,
-        subaccount.subaccountNumber,
-        clientId,
-        clobPairId,
-        orderFlags,
-        goodTilBlock,
-        goodTilBlockTime,
+      const msg = this.validatorClient.post.cancelOrderMsg(
+        subaccount,
+        params,
       );
-      resolve([msg]);
+      msg.then((it) => resolve([it])).catch((err) => {
+        console.log(err);
+      });
     });
     const signature = await this.sign(
       subaccount.wallet,
@@ -1042,6 +1038,109 @@ export class CompositeClient {
     );
 
     return Buffer.from(signature).toString('base64');
+  }
+
+  /**
+   * @description Construct a Msg for a transaction
+   *
+   * @param request to be committed onchain
+   *
+   * @returns the message
+   */
+  async msg(
+    subaccount: SubaccountInfo,
+    request: IHumanReadableRequest,
+  ): Promise<EncodeObject> {
+    switch (request.type) {
+      case RequestType.PLACE_ORDER:
+        return this.placeOrderMsg(subaccount, request.params as IHumanReadableOrder);
+
+      case RequestType.CANCEL_ORDER:
+        return this.cancelOrderMsg(subaccount, request.params as ICancelOrder);
+
+      case RequestType.DEPOSIT:
+        return this.depositToSubaccountMsg(subaccount, request.params as IHumanReadableDeposit);
+
+      case RequestType.WITHDRAW:
+        return this.depositToSubaccountMsg(subaccount, request.params as IHumanReadableWithdraw);
+
+      case RequestType.TRANSFER:
+        return this.withdrawFromSubaccountMsg(subaccount, request.params as IHumanReadableTransfer);
+
+      case RequestType.SEND_TOKEN:
+        return this.sendTokenMsg(subaccount.wallet, request.params as IHumanReadableSendToken);
+
+      default:
+        throw new Error('Invalid request type');
+    }
+  }
+
+  /**
+   * @description Submit a list of msgs as one transaction
+   *
+   * @param params Parameters neeeded to create a new market.
+   *
+   * @returns the transaction hash.
+   */
+
+  async sendMsgs(
+    subaccount: SubaccountInfo,
+    requests: IHumanReadableRequest[],
+  ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
+    const msgs = await Promise.all(
+      requests.map((request) => this.msg(subaccount, request)),
+    );
+
+    let zeroFee = true;
+    let shortTermOrders = true;
+    let memo;
+
+    for (const request of requests) {
+      zeroFee = zeroFee && this.freeFunction(request);
+      shortTermOrders = shortTermOrders && this.shortTermOrderFunction(request);
+      memo = memo ?? request.memo;
+    }
+
+    const account: Promise<Account> = this.validatorClient.post.updatedAccount(
+      subaccount.address,
+      shortTermOrders,
+    );
+    return this.send(
+      subaccount.wallet,
+      () => Promise.resolve(msgs),
+      true,
+      undefined,
+      memo,
+      () => account,
+    );
+  }
+
+  freeFunction(request: IHumanReadableRequest): boolean {
+    switch (request.type) {
+      case RequestType.PLACE_ORDER:
+      case RequestType.CANCEL_ORDER:
+        return true;
+
+      default:
+        return false;
+    }
+  }
+
+  shortTermOrderFunction(request: IHumanReadableRequest): boolean {
+    switch (request.type) {
+      case RequestType.PLACE_ORDER:
+      {
+        const placeOrder = request.params as IHumanReadableOrder;
+        const orderFlags = calculateOrderFlags(placeOrder.type, placeOrder.timeInForce);
+        return orderFlags === OrderFlags.SHORT_TERM;
+      }
+
+      case RequestType.CANCEL_ORDER:
+        return (request.params as ICancelOrder).orderFlags === OrderFlags.SHORT_TERM;
+
+      default:
+        return false;
+    }
   }
 
   /**

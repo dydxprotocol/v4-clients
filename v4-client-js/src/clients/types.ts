@@ -150,6 +150,28 @@ export interface IHumanReadableSendToken {
   recipient: string,
 }
 
+export enum RequestType {
+  PLACE_ORDER = 'placeOrder',
+  CANCEL_ORDER = 'cancelOrder',
+  DEPOSIT = 'deposit',
+  WITHDRAW = 'withdraw',
+  TRANSFER = 'transfer',
+  SEND_TOKEN = 'sendToken',
+}
+
+export interface IHumanReadableRequest {
+  type: RequestType,
+  params: (
+    IHumanReadableOrder |
+    ICancelOrder |
+    IHumanReadableDeposit |
+    IHumanReadableWithdraw |
+    IHumanReadableTransfer |
+    IHumanReadableSendToken
+  ),
+  memo?: string,
+}
+
 export interface IBasicOrder {
   clientId: number;
   orderFlags: OrderFlags,
