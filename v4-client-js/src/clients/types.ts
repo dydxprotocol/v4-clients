@@ -15,6 +15,75 @@ export type Data = any;
 
 export type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 
+// ------------ Market Statistic Day Types ------------
+export enum MarketStatisticDay {
+  ONE = '1',
+  SEVEN = '7',
+  THIRTY = '30',
+}
+
+// ------------ Order Types ------------
+// This should match OrderType in Abacus
+export enum OrderType {
+  LIMIT = 'LIMIT',
+  MARKET = 'MARKET',
+  STOP_LIMIT = 'STOP_LIMIT',
+  TAKE_PROFIT_LIMIT = 'TAKE_PROFIT',
+  STOP_MARKET = 'STOP_MARKET',
+  TAKE_PROFIT_MARKET = 'TAKE_PROFIT_MARKET',
+}
+
+// ------------ Order Side ------------
+// This should match OrderSide in Abacus
+export enum OrderSide {
+  BUY = 'BUY',
+  SELL = 'SELL',
+}
+
+// ------------ Order TimeInForce ------------
+// This should match OrderTimeInForce in Abacus
+export enum OrderTimeInForce {
+  GTT = 'GTT',
+  IOC = 'IOC',
+  FOK = 'FOK',
+}
+
+// ------------ Order Execution ------------
+// This should match OrderExecution in Abacus
+export enum OrderExecution {
+  DEFAULT = 'DEFAULT',
+  IOC = 'IOC',
+  FOK = 'FOK',
+  POST_ONLY = 'POST_ONLY',
+}
+
+// ------------ Order Status ------------
+// This should match OrderStatus in Abacus
+export enum OrderStatus {
+  BEST_EFFORT_OPENED = 'BEST_EFFORT_OPENED',
+  OPEN = 'OPEN',
+  FILLED = 'FILLED',
+  BEST_EFFORT_CANCELED = 'BEST_EFFORT_CANCELED',
+  CANCELED = 'CANCELED',
+}
+
+export enum TickerType {
+  PERPETUAL = 'PERPETUAL',  // Only PERPETUAL is supported right now
+}
+
+export enum PositionStatus {
+  OPEN = 'OPEN',
+  CLOSED = 'CLOSED',
+  LIQUIDATED = 'LIQUIDATED',
+}
+
+// ----------- Time Period for Sparklines -------------
+
+export enum TimePeriod {
+  ONE_DAY = 'ONE_DAY',
+  SEVEN_DAYS = 'SEVEN_DAYS',
+}
+
 // Information for signing a transaction while offline - without sequence.
 export interface PartialTransactionOptions {
   accountNumber: number;
@@ -31,6 +100,54 @@ export enum OrderFlags {
   SHORT_TERM = 0,
   LONG_TERM = 64,
   CONDITIONAL = 32,
+}
+
+export interface IHumanReadableShortTermOrder {
+  marketId: string,
+  side: OrderSide,
+  price: number,
+  size: number,
+  clientId: number,
+  goodTilBlock: number,
+  timeInForce: Order_TimeInForce,
+  reduceOnly: boolean,
+}
+
+export interface IHumanReadableOrder {
+  marketId: string,
+  type: OrderType,
+  side: OrderSide,
+  price: number,
+  size: number,
+  clientId: number,
+  timeInForce?: OrderTimeInForce,
+  goodTilTimeInSeconds?: number,
+  execution?: OrderExecution,
+  postOnly?: boolean,
+  reduceOnly?: boolean,
+  triggerPrice?: number,
+  marketInfo?: MarketInfo,
+  currentHeight?: number,
+}
+
+export interface IHumanReadableTransfer {
+  recipientAddress: string,
+  recipientSubaccountNumber: number,
+  amount: string,
+}
+
+export interface IHumanReadableDeposit {
+  amount: string,
+}
+
+export interface IHumanReadableWithdraw {
+  amount: string,
+  recipient?: string,
+}
+
+export interface IHumanReadableSendToken {
+  amount: string,
+  recipient: string,
 }
 
 export interface IBasicOrder {
@@ -77,6 +194,14 @@ export interface ISendToken {
   recipient: string,
   coinDenom: string,
   quantums: string,
+}
+
+export interface MarketInfo {
+  clobPairId: number;
+  atomicResolution: number;
+  stepBaseQuantums: number;
+  quantumConversionExponent: number;
+  subticksPerTick: number;
 }
 
 // How long to wait and how often to check when calling Broadcast with

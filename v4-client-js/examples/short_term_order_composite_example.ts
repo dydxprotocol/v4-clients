@@ -1,9 +1,9 @@
 import { Order_TimeInForce } from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/clob/order';
 
-import { BECH32_PREFIX } from '../src';
+import { BECH32_PREFIX, OrderExecution, OrderSide } from '../src';
 import { CompositeClient } from '../src/clients/composite-client';
 import {
-  Network, OrderExecution, OrderSide,
+  Network,
 } from '../src/clients/constants';
 import LocalWallet from '../src/clients/modules/local-wallet';
 import { SubaccountInfo } from '../src/clients/subaccount';

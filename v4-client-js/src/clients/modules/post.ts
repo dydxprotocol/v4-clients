@@ -403,9 +403,7 @@ export class Post {
       conditionalOrderTriggerSubticks: Long = Long.fromInt(0),
       broadcastMode?: BroadcastMode,
     ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
-      const msg = await this.placeOrderMsg(
-        subaccount.address,
-        subaccount.subaccountNumber,
+      const params: IPlaceOrder = {
         clientId,
         clobPairId,
         side,
@@ -419,6 +417,10 @@ export class Post {
         clientMetadata,
         conditionType,
         conditionalOrderTriggerSubticks,
+      };
+      const msg = await this.placeOrderMsg(
+        subaccount,
+        params,
       );
       const account: Promise<Account> = this.account(subaccount.address, orderFlags);
       return this.send(
@@ -432,7 +434,7 @@ export class Post {
       );
     }
 
-    async placeOrderTransactionMsg(
+    async placeOrderMsg(
       subaccount: SubaccountInfo,
       params: IPlaceOrder,
     ): Promise<EncodeObject> {
@@ -452,42 +454,6 @@ export class Post {
         conditionType,
         conditionalOrderTriggerSubticks,
       } = params;
-      return this.placeOrderMsg(
-        address,
-        subaccountNumber,
-        clientId,
-        clobPairId,
-        side,
-        quantums,
-        subticks,
-        timeInForce,
-        orderFlags,
-        reduceOnly,
-        goodTilBlock,
-        goodTilBlockTime,
-        clientMetadata,
-        conditionType,
-        conditionalOrderTriggerSubticks,
-      );
-    }
-
-    async placeOrderMsg(
-      address: string,
-      subaccountNumber: number,
-      clientId: number,
-      clobPairId: number,
-      side: Order_Side,
-      quantums: Long,
-      subticks: Long,
-      timeInForce: Order_TimeInForce,
-      orderFlags: number,
-      reduceOnly: boolean,
-      goodTilBlock?: number,
-      goodTilBlockTime?: number,
-      clientMetadata: number = 0,
-      conditionType: Order_ConditionType = Order_ConditionType.CONDITION_TYPE_UNSPECIFIED,
-      conditionalOrderTriggerSubticks: Long = Long.fromInt(0),
-    ): Promise<EncodeObject> {
       return new Promise((resolve) => {
         const msg = this.composer.composeMsgPlaceOrder(
           address,
@@ -543,14 +509,16 @@ export class Post {
       goodTilBlockTime?: number,
       broadcastMode?: BroadcastMode,
     ) : Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
-      const msg = await this.cancelOrderMsg(
-        subaccount.address,
-        subaccount.subaccountNumber,
+      const params: ICancelOrder = {
         clientId,
-        clobPairId,
         orderFlags,
-        goodTilBlock ?? 0,
-        goodTilBlockTime ?? 0,
+        clobPairId,
+        goodTilBlock,
+        goodTilBlockTime,
+      };
+      const msg = await this.cancelOrderMsg(
+        subaccount,
+        params,
       );
       return this.send(
         subaccount.wallet,
@@ -561,10 +529,10 @@ export class Post {
         broadcastMode);
     }
 
-    async cancelOrderTransactionMsg(
+    async cancelOrderMsg(
       subaccount: SubaccountInfo,
       params: ICancelOrder,
-    ): Promise<EncodeObject> {
+    ) : Promise<EncodeObject> {
       const { address, subaccountNumber } = subaccount;
       const {
         clientId,
@@ -573,26 +541,6 @@ export class Post {
         goodTilBlock,
         goodTilBlockTime,
       } = params;
-      return this.cancelOrderMsg(
-        address,
-        subaccountNumber,
-        clientId,
-        orderFlags,
-        clobPairId,
-        goodTilBlock,
-        goodTilBlockTime,
-      );
-    }
-
-    async cancelOrderMsg(
-      address: string,
-      subaccountNumber: number,
-      clientId: number,
-      orderFlags: OrderFlags,
-      clobPairId: number,
-      goodTilBlock?: number,
-      goodTilBlockTime?: number,
-    ) : Promise<EncodeObject> {
       return new Promise((resolve) => {
         const msg = this.composer.composeMsgCancelOrder(
           address,
@@ -631,13 +579,15 @@ export class Post {
       amount: Long,
       broadcastMode?: BroadcastMode,
     ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
-      const msg = await this.transferMsg(
-        subaccount.address,
-        subaccount.subaccountNumber,
+      const params: ITransfer = {
         recipientAddress,
         recipientSubaccountNumber,
         assetId,
         amount,
+      };
+      const msg = await this.transferMsg(
+        subaccount,
+        params,
       );
       return this.send(
         subaccount.wallet,
@@ -649,7 +599,7 @@ export class Post {
       );
     }
 
-    async transferTransactionMsg(
+    async transferMsg(
       subaccount: SubaccountInfo,
       params: ITransfer,
     ): Promise<EncodeObject> {
@@ -660,24 +610,6 @@ export class Post {
         assetId,
         amount,
       } = params;
-      return this.transferMsg(
-        address,
-        subaccountNumber,
-        recipientAddress,
-        recipientSubaccountNumber,
-        assetId,
-        amount,
-      );
-    }
-
-    async transferMsg(
-      address: string,
-      subaccountNumber: number,
-      recipientAddress: string,
-      recipientSubaccountNumber: number,
-      assetId: number,
-      amount: Long,
-    ): Promise<EncodeObject> {
       return new Promise((resolve) => {
         const msg = this.composer.composeMsgTransfer(
           address,
@@ -697,11 +629,13 @@ export class Post {
       quantums: Long,
       broadcastMode?: BroadcastMode,
     ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
-      const msg = await this.depositMsg(
-        subaccount.address,
-        subaccount.subaccountNumber,
+      const params: IDeposit = {
         assetId,
         quantums,
+      };
+      const msg = await this.depositMsg(
+        subaccount,
+        params,
       );
       return this.send(
         subaccount.wallet,
@@ -713,7 +647,7 @@ export class Post {
       );
     }
 
-    async depositTransactionMsg(
+    async depositMsg(
       subaccount: SubaccountInfo,
       params: IDeposit,
     ): Promise<EncodeObject> {
@@ -722,20 +656,6 @@ export class Post {
         assetId,
         quantums,
       } = params;
-      return this.depositMsg(
-        address,
-        subaccountNumber,
-        assetId,
-        quantums,
-      );
-    }
-
-    async depositMsg(
-      address: string,
-      subaccountNumber: number,
-      assetId: number,
-      quantums: Long,
-    ): Promise<EncodeObject> {
       return new Promise((resolve) => {
         const msg = this.composer.composeMsgDepositToSubaccount(
           address,
@@ -754,12 +674,14 @@ export class Post {
       recipient?: string,
       broadcastMode?: BroadcastMode,
     ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
-      const msg = await this.withdrawMsg(
-        subaccount.address,
-        subaccount.subaccountNumber,
+      const params: IWithdraw = {
         assetId,
         quantums,
-        recipient,
+        recipient: recipient ?? subaccount.wallet.address!,
+      };
+      const msg = await this.withdrawMsg(
+        subaccount,
+        params,
       );
       return this.send(
         subaccount.wallet,
@@ -771,7 +693,7 @@ export class Post {
       );
     }
 
-    async withdrawTransactionMsg(
+    async withdrawMsg(
       subaccount: SubaccountInfo,
       params: IWithdraw,
     ): Promise<EncodeObject> {
@@ -781,22 +703,6 @@ export class Post {
         quantums,
         recipient,
       } = params;
-      return this.withdrawMsg(
-        address,
-        subaccountNumber,
-        assetId,
-        quantums,
-        recipient,
-      );
-    }
-
-    async withdrawMsg(
-      address: string,
-      subaccountNumber: number,
-      assetId: number,
-      quantums: Long,
-      recipient?: string,
-    ): Promise<EncodeObject> {
       return new Promise((resolve) => {
         const msg = this.composer.composeMsgWithdrawFromSubaccount(
           address,
@@ -817,11 +723,14 @@ export class Post {
       zeroFee: boolean = true,
       broadcastMode?: BroadcastMode,
     ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
-      const msg = await this.sendTokenMsg(
-        subaccount.address,
+      const params: ISendToken = {
         recipient,
         coinDenom,
         quantums,
+      };
+      const msg = await this.sendTokenMsg(
+        subaccount,
+        params,
       );
       return this.send(
         subaccount.wallet,
@@ -835,7 +744,7 @@ export class Post {
       );
     }
 
-    async sendTokenTransactionMsg(
+    async sendTokenMsg(
       subaccount: SubaccountInfo,
       params: ISendToken,
     ): Promise<EncodeObject> {
@@ -845,24 +754,9 @@ export class Post {
         coinDenom,
         quantums,
       } = params;
-      return this.sendTokenMsg(
-        address,
-        recipient,
-        coinDenom,
-        quantums,
-      );
-    }
-
-    async sendTokenMsg(
-      address: string,
-      recipient: string,
-      coinDenom: string,
-      quantums: string,
-    ): Promise<EncodeObject> {
       if (coinDenom !== this.denoms.CHAINTOKEN_DENOM && coinDenom !== this.denoms.USDC_DENOM) {
         throw new Error('Unsupported coinDenom');
       }
-
       return new Promise((resolve) => {
         const msg = this.composer.composeMsgSendToken(
           address,
@@ -880,22 +774,22 @@ export class Post {
     ): Promise<EncodeObject> {
       switch (transactionMsg.type) {
         case TransactionType.PLACE_ORDER:
-          return this.placeOrderTransactionMsg(subaccount, transactionMsg.params as IPlaceOrder);
+          return this.placeOrderMsg(subaccount, transactionMsg.params as IPlaceOrder);
 
         case TransactionType.CANCEL_ORDER:
-          return this.cancelOrderTransactionMsg(subaccount, transactionMsg.params as ICancelOrder);
+          return this.cancelOrderMsg(subaccount, transactionMsg.params as ICancelOrder);
 
         case TransactionType.TRANSFER:
-          return this.transferTransactionMsg(subaccount, transactionMsg.params as ITransfer);
+          return this.transferMsg(subaccount, transactionMsg.params as ITransfer);
 
         case TransactionType.DEPOSIT:
-          return this.depositTransactionMsg(subaccount, transactionMsg.params as IDeposit);
+          return this.depositMsg(subaccount, transactionMsg.params as IDeposit);
 
         case TransactionType.WITHDRAW:
-          return this.withdrawTransactionMsg(subaccount, transactionMsg.params as IWithdraw);
+          return this.withdrawMsg(subaccount, transactionMsg.params as IWithdraw);
 
         case TransactionType.SEND_TOKEN:
-          return this.sendTokenTransactionMsg(subaccount, transactionMsg.params as ISendToken);
+          return this.sendTokenMsg(subaccount, transactionMsg.params as ISendToken);
 
         default:
           throw new Error('Unsupported transaction type');
@@ -919,7 +813,7 @@ export class Post {
 
     async sendMsgs(
       subaccount: SubaccountInfo,
-      transactionMsgs: Array<TransactionMsg>,
+      transactionMsgs: TransactionMsg[],
     ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
       const msgs = await Promise.all(
         transactionMsgs.map((transactionMsg) => this.msg(subaccount, transactionMsg)),

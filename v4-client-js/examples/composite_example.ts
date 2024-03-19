@@ -1,7 +1,7 @@
-import { BECH32_PREFIX } from '../src';
+import { BECH32_PREFIX, OrderExecution, OrderSide, OrderTimeInForce, OrderType } from '../src';
 import { CompositeClient } from '../src/clients/composite-client';
 import {
-  Network, OrderExecution, OrderSide, OrderTimeInForce, OrderType,
+  Network,
 } from '../src/clients/constants';
 import LocalWallet from '../src/clients/modules/local-wallet';
 import { SubaccountInfo } from '../src/clients/subaccount';

@@ -13,16 +13,16 @@ import { UserError } from '../lib/errors';
 import { ByteArrayEncoding, encodeJson } from '../lib/helpers';
 import { deriveHDKeyFromEthereumSignature } from '../lib/onboarding';
 import { NetworkOptimizer } from '../network_optimizer';
-import { CompositeClient, MarketInfo } from './composite-client';
+import { CompositeClient } from './composite-client';
 import {
-  Network, OrderType, OrderSide, OrderTimeInForce, OrderExecution, IndexerConfig, ValidatorConfig,
+  Network, IndexerConfig, ValidatorConfig,
 } from './constants';
 import { FaucetClient } from './faucet-client';
 import { Response } from './lib/axios';
 import LocalWallet from './modules/local-wallet';
 import { NobleClient } from './noble-client';
 import { SubaccountInfo } from './subaccount';
-import { OrderFlags, SquidIBCPayload } from './types';
+import { ICancelOrder, IHumanReadableDeposit, IHumanReadableSendToken, IHumanReadableWithdraw, MarketInfo, OrderExecution, OrderFlags, OrderSide, OrderTimeInForce, OrderType, SquidIBCPayload } from './types';
 
 declare global {
   // eslint-disable-next-line vars-on-top, no-var
@@ -506,7 +506,10 @@ export async function withdrawToIBC(
     };
 
     const subaccount = new SubaccountInfo(wallet, subaccountNumber);
-    const subaccountMsg = client.withdrawFromSubaccountMessage(subaccount, amount);
+    const params: IHumanReadableWithdraw = {
+      amount,
+    };
+    const subaccountMsg = client.withdrawFromSubaccountMsg(subaccount, params);
 
     const msgs = [subaccountMsg, ibcMsg];
     const encodeObjects: Promise<EncodeObject[]> = new Promise((resolve) => resolve(msgs));
@@ -545,10 +548,13 @@ export async function transferNativeToken(
       throw new UserError('amount is not set');
     }
 
-    const msg: EncodeObject = client.sendTokenMessage(
-      wallet,
+    const params: IHumanReadableSendToken = {
+      recipient: json.recipient,
       amount,
-      json.recipient,
+    };
+    const msg: EncodeObject = client.sendTokenMsg(
+      wallet,
+      params,
     );
     const msgs = [msg];
     const encodeObjects: Promise<EncodeObject[]> = new Promise((resolve) => resolve(msgs));
@@ -649,9 +655,12 @@ export async function simulateDeposit(
     }
 
     const subaccount = new SubaccountInfo(wallet, subaccountNumber);
-    const msg: EncodeObject = client.depositToSubaccountMessage(
-      subaccount,
+    const params: IHumanReadableDeposit = {
       amount,
+    };
+    const msg: EncodeObject = client.depositToSubaccountMsg(
+      subaccount,
+      params,
     );
     const msgs: EncodeObject[] = [msg];
     const encodeObjects: Promise<EncodeObject[]> = new Promise((resolve) => resolve(msgs));
@@ -691,10 +700,13 @@ export async function simulateWithdraw(
     }
 
     const subaccount = new SubaccountInfo(wallet, subaccountNumber);
-    const msg: EncodeObject = client.withdrawFromSubaccountMessage(
-      subaccount,
+    const params: IHumanReadableWithdraw = {
       amount,
-      json.recipient,
+      recipient: json.recipient,
+    };
+    const msg: EncodeObject = client.withdrawFromSubaccountMsg(
+      subaccount,
+      params,
     );
     const msgs: EncodeObject[] = [msg];
     const encodeObjects: Promise<EncodeObject[]> = new Promise((resolve) => resolve(msgs));
@@ -733,10 +745,13 @@ export async function simulateTransferNativeToken(
       throw new UserError('amount is not set');
     }
 
-    const msg: EncodeObject = client.sendTokenMessage(
-      wallet,
+    const params: IHumanReadableSendToken = {
+      recipient: json.recipient,
       amount,
-      json.recipient,
+    };
+    const msg: EncodeObject = client.sendTokenMsg(
+      wallet,
+      params,
     );
     const msgs: EncodeObject[] = [msg];
     const encodeObjects: Promise<EncodeObject[]> = new Promise((resolve) => resolve(msgs));
@@ -1119,9 +1134,12 @@ export async function withdrawToNobleIBC(payload: string): Promise<String> {
 
     const parsedIbcPayload: SquidIBCPayload = JSON.parse(decoded);
 
-    const msg = client.withdrawFromSubaccountMessage(
+    const params: IHumanReadableWithdraw = {
+      amount,
+    };
+    const msg = client.withdrawFromSubaccountMsg(
       new SubaccountInfo(wallet, subaccountNumber),
-      parseFloat(amount).toFixed(client.validatorClient.config.denoms.USDC_DECIMALS),
+      params,
     );
     const ibcMsg: MsgTransferEncodeObject = {
       typeUrl: parsedIbcPayload.msgTypeUrl,

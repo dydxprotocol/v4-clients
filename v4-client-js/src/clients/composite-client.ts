@@ -9,13 +9,23 @@ import Long from 'long';
 import protobuf from 'protobufjs';
 
 import { isStatefulOrder, verifyOrderFlags } from '../lib/validation';
-import { GovAddNewMarketParams, OrderFlags } from '../types';
 import {
-  Network,
+  GovAddNewMarketParams,
+  ICancelOrder, IHumanReadableDeposit,
+  IHumanReadableOrder,
+  IHumanReadableSendToken,
+  IHumanReadableShortTermOrder,
+  IHumanReadableTransfer,
+  IHumanReadableWithdraw,
+  MarketInfo,
   OrderExecution,
+  OrderFlags,
   OrderSide,
   OrderTimeInForce,
   OrderType,
+} from '../types';
+import {
+  Network,
   SHORT_BLOCK_FORWARD,
   SHORT_BLOCK_WINDOW,
 } from './constants';
@@ -42,14 +52,6 @@ import { ValidatorClient } from './validator-client';
 // Reference: https://github.com/protobufjs/protobuf.js/issues/921
 protobuf.util.Long = Long;
 protobuf.configure();
-
-export interface MarketInfo {
-  clobPairId: number;
-  atomicResolution: number;
-  stepBaseQuantums: number;
-  quantumConversionExponent: number;
-  subticksPerTick: number;
-}
 
 export class CompositeClient {
   public readonly network: Network;
@@ -248,6 +250,72 @@ export class CompositeClient {
   }
 
   /**
+     * @description Place a short term order with human readable input.
+     *
+     * @param subaccount The subaccount to place the order on.
+     * @param params The parameters of the order to place.
+     *
+     * @throws UnexpectedClientError if a malformed response is returned with no GRPC error
+     * at any point.
+     * @returns The message to be passed into the protocol
+     */
+  async placeShortTermOrderMsg(
+    subaccount: SubaccountInfo,
+    params: IHumanReadableShortTermOrder,
+  ): Promise<EncodeObject> {
+    const {
+      marketId,
+      side,
+      price,
+      size,
+      clientId,
+      goodTilBlock,
+      timeInForce,
+      reduceOnly,
+    } = params;
+
+    await this.validateGoodTilBlock(goodTilBlock);
+
+    const marketsResponse = await this.indexerClient.markets.getPerpetualMarkets(marketId);
+    const market = marketsResponse.markets[marketId];
+    const clobPairId = market.clobPairId;
+    const atomicResolution = market.atomicResolution;
+    const stepBaseQuantums = market.stepBaseQuantums;
+    const quantumConversionExponent = market.quantumConversionExponent;
+    const subticksPerTick = market.subticksPerTick;
+    const orderSide = calculateSide(side);
+    const quantums = calculateQuantums(
+      size,
+      atomicResolution,
+      stepBaseQuantums,
+    );
+    const subticks = calculateSubticks(
+      price,
+      atomicResolution,
+      quantumConversionExponent,
+      subticksPerTick,
+    );
+    const orderFlags = OrderFlags.SHORT_TERM;
+    return this.validatorClient.post.composer.composeMsgPlaceOrder(
+      subaccount.address,
+      subaccount.subaccountNumber,
+      clientId,
+      clobPairId,
+      orderFlags,
+      goodTilBlock,
+      0, // Short term orders use goodTilBlock.
+      orderSide,
+      quantums,
+      subticks,
+      timeInForce,
+      reduceOnly,
+      0, // Client metadata is 0 for short term orders.
+      Order_ConditionType.CONDITION_TYPE_UNSPECIFIED, // Short term orders cannot be conditional.
+      Long.fromInt(0), // Short term orders cannot be conditional.
+    );
+  }
+
+  /**
    * @description Place a short term order with human readable input.
    *
    * Use human readable form of input, including price and size
@@ -280,17 +348,20 @@ export class CompositeClient {
     reduceOnly: boolean,
     memo?: string,
   ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
+    const params: IHumanReadableShortTermOrder = {
+      marketId,
+      side,
+      price,
+      size,
+      clientId,
+      goodTilBlock,
+      timeInForce,
+      reduceOnly,
+    };
     const msgs: Promise<EncodeObject[]> = new Promise((resolve) => {
-      const msg = this.placeShortTermOrderMessage(
+      const msg = this.placeShortTermOrderMsg(
         subaccount,
-        marketId,
-        side,
-        price,
-        size,
-        clientId,
-        goodTilBlock,
-        timeInForce,
-        reduceOnly,
+        params,
       );
       msg.then((it) => resolve([it])).catch((err) => {
         console.log(err);
@@ -312,10 +383,6 @@ export class CompositeClient {
 
   /**
      * @description Place an order with human readable input.
-     *
-     * Only MARKET and LIMIT types are supported right now
-     * Use human readable form of input, including price and size
-     * The quantum and subticks are calculated and submitted
      *
      * @param subaccount The subaccount to place the order on.
      * @param marketId The market to place the order on.
@@ -359,24 +426,26 @@ export class CompositeClient {
     currentHeight?: number,
     memo?: string,
   ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
+    const params: IHumanReadableOrder = {
+      marketId,
+      type,
+      side,
+      price,
+      size,
+      clientId,
+      timeInForce,
+      goodTilTimeInSeconds,
+      execution,
+      postOnly,
+      reduceOnly,
+      triggerPrice,
+      marketInfo,
+      currentHeight,
+    };
     const msgs: Promise<EncodeObject[]> = new Promise((resolve) => {
-      const msg = this.placeOrderMessage(
+      const msg = this.placeOrderMsg(
         subaccount,
-        marketId,
-        type,
-        side,
-        price,
-        // trigger_price: number,   // not used for MARKET and LIMIT
-        size,
-        clientId,
-        timeInForce,
-        goodTilTimeInSeconds,
-        execution,
-        postOnly,
-        reduceOnly,
-        triggerPrice,
-        marketInfo,
-        currentHeight,
+        params,
       );
       msg.then((it) => resolve([it])).catch((err) => {
         console.log(err);
@@ -398,48 +467,36 @@ export class CompositeClient {
   }
 
   /**
-     * @description Calculate and create the place order message
+     * @description Place a short term order with human readable input.
      *
-     * Only MARKET and LIMIT types are supported right now
-     * Use human readable form of input, including price and size
-     * The quantum and subticks are calculated and submitted
-     *
-     * @param subaccount The subaccount to place the order under
-     * @param marketId The market to place the order on
-     * @param type The type of order to place
-     * @param side The side of the order to place
-     * @param price The price of the order to place
-     * @param size The size of the order to place
-     * @param clientId The client id of the order to place
-     * @param timeInForce The time in force of the order to place
-     * @param goodTilTimeInSeconds The goodTilTimeInSeconds of the order to place
-     * @param execution The execution of the order to place
-     * @param postOnly The postOnly of the order to place
-     * @param reduceOnly The reduceOnly of the order to place
-     *
+     * @param subaccount The subaccount to place the order on.
+     * @param params The parameters of the order to place.
      *
      * @throws UnexpectedClientError if a malformed response is returned with no GRPC error
      * at any point.
      * @returns The message to be passed into the protocol
      */
-  private async placeOrderMessage(
+  async placeOrderMsg(
     subaccount: SubaccountInfo,
-    marketId: string,
-    type: OrderType,
-    side: OrderSide,
-    price: number,
-    // trigger_price: number,   // not used for MARKET and LIMIT
-    size: number,
-    clientId: number,
-    timeInForce?: OrderTimeInForce,
-    goodTilTimeInSeconds?: number,
-    execution?: OrderExecution,
-    postOnly?: boolean,
-    reduceOnly?: boolean,
-    triggerPrice?: number,
-    marketInfo?: MarketInfo,
-    currentHeight?: number,
+    params: IHumanReadableOrder,
   ): Promise<EncodeObject> {
+    const {
+      marketId,
+      type,
+      side,
+      price,
+      size,
+      clientId,
+      timeInForce,
+      goodTilTimeInSeconds,
+      execution,
+      postOnly,
+      reduceOnly,
+      triggerPrice,
+      marketInfo,
+      currentHeight,
+    } = params;
+
     const orderFlags = calculateOrderFlags(type, timeInForce);
 
     const result = await Promise.all([
@@ -523,79 +580,6 @@ export class CompositeClient {
   }
 
   /**
-     * @description Calculate and create the short term place order message
-     *
-     * Use human readable form of input, including price and size
-     * The quantum and subticks are calculated and submitted
-     *
-     * @param subaccount The subaccount to place the order under
-     * @param marketId The market to place the order on
-     * @param side The side of the order to place
-     * @param price The price of the order to place
-     * @param size The size of the order to place
-     * @param clientId The client id of the order to place
-     * @param timeInForce The time in force of the order to place
-     * @param goodTilBlock The goodTilBlock of the order to place
-     * @param reduceOnly The reduceOnly of the order to place
-     *
-     *
-     * @throws UnexpectedClientError if a malformed response is returned with no GRPC error
-     * at any point.
-     * @returns The message to be passed into the protocol
-     */
-  private async placeShortTermOrderMessage(
-    subaccount: SubaccountInfo,
-    marketId: string,
-    side: OrderSide,
-    price: number,
-    size: number,
-    clientId: number,
-    goodTilBlock: number,
-    timeInForce: Order_TimeInForce,
-    reduceOnly: boolean,
-  ): Promise<EncodeObject> {
-    await this.validateGoodTilBlock(goodTilBlock);
-
-    const marketsResponse = await this.indexerClient.markets.getPerpetualMarkets(marketId);
-    const market = marketsResponse.markets[marketId];
-    const clobPairId = market.clobPairId;
-    const atomicResolution = market.atomicResolution;
-    const stepBaseQuantums = market.stepBaseQuantums;
-    const quantumConversionExponent = market.quantumConversionExponent;
-    const subticksPerTick = market.subticksPerTick;
-    const orderSide = calculateSide(side);
-    const quantums = calculateQuantums(
-      size,
-      atomicResolution,
-      stepBaseQuantums,
-    );
-    const subticks = calculateSubticks(
-      price,
-      atomicResolution,
-      quantumConversionExponent,
-      subticksPerTick,
-    );
-    const orderFlags = OrderFlags.SHORT_TERM;
-    return this.validatorClient.post.composer.composeMsgPlaceOrder(
-      subaccount.address,
-      subaccount.subaccountNumber,
-      clientId,
-      clobPairId,
-      orderFlags,
-      goodTilBlock,
-      0, // Short term orders use goodTilBlock.
-      orderSide,
-      quantums,
-      subticks,
-      timeInForce,
-      reduceOnly,
-      0, // Client metadata is 0 for short term orders.
-      Order_ConditionType.CONDITION_TYPE_UNSPECIFIED, // Short term orders cannot be conditional.
-      Long.fromInt(0), // Short term orders cannot be conditional.
-    );
-  }
-
-  /**
      * @description Cancel an order with order information from web socket or REST.
      *
      * @param subaccount The subaccount to cancel the order from
@@ -624,6 +608,27 @@ export class CompositeClient {
       clobPairId,
       goodTilBlock,
       goodTilBlockTime,
+    );
+  }
+
+  async cancelOrderMsg(
+    subaccount: SubaccountInfo,
+    clientId: number,
+    orderFlags: OrderFlags,
+    clobPairId: number,
+    goodTilBlock?: number,
+    goodTilBlockTime?: number,
+  ): Promise<EncodeObject> {
+    const params: ICancelOrder = {
+      clientId,
+      orderFlags,
+      clobPairId,
+      goodTilBlock,
+      goodTilBlockTime,
+    };
+    return this.validatorClient.post.cancelOrderMsg(
+      subaccount,
+      params,
     );
   }
 
@@ -708,12 +713,15 @@ export class CompositeClient {
     amount: string,
     memo?: string,
   ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
+    const params: IHumanReadableTransfer = {
+      recipientAddress,
+      recipientSubaccountNumber,
+      amount,
+    };
     const msgs: Promise<EncodeObject[]> = new Promise((resolve) => {
-      const msg = this.transferToSubaccountMessage(
+      const msg = this.transferToSubaccountMsg(
         subaccount,
-        recipientAddress,
-        recipientSubaccountNumber,
-        amount,
+        params,
       );
       resolve([msg]);
     });
@@ -739,12 +747,15 @@ export class CompositeClient {
      * at any point.
      * @returns The message
      */
-  transferToSubaccountMessage(
+  transferToSubaccountMsg(
     subaccount: SubaccountInfo,
-    recipientAddress: string,
-    recipientSubaccountNumber: number,
-    amount: string,
+    params: IHumanReadableTransfer,
   ): EncodeObject {
+    const {
+      recipientAddress,
+      recipientSubaccountNumber,
+      amount,
+    } = params;
     const validatorClient = this._validatorClient;
     if (validatorClient === undefined) {
       throw new Error('validatorClient not set');
@@ -782,10 +793,13 @@ export class CompositeClient {
     amount: string,
     memo?: string,
   ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
+    const params: IHumanReadableDeposit = {
+      amount,
+    };
     const msgs: Promise<EncodeObject[]> = new Promise((resolve) => {
-      const msg = this.depositToSubaccountMessage(
+      const msg = this.depositToSubaccountMsg(
         subaccount,
-        amount,
+        params,
       );
       resolve([msg]);
     });
@@ -807,10 +821,13 @@ export class CompositeClient {
      * at any point.
      * @returns The message
      */
-  depositToSubaccountMessage(
+  depositToSubaccountMsg(
     subaccount: SubaccountInfo,
-    amount: string,
+    params: IHumanReadableDeposit,
   ): EncodeObject {
+    const {
+      amount,
+    } = params;
     const validatorClient = this._validatorClient;
     if (validatorClient === undefined) {
       throw new Error('validatorClient not set');
@@ -848,11 +865,14 @@ export class CompositeClient {
     recipient?: string,
     memo?: string,
   ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
+    const params: IHumanReadableWithdraw = {
+      amount,
+      recipient: recipient ?? subaccount.address,
+    };
     const msgs: Promise<EncodeObject[]> = new Promise((resolve) => {
-      const msg = this.withdrawFromSubaccountMessage(
+      const msg = this.withdrawFromSubaccountMsg(
         subaccount,
-        amount,
-        recipient,
+        params,
       );
       resolve([msg]);
     });
@@ -877,11 +897,14 @@ export class CompositeClient {
      * at any point.
      * @returns The message
      */
-  withdrawFromSubaccountMessage(
+  withdrawFromSubaccountMsg(
     subaccount: SubaccountInfo,
-    amount: string,
-    recipient?: string,
+    params: IHumanReadableWithdraw,
   ): EncodeObject {
+    const {
+      amount,
+      recipient,
+    } = params;
     const validatorClient = this._validatorClient;
     if (validatorClient === undefined) {
       throw new Error('validatorClient not set');
@@ -915,11 +938,14 @@ export class CompositeClient {
      * at any point.
      * @returns The message
      */
-  sendTokenMessage(
+  sendTokenMsg(
     wallet: LocalWallet,
-    amount: string,
-    recipient: string,
+    param: IHumanReadableSendToken,
   ): EncodeObject {
+    const {
+      recipient,
+      amount,
+    } = param;
     const address = wallet.address;
     if (address === undefined) {
       throw new UserError('wallet address is not set. Call connectWallet() first');
@@ -958,21 +984,23 @@ export class CompositeClient {
     postOnly: boolean,
     reduceOnly: boolean,
   ): Promise<string> {
+    const params: IHumanReadableOrder = {
+      marketId,
+      type,
+      side,
+      price,
+      size,
+      clientId,
+      timeInForce,
+      goodTilTimeInSeconds,
+      execution,
+      postOnly,
+      reduceOnly,
+    };
     const msgs: Promise<EncodeObject[]> = new Promise((resolve) => {
-      const msg = this.placeOrderMessage(
+      const msg = this.placeOrderMsg(
         subaccount,
-        marketId,
-        type,
-        side,
-        price,
-        // trigger_price: number,   // not used for MARKET and LIMIT
-        size,
-        clientId,
-        timeInForce,
-        goodTilTimeInSeconds,
-        execution,
-        postOnly,
-        reduceOnly,
+        params,
       );
       msg.then((it) => resolve([it])).catch((err) => {
         console.log(err);

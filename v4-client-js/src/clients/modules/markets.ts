@@ -1,5 +1,4 @@
-import { TimePeriod } from '../constants';
-import { Data } from '../types';
+import { Data, TimePeriod } from '../types';
 import RestClient from './rest';
 
 /**
