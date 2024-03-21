@@ -1200,3 +1200,47 @@ export async function cctpWithdraw(squidPayload: string): Promise<String> {
     return wrappedError(error);
   }
 }
+
+/*
+  Expected payload
+  {
+    "subaccountNumber": 0,
+    "requests": [
+      {
+        "type": "placeOrder",
+        "marketId": "BTC-USD"...,
+      }
+    ]
+  }
+*/
+export async function transaction(
+  payload: string,
+): Promise<string> {
+  try {
+    const client = globalThis.client;
+    if (client === undefined) {
+      throw new UserError('client is not connected. Call connectClient() first');
+    }
+    const wallet = globalThis.wallet;
+    if (wallet === undefined) {
+      throw new UserError('wallet is not set. Call connectWallet() first');
+    }
+    const json = JSON.parse(payload);
+    const subaccountNumber = json.subaccountNumber;
+    if (subaccountNumber === undefined) {
+      throw new UserError('subaccountNumber is not set');
+    }
+    const subaccount = new SubaccountInfo(wallet, subaccountNumber);
+    const requests = json.requests;
+    if (!Array.isArray(requests)) {
+      throw new UserError('requests is not an array');
+    }
+    const tx = await client.sendMsgs(
+      subaccount,
+      requests,
+    );
+    return encodeJson(tx);
+  } catch (error) {
+    return wrappedError(error);
+  }
+}
