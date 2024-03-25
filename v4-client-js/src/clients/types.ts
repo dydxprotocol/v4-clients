@@ -168,8 +168,9 @@ export enum RequestType {
   CANCEL_ORDER = 'cancelOrder',
   DEPOSIT = 'deposit',
   WITHDRAW = 'withdraw',
-  TRANSFER = 'transfer',
+  TRANSFER = 'transferNativeToken',
   SEND_TOKEN = 'sendToken',
+  SEND_NOBLE_IBC = 'sendNobleIBC',
   WITHDRAW_TO_NOBLE_IBC = 'withdrawToNobleIBC',
   CCTP_WITHDRAW = 'cctpWithdraw',
 }

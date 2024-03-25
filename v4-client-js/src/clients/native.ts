@@ -1080,7 +1080,7 @@ export async function getNobleBalance(): Promise<String> {
   }
 }
 
-export async function sendNobleIBC(squidPayload: string): Promise<String> {
+export async function sendNobleIBC(squidPayload: string): Promise<string> {
   try {
     const client = globalThis.nobleClient;
     if (client === undefined || !client.isConnected) {
@@ -1238,6 +1238,7 @@ export async function transaction(
           case RequestType.WITHDRAW:
           case RequestType.TRANSFER:
           case RequestType.SEND_TOKEN:
+          case RequestType.SEND_NOBLE_IBC:
           case RequestType.WITHDRAW_TO_NOBLE_IBC:
           case RequestType.CCTP_WITHDRAW:
             return true;
@@ -1256,6 +1257,8 @@ export async function transaction(
     // Handle the faucet separately
     if (requests.length === 1 && requests[0].type === RequestType.FAUCET) {
       return faucet(requests[0].params);
+    } else if (requests.length === 1 && requests[0].type === RequestType.SEND_NOBLE_IBC) {
+      return sendNobleIBC(requests[0].params);
     } else if (requests.length === 1 && requests[0].type === RequestType.CCTP_WITHDRAW) {
       return cctpWithdraw(requests[0].params);
     } else {
