@@ -40,7 +40,7 @@ export enum FaucetApiHost {
 }
 
 export enum ValidatorApiHost {
-  TESTNET = 'https://dydx-ops-rest.kingnodes.com:443',
+  TESTNET = 'https://test-dydx.kingnodes.com',
   LOCAL = 'http://localhost:26657',
   // For the deployment by DYDX token holders
   MAINNET = 'https://dydx-ops-rpc.kingnodes.com:443'
