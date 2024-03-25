@@ -163,6 +163,7 @@ export interface ICCTPWithdraw {
 }
 
 export enum RequestType {
+  FAUCET = 'faucet',
   PLACE_ORDER = 'placeOrder',
   CANCEL_ORDER = 'cancelOrder',
   DEPOSIT = 'deposit',
@@ -183,7 +184,8 @@ export interface IHumanReadableRequest {
     IHumanReadableTransfer |
     IHumanReadableSendToken |
     IWithdrawToNobleIbc |
-    ICCTPWithdraw
+    ICCTPWithdraw |
+    string
   ),
   memo?: string,
 }

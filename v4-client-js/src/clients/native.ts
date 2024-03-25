@@ -24,6 +24,7 @@ import { NobleClient } from './noble-client';
 import { SubaccountInfo } from './subaccount';
 import {
   IHumanReadableDeposit,
+  IHumanReadableRequest,
   IHumanReadableSendToken,
   IHumanReadableWithdraw,
   IWithdrawToNobleIbc,
@@ -33,6 +34,7 @@ import {
   OrderSide,
   OrderTimeInForce,
   OrderType,
+  RequestType,
   SquidIBCPayload,
 } from './types';
 
@@ -1157,7 +1159,7 @@ export async function withdrawToNobleIBC(payload: string): Promise<String> {
   }
 }
 
-export async function cctpWithdraw(squidPayload: string): Promise<String> {
+export async function cctpWithdraw(squidPayload: string): Promise<string> {
   try {
     const client = globalThis.nobleClient;
     if (client === undefined || !client.isConnected) {
@@ -1195,13 +1197,15 @@ export async function cctpWithdraw(squidPayload: string): Promise<String> {
 /*
   Expected payload
   {
+    "chain": "DYDX",
     "subaccountNumber": 0,
     "requests": [
       {
         "type": "placeOrder",
         "marketId": "BTC-USD"...,
       }
-    ]
+    ],
+    "memo": "optional memo"
   }
 */
 export async function transaction(
@@ -1223,14 +1227,45 @@ export async function transaction(
     }
     const subaccount = new SubaccountInfo(wallet, subaccountNumber);
     const requests = json.requests;
-    if (!Array.isArray(requests)) {
+    if (Array.isArray(requests)) {
+      // Verify the request types
+      const nonConformingRequests = requests.find((request: IHumanReadableRequest) => {
+        switch (request.type) {
+          case RequestType.FAUCET:
+          case RequestType.PLACE_ORDER:
+          case RequestType.CANCEL_ORDER:
+          case RequestType.DEPOSIT:
+          case RequestType.WITHDRAW:
+          case RequestType.TRANSFER:
+          case RequestType.SEND_TOKEN:
+          case RequestType.WITHDRAW_TO_NOBLE_IBC:
+          case RequestType.CCTP_WITHDRAW:
+            return true;
+
+          default:
+            return false;
+        }
+      });
+      if (nonConformingRequests !== undefined) {
+        throw new UserError('requests is not an array');
+      }
+    } else {
       throw new UserError('requests is not an array');
     }
-    const tx = await client.sendMsgs(
-      subaccount,
-      requests,
-    );
-    return encodeJson(tx);
+    const memo = json.memo;
+    // Handle the faucet separately
+    if (requests.length === 1 && requests[0].type === RequestType.FAUCET) {
+      return faucet(requests[0].params);
+    } else if (requests.length === 1 && requests[0].type === RequestType.CCTP_WITHDRAW) {
+      return cctpWithdraw(requests[0].params);
+    } else {
+      const tx = await client.sendMsgs(
+        subaccount,
+        requests,
+        memo,
+      );
+      return encodeJson(tx);
+    }
   } catch (error) {
     return wrappedError(error);
   }
