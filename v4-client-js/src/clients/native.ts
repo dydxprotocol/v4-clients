@@ -22,7 +22,19 @@ import { Response } from './lib/axios';
 import LocalWallet from './modules/local-wallet';
 import { NobleClient } from './noble-client';
 import { SubaccountInfo } from './subaccount';
-import { ICancelOrder, IHumanReadableDeposit, IHumanReadableSendToken, IHumanReadableWithdraw, MarketInfo, OrderExecution, OrderFlags, OrderSide, OrderTimeInForce, OrderType, SquidIBCPayload } from './types';
+import {
+  IHumanReadableDeposit,
+  IHumanReadableSendToken,
+  IHumanReadableWithdraw,
+  IWithdrawToNobleIbc,
+  MarketInfo,
+  OrderExecution,
+  OrderFlags,
+  OrderSide,
+  OrderTimeInForce,
+  OrderType,
+  SquidIBCPayload,
+} from './types';
 
 declare global {
   // eslint-disable-next-line vars-on-top, no-var
@@ -509,9 +521,9 @@ export async function withdrawToIBC(
     const params: IHumanReadableWithdraw = {
       amount,
     };
-    const subaccountMsg = client.withdrawFromSubaccountMsg(subaccount, params);
+    const subaccountMsg = client.withdrawFromSubaccountMsgs(subaccount, params);
 
-    const msgs = [subaccountMsg, ibcMsg];
+    const msgs = [...subaccountMsg, ibcMsg];
     const encodeObjects: Promise<EncodeObject[]> = new Promise((resolve) => resolve(msgs));
 
     const tx = await client.send(
@@ -552,11 +564,10 @@ export async function transferNativeToken(
       recipient: json.recipient,
       amount,
     };
-    const msg: EncodeObject = client.sendTokenMsg(
+    const msgs = client.sendTokenMsgs(
       wallet,
       params,
     );
-    const msgs = [msg];
     const encodeObjects: Promise<EncodeObject[]> = new Promise((resolve) => resolve(msgs));
 
     const tx = await client.send(
@@ -658,11 +669,10 @@ export async function simulateDeposit(
     const params: IHumanReadableDeposit = {
       amount,
     };
-    const msg: EncodeObject = client.depositToSubaccountMsg(
+    const msgs = client.depositToSubaccountMsgs(
       subaccount,
       params,
     );
-    const msgs: EncodeObject[] = [msg];
     const encodeObjects: Promise<EncodeObject[]> = new Promise((resolve) => resolve(msgs));
 
     const stdFee = await client.simulate(
@@ -704,11 +714,10 @@ export async function simulateWithdraw(
       amount,
       recipient: json.recipient,
     };
-    const msg: EncodeObject = client.withdrawFromSubaccountMsg(
+    const msgs = client.withdrawFromSubaccountMsgs(
       subaccount,
       params,
     );
-    const msgs: EncodeObject[] = [msg];
     const encodeObjects: Promise<EncodeObject[]> = new Promise((resolve) => resolve(msgs));
 
     const stdFee = await client.simulate(
@@ -749,11 +758,10 @@ export async function simulateTransferNativeToken(
       recipient: json.recipient,
       amount,
     };
-    const msg: EncodeObject = client.sendTokenMsg(
+    const msgs = client.sendTokenMsgs(
       wallet,
       params,
     );
-    const msgs: EncodeObject[] = [msg];
     const encodeObjects: Promise<EncodeObject[]> = new Promise((resolve) => resolve(msgs));
 
     const stdFee = await client.simulate(
@@ -1127,34 +1135,17 @@ export async function withdrawToNobleIBC(payload: string): Promise<String> {
     }
     const json = JSON.parse(payload);
 
-    const { subaccountNumber, amount, ibcPayload } = json ?? {};
-
-    const decode = (str: string):string => Buffer.from(str, 'base64').toString('binary');
-    const decoded = decode(ibcPayload);
-
-    const parsedIbcPayload: SquidIBCPayload = JSON.parse(decoded);
-
-    const params: IHumanReadableWithdraw = {
-      amount,
-    };
-    const msg = client.withdrawFromSubaccountMsg(
-      new SubaccountInfo(wallet, subaccountNumber),
-      params,
-    );
-    const ibcMsg: MsgTransferEncodeObject = {
-      typeUrl: parsedIbcPayload.msgTypeUrl,
-      value: {
-        ...parsedIbcPayload.msg,
-        // Squid returns timeoutTimestamp as Long, but the signer expects BigInt
-        timeoutTimestamp: parsedIbcPayload.msg.timeoutTimestamp
-          ? BigInt(Long.fromValue(parsedIbcPayload.msg.timeoutTimestamp).toString())
-          : undefined,
-      },
-    };
+    const subaccountNumber = json.subaccountNumber;
+    if (subaccountNumber === undefined) {
+      throw new UserError('subaccountNumber is not set');
+    }
+    const subaccount = new SubaccountInfo(wallet, subaccountNumber);
+    const msgs = client.withdrawToNobleIBCMsgs(subaccount,
+      json as IWithdrawToNobleIbc);
 
     const tx = await client.send(
       wallet,
-      () => Promise.resolve([msg, ibcMsg]),
+      () => Promise.resolve(msgs),
       false,
     );
 

@@ -218,28 +218,62 @@ export class Post {
      * @description Calculate the default broadcast mode.
      */
     private defaultBroadcastMode(msgs: EncodeObject[]): BroadcastMode {
-      if (
-        msgs.length === 1 &&
-        (msgs[0].typeUrl === '/dydxprotocol.clob.MsgPlaceOrder' ||
-          msgs[0].typeUrl === '/dydxprotocol.clob.MsgCancelOrder')
-      ) {
-        const orderFlags = msgs[0].typeUrl === '/dydxprotocol.clob.MsgPlaceOrder'
-          ? (msgs[0].value as MsgPlaceOrder).order?.orderId?.orderFlags
-          : (msgs[0].value as MsgCancelOrder).orderId?.orderFlags;
+      return this.areShortTermOrderMsgs(msgs) ? Method.BroadcastTxSync : Method.BroadcastTxCommit;
+    }
 
-        switch (orderFlags) {
-          case OrderFlags.SHORT_TERM:
-            return Method.BroadcastTxSync;
-
-          case OrderFlags.LONG_TERM:
-          case OrderFlags.CONDITIONAL:
-            return Method.BroadcastTxCommit;
-
-          default:
-            break;
-        }
+    /**
+     * @description Calculate the default broadcast mode for a msg.
+     */
+    private defaultMsgBroadcastMode(msg: EncodeObject): BroadcastMode {
+      if (this.isShortTermOrderMsg(msg)) {
+        return Method.BroadcastTxSync;
+      } else {
+        return Method.BroadcastTxCommit;
       }
-      return Method.BroadcastTxSync;
+    }
+
+    /**
+     * @description Whether the msg is a short term placeOrder or cancelOrder msg.
+     */
+    private isShortTermOrderMsg(msg: EncodeObject): boolean {
+      if (msg.typeUrl === '/dydxprotocol.clob.MsgPlaceOrder' ||
+          msg.typeUrl === '/dydxprotocol.clob.MsgCancelOrder') {
+        const orderFlags = msg.typeUrl === '/dydxprotocol.clob.MsgPlaceOrder'
+          ? (msg.value as MsgPlaceOrder).order?.orderId?.orderFlags
+          : (msg.value as MsgCancelOrder).orderId?.orderFlags;
+
+        return orderFlags === OrderFlags.SHORT_TERM;
+      } else {
+        return false;
+      }
+    }
+
+    /**
+     * @description Whether the msg is a short term placeOrder or cancelOrder msg.
+     */
+    private isOrderMsg(msg: EncodeObject): boolean {
+      return (msg.typeUrl === '/dydxprotocol.clob.MsgPlaceOrder' ||
+          msg.typeUrl === '/dydxprotocol.clob.MsgCancelOrder');
+    }
+
+    /**
+     * @description All msgs are short term orders
+     */
+    private areShortTermOrderMsgs(msgs: EncodeObject[]): boolean {
+      const notShortTerm = msgs.find((msg) => {
+        return this.isShortTermOrderMsg(msg) === false;
+      });
+      return !notShortTerm;
+    }
+
+    /**
+     * @description All msgs are orders
+     */
+    private areOrderMsgs(msgs: EncodeObject[]): boolean {
+      const notOrder = msgs.find((msg) => {
+        return this.isOrderMsg(msg) === false;
+      });
+      return !notOrder;
     }
 
     /**
@@ -442,14 +476,14 @@ export class Post {
         conditionType,
         conditionalOrderTriggerSubticks,
       };
-      const msg = await this.placeOrderMsg(
+      const msgs = await this.placeOrderMsgs(
         subaccount,
         params,
       );
       const account: Promise<Account> = this.account(subaccount.address, orderFlags);
       return this.send(
         subaccount.wallet,
-        () => Promise.resolve([msg]),
+        () => Promise.resolve(msgs),
         true,
         undefined,
         undefined,
@@ -458,10 +492,10 @@ export class Post {
       );
     }
 
-    async placeOrderMsg(
+    async placeOrderMsgs(
       subaccount: SubaccountInfo,
       params: IPlaceOrder,
-    ): Promise<EncodeObject> {
+    ): Promise<EncodeObject[]> {
       const { address, subaccountNumber } = subaccount;
       const {
         clientId,
@@ -496,7 +530,7 @@ export class Post {
           conditionType,
           conditionalOrderTriggerSubticks,
         );
-        resolve(msg);
+        resolve([msg]);
       });
     }
 
@@ -540,23 +574,23 @@ export class Post {
         goodTilBlock,
         goodTilBlockTime,
       };
-      const msg = await this.cancelOrderMsg(
+      const msgs = await this.cancelOrderMsgs(
         subaccount,
         params,
       );
       return this.send(
         subaccount.wallet,
-        () => Promise.resolve([msg]),
+        () => Promise.resolve(msgs),
         true,
         undefined,
         undefined,
         broadcastMode);
     }
 
-    async cancelOrderMsg(
+    async cancelOrderMsgs(
       subaccount: SubaccountInfo,
       params: ICancelOrder,
-    ) : Promise<EncodeObject> {
+    ) : Promise<EncodeObject[]> {
       const { address, subaccountNumber } = subaccount;
       const {
         clientId,
@@ -575,7 +609,7 @@ export class Post {
           goodTilBlock ?? 0,
           goodTilBlockTime ?? 0,
         );
-        resolve(msg);
+        resolve([msg]);
       });
     }
 
@@ -609,13 +643,13 @@ export class Post {
         assetId,
         amount,
       };
-      const msg = await this.transferMsg(
+      const msgs = await this.transferMsgs(
         subaccount,
         params,
       );
       return this.send(
         subaccount.wallet,
-        () => Promise.resolve([msg]),
+        () => Promise.resolve(msgs),
         false,
         undefined,
         undefined,
@@ -623,10 +657,10 @@ export class Post {
       );
     }
 
-    async transferMsg(
+    async transferMsgs(
       subaccount: SubaccountInfo,
       params: ITransfer,
-    ): Promise<EncodeObject> {
+    ): Promise<EncodeObject[]> {
       const { address, subaccountNumber } = subaccount;
       const {
         recipientAddress,
@@ -643,7 +677,7 @@ export class Post {
           assetId,
           amount,
         );
-        resolve(msg);
+        resolve([msg]);
       });
     }
 
@@ -657,13 +691,13 @@ export class Post {
         assetId,
         quantums,
       };
-      const msg = await this.depositMsg(
+      const msgs = await this.depositMsgs(
         subaccount,
         params,
       );
       return this.send(
         subaccount.wallet,
-        () => Promise.resolve([msg]),
+        () => Promise.resolve(msgs),
         false,
         undefined,
         undefined,
@@ -671,10 +705,10 @@ export class Post {
       );
     }
 
-    async depositMsg(
+    async depositMsgs(
       subaccount: SubaccountInfo,
       params: IDeposit,
-    ): Promise<EncodeObject> {
+    ): Promise<EncodeObject[]> {
       const { address, subaccountNumber } = subaccount;
       const {
         assetId,
@@ -687,7 +721,7 @@ export class Post {
           assetId,
           quantums,
         );
-        resolve(msg);
+        resolve([msg]);
       });
     }
 
@@ -703,13 +737,13 @@ export class Post {
         quantums,
         recipient: recipient ?? subaccount.wallet.address!,
       };
-      const msg = await this.withdrawMsg(
+      const msgs = await this.withdrawMsgs(
         subaccount,
         params,
       );
       return this.send(
         subaccount.wallet,
-        () => Promise.resolve([msg]),
+        () => Promise.resolve(msgs),
         false,
         undefined,
         undefined,
@@ -717,10 +751,10 @@ export class Post {
       );
     }
 
-    async withdrawMsg(
+    async withdrawMsgs(
       subaccount: SubaccountInfo,
       params: IWithdraw,
-    ): Promise<EncodeObject> {
+    ): Promise<EncodeObject[]> {
       const { address, subaccountNumber } = subaccount;
       const {
         assetId,
@@ -735,7 +769,7 @@ export class Post {
           quantums,
           recipient,
         );
-        resolve(msg);
+        resolve([msg]);
       });
     }
 
@@ -752,13 +786,13 @@ export class Post {
         coinDenom,
         quantums,
       };
-      const msg = await this.sendTokenMsg(
+      const msgs = await this.sendTokenMsgs(
         subaccount,
         params,
       );
       return this.send(
         subaccount.wallet,
-        () => Promise.resolve([msg]),
+        () => Promise.resolve(msgs),
         zeroFee,
         coinDenom === this.denoms.CHAINTOKEN_DENOM
           ? this.defaultDydxGasPrice
@@ -768,10 +802,10 @@ export class Post {
       );
     }
 
-    async sendTokenMsg(
+    async sendTokenMsgs(
       subaccount: SubaccountInfo,
       params: ISendToken,
-    ): Promise<EncodeObject> {
+    ): Promise<EncodeObject[]> {
       const { address } = subaccount;
       const {
         recipient,
@@ -788,32 +822,32 @@ export class Post {
           coinDenom,
           quantums,
         );
-        resolve(msg);
+        resolve([msg]);
       });
     }
 
-    async msg(
+    async msgs(
       subaccount: SubaccountInfo,
       transactionMsg: TransactionMsg,
-    ): Promise<EncodeObject> {
+    ): Promise<EncodeObject[]> {
       switch (transactionMsg.type) {
         case TransactionType.PLACE_ORDER:
-          return this.placeOrderMsg(subaccount, transactionMsg.params as IPlaceOrder);
+          return this.placeOrderMsgs(subaccount, transactionMsg.params as IPlaceOrder);
 
         case TransactionType.CANCEL_ORDER:
-          return this.cancelOrderMsg(subaccount, transactionMsg.params as ICancelOrder);
+          return this.cancelOrderMsgs(subaccount, transactionMsg.params as ICancelOrder);
 
         case TransactionType.TRANSFER:
-          return this.transferMsg(subaccount, transactionMsg.params as ITransfer);
+          return this.transferMsgs(subaccount, transactionMsg.params as ITransfer);
 
         case TransactionType.DEPOSIT:
-          return this.depositMsg(subaccount, transactionMsg.params as IDeposit);
+          return this.depositMsgs(subaccount, transactionMsg.params as IDeposit);
 
         case TransactionType.WITHDRAW:
-          return this.withdrawMsg(subaccount, transactionMsg.params as IWithdraw);
+          return this.withdrawMsgs(subaccount, transactionMsg.params as IWithdraw);
 
         case TransactionType.SEND_TOKEN:
-          return this.sendTokenMsg(subaccount, transactionMsg.params as ISendToken);
+          return this.sendTokenMsgs(subaccount, transactionMsg.params as ISendToken);
 
         default:
           throw new Error('Unsupported transaction type');
@@ -824,53 +858,90 @@ export class Post {
       subaccount: SubaccountInfo,
       transactionMsg: TransactionMsg,
     ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
-      const msg = await this.msg(subaccount, transactionMsg);
+      const msgs = await this.msgs(subaccount, transactionMsg);
       return this.send(
         subaccount.wallet,
-        () => Promise.resolve([msg]),
+        () => Promise.resolve(msgs),
         transactionMsg.zeroFee ?? false,
         this.defaultGasPrice,
         transactionMsg.memo ?? this.defaultClientMemo,
-        transactionMsg.broadcastMode ?? this.defaultBroadcastMode([msg]),
+        transactionMsg.broadcastMode ?? this.defaultBroadcastMode(msgs),
       );
+    }
+
+    async sendTransactionMsgs(
+      subaccount: SubaccountInfo,
+      transactionMsgs: TransactionMsg[],
+      memo?: string,
+    ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
+      const msgs = (await Promise.all(
+        transactionMsgs.map((transactionMsg) => this.msgs(subaccount, transactionMsg)),
+      )).flat();
+      return this.sendMsgs(subaccount, msgs, memo);
     }
 
     async sendMsgs(
       subaccount: SubaccountInfo,
-      transactionMsgs: TransactionMsg[],
+      msgs: EncodeObject[],
+      memo?: string,
     ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
-      const msgs = await Promise.all(
-        transactionMsgs.map((transactionMsg) => this.msg(subaccount, transactionMsg)),
+      const shortTermOrders = this.areShortTermOrderMsgs(msgs);
+      const zeroFee = this.areOrderMsgs(msgs);
+      const mode = shortTermOrders ? Method.BroadcastTxSync : Method.BroadcastTxCommit;
+
+      const account: Promise<Account> = this.updatedAccount(
+        subaccount.address,
+        shortTermOrders,
       );
-      let zeroFee = true;
-      let memo = null;
-      let mode: BroadcastMode = Method.BroadcastTxAsync;
-
-      for (const transactionMsg of transactionMsgs) {
-        zeroFee = zeroFee && (transactionMsg.zeroFee ?? false);
-        memo = memo ?? transactionMsg.memo;
-        switch (transactionMsg.broadcastMode) {
-          case Method.BroadcastTxCommit:
-            mode = Method.BroadcastTxCommit;
-            break;
-
-          case Method.BroadcastTxSync:
-            if (mode === Method.BroadcastTxAsync) {
-              mode = Method.BroadcastTxSync;
-            }
-            break;
-
-          default:
-            break;
-        }
-      }
       return this.send(
         subaccount.wallet,
-        () => Promise.resolve(msgs),
-        zeroFee ?? false,
+        () => Promise.resolve(msgs.flat()),
+        zeroFee,
         this.defaultGasPrice,
         memo ?? this.defaultClientMemo,
         mode,
+        () => account,
       );
+    }
+
+    /**
+   * @description Submit a list of msgs as one transaction
+   *
+   * @param params Parameters neeeded to create a new market.
+   *
+   * @returns the transaction hash.
+   */
+
+    async simulateTransactionMsgs(
+      subaccount: SubaccountInfo,
+      requests: TransactionMsg[],
+      memo?: string,
+    ): Promise<StdFee> {
+      const msgs = (await Promise.all(
+        requests.map((request) => this.msgs(subaccount, request)),
+      )).flat();
+
+      return this.simulateMsgs(subaccount, msgs, memo);
+    }
+
+    public async simulateMsgs(
+      subaccount: SubaccountInfo,
+      msgs: EncodeObject[],
+      memo?: string,
+    ): Promise<StdFee> {
+      const shortTermOrders = this.areShortTermOrderMsgs(msgs);
+
+      const account: Promise<Account> = this.updatedAccount(
+        subaccount.address,
+        shortTermOrders,
+      );
+      return this.simulate(
+        subaccount.wallet,
+        () => Promise.resolve(msgs.flat()),
+        undefined,
+        memo,
+        () => account,
+      );
+
     }
 }

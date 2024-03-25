@@ -150,6 +150,18 @@ export interface IHumanReadableSendToken {
   recipient: string,
 }
 
+export interface IWithdrawToNobleIbc {
+  subaccountNumber: number,
+  amount: string,
+  ibcPayload: string
+}
+
+export interface ICCTPWithdraw {
+  typeUrl: string,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  value: any,
+}
+
 export enum RequestType {
   PLACE_ORDER = 'placeOrder',
   CANCEL_ORDER = 'cancelOrder',
@@ -157,6 +169,8 @@ export enum RequestType {
   WITHDRAW = 'withdraw',
   TRANSFER = 'transfer',
   SEND_TOKEN = 'sendToken',
+  WITHDRAW_TO_NOBLE_IBC = 'withdrawToNobleIBC',
+  CCTP_WITHDRAW = 'cctpWithdraw',
 }
 
 export interface IHumanReadableRequest {
@@ -167,7 +181,9 @@ export interface IHumanReadableRequest {
     IHumanReadableDeposit |
     IHumanReadableWithdraw |
     IHumanReadableTransfer |
-    IHumanReadableSendToken
+    IHumanReadableSendToken |
+    IWithdrawToNobleIbc |
+    ICCTPWithdraw
   ),
   memo?: string,
 }
