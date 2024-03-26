@@ -22,7 +22,7 @@ import _ from 'lodash';
 import Long from 'long';
 import protobuf from 'protobufjs';
 
-import { GAS_MULTIPLIER } from '../constants';
+import { GAS_MULTIPLIER, TYPE_URL_MSG_CANCEL_ORDER, TYPE_URL_MSG_PLACE_ORDER } from '../constants';
 import { UnexpectedClientError } from '../lib/errors';
 import { generateRegistry } from '../lib/registry';
 import { SubaccountInfo } from '../subaccount';
@@ -225,20 +225,16 @@ export class Post {
      * @description Calculate the default broadcast mode for a msg.
      */
     private defaultMsgBroadcastMode(msg: EncodeObject): BroadcastMode {
-      if (this.isShortTermOrderMsg(msg)) {
-        return Method.BroadcastTxSync;
-      } else {
-        return Method.BroadcastTxCommit;
-      }
+      return (this.isShortTermOrderMsg(msg)) ? Method.BroadcastTxSync : Method.BroadcastTxCommit;
     }
 
     /**
      * @description Whether the msg is a short term placeOrder or cancelOrder msg.
      */
     private isShortTermOrderMsg(msg: EncodeObject): boolean {
-      if (msg.typeUrl === '/dydxprotocol.clob.MsgPlaceOrder' ||
-          msg.typeUrl === '/dydxprotocol.clob.MsgCancelOrder') {
-        const orderFlags = msg.typeUrl === '/dydxprotocol.clob.MsgPlaceOrder'
+      if (msg.typeUrl === TYPE_URL_MSG_PLACE_ORDER ||
+          msg.typeUrl === TYPE_URL_MSG_CANCEL_ORDER) {
+        const orderFlags = msg.typeUrl === TYPE_URL_MSG_PLACE_ORDER
           ? (msg.value as MsgPlaceOrder).order?.orderId?.orderFlags
           : (msg.value as MsgCancelOrder).orderId?.orderFlags;
 
@@ -826,7 +822,7 @@ export class Post {
       });
     }
 
-    async msgs(
+    async msgsForTransaction(
       subaccount: SubaccountInfo,
       transactionMsg: TransactionMsg,
     ): Promise<EncodeObject[]> {
@@ -858,7 +854,7 @@ export class Post {
       subaccount: SubaccountInfo,
       transactionMsg: TransactionMsg,
     ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
-      const msgs = await this.msgs(subaccount, transactionMsg);
+      const msgs = await this.msgsForTransaction(subaccount, transactionMsg);
       return this.send(
         subaccount.wallet,
         () => Promise.resolve(msgs),
@@ -875,7 +871,9 @@ export class Post {
       memo?: string,
     ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
       const msgs = (await Promise.all(
-        transactionMsgs.map((transactionMsg) => this.msgs(subaccount, transactionMsg)),
+        transactionMsgs.map(
+          (transactionMsg) => this.msgsForTransaction(subaccount, transactionMsg),
+        ),
       )).flat();
       return this.sendMsgs(subaccount, msgs, memo);
     }
@@ -918,7 +916,7 @@ export class Post {
       memo?: string,
     ): Promise<StdFee> {
       const msgs = (await Promise.all(
-        requests.map((request) => this.msgs(subaccount, request)),
+        requests.map((request) => this.msgsForTransaction(subaccount, request)),
       )).flat();
 
       return this.simulateMsgs(subaccount, msgs, memo);

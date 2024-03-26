@@ -278,12 +278,13 @@ export class CompositeClient {
       goodTilBlock,
       timeInForce,
       reduceOnly,
+      marketInfo,
     } = params;
 
     await this.validateGoodTilBlock(goodTilBlock);
 
-    const marketsResponse = await this.indexerClient.markets.getPerpetualMarkets(marketId);
-    const market = marketsResponse.markets[marketId];
+    const market = await this.retrieveMarketInfo(marketId, marketInfo);
+
     const clobPairId = market.clobPairId;
     const atomicResolution = market.atomicResolution;
     const stepBaseQuantums = market.stepBaseQuantums;
@@ -353,6 +354,7 @@ export class CompositeClient {
     goodTilBlock: number,
     timeInForce: Order_TimeInForce,
     reduceOnly: boolean,
+    marketInfo?: MarketInfo,
     memo?: string,
   ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
     const params: IHumanReadableShortTermOrder = {
@@ -364,6 +366,7 @@ export class CompositeClient {
       goodTilBlock,
       timeInForce,
       reduceOnly,
+      marketInfo,
     };
     const msgs: Promise<EncodeObject[]> = new Promise((resolve) => {
       resolve(this.placeShortTermOrderMsgs(

@@ -111,6 +111,7 @@ export interface IHumanReadableShortTermOrder {
   goodTilBlock: number,
   timeInForce: Order_TimeInForce,
   reduceOnly: boolean,
+  marketInfo?: MarketInfo,
 }
 
 export interface IHumanReadableOrder {
