@@ -1,4 +1,6 @@
-import { BECH32_PREFIX, OrderExecution, OrderFlags, OrderSide, OrderTimeInForce, OrderType } from '../src';
+import {
+  BECH32_PREFIX, OrderExecution, OrderFlags, OrderSide, OrderTimeInForce, OrderType,
+} from '../src';
 import { CompositeClient } from '../src/clients/composite-client';
 import {
   Network,

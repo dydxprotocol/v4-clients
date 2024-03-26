@@ -1,7 +1,9 @@
 import Long from 'long';
 
 import { Order_ConditionType, Order_Side, Order_TimeInForce } from '../modules/proto-includes';
-import { OrderExecution, OrderFlags, OrderSide, OrderTimeInForce, OrderType } from '../types';
+import {
+  OrderExecution, OrderFlags, OrderSide, OrderTimeInForce, OrderType,
+} from '../types';
 
 export function round(input: number, base: number): number {
   return Math.floor(input / base) * base;

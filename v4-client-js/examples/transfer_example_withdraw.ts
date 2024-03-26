@@ -3,10 +3,10 @@ import Long from 'long';
 import { BECH32_PREFIX, IWithdraw } from '../src';
 import { Network } from '../src/clients/constants';
 import LocalWallet from '../src/clients/modules/local-wallet';
+import { TransactionMsg, TransactionType } from '../src/clients/modules/post';
 import { SubaccountInfo } from '../src/clients/subaccount';
 import { ValidatorClient } from '../src/clients/validator-client';
 import { DYDX_TEST_MNEMONIC } from './constants';
-import { TransactionMsg, TransactionType } from '../src/clients/modules/post';
 
 // TODO: Test after testnet deploy latest transfer contracts.
 
