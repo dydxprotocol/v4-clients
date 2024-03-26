@@ -1,8 +1,9 @@
 import Long from 'long';
 
-import { BECH32_PREFIX } from '../src';
+import { BECH32_PREFIX, ITransfer } from '../src';
 import { Network } from '../src/clients/constants';
 import LocalWallet from '../src/clients/modules/local-wallet';
+import { TransactionMsg, TransactionType } from '../src/clients/modules/post';
 import { SubaccountInfo } from '../src/clients/subaccount';
 import { ValidatorClient } from '../src/clients/validator-client';
 import { DYDX_TEST_MNEMONIC } from './constants';
@@ -26,6 +27,23 @@ async function test(): Promise<void> {
   );
   console.log('**Transfer Tx**');
   console.log(tx);
+
+  const params: ITransfer = {
+    recipientAddress: wallet.address!!,
+    recipientSubaccountNumber: 0,
+    assetId: 0,
+    amount: new Long(10_000_000),
+  };
+  const tx2 = await client.post.sendMsg(
+    subaccount,
+    new TransactionMsg(
+      TransactionType.TRANSFER,
+      params,
+      false,
+    ),
+  );
+  console.log('**Withdraw Tx**');
+  console.log(tx2);
 }
 
 test().then(() => {

@@ -1,6 +1,6 @@
 import { EncodeObject } from '@cosmjs/proto-signing';
 import {
-  Account, GasPrice, IndexedTx, StdFee,
+  Account, GasPrice, IndexedTx, StdFee, MsgTransferEncodeObject,
 } from '@cosmjs/stargate';
 import { BroadcastTxAsyncResponse, BroadcastTxSyncResponse } from '@cosmjs/tendermint-rpc/build/tendermint37';
 import { Order_ConditionType, Order_TimeInForce } from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/clob/order';
@@ -9,13 +9,29 @@ import Long from 'long';
 import protobuf from 'protobufjs';
 
 import { isStatefulOrder, verifyOrderFlags } from '../lib/validation';
-import { GovAddNewMarketParams, OrderFlags } from '../types';
 import {
-  Network,
+  GovAddNewMarketParams,
+  ICCTPWithdraw,
+  ICancelOrder, IHumanReadableDeposit,
+  IHumanReadableOrder,
+  IHumanReadableRequest,
+  IHumanReadableSendToken,
+  IHumanReadableShortTermOrder,
+  IHumanReadableTransfer,
+  IHumanReadableWithdraw,
+  IWithdrawToNobleIbc,
+  MarketInfo,
   OrderExecution,
+  OrderFlags,
   OrderSide,
   OrderTimeInForce,
   OrderType,
+  RequestType,
+  SquidIBCPayload,
+} from '../types';
+import {
+  GAS_MULTIPLIER,
+  Network,
   SHORT_BLOCK_FORWARD,
   SHORT_BLOCK_WINDOW,
 } from './constants';
@@ -42,14 +58,6 @@ import { ValidatorClient } from './validator-client';
 // Reference: https://github.com/protobufjs/protobuf.js/issues/921
 protobuf.util.Long = Long;
 protobuf.configure();
-
-export interface MarketInfo {
-  clobPairId: number;
-  atomicResolution: number;
-  stepBaseQuantums: number;
-  quantumConversionExponent: number;
-  subticksPerTick: number;
-}
 
 export class CompositeClient {
   public readonly network: Network;
@@ -248,6 +256,74 @@ export class CompositeClient {
   }
 
   /**
+     * @description Place a short term order with human readable input.
+     *
+     * @param subaccount The subaccount to place the order on.
+     * @param params The parameters of the order to place.
+     *
+     * @throws UnexpectedClientError if a malformed response is returned with no GRPC error
+     * at any point.
+     * @returns The message to be passed into the protocol
+     */
+  async placeShortTermOrderMsgs(
+    subaccount: SubaccountInfo,
+    params: IHumanReadableShortTermOrder,
+  ): Promise<EncodeObject[]> {
+    const {
+      marketId,
+      side,
+      price,
+      size,
+      clientId,
+      goodTilBlock,
+      timeInForce,
+      reduceOnly,
+      marketInfo,
+    } = params;
+
+    await this.validateGoodTilBlock(goodTilBlock);
+
+    const market = await this.retrieveMarketInfo(marketId, marketInfo);
+
+    const clobPairId = market.clobPairId;
+    const atomicResolution = market.atomicResolution;
+    const stepBaseQuantums = market.stepBaseQuantums;
+    const quantumConversionExponent = market.quantumConversionExponent;
+    const subticksPerTick = market.subticksPerTick;
+    const orderSide = calculateSide(side);
+    const quantums = calculateQuantums(
+      size,
+      atomicResolution,
+      stepBaseQuantums,
+    );
+    const subticks = calculateSubticks(
+      price,
+      atomicResolution,
+      quantumConversionExponent,
+      subticksPerTick,
+    );
+    const orderFlags = OrderFlags.SHORT_TERM;
+    const msg = await this.validatorClient.post.composer.composeMsgPlaceOrder(
+      subaccount.address,
+      subaccount.subaccountNumber,
+      clientId,
+      clobPairId,
+      orderFlags,
+      goodTilBlock,
+      0, // Short term orders use goodTilBlock.
+      orderSide,
+      quantums,
+      subticks,
+      timeInForce,
+      reduceOnly,
+      0, // Client metadata is 0 for short term orders.
+      Order_ConditionType.CONDITION_TYPE_UNSPECIFIED, // Short term orders cannot be conditional.
+      Long.fromInt(0), // Short term orders cannot be conditional.
+    );
+    return [msg];
+  }
+
+  /**
    * @description Place a short term order with human readable input.
    *
    * Use human readable form of input, including price and size
@@ -278,23 +354,25 @@ export class CompositeClient {
     goodTilBlock: number,
     timeInForce: Order_TimeInForce,
     reduceOnly: boolean,
+    marketInfo?: MarketInfo,
     memo?: string,
   ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
+    const params: IHumanReadableShortTermOrder = {
+      marketId,
+      side,
+      price,
+      size,
+      clientId,
+      goodTilBlock,
+      timeInForce,
+      reduceOnly,
+      marketInfo,
+    };
     const msgs: Promise<EncodeObject[]> = new Promise((resolve) => {
-      const msg = this.placeShortTermOrderMessage(
+      resolve(this.placeShortTermOrderMsgs(
         subaccount,
-        marketId,
-        side,
-        price,
-        size,
-        clientId,
-        goodTilBlock,
-        timeInForce,
-        reduceOnly,
-      );
-      msg.then((it) => resolve([it])).catch((err) => {
-        console.log(err);
-      });
+        params,
+      ));
     });
     const account: Promise<Account> = this.validatorClient.post.account(
       subaccount.address,
@@ -312,10 +390,6 @@ export class CompositeClient {
 
   /**
      * @description Place an order with human readable input.
-     *
-     * Only MARKET and LIMIT types are supported right now
-     * Use human readable form of input, including price and size
-     * The quantum and subticks are calculated and submitted
      *
      * @param subaccount The subaccount to place the order on.
      * @param marketId The market to place the order on.
@@ -359,28 +433,27 @@ export class CompositeClient {
     currentHeight?: number,
     memo?: string,
   ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
+    const params: IHumanReadableOrder = {
+      marketId,
+      type,
+      side,
+      price,
+      size,
+      clientId,
+      timeInForce,
+      goodTilTimeInSeconds,
+      execution,
+      postOnly,
+      reduceOnly,
+      triggerPrice,
+      marketInfo,
+      currentHeight,
+    };
     const msgs: Promise<EncodeObject[]> = new Promise((resolve) => {
-      const msg = this.placeOrderMessage(
+      resolve(this.placeOrderMsgs(
         subaccount,
-        marketId,
-        type,
-        side,
-        price,
-        // trigger_price: number,   // not used for MARKET and LIMIT
-        size,
-        clientId,
-        timeInForce,
-        goodTilTimeInSeconds,
-        execution,
-        postOnly,
-        reduceOnly,
-        triggerPrice,
-        marketInfo,
-        currentHeight,
-      );
-      msg.then((it) => resolve([it])).catch((err) => {
-        console.log(err);
-      });
+        params,
+      ));
     });
     const orderFlags = calculateOrderFlags(type, timeInForce);
     const account: Promise<Account> = this.validatorClient.post.account(
@@ -398,48 +471,36 @@ export class CompositeClient {
   }
 
   /**
-     * @description Calculate and create the place order message
+     * @description Place a short term order with human readable input.
      *
-     * Only MARKET and LIMIT types are supported right now
-     * Use human readable form of input, including price and size
-     * The quantum and subticks are calculated and submitted
-     *
-     * @param subaccount The subaccount to place the order under
-     * @param marketId The market to place the order on
-     * @param type The type of order to place
-     * @param side The side of the order to place
-     * @param price The price of the order to place
-     * @param size The size of the order to place
-     * @param clientId The client id of the order to place
-     * @param timeInForce The time in force of the order to place
-     * @param goodTilTimeInSeconds The goodTilTimeInSeconds of the order to place
-     * @param execution The execution of the order to place
-     * @param postOnly The postOnly of the order to place
-     * @param reduceOnly The reduceOnly of the order to place
-     *
+     * @param subaccount The subaccount to place the order on.
+     * @param params The parameters of the order to place.
      *
      * @throws UnexpectedClientError if a malformed response is returned with no GRPC error
      * at any point.
      * @returns The message to be passed into the protocol
      */
-  private async placeOrderMessage(
+  async placeOrderMsgs(
     subaccount: SubaccountInfo,
-    marketId: string,
-    type: OrderType,
-    side: OrderSide,
-    price: number,
-    // trigger_price: number,   // not used for MARKET and LIMIT
-    size: number,
-    clientId: number,
-    timeInForce?: OrderTimeInForce,
-    goodTilTimeInSeconds?: number,
-    execution?: OrderExecution,
-    postOnly?: boolean,
-    reduceOnly?: boolean,
-    triggerPrice?: number,
-    marketInfo?: MarketInfo,
-    currentHeight?: number,
-  ): Promise<EncodeObject> {
+    params: IHumanReadableOrder,
+  ): Promise<EncodeObject[]> {
+    const {
+      marketId,
+      type,
+      side,
+      price,
+      size,
+      clientId,
+      timeInForce,
+      goodTilTimeInSeconds,
+      execution,
+      postOnly,
+      reduceOnly,
+      triggerPrice,
+      marketInfo,
+      currentHeight,
+    } = params;
+
     const orderFlags = calculateOrderFlags(type, timeInForce);
 
     const result = await Promise.all([
@@ -482,7 +543,7 @@ export class CompositeClient {
       quantumConversionExponent,
       subticksPerTick,
       triggerPrice);
-    return this.validatorClient.post.composer.composeMsgPlaceOrder(
+    return [this.validatorClient.post.composer.composeMsgPlaceOrder(
       subaccount.address,
       subaccount.subaccountNumber,
       clientId,
@@ -498,7 +559,7 @@ export class CompositeClient {
       clientMetadata,
       conditionalType,
       conditionalOrderTriggerSubticks,
-    );
+    )];
   }
 
   private async retrieveMarketInfo(marketId: string, marketInfo?: MarketInfo): Promise<MarketInfo> {
@@ -520,79 +581,6 @@ export class CompositeClient {
         subticksPerTick,
       };
     }
-  }
-
-  /**
-     * @description Calculate and create the short term place order message
-     *
-     * Use human readable form of input, including price and size
-     * The quantum and subticks are calculated and submitted
-     *
-     * @param subaccount The subaccount to place the order under
-     * @param marketId The market to place the order on
-     * @param side The side of the order to place
-     * @param price The price of the order to place
-     * @param size The size of the order to place
-     * @param clientId The client id of the order to place
-     * @param timeInForce The time in force of the order to place
-     * @param goodTilBlock The goodTilBlock of the order to place
-     * @param reduceOnly The reduceOnly of the order to place
-     *
-     *
-     * @throws UnexpectedClientError if a malformed response is returned with no GRPC error
-     * at any point.
-     * @returns The message to be passed into the protocol
-     */
-  private async placeShortTermOrderMessage(
-    subaccount: SubaccountInfo,
-    marketId: string,
-    side: OrderSide,
-    price: number,
-    size: number,
-    clientId: number,
-    goodTilBlock: number,
-    timeInForce: Order_TimeInForce,
-    reduceOnly: boolean,
-  ): Promise<EncodeObject> {
-    await this.validateGoodTilBlock(goodTilBlock);
-
-    const marketsResponse = await this.indexerClient.markets.getPerpetualMarkets(marketId);
-    const market = marketsResponse.markets[marketId];
-    const clobPairId = market.clobPairId;
-    const atomicResolution = market.atomicResolution;
-    const stepBaseQuantums = market.stepBaseQuantums;
-    const quantumConversionExponent = market.quantumConversionExponent;
-    const subticksPerTick = market.subticksPerTick;
-    const orderSide = calculateSide(side);
-    const quantums = calculateQuantums(
-      size,
-      atomicResolution,
-      stepBaseQuantums,
-    );
-    const subticks = calculateSubticks(
-      price,
-      atomicResolution,
-      quantumConversionExponent,
-      subticksPerTick,
-    );
-    const orderFlags = OrderFlags.SHORT_TERM;
-    return this.validatorClient.post.composer.composeMsgPlaceOrder(
-      subaccount.address,
-      subaccount.subaccountNumber,
-      clientId,
-      clobPairId,
-      orderFlags,
-      goodTilBlock,
-      0, // Short term orders use goodTilBlock.
-      orderSide,
-      quantums,
-      subticks,
-      timeInForce,
-      reduceOnly,
-      0, // Client metadata is 0 for short term orders.
-      Order_ConditionType.CONDITION_TYPE_UNSPECIFIED, // Short term orders cannot be conditional.
-      Long.fromInt(0), // Short term orders cannot be conditional.
-    );
   }
 
   /**
@@ -624,6 +612,16 @@ export class CompositeClient {
       clobPairId,
       goodTilBlock,
       goodTilBlockTime,
+    );
+  }
+
+  async cancelOrderMsgs(
+    subaccount: SubaccountInfo,
+    params: ICancelOrder,
+  ): Promise<EncodeObject[]> {
+    return this.validatorClient.post.cancelOrderMsgs(
+      subaccount,
+      params,
     );
   }
 
@@ -708,14 +706,16 @@ export class CompositeClient {
     amount: string,
     memo?: string,
   ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
+    const params: IHumanReadableTransfer = {
+      recipientAddress,
+      recipientSubaccountNumber,
+      amount,
+    };
     const msgs: Promise<EncodeObject[]> = new Promise((resolve) => {
-      const msg = this.transferToSubaccountMessage(
+      resolve(this.transferToSubaccountMsgs(
         subaccount,
-        recipientAddress,
-        recipientSubaccountNumber,
-        amount,
-      );
-      resolve([msg]);
+        params,
+      ));
     });
     return this.send(
       subaccount.wallet,
@@ -739,12 +739,15 @@ export class CompositeClient {
      * at any point.
      * @returns The message
      */
-  transferToSubaccountMessage(
+  transferToSubaccountMsgs(
     subaccount: SubaccountInfo,
-    recipientAddress: string,
-    recipientSubaccountNumber: number,
-    amount: string,
-  ): EncodeObject {
+    params: IHumanReadableTransfer,
+  ): EncodeObject[] {
+    const {
+      recipientAddress,
+      recipientSubaccountNumber,
+      amount,
+    } = params;
     const validatorClient = this._validatorClient;
     if (validatorClient === undefined) {
       throw new Error('validatorClient not set');
@@ -757,7 +760,7 @@ export class CompositeClient {
       throw new Error('amount must be positive');
     }
 
-    return this.validatorClient.post.composer.composeMsgTransfer(
+    const msg = this.validatorClient.post.composer.composeMsgTransfer(
       subaccount.address,
       subaccount.subaccountNumber,
       recipientAddress,
@@ -765,6 +768,7 @@ export class CompositeClient {
       0,
       Long.fromString(quantums.toString()),
     );
+    return [msg];
   }
 
   /**
@@ -782,12 +786,14 @@ export class CompositeClient {
     amount: string,
     memo?: string,
   ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
+    const params: IHumanReadableDeposit = {
+      amount,
+    };
     const msgs: Promise<EncodeObject[]> = new Promise((resolve) => {
-      const msg = this.depositToSubaccountMessage(
+      resolve(this.depositToSubaccountMsgs(
         subaccount,
-        amount,
-      );
-      resolve([msg]);
+        params,
+      ));
     });
     return this.validatorClient.post.send(subaccount.wallet,
       () => msgs,
@@ -807,10 +813,13 @@ export class CompositeClient {
      * at any point.
      * @returns The message
      */
-  depositToSubaccountMessage(
+  depositToSubaccountMsgs(
     subaccount: SubaccountInfo,
-    amount: string,
-  ): EncodeObject {
+    params: IHumanReadableDeposit,
+  ): EncodeObject[] {
+    const {
+      amount,
+    } = params;
     const validatorClient = this._validatorClient;
     if (validatorClient === undefined) {
       throw new Error('validatorClient not set');
@@ -823,12 +832,13 @@ export class CompositeClient {
       throw new Error('amount must be positive');
     }
 
-    return this.validatorClient.post.composer.composeMsgDepositToSubaccount(
+    const msg = this.validatorClient.post.composer.composeMsgDepositToSubaccount(
       subaccount.address,
       subaccount.subaccountNumber,
       0,
       Long.fromString(quantums.toString()),
     );
+    return [msg];
   }
 
   /**
@@ -848,13 +858,15 @@ export class CompositeClient {
     recipient?: string,
     memo?: string,
   ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
+    const params: IHumanReadableWithdraw = {
+      amount,
+      recipient: recipient ?? subaccount.address,
+    };
     const msgs: Promise<EncodeObject[]> = new Promise((resolve) => {
-      const msg = this.withdrawFromSubaccountMessage(
+      resolve(this.withdrawFromSubaccountMsgs(
         subaccount,
-        amount,
-        recipient,
-      );
-      resolve([msg]);
+        params,
+      ));
     });
     return this.send(
       subaccount.wallet,
@@ -877,11 +889,14 @@ export class CompositeClient {
      * at any point.
      * @returns The message
      */
-  withdrawFromSubaccountMessage(
+  withdrawFromSubaccountMsgs(
     subaccount: SubaccountInfo,
-    amount: string,
-    recipient?: string,
-  ): EncodeObject {
+    params: IHumanReadableWithdraw,
+  ): EncodeObject[] {
+    const {
+      amount,
+      recipient,
+    } = params;
     const validatorClient = this._validatorClient;
     if (validatorClient === undefined) {
       throw new Error('validatorClient not set');
@@ -894,13 +909,14 @@ export class CompositeClient {
       throw new Error('amount must be positive');
     }
 
-    return this.validatorClient.post.composer.composeMsgWithdrawFromSubaccount(
+    const msg = this.validatorClient.post.composer.composeMsgWithdrawFromSubaccount(
       subaccount.address,
       subaccount.subaccountNumber,
       0,
       Long.fromString(quantums.toString()),
       recipient,
     );
+    return [msg];
   }
 
   /**
@@ -915,11 +931,14 @@ export class CompositeClient {
      * at any point.
      * @returns The message
      */
-  sendTokenMessage(
+  sendTokenMsgs(
     wallet: LocalWallet,
-    amount: string,
-    recipient: string,
-  ): EncodeObject {
+    param: IHumanReadableSendToken,
+  ): EncodeObject[] {
+    const {
+      recipient,
+      amount,
+    } = param;
     const address = wallet.address;
     if (address === undefined) {
       throw new UserError('wallet address is not set. Call connectWallet() first');
@@ -935,12 +954,98 @@ export class CompositeClient {
 
     const quantums = parseUnits(amount, chainTokenDecimals);
 
-    return this.validatorClient.post.composer.composeMsgSendToken(
+    const msg = this.validatorClient.post.composer.composeMsgSendToken(
       address,
       recipient,
       chainTokenDenom,
       quantums.toString(),
     );
+    return [msg];
+  }
+
+  /**
+     * @description Create message to send chain token from wallet to noble
+     * with human readable input.
+     *
+     * @param subaccount The subaccount to withdraw from
+     * @param typeUrl The typeUrl from Squid payload
+     * @param value The value to withdraw
+     *
+     * @throws UnexpectedClientError if a malformed response is returned with no GRPC error
+     * at any point.
+     * @returns The message
+     */
+  withdrawToNobleIBCMsgs(
+    subaccount: SubaccountInfo,
+    param: IWithdrawToNobleIbc,
+  ): EncodeObject[] {
+    const { subaccountNumber } = subaccount;
+    const { amount, ibcPayload } = param;
+
+    const decode = (str: string):string => Buffer.from(str, 'base64').toString('binary');
+    const decoded = decode(ibcPayload);
+
+    const parsedIbcPayload: SquidIBCPayload = JSON.parse(decoded);
+
+    const params: IHumanReadableWithdraw = {
+      amount,
+    };
+    const msg = client.withdrawFromSubaccountMsgs(
+      new SubaccountInfo(wallet, subaccountNumber),
+      params,
+    );
+    const ibcMsg: MsgTransferEncodeObject = {
+      typeUrl: parsedIbcPayload.msgTypeUrl,
+      value: {
+        ...parsedIbcPayload.msg,
+        // Squid returns timeoutTimestamp as Long, but the signer expects BigInt
+        timeoutTimestamp: parsedIbcPayload.msg.timeoutTimestamp
+          ? BigInt(Long.fromValue(parsedIbcPayload.msg.timeoutTimestamp).toString())
+          : undefined,
+      },
+    };
+    return [...msg, ibcMsg];
+  }
+
+  /**
+     * @description Create message to send chain token from nobile to target chain
+     * with human readable input.
+     *
+     * @param subaccount The subaccount to withdraw from
+     * @param typeUrl The typeUrl from Squid payload
+     * @param value The value to withdraw
+     *
+     * @throws UnexpectedClientError if a malformed response is returned with no GRPC error
+     * at any point.
+     * @returns The message
+     */
+  async cctpWithdrawMsgs(
+    subaccount: SubaccountInfo,
+    param: ICCTPWithdraw,
+    simulating: boolean,
+  ): Promise<EncodeObject[]> {
+    const { typeUrl, value } = param;
+    const ibcMsg = {
+      typeUrl, // '/circle.cctp.v1.MsgDepositForBurn',
+      value,
+    };
+
+    if (simulating) {
+      return Promise.resolve([ibcMsg]);
+    } else {
+      const fee = await this.simulate(subaccount.wallet, () => Promise.resolve([ibcMsg]));
+
+      // take out fee from amount before sweeping
+      const amount = parseInt(ibcMsg.value.amount, 10) -
+        Math.floor(parseInt(fee.amount[0].amount, 10) * GAS_MULTIPLIER);
+
+      if (amount <= 0) {
+        throw new Error('noble balance does not cover fees');
+      }
+
+      ibcMsg.value.amount = amount.toString();
+      return Promise.resolve([ibcMsg]);
+    }
   }
 
   async signPlaceOrder(
@@ -958,25 +1063,24 @@ export class CompositeClient {
     postOnly: boolean,
     reduceOnly: boolean,
   ): Promise<string> {
+    const params: IHumanReadableOrder = {
+      marketId,
+      type,
+      side,
+      price,
+      size,
+      clientId,
+      timeInForce,
+      goodTilTimeInSeconds,
+      execution,
+      postOnly,
+      reduceOnly,
+    };
     const msgs: Promise<EncodeObject[]> = new Promise((resolve) => {
-      const msg = this.placeOrderMessage(
+      resolve(this.placeOrderMsgs(
         subaccount,
-        marketId,
-        type,
-        side,
-        price,
-        // trigger_price: number,   // not used for MARKET and LIMIT
-        size,
-        clientId,
-        timeInForce,
-        goodTilTimeInSeconds,
-        execution,
-        postOnly,
-        reduceOnly,
-      );
-      msg.then((it) => resolve([it])).catch((err) => {
-        console.log(err);
-      });
+        params,
+      ));
     });
     const signature = await this.sign(
       wallet,
@@ -995,17 +1099,18 @@ export class CompositeClient {
     goodTilBlock: number,
     goodTilBlockTime: number,
   ): Promise<string> {
+    const params: ICancelOrder = {
+      clientId,
+      orderFlags,
+      clobPairId,
+      goodTilBlock,
+      goodTilBlockTime,
+    };
     const msgs: Promise<EncodeObject[]> = new Promise((resolve) => {
-      const msg = this.validatorClient.post.composer.composeMsgCancelOrder(
-        subaccount.address,
-        subaccount.subaccountNumber,
-        clientId,
-        clobPairId,
-        orderFlags,
-        goodTilBlock,
-        goodTilBlockTime,
-      );
-      resolve([msg]);
+      resolve(this.validatorClient.post.cancelOrderMsgs(
+        subaccount,
+        params,
+      ));
     });
     const signature = await this.sign(
       subaccount.wallet,
@@ -1014,6 +1119,94 @@ export class CompositeClient {
     );
 
     return Buffer.from(signature).toString('base64');
+  }
+
+  /**
+   * @description Construct a Msg for a transaction
+   *
+   * @param request to be committed onchain
+   *
+   * @returns the message
+   */
+  async msgs(
+    subaccount: SubaccountInfo,
+    request: IHumanReadableRequest,
+    simulating: boolean,
+  ): Promise<EncodeObject[]> {
+    switch (request.type) {
+      case RequestType.PLACE_ORDER:
+        return this.placeOrderMsgs(subaccount, request.params as IHumanReadableOrder);
+
+      case RequestType.CANCEL_ORDER:
+        return this.cancelOrderMsgs(subaccount, request.params as ICancelOrder);
+
+      case RequestType.DEPOSIT:
+        return this.depositToSubaccountMsgs(subaccount, request.params as IHumanReadableDeposit);
+
+      case RequestType.WITHDRAW:
+        return this.depositToSubaccountMsgs(subaccount, request.params as IHumanReadableWithdraw);
+
+      case RequestType.TRANSFER:
+        return this.transferToSubaccountMsgs(subaccount, request.params as IHumanReadableTransfer);
+
+      case RequestType.SEND_TOKEN:
+        return this.sendTokenMsgs(subaccount.wallet, request.params as IHumanReadableSendToken);
+
+      case RequestType.WITHDRAW_TO_NOBLE_IBC:
+        return this.withdrawToNobleIBCMsgs(
+          subaccount,
+          request.params as IWithdrawToNobleIbc,
+        );
+
+      case RequestType.CCTP_WITHDRAW:
+        return this.cctpWithdrawMsgs(
+          subaccount,
+          request.params as ICCTPWithdraw,
+          simulating,
+        );
+
+      default:
+        throw new Error('Invalid request type');
+    }
+  }
+
+  /**
+   * @description Submit a list of msgs as one transaction
+   *
+   * @param params Parameters neeeded to create a new market.
+   *
+   * @returns the transaction hash.
+   */
+
+  async sendMsgs(
+    subaccount: SubaccountInfo,
+    requests: IHumanReadableRequest[],
+    memo?: string,
+  ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
+    const msgs = (await Promise.all(
+      requests.map((request) => this.msgs(subaccount, request, false)),
+    )).flat();
+    return this.validatorClient.post.sendMsgs(subaccount, msgs, memo);
+  }
+
+  /**
+   * @description Submit a list of msgs as one transaction
+   *
+   * @param params Parameters neeeded to create a new market.
+   *
+   * @returns the transaction hash.
+   */
+
+  async simulateMsgs(
+    subaccount: SubaccountInfo,
+    requests: IHumanReadableRequest[],
+    memo?: string,
+  ): Promise<StdFee> {
+    const msgs = (await Promise.all(
+      requests.map((request) => this.msgs(subaccount, request, false)),
+    )).flat();
+
+    return this.validatorClient.post.simulateMsgs(subaccount, msgs, memo);
   }
 
   /**

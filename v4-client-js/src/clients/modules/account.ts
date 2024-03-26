@@ -1,7 +1,6 @@
 import {
-  OrderSide, OrderStatus, OrderType, PositionStatus, TickerType,
-} from '../constants';
-import { Data } from '../types';
+  Data, OrderSide, OrderStatus, OrderType, PositionStatus, TickerType,
+} from '../types';
 import RestClient from './rest';
 
 /**

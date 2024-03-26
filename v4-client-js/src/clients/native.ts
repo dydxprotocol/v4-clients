@@ -13,16 +13,30 @@ import { UserError } from '../lib/errors';
 import { ByteArrayEncoding, encodeJson } from '../lib/helpers';
 import { deriveHDKeyFromEthereumSignature } from '../lib/onboarding';
 import { NetworkOptimizer } from '../network_optimizer';
-import { CompositeClient, MarketInfo } from './composite-client';
+import { CompositeClient } from './composite-client';
 import {
-  Network, OrderType, OrderSide, OrderTimeInForce, OrderExecution, IndexerConfig, ValidatorConfig,
+  Network, IndexerConfig, ValidatorConfig,
 } from './constants';
 import { FaucetClient } from './faucet-client';
 import { Response } from './lib/axios';
 import LocalWallet from './modules/local-wallet';
 import { NobleClient } from './noble-client';
 import { SubaccountInfo } from './subaccount';
-import { OrderFlags, SquidIBCPayload } from './types';
+import {
+  IHumanReadableDeposit,
+  IHumanReadableRequest,
+  IHumanReadableSendToken,
+  IHumanReadableWithdraw,
+  IWithdrawToNobleIbc,
+  MarketInfo,
+  OrderExecution,
+  OrderFlags,
+  OrderSide,
+  OrderTimeInForce,
+  OrderType,
+  RequestType,
+  SquidIBCPayload,
+} from './types';
 
 declare global {
   // eslint-disable-next-line vars-on-top, no-var
@@ -506,9 +520,12 @@ export async function withdrawToIBC(
     };
 
     const subaccount = new SubaccountInfo(wallet, subaccountNumber);
-    const subaccountMsg = client.withdrawFromSubaccountMessage(subaccount, amount);
+    const params: IHumanReadableWithdraw = {
+      amount,
+    };
+    const subaccountMsg = client.withdrawFromSubaccountMsgs(subaccount, params);
 
-    const msgs = [subaccountMsg, ibcMsg];
+    const msgs = [...subaccountMsg, ibcMsg];
     const encodeObjects: Promise<EncodeObject[]> = new Promise((resolve) => resolve(msgs));
 
     const tx = await client.send(
@@ -545,12 +562,14 @@ export async function transferNativeToken(
       throw new UserError('amount is not set');
     }
 
-    const msg: EncodeObject = client.sendTokenMessage(
-      wallet,
+    const params: IHumanReadableSendToken = {
+      recipient: json.recipient,
       amount,
-      json.recipient,
+    };
+    const msgs = client.sendTokenMsgs(
+      wallet,
+      params,
     );
-    const msgs = [msg];
     const encodeObjects: Promise<EncodeObject[]> = new Promise((resolve) => resolve(msgs));
 
     const tx = await client.send(
@@ -649,11 +668,13 @@ export async function simulateDeposit(
     }
 
     const subaccount = new SubaccountInfo(wallet, subaccountNumber);
-    const msg: EncodeObject = client.depositToSubaccountMessage(
-      subaccount,
+    const params: IHumanReadableDeposit = {
       amount,
+    };
+    const msgs = client.depositToSubaccountMsgs(
+      subaccount,
+      params,
     );
-    const msgs: EncodeObject[] = [msg];
     const encodeObjects: Promise<EncodeObject[]> = new Promise((resolve) => resolve(msgs));
 
     const stdFee = await client.simulate(
@@ -691,12 +712,14 @@ export async function simulateWithdraw(
     }
 
     const subaccount = new SubaccountInfo(wallet, subaccountNumber);
-    const msg: EncodeObject = client.withdrawFromSubaccountMessage(
-      subaccount,
+    const params: IHumanReadableWithdraw = {
       amount,
-      json.recipient,
+      recipient: json.recipient,
+    };
+    const msgs = client.withdrawFromSubaccountMsgs(
+      subaccount,
+      params,
     );
-    const msgs: EncodeObject[] = [msg];
     const encodeObjects: Promise<EncodeObject[]> = new Promise((resolve) => resolve(msgs));
 
     const stdFee = await client.simulate(
@@ -733,12 +756,14 @@ export async function simulateTransferNativeToken(
       throw new UserError('amount is not set');
     }
 
-    const msg: EncodeObject = client.sendTokenMessage(
-      wallet,
+    const params: IHumanReadableSendToken = {
+      recipient: json.recipient,
       amount,
-      json.recipient,
+    };
+    const msgs = client.sendTokenMsgs(
+      wallet,
+      params,
     );
-    const msgs: EncodeObject[] = [msg];
     const encodeObjects: Promise<EncodeObject[]> = new Promise((resolve) => resolve(msgs));
 
     const stdFee = await client.simulate(
@@ -1055,7 +1080,7 @@ export async function getNobleBalance(): Promise<String> {
   }
 }
 
-export async function sendNobleIBC(squidPayload: string): Promise<String> {
+export async function sendNobleIBC(squidPayload: string): Promise<string> {
   try {
     const client = globalThis.nobleClient;
     if (client === undefined || !client.isConnected) {
@@ -1112,31 +1137,17 @@ export async function withdrawToNobleIBC(payload: string): Promise<String> {
     }
     const json = JSON.parse(payload);
 
-    const { subaccountNumber, amount, ibcPayload } = json ?? {};
-
-    const decode = (str: string):string => Buffer.from(str, 'base64').toString('binary');
-    const decoded = decode(ibcPayload);
-
-    const parsedIbcPayload: SquidIBCPayload = JSON.parse(decoded);
-
-    const msg = client.withdrawFromSubaccountMessage(
-      new SubaccountInfo(wallet, subaccountNumber),
-      parseFloat(amount).toFixed(client.validatorClient.config.denoms.USDC_DECIMALS),
-    );
-    const ibcMsg: MsgTransferEncodeObject = {
-      typeUrl: parsedIbcPayload.msgTypeUrl,
-      value: {
-        ...parsedIbcPayload.msg,
-        // Squid returns timeoutTimestamp as Long, but the signer expects BigInt
-        timeoutTimestamp: parsedIbcPayload.msg.timeoutTimestamp
-          ? BigInt(Long.fromValue(parsedIbcPayload.msg.timeoutTimestamp).toString())
-          : undefined,
-      },
-    };
+    const subaccountNumber = json.subaccountNumber;
+    if (subaccountNumber === undefined) {
+      throw new UserError('subaccountNumber is not set');
+    }
+    const subaccount = new SubaccountInfo(wallet, subaccountNumber);
+    const msgs = client.withdrawToNobleIBCMsgs(subaccount,
+      json as IWithdrawToNobleIbc);
 
     const tx = await client.send(
       wallet,
-      () => Promise.resolve([msg, ibcMsg]),
+      () => Promise.resolve(msgs),
       false,
     );
 
@@ -1148,7 +1159,7 @@ export async function withdrawToNobleIBC(payload: string): Promise<String> {
   }
 }
 
-export async function cctpWithdraw(squidPayload: string): Promise<String> {
+export async function cctpWithdraw(squidPayload: string): Promise<string> {
   try {
     const client = globalThis.nobleClient;
     if (client === undefined || !client.isConnected) {
@@ -1178,6 +1189,86 @@ export async function cctpWithdraw(squidPayload: string): Promise<String> {
     const tx = await client.send([ibcMsg]);
 
     return encodeJson(tx);
+  } catch (error) {
+    return wrappedError(error);
+  }
+}
+
+/*
+  Expected payload
+  {
+    "chain": "DYDX",
+    "subaccountNumber": 0,
+    "requests": [
+      {
+        "type": "placeOrder",
+        "marketId": "BTC-USD"...,
+      }
+    ],
+    "memo": "optional memo"
+  }
+*/
+export async function transaction(
+  payload: string,
+): Promise<string> {
+  try {
+    const client = globalThis.client;
+    if (client === undefined) {
+      throw new UserError('client is not connected. Call connectClient() first');
+    }
+    const wallet = globalThis.wallet;
+    if (wallet === undefined) {
+      throw new UserError('wallet is not set. Call connectWallet() first');
+    }
+    const json = JSON.parse(payload);
+    const subaccountNumber = json.subaccountNumber;
+    if (subaccountNumber === undefined) {
+      throw new UserError('subaccountNumber is not set');
+    }
+    const subaccount = new SubaccountInfo(wallet, subaccountNumber);
+    const requests = json.requests;
+    if (Array.isArray(requests)) {
+      // Verify the request types
+      const nonConformingRequests = requests.find((request: IHumanReadableRequest) => {
+        switch (request.type) {
+          case RequestType.FAUCET:
+          case RequestType.PLACE_ORDER:
+          case RequestType.CANCEL_ORDER:
+          case RequestType.DEPOSIT:
+          case RequestType.WITHDRAW:
+          case RequestType.TRANSFER:
+          case RequestType.SEND_TOKEN:
+          case RequestType.SEND_NOBLE_IBC:
+          case RequestType.WITHDRAW_TO_NOBLE_IBC:
+          case RequestType.CCTP_WITHDRAW:
+            return true;
+
+          default:
+            return false;
+        }
+      });
+      if (nonConformingRequests !== undefined) {
+        throw new UserError('requests is not an array');
+      }
+    } else {
+      throw new UserError('requests is not an array');
+    }
+    const memo = json.memo;
+    // Handle the faucet separately
+    if (requests.length === 1 && requests[0].type === RequestType.FAUCET) {
+      return faucet(requests[0].params);
+    } else if (requests.length === 1 && requests[0].type === RequestType.SEND_NOBLE_IBC) {
+      return sendNobleIBC(requests[0].params);
+    } else if (requests.length === 1 && requests[0].type === RequestType.CCTP_WITHDRAW) {
+      return cctpWithdraw(requests[0].params);
+    } else {
+      const tx = await client.sendMsgs(
+        subaccount,
+        requests,
+        memo,
+      );
+      return encodeJson(tx);
+    }
   } catch (error) {
     return wrappedError(error);
   }
