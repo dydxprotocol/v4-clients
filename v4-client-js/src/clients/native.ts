@@ -284,6 +284,7 @@ export async function placeOrder(
     }
     const timeInForce = json.timeInForce;
     const goodTilTimeInSeconds = json.goodTilTimeInSeconds;
+    const goodTilBlock = json.goodTilBlock;
     const execution = json.execution;
     const postOnly = json.postOnly ?? false;
     const reduceOnly = json.reduceOnly ?? false;
@@ -309,6 +310,7 @@ export async function placeOrder(
       triggerPrice,
       marketInfo,
       currentHeight,
+      goodTilBlock,
     );
     return encodeJson(tx);
   } catch (error) {
