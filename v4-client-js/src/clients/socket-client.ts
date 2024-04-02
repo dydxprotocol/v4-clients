@@ -3,7 +3,6 @@ import WebSocket, { MessageEvent } from 'ws';
 import { IndexerConfig } from './constants';
 
 enum OutgoingMessageTypes {
-  PING = 'ping',
   SUBSCRIBE = 'subscribe',
   UNSUBSCRIBE = 'unsubscribe',
 }
@@ -41,9 +40,7 @@ export class SocketClient {
     private onOpenCallback?: () => void;
     private onCloseCallback?: () => void;
     private onMessageCallback?: (event: MessageEvent) => void;
-    private pingInterval: number = 30_000;
     private lastMessageTime: number = Date.now();
-    private pingIntervalId?: NodeJS.Timeout;
 
     constructor(
       config: IndexerConfig,
@@ -85,14 +82,12 @@ export class SocketClient {
       if (this.onOpenCallback) {
         this.onOpenCallback();
       }
-      this.restartPingInterval();
     }
 
     private handleClose(): void {
       if (this.onCloseCallback) {
         this.onCloseCallback();
       }
-      clearInterval(this.pingIntervalId);
     }
 
     private handleMessage(event: MessageEvent): void {
@@ -104,17 +99,6 @@ export class SocketClient {
           this.onMessageCallback(event);
         }
       }
-      this.restartPingInterval();
-    }
-
-    private restartPingInterval(): void {
-      clearInterval(this.pingIntervalId);
-      this.pingIntervalId = setInterval(() => {
-        const elapsedTime = Date.now() - this.lastMessageTime;
-        if (elapsedTime > this.pingInterval) {
-          this.send('PING');
-        }
-      }, this.pingInterval);
     }
 
     /**
