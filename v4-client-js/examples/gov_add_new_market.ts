@@ -1,3 +1,4 @@
+import { PerpetualMarketType } from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/perpetuals/perpetual';
 import Long from 'long';
 
 import { GovAddNewMarketParams, LocalWallet, ProposalStatus } from '../src';
@@ -30,6 +31,7 @@ const MOCK_DATA: GovAddNewMarketParams = {
   // x/perpetuals
   liquidityTier: 2,
   atomicResolution: -1,
+  marketType: PerpetualMarketType.PERPETUAL_MARKET_TYPE_CROSS,
 
   // x/clob
   quantumConversionExponent: -9,

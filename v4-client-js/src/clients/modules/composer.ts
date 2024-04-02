@@ -10,6 +10,7 @@ import {
   MsgUpdateClobPair,
 } from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/clob/tx';
 import { MsgDelayMessage } from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/delaymsg/tx';
+import { PerpetualMarketType } from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/perpetuals/perpetual';
 import { MsgCreatePerpetual } from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/perpetuals/tx';
 import { MsgCreateOracleMarket } from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/prices/tx';
 import { MsgSend } from 'cosmjs-types/cosmos/bank/v1beta1/tx';
@@ -342,6 +343,7 @@ export class Composer {
     ticker: string,
     atomicResolution: number,
     liquidityTier: number,
+    marketType: PerpetualMarketType,
   ): EncodeObject {
     const msg: MsgCreatePerpetual = {
       // uses x/gov module account since creating the perpetual is a governance action.
@@ -353,6 +355,7 @@ export class Composer {
         atomicResolution,
         defaultFundingPpm: 0, // default funding should be 0 to start.
         liquidityTier,
+        marketType,
       },
     };
 
