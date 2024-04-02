@@ -473,8 +473,8 @@ export class Post {
         subaccount.address,
         subaccount.subaccountNumber,
         clientId,
-        clobPairId,
         orderFlags,
+        clobPairId,
         goodTilBlock ?? 0,
         goodTilBlockTime ?? 0,
       );
