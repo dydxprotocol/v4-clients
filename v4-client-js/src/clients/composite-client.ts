@@ -199,10 +199,15 @@ export class CompositeClient {
   private async calculateGoodTilBlock(
     orderFlags: OrderFlags,
     currentHeight?: number,
+    goodTilBlock?: number,
   ): Promise<number> {
     if (orderFlags === OrderFlags.SHORT_TERM) {
-      const height = currentHeight ?? await this.validatorClient.get.latestBlockHeight();
-      return height + SHORT_BLOCK_FORWARD;
+      if (goodTilBlock !== undefined && goodTilBlock !== 0) {
+        return Promise.resolve(goodTilBlock);
+      } else {
+        const height = currentHeight ?? await this.validatorClient.get.latestBlockHeight();
+        return height + SHORT_BLOCK_FORWARD;
+      }
     } else {
       return Promise.resolve(0);
     }
@@ -357,6 +362,7 @@ export class CompositeClient {
     triggerPrice?: number,
     marketInfo?: MarketInfo,
     currentHeight?: number,
+    goodTilBlock?: number,
     memo?: string,
   ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
     const msgs: Promise<EncodeObject[]> = new Promise((resolve) => {
@@ -377,6 +383,7 @@ export class CompositeClient {
         triggerPrice,
         marketInfo,
         currentHeight,
+        goodTilBlock,
       );
       msg.then((it) => resolve([it])).catch((err) => {
         console.log(err);
@@ -439,15 +446,16 @@ export class CompositeClient {
     triggerPrice?: number,
     marketInfo?: MarketInfo,
     currentHeight?: number,
+    goodTilBlock?: number,
   ): Promise<EncodeObject> {
     const orderFlags = calculateOrderFlags(type, timeInForce);
 
     const result = await Promise.all([
-      this.calculateGoodTilBlock(orderFlags, currentHeight),
+      this.calculateGoodTilBlock(orderFlags, currentHeight, goodTilBlock),
       this.retrieveMarketInfo(marketId, marketInfo),
     ],
     );
-    const goodTilBlock = result[0];
+    const desiredGoodTilBlock = result[0];
     const clobPairId = result[1].clobPairId;
     const atomicResolution = result[1].atomicResolution;
     const stepBaseQuantums = result[1].stepBaseQuantums;
@@ -488,7 +496,7 @@ export class CompositeClient {
       clientId,
       clobPairId,
       orderFlags,
-      goodTilBlock,
+      desiredGoodTilBlock,
       goodTilBlockTime,
       orderSide,
       quantums,
