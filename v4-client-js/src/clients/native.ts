@@ -1198,7 +1198,7 @@ export async function getWithdrawalCapacityByDenom(denom: string): Promise<strin
 export async function getWithdrawalAndTransferGatingStatus(): Promise<string> {
   try {
     const validatorClient = globalThis.client.validatorClient;
-    const result = await validatorClient.get.GetWithdrawalAndTransferGatingStatus();
+    const result = await validatorClient.get.getWithdrawalAndTransferGatingStatus();
     return encodeJson(result, ByteArrayEncoding.BIGINT);
   } catch (e) {
     return wrappedError(e);
