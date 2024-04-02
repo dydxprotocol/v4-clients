@@ -1057,6 +1057,7 @@ export class CompositeClient {
         params.ticker,
         params.atomicResolution,
         params.liquidityTier,
+        params.marketType,
       );
 
       // x/clob.MsgCreateClobPair

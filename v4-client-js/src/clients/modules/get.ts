@@ -13,6 +13,7 @@ import { Any } from 'cosmjs-types/google/protobuf/any';
 import Long from 'long';
 import protobuf from 'protobufjs';
 
+import { ByteArrayEncoding, encodeJson } from '../../lib/helpers';
 import { PAGE_REQUEST } from '../constants';
 import { UnexpectedClientError } from '../lib/errors';
 import {
@@ -504,7 +505,7 @@ export class Get {
     return GovV1Module.QueryProposalsResponse.decode(data);
   }
 
-  async GetWithdrawalAndTransferGatingStatus(
+  async getWithdrawalAndTransferGatingStatus(
   ): Promise<SubaccountsModule.QueryGetWithdrawalAndTransfersBlockedInfoResponse> {
     const requestData = Uint8Array.from(
       SubaccountsModule.QueryGetWithdrawalAndTransfersBlockedInfoRequest
@@ -536,7 +537,8 @@ export class Get {
       requestData,
     );
 
-    return RateLimitModule.QueryCapacityByDenomResponse.decode(data);
+    const decodedResponse = RateLimitModule.QueryCapacityByDenomResponse.decode(data);
+    return JSON.parse(encodeJson(decodedResponse, ByteArrayEncoding.BIGINT));
   }
 
   private async sendQuery(requestUrl: string, requestData: Uint8Array): Promise<Uint8Array> {

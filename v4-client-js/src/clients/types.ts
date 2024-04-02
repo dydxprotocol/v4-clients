@@ -1,6 +1,7 @@
 import { Coin } from '@cosmjs/proto-signing';
 import { Method } from '@cosmjs/tendermint-rpc';
 import { Order_ConditionType, Order_Side, Order_TimeInForce } from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/clob/order';
+import { PerpetualMarketType } from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/perpetuals/perpetual';
 import BigNumber from 'bignumber.js';
 import Long from 'long';
 
@@ -111,6 +112,7 @@ export type SquidIBCPayload = {
 };
 
 // ------------ x/gov: Add New Market ------------ //
+
 export type GovAddNewMarketParams = {
   // common
   id: number;
@@ -125,6 +127,7 @@ export type GovAddNewMarketParams = {
   // x/perpetuals
   liquidityTier: number;
   atomicResolution: number;
+  marketType: PerpetualMarketType;
 
   // x/clob
   quantumConversionExponent: number;
