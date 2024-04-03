@@ -1185,22 +1185,38 @@ export async function cctpWithdraw(squidPayload: string): Promise<String> {
   }
 }
 
-export async function getWithdrawalCapacityByDenom(denom: string): Promise<string> {
+export async function getWithdrawalCapacityByDenom(
+  payload: string,
+): Promise<string> {
   try {
-    const validatorClient = globalThis.client.validatorClient;
-    const result = await validatorClient.get.getWithdrawalCapacityByDenom(denom);
-    return encodeJson(result, ByteArrayEncoding.BIGINT);
-  } catch (e) {
-    return wrappedError(e);
+    const client = globalThis.client;
+    if (client === undefined) {
+      throw new UserError('client is not connected. Call connectClient() first');
+    }
+    const json = JSON.parse(payload);
+    const denom = json.denom;
+    if (denom === undefined) {
+      throw new UserError('denom is not set');
+    }
+
+    const response = await client.validatorClient.get.getWithdrawalCapacityByDenom(denom);
+    return encodeJson(response);
+  } catch (error) {
+    return wrappedError(error);
   }
 }
 
-export async function getWithdrawalAndTransferGatingStatus(): Promise<string> {
+export async function getWithdrawalAndTransferGatingStatus(
+): Promise<string> {
   try {
-    const validatorClient = globalThis.client.validatorClient;
-    const result = await validatorClient.get.getWithdrawalAndTransferGatingStatus();
-    return encodeJson(result, ByteArrayEncoding.BIGINT);
-  } catch (e) {
-    return wrappedError(e);
+    const client = globalThis.client;
+    if (client === undefined) {
+      throw new UserError('client is not connected. Call connectClient() first');
+    }
+
+    const response = await client.validatorClient.get.getWithdrawalAndTransferGatingStatus();
+    return encodeJson(response);
+  } catch (error) {
+    return wrappedError(error);
   }
 }
