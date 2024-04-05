@@ -109,7 +109,7 @@ export default class AccountClient extends RestClient {
   }
 
   async getOrder(orderId: string) : Promise<Data> {
-    const uri = `/v4/orders${orderId}`;
+    const uri = `/v4/orders/${orderId}`;
     return this.get(uri);
   }
 
