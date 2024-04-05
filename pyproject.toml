@@ -6,12 +6,14 @@ authors = ["Piotr Piwoński <piwonskp@gmail.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = "^3.12"
+v4-proto = "^4.0.1"
 
 
 [tool.poetry.group.dev.dependencies]
 pre-commit = "^3.7.0"
 pytest = "^8.1.1"
+pytest-asyncio = "^0.23.6"
 
 [build-system]
 requires = ["poetry-core"]
