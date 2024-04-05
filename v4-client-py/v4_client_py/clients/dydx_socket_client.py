@@ -19,8 +19,6 @@ class SocketClient:
         self.on_open = on_open
         self.on_close = on_close
         self.last_activity_time = None
-        self.ping_thread = None
-        self.ping_sent_time = None
 
     def connect(self):
         self.ws = websocket.WebSocketApp(self.url,
@@ -36,17 +34,9 @@ class SocketClient:
         else:
             print('WebSocket connection opened')
         self.last_activity_time = time.time()
-        self.ping_thread = threading.Thread(target=self._ping_thread_func)
-        self.ping_thread.start()
 
     def _on_message(self, ws, message):
-        if message == 'ping':
-            self.send('pong')
-        elif message == 'pong' and self.ping_sent_time is not None:
-            elapsed_time = time.time() - self.ping_sent_time
-            print(f'Received PONG after {elapsed_time:.2f} seconds')
-            self.ping_sent_time = None
-        elif self.on_message:
+        if self.on_message:
             self.on_message(ws, message)
         else:
             print(f'Received message: {message}')
@@ -58,7 +48,6 @@ class SocketClient:
         else:
             print('WebSocket connection closed')
         self.last_activity_time = None
-        self.ping_thread = None
 
     def send(self, message):
         if self.ws:
@@ -66,24 +55,6 @@ class SocketClient:
             self.last_activity_time = time.time()
         else:
             print('Error: WebSocket is not connected')
-
-    def send_ping(self):
-        self.send('ping')
-        self.ping_sent_time = time.time()
-
-    def _ping_thread_func(self):
-        while self.ws:
-            if self.last_activity_time and time.time() - self.last_activity_time > 30:
-                self.send_ping()
-                self.last_activity_time = time.time()
-            elif self.ping_sent_time and time.time() - self.ping_sent_time > 5:
-                print('Did not receive PONG in time, closing WebSocket...')
-                self.close()
-                break
-            time.sleep(1)
-
-    def send_ping_if_inactive_for(self, duration):
-        self.last_activity_time = time.time() - duration
 
     def close(self):
         if self.ws:
