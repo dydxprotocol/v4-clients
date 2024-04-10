@@ -750,6 +750,7 @@ export async function simulateTransferNativeToken(
       () => {
         return encodeObjects;
       },
+      client.validatorClient.post.defaultDydxGasPrice,
     );
     return encodeJson(stdFee);
   } catch (error) {
