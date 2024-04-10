@@ -561,6 +561,8 @@ export async function transferNativeToken(
         return encodeObjects;
       },
       false,
+      client.validatorClient.post.defaultDydxGasPrice,
+      undefined,
     );
     return encodeJson(tx);
   } catch (error) {
@@ -748,6 +750,7 @@ export async function simulateTransferNativeToken(
       () => {
         return encodeObjects;
       },
+      client.validatorClient.post.defaultDydxGasPrice,
     );
     return encodeJson(stdFee);
   } catch (error) {
