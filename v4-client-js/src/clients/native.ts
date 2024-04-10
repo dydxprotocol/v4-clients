@@ -561,6 +561,8 @@ export async function transferNativeToken(
         return encodeObjects;
       },
       false,
+      client.validatorClient.post.defaultDydxGasPrice,
+      undefined,
     );
     return encodeJson(tx);
   } catch (error) {
