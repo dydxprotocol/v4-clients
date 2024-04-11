@@ -1048,6 +1048,8 @@ export class CompositeClient {
       const registry = generateRegistry();
       const msgs: EncodeObject[] = [];
 
+      const isDydxUsd = params.ticker.toLowerCase() === 'dydx-usd';
+
       // x/prices.MsgCreateOracleMarket
       const createOracleMarket = composer.composeMsgCreateOracleMarket(
         params.id,
@@ -1061,7 +1063,7 @@ export class CompositeClient {
       // x/perpetuals.MsgCreatePerpetual
       const createPerpetual = composer.composeMsgCreatePerpetual(
         params.id,
-        params.id,
+        isDydxUsd ? 1000001 : params.id,
         params.ticker,
         params.atomicResolution,
         params.liquidityTier,
@@ -1093,7 +1095,9 @@ export class CompositeClient {
       );
 
       // The order matters.
-      msgs.push(createOracleMarket);
+      if (!isDydxUsd) {
+        msgs.push(createOracleMarket);
+      }
       msgs.push(createPerpetual);
       msgs.push(createClobPair);
       msgs.push(delayMessage);
