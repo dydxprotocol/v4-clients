@@ -5,6 +5,7 @@ on: # yamllint disable-line rule:truthy
       - 'v4-client-js/**'
     branches:
       - main
+      - tq/1.0.30
 
 # Ensure only a single instance of this workflow is running.
 concurrency:
