@@ -17,9 +17,13 @@
 ## v4-client-js
 The dYdX Chain Client Typescript client is used for placing transactions and querying the dYdX chain.
 
-# Third-party Clients
+## v4-client-cpp (Third Party Client)
+This client was originally developed and open-sourced through a grant by the dYdX Grants Trust — an
+unaffiliated and independent third-party from dYdX Trading Inc.
 
-[C++ Client](https://github.com/asnefedovv/dydx-v4-client-cpp)
+The original client can be found [here](https://github.com/asnefedovv/dydx-v4-client-cpp).
+
+# Third-party Clients
 
 [Python Client](https://github.com/kaloureyes3/v4-clients/tree/main/v4-client-py)
 
