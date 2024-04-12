@@ -18,7 +18,7 @@
 The dYdX Chain Client Typescript client is used for placing transactions and querying the dYdX chain.
 
 ## v4-client-py
-Python client for dYdX Chain. Huge thanks for [kaloureyes3](https://github.com/kaloureyes3/v4-clients) for helping us
+Python client for dYdX Chain. Huge thanks to [kaloureyes3](https://github.com/kaloureyes3/v4-clients) for helping us
 maintain this!
 
 The library is currently tested against Python versions 3.9, and 3.11.
