@@ -1,0 +1,114 @@
+name: Project CI
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Check out repository
+      uses: actions/checkout@v3
+
+    - name: Set up Python 3.12
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.12"
+
+    - name: Load Cached Poetry
+      id: cached-poetry
+      uses: actions/cache@v3
+      with:
+        path: /home/runner/.local
+        key: poetry-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}
+
+    - name: Add Cached Poetry to PATH
+      if: steps.cached-poetry.outputs.cache-hit == 'true'
+      run: echo "${HOME}/.local/bin" >> $GITHUB_PATH
+
+    - name: Install Poetry
+      if: steps.cached-poetry.outputs.cache-hit != 'true'
+      uses: snok/install-poetry@v1
+      with:
+        version: 1.2.2
+        virtualenvs-in-project: true
+
+    - name: Load Cached Virtualenv
+      id: cached-poetry-dependencies
+      uses: actions/cache@v3
+      with:
+        path: .venv
+        key: venv-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}
+
+    - name: Install Dependencies
+      if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
+      run: poetry config virtualenvs.in-project true && poetry install --no-interaction --no-root
+
+  lint:
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+    - name: Check out repository
+      uses: actions/checkout@v3
+
+    - name: Set up Python 3.12
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.12"
+
+    - name: Load Cached Virtualenv
+      id: cached-poetry-dependencies
+      uses: actions/cache@v3
+      with:
+        path: .venv
+        key: venv-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}
+
+    - name: Load Cached Poetry
+      id: cached-poetry
+      uses: actions/cache@v3
+      with:
+        path: /home/runner/.local
+        key: poetry-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}
+
+    - name: Add Cached Poetry to PATH
+      run: echo "${HOME}/.local/bin" >> $GITHUB_PATH
+
+    - name: Run Pre-Commit
+      run: poetry run pre-commit run --all-files
+
+  unit-tests:
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+    - name: Check out repository
+      uses: actions/checkout@v3
+
+    - name: Set up Python 3.12
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.12"
+
+    - name: Load Cached Virtualenv
+      id: cached-poetry-dependencies
+      uses: actions/cache@v3
+      with:
+        path: .venv
+        key: venv-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}
+
+    - name: Load Cached Poetry
+      id: cached-poetry
+      uses: actions/cache@v3
+      with:
+        path: /home/runner/.local
+        key: poetry-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}
+
+    - name: Add Cached Poetry to PATH
+      run: echo "${HOME}/.local/bin" >> $GITHUB_PATH
+
+    - name: Run Unit Tests
+      run: poetry run pytest
