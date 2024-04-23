@@ -3,7 +3,7 @@ from typing import Optional
 from .constants import DEFAULT_API_TIMEOUT, IndexerConfig
 from .modules.account import AccountClient
 from .modules.markets import MarketsClient
-from .modules.utility import UtilityClient
+from .modules.status import StatusClient
 
 
 class IndexerClient:
@@ -16,7 +16,7 @@ class IndexerClient:
         self.api_timeout = api_timeout or DEFAULT_API_TIMEOUT
         self._markets = MarketsClient(config.rest_endpoint, self.api_timeout)
         self._account = AccountClient(config.rest_endpoint, self.api_timeout)
-        self._utility = UtilityClient(config.rest_endpoint, self.api_timeout)
+        self._status = StatusClient(config.rest_endpoint, self.api_timeout)
 
     @property
     def markets(self) -> MarketsClient:
@@ -39,8 +39,8 @@ class IndexerClient:
         return self._account
 
     @property
-    def utility(self) -> UtilityClient:
+    def utility(self) -> StatusClient:
         """
-        Get the utility module, used for interacting with non-market public endpoints.
+        Get the status module, used for interacting with non-market public endpoints.
         """
-        return self._utility
+        return self._status
