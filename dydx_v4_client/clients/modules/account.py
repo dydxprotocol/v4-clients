@@ -1,7 +1,8 @@
 from typing import Any, Optional
 
+from dydx_v4_client.clients.shared.rest import RestClient
+
 from ..constants import OrderSide, OrderStatus, OrderType, PositionStatus, TickerType
-from .rest import RestClient
 
 
 class AccountClient(RestClient):
