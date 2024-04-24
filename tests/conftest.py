@@ -8,6 +8,9 @@ from dydx_v4_client.indexer.rest.constants import (
     IndexerWSHost,
 )
 from dydx_v4_client.indexer.rest.indexer_client import IndexerClient
+from dydx_v4_client.indexer import websocket
+from dydx_v4_client.network import TESTNET
+from functools import partial
 
 pytest_plugins = ("pytest_asyncio",)
 
@@ -31,6 +34,11 @@ def indexer_client():
 @pytest.fixture
 async def validator():
     return await ValidatorClient.connect(TESTNET)
+
+
+@pytest.fixture
+async def websocket_indexer():
+    return partial(websocket.Indexer.connect, TESTNET.indexer)
 
 
 @pytest.fixture
