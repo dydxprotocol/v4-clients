@@ -2,8 +2,8 @@ from typing import Any, Dict, Optional
 
 import httpx
 
-from dydx_v4_client.clients.constants import DEFAULT_API_TIMEOUT
-from dydx_v4_client.clients.utils.request_helpers import generate_query_path
+from dydx_v4_client.indexer.rest.constants import DEFAULT_API_TIMEOUT
+from dydx_v4_client.indexer.rest.utils.request_helpers import generate_query_path
 
 
 class RestClient:

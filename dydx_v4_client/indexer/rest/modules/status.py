@@ -1,6 +1,6 @@
 from typing import Dict
 
-from dydx_v4_client.clients.shared.rest import RestClient
+from dydx_v4_client.indexer.rest.shared.rest import RestClient
 
 
 class StatusClient(RestClient):

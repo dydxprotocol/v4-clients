@@ -1,7 +1,7 @@
 from typing import Optional
 
-from dydx_v4_client.clients.constants import TimePeriod
-from dydx_v4_client.clients.shared.rest import RestClient
+from dydx_v4_client.indexer.rest.constants import TimePeriod
+from dydx_v4_client.indexer.rest.shared.rest import RestClient
 
 
 class MarketsClient(RestClient):
