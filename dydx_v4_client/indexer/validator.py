@@ -5,7 +5,7 @@ import grpc
 from v4_proto.cosmos.bank.v1beta1 import query_pb2 as bank_query
 from v4_proto.cosmos.bank.v1beta1 import query_pb2_grpc as bank_query_grpc
 
-from dydx_v4_client.network import Network
+from dydx_v4_client.indexer.network import Network
 
 
 @dataclass

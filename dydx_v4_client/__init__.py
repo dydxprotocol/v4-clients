@@ -1,1 +1,1 @@
-from dydx_v4_client.validator import ValidatorClient
+from dydx_v4_client.indexer.validator import ValidatorClient
