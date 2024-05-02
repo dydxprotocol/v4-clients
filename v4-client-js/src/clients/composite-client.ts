@@ -285,7 +285,7 @@ export class CompositeClient {
     reduceOnly: boolean,
     memo?: string,
   ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
-    const msgs: Promise<EncodeObject[]> = new Promise((resolve) => {
+    const msgs: Promise<EncodeObject[]> = new Promise((resolve, reject) => {
       const msg = this.placeShortTermOrderMessage(
         subaccount,
         marketId,
@@ -299,6 +299,7 @@ export class CompositeClient {
       );
       msg.then((it) => resolve([it])).catch((err) => {
         console.log(err);
+        reject(err);
       });
     });
     const account: Promise<Account> = this.validatorClient.post.account(
