@@ -49,11 +49,11 @@ export function calculateTimeInForce(
   switch (type) {
     case OrderType.MARKET:
       switch (timeInForce) {
-        case OrderTimeInForce.IOC:
-          return Order_TimeInForce.TIME_IN_FORCE_IOC;
+        case OrderTimeInForce.FOK:
+          return Order_TimeInForce.TIME_IN_FORCE_FILL_OR_KILL;
 
         default:
-          return Order_TimeInForce.TIME_IN_FORCE_FILL_OR_KILL;
+          return Order_TimeInForce.TIME_IN_FORCE_IOC;
       }
 
     case OrderType.LIMIT:
