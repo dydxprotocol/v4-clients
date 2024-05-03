@@ -2,8 +2,8 @@ import pytest
 
 
 @pytest.mark.asyncio
-async def test_subaccounts(indexer_client, test_address):
-    response = await indexer_client.account.get_subaccounts(test_address)
+async def test_subaccounts(indexer_rest_client, test_address):
+    response = await indexer_rest_client.account.get_subaccounts(test_address)
     subaccounts = response["subaccounts"]
     assert subaccounts is not None
     assert len(subaccounts) > 0
@@ -13,8 +13,8 @@ async def test_subaccounts(indexer_client, test_address):
 
 
 @pytest.mark.asyncio
-async def test_subaccount_0(indexer_client, test_address):
-    response = await indexer_client.account.get_subaccount(test_address, 0)
+async def test_subaccount_0(indexer_rest_client, test_address):
+    response = await indexer_rest_client.account.get_subaccount(test_address, 0)
     subaccount = response["subaccount"]
     assert subaccount is not None
     subaccount_number = subaccount["subaccountNumber"]
@@ -22,8 +22,8 @@ async def test_subaccount_0(indexer_client, test_address):
 
 
 @pytest.mark.asyncio
-async def test_asset_positions(indexer_client, test_address):
-    response = await indexer_client.account.get_subaccount_asset_positions(
+async def test_asset_positions(indexer_rest_client, test_address):
+    response = await indexer_rest_client.account.get_subaccount_asset_positions(
         test_address, 0
     )
     assert response is not None
@@ -35,8 +35,8 @@ async def test_asset_positions(indexer_client, test_address):
 
 
 @pytest.mark.asyncio
-async def test_perpetual_positions(indexer_client, test_address):
-    response = await indexer_client.account.get_subaccount_perpetual_positions(
+async def test_perpetual_positions(indexer_rest_client, test_address):
+    response = await indexer_rest_client.account.get_subaccount_perpetual_positions(
         test_address, 0
     )
     assert response is not None
@@ -48,8 +48,10 @@ async def test_perpetual_positions(indexer_client, test_address):
 
 
 @pytest.mark.asyncio
-async def test_transfers(indexer_client, test_address):
-    response = await indexer_client.account.get_subaccount_transfers(test_address, 0)
+async def test_transfers(indexer_rest_client, test_address):
+    response = await indexer_rest_client.account.get_subaccount_transfers(
+        test_address, 0
+    )
     assert response is not None
     transfers = response["transfers"]
     assert transfers is not None
@@ -59,8 +61,8 @@ async def test_transfers(indexer_client, test_address):
 
 
 @pytest.mark.asyncio
-async def test_orders(indexer_client, test_address):
-    response = await indexer_client.account.get_subaccount_orders(test_address, 0)
+async def test_orders(indexer_rest_client, test_address):
+    response = await indexer_rest_client.account.get_subaccount_orders(test_address, 0)
     assert response is not None
     orders = response
     assert orders is not None
@@ -70,8 +72,8 @@ async def test_orders(indexer_client, test_address):
 
 
 @pytest.mark.asyncio
-async def test_fills(indexer_client, test_address):
-    response = await indexer_client.account.get_subaccount_fills(test_address, 0)
+async def test_fills(indexer_rest_client, test_address):
+    response = await indexer_rest_client.account.get_subaccount_fills(test_address, 0)
     assert response is not None
     fills = response["fills"]
     assert fills is not None
@@ -81,8 +83,8 @@ async def test_fills(indexer_client, test_address):
 
 
 @pytest.mark.asyncio
-async def test_historical_pnl(indexer_client, test_address):
-    response = await indexer_client.account.get_subaccount_historical_pnls(
+async def test_historical_pnl(indexer_rest_client, test_address):
+    response = await indexer_rest_client.account.get_subaccount_historical_pnls(
         test_address, 0
     )
     assert response is not None
