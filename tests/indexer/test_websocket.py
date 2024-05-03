@@ -2,6 +2,7 @@
 
 import rel
 
+
 def on_message(ws, message):
     if message["type"] == "connected":
         ws.order_book.subscribe("BTC-USD")

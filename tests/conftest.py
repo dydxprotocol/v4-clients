@@ -1,6 +1,9 @@
+from functools import partial
+
 import pytest
 
 from dydx_v4_client import ValidatorClient
+from dydx_v4_client.indexer import websocket
 from dydx_v4_client.indexer.network import TESTNET
 from dydx_v4_client.indexer.rest.constants import (
     IndexerApiHost,
@@ -8,9 +11,6 @@ from dydx_v4_client.indexer.rest.constants import (
     IndexerWSHost,
 )
 from dydx_v4_client.indexer.rest.indexer_client import IndexerClient
-from dydx_v4_client.indexer import websocket
-from dydx_v4_client.network import TESTNET
-from functools import partial
 
 pytest_plugins = ("pytest_asyncio",)
 

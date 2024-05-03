@@ -1,11 +1,10 @@
+import json
 from dataclasses import dataclass, field
 from typing import Any, Callable, Optional, Self, Union
 
-import websocket
-from dydx_v4_client.network import Network
-import json
 # from websockets.sync.client import connect, ClientConnection
 import rel
+import websocket
 
 
 @dataclass
@@ -16,12 +15,16 @@ class Channel:
 
     def subscribe(self, **kwargs) -> Self:
         self.kwargs = kwargs
-        self.app.send(json.dumps({'type': 'subscribe', 'channel': self.channel, **kwargs}))
+        self.app.send(
+            json.dumps({"type": "subscribe", "channel": self.channel, **kwargs})
+        )
         return self
-    
+
     def unsubscribe(self, **kwargs):
-        self.app.send(json.dumps({'type': 'unsubscribe', 'channel': self.channel, **kwargs}))
-    
+        self.app.send(
+            json.dumps({"type": "unsubscribe", "channel": self.channel, **kwargs})
+        )
+
     def process(self, message):
         """
         WIP.
@@ -38,20 +41,24 @@ class Channel:
 
     # def __exit__(self, exc_type, exc_value, traceback):
     #     self.unsubscribe(**self.kwargs)
-    
+
     # def recv(self, *args, **kwargs):
     #     return self.connection.recv(*args, **kwargs)
+
 
 def as_json(on_message):
     def wrapper(ws, message):
         return on_message(ws, json.loads(message))
+
     return wrapper
+
 
 def channel_only(on_message):
     def wrapper(ws, message):
         if message["type"] == "connected":
             return
         return on_message(ws, message)
+
     return wrapper
 
 
@@ -60,16 +67,21 @@ class OrderBook(Channel):
 
     def subscribe(self, id) -> Self:
         return super().subscribe(id=id)
-    
+
     def unsubscribe(self, id):
         return super().unsubscribe(id=id)
-        
+
 
 class Indexer(websocket.WebSocketApp):
-    def __init__(self, url: str,
+    def __init__(
+        self,
+        url: str,
         header: Union[list, dict, Callable, None] = None,
         on_open: Optional[Callable[[websocket.WebSocket], None]] = None,
-        on_message: Optional[Callable[[websocket.WebSocket, Any], None]] = None, *args, **kwargs):
+        on_message: Optional[Callable[[websocket.WebSocket, Any], None]] = None,
+        *args,
+        **kwargs
+    ):
         self.name_to_channel = {}
         self.order_book = OrderBook(self)
         # self.order_book = self.register(OrderBook)
@@ -81,7 +93,6 @@ class Indexer(websocket.WebSocketApp):
         indexer = Indexer(*args, **kwargs)
         # indexer.run_forever(dispatcher=rel)
         indexer.run_forever()
-    
 
     # def register(self, ChannelClass: Channel):
     #     channel = ChannelClass(self)
@@ -103,7 +114,7 @@ class Indexer(websocket.WebSocketApp):
 #         return Indexer(connection,
 #                        OrderBook(connection)
 #                        )
-    
+
 
 #     def __enter__(self):
 #         self.connection.__enter__()
