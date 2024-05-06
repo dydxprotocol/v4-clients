@@ -1203,7 +1203,7 @@ export async function getWithdrawalCapacityByDenom(
     }
 
     const response = await client.validatorClient.get.getWithdrawalCapacityByDenom(denom);
-    return encodeJson(response);
+    return encodeJson(response, ByteArrayEncoding.BIGINT);
   } catch (error) {
     return wrappedError(error);
   }
