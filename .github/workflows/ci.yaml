@@ -112,3 +112,7 @@ jobs:
 
     - name: Run Unit Tests
       run: poetry run pytest
+      timeout-minutes: 4
+      env:
+        HTTP_PROXY: ${{ secrets.HTTP_PROXY }}
+        HTTPS_PROXY: ${{ secrets.HTTP_PROXY }}

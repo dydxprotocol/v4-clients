@@ -8,6 +8,7 @@ from dydx_v4_client.indexer.rest.constants import (
     IndexerWSHost,
 )
 from dydx_v4_client.indexer.rest.indexer_client import IndexerClient
+from dydx_v4_client.indexer.socket.websocket import IndexerSocket
 
 pytest_plugins = ("pytest_asyncio",)
 
@@ -21,11 +22,20 @@ DYDX_TEST_MNEMONIC = (
 
 
 @pytest.fixture
-def indexer_client():
-    config = IndexerConfig(
+def indexer_config():
+    return IndexerConfig(
         rest_endpoint=IndexerApiHost.TESTNET, websocket_endpoint=IndexerWSHost.TESTNET
     )
-    return IndexerClient(config)
+
+
+@pytest.fixture
+def indexer_rest_client(indexer_config):
+    return IndexerClient(indexer_config)
+
+
+@pytest.fixture
+async def indexer_socket_client(indexer_config):
+    return IndexerSocket(indexer_config)
 
 
 @pytest.fixture
