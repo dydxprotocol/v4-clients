@@ -3,7 +3,7 @@ import time
 
 import pytest
 
-from dydx_v4_client.network import TESTNET
+from dydx_v4_client import NodeClient
 from dydx_v4_client.indexer.rest.constants import (
     IndexerApiHost,
     IndexerConfig,
@@ -11,7 +11,7 @@ from dydx_v4_client.indexer.rest.constants import (
 )
 from dydx_v4_client.indexer.rest.indexer_client import IndexerClient
 from dydx_v4_client.indexer.socket.websocket import IndexerSocket
-from dydx_v4_client import NodeClient
+from dydx_v4_client.network import TESTNET
 from dydx_v4_client.node.message import order
 from dydx_v4_client.wallet import from_mnemonic
 
