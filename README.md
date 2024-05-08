@@ -2,6 +2,8 @@
 
 # Python Client (async) for dYdX (v4 API)
 
+[Differences Comparison](./DIFF.md)
+
 The latest version of the Python async client for dYdX offers notable enhancements over previous iterations. These improvements make it a more efficient tool for trading and integration.
 
 ### Key Improvements
