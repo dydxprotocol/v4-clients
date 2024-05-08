@@ -11,5 +11,5 @@ class Network:
 TESTNET = Network(
     "dydx-testnet-4",
     "testnet-dydx-grpc.lavenderfive.com:443",
-    "dydx-testnet.imperator.co",
+    "wss://indexer.v4testnet.dydx.exchange/v4/ws",
 )
