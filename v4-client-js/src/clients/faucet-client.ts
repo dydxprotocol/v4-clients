@@ -37,7 +37,7 @@ export class FaucetClient extends RestClient {
     address: string,
     headers?: {},
   ): Promise<Response> {
-    const uri = '/faucet/native-tokens';
+    const uri = '/faucet/native-token';
 
     return this.post(
       uri,
