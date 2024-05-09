@@ -18,6 +18,7 @@ import {
   OrderType,
   SHORT_BLOCK_FORWARD,
   SHORT_BLOCK_WINDOW,
+  SelectedGasDenom,
 } from './constants';
 import {
   calculateQuantums,
@@ -53,6 +54,7 @@ export interface MarketInfo {
 
 export class CompositeClient {
   public readonly network: Network;
+  public gasDenom: SelectedGasDenom = SelectedGasDenom.USDC;
   private _indexerClient: IndexerClient;
   private _validatorClient?: ValidatorClient;
 
@@ -89,6 +91,16 @@ export class CompositeClient {
      * Get the validator client
      */
     return this._validatorClient!;
+  }
+
+  get selectedGasDenom(): SelectedGasDenom | undefined {
+    if (!this._validatorClient) return undefined;
+    return this._validatorClient.selectedGasDenom;
+  }
+
+  setSelectedGasDenom(gasDenom: SelectedGasDenom): void {
+    if (!this._validatorClient) throw new Error('Validator client not initialized');
+    this._validatorClient.setSelectedGasDenom(gasDenom);
   }
 
   /**

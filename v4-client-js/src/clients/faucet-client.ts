@@ -26,4 +26,26 @@ export class FaucetClient extends RestClient {
       headers,
     );
   }
+
+  /**
+   * @description For testnet only, add native tokens to an address
+   * @param address destination address for native tokens
+   * @param headers requestHeaders
+   * @returns The HTTP response.
+   */
+  public async fillNative(
+    address: string,
+    headers?: {},
+  ): Promise<Response> {
+    const uri = '/faucet/native-token';
+
+    return this.post(
+      uri,
+      {},
+      {
+        address,
+      },
+      headers,
+    );
+  }
 }

@@ -57,6 +57,12 @@ export const NETWORK_ID_TESTNET: string = 'dydxprotocol-testnet';
 // For the deployment by DYDX token holders
 export const NETWORK_ID_MAINNET: string = 'dydx-mainnet-1';
 
+// ------------ Gas Denoms ------------
+export enum SelectedGasDenom {
+  NATIVE,
+  USDC,
+}
+
 // ------------ MsgType URLs ------------
 // Default CosmosSDK
 // x/bank

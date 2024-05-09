@@ -22,7 +22,7 @@ import _ from 'lodash';
 import Long from 'long';
 import protobuf from 'protobufjs';
 
-import { GAS_MULTIPLIER } from '../constants';
+import { GAS_MULTIPLIER, SelectedGasDenom } from '../constants';
 import { UnexpectedClientError } from '../lib/errors';
 import { generateRegistry } from '../lib/registry';
 import { SubaccountInfo } from '../subaccount';
@@ -56,6 +56,7 @@ export class Post {
     public readonly denoms: DenomConfig;
     public readonly defaultClientMemo?: string;
 
+    public selectedGasDenom: SelectedGasDenom = SelectedGasDenom.USDC;
     public readonly defaultGasPrice: GasPrice;
     public readonly defaultDydxGasPrice: GasPrice;
 
@@ -79,6 +80,16 @@ export class Post {
         .fromString(`25000000000${denoms.CHAINTOKEN_GAS_DENOM !== undefined ? denoms.CHAINTOKEN_GAS_DENOM : denoms.CHAINTOKEN_DENOM}`);
     }
 
+    setSelectedGasDenom(selectedGasDenom: SelectedGasDenom): void {
+      this.selectedGasDenom = selectedGasDenom;
+    }
+
+    getGasPrice(): GasPrice {
+      return this.selectedGasDenom === SelectedGasDenom.USDC
+        ? this.defaultGasPrice
+        : this.defaultDydxGasPrice;
+    }
+
     /**
      * @description Simulate a transaction
      * the calling function is responsible for creating the messages.
@@ -90,7 +101,7 @@ export class Post {
     async simulate(
       wallet: LocalWallet,
       messaging: () => Promise<EncodeObject[]>,
-      gasPrice: GasPrice = this.defaultGasPrice,
+      gasPrice: GasPrice = this.getGasPrice(),
       memo?: string,
       account?: () => Promise<Account>,
     ): Promise<StdFee> {
@@ -120,7 +131,7 @@ export class Post {
       wallet: LocalWallet,
       messaging: () => Promise<EncodeObject[]>,
       zeroFee: boolean,
-      gasPrice: GasPrice = this.defaultGasPrice,
+      gasPrice: GasPrice = this.getGasPrice(),
       memo?: string,
       account?: () => Promise<Account>,
     ): Promise<Uint8Array> {
@@ -143,7 +154,7 @@ export class Post {
       wallet: LocalWallet,
       messaging: () => Promise<EncodeObject[]>,
       zeroFee: boolean,
-      gasPrice: GasPrice = this.defaultGasPrice,
+      gasPrice: GasPrice = this.getGasPrice(),
       memo?: string,
       broadcastMode?: BroadcastMode,
       account?: () => Promise<Account>,
@@ -202,7 +213,7 @@ export class Post {
       messages: EncodeObject[],
       account: Account,
       zeroFee: boolean,
-      gasPrice: GasPrice = this.defaultGasPrice,
+      gasPrice: GasPrice = this.getGasPrice(),
       memo?: string,
     ): Promise<Uint8Array> {
       // Simulate transaction if no fee is specified.
@@ -258,7 +269,7 @@ export class Post {
       account: Account,
       messages: EncodeObject[],
       zeroFee: boolean,
-      gasPrice: GasPrice = this.defaultGasPrice,
+      gasPrice: GasPrice = this.getGasPrice(),
       memo?: string,
       broadcastMode?: BroadcastMode,
     ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
@@ -301,7 +312,7 @@ export class Post {
       pubKey: Secp256k1Pubkey,
       sequence: number,
       messages: readonly EncodeObject[],
-      gasPrice: GasPrice = this.defaultGasPrice,
+      gasPrice: GasPrice = this.getGasPrice(),
       memo?: string,
     ): Promise<StdFee> {
       // Get simulated response.

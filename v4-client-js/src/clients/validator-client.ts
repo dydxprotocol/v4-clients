@@ -3,7 +3,12 @@ import { Tendermint37Client } from '@cosmjs/tendermint-rpc';
 import Long from 'long';
 import protobuf from 'protobufjs';
 
-import { ValidatorConfig, BROADCAST_POLL_INTERVAL_MS, BROADCAST_TIMEOUT_MS } from './constants';
+import {
+  ValidatorConfig,
+  BROADCAST_POLL_INTERVAL_MS,
+  BROADCAST_TIMEOUT_MS,
+  SelectedGasDenom,
+} from './constants';
 import { Get } from './modules/get';
 import { Post } from './modules/post';
 import { TendermintClient } from './modules/tendermintClient';
@@ -53,6 +58,17 @@ export class ValidatorClient {
      */
   get post(): Post {
     return this._post!;
+  }
+
+  get selectedGasDenom(): SelectedGasDenom | undefined {
+    if (!this._post) return undefined;
+    return this._post.selectedGasDenom;
+  }
+
+  setSelectedGasDenom(gasDenom: SelectedGasDenom): void {
+    if (!this._post) throw new Error('Post module not initialized');
+
+    this._post.setSelectedGasDenom(gasDenom);
   }
 
   private async initialize(): Promise<void> {
