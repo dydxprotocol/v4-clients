@@ -70,6 +70,11 @@ export class SocketClient {
       this.ws = undefined;
     }
 
+    terminate(): void {
+      this.ws?.terminate();
+      this.ws = undefined;
+    }
+
     /**
      * @description Send data to the websocket connection.
      *
