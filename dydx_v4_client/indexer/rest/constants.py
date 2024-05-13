@@ -122,6 +122,12 @@ class TimePeriod:
     SEVEN_DAYS = "SEVEN_DAYS"
 
 
+class TradingRewardAggregationPeriod:
+    DAILY = "DAILY"
+    WEEKLY = "WEEKLY"
+    MONTHLY = "MONTHLY"
+
+
 # API Defaults
 DEFAULT_API_TIMEOUT = 3_000
 MAX_MEMO_CHARACTERS = 256
