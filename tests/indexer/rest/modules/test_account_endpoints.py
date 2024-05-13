@@ -1,5 +1,7 @@
 import pytest
 
+from dydx_v4_client.indexer.rest.constants import TradingRewardAggregationPeriod
+
 
 @pytest.mark.asyncio
 async def test_subaccounts(indexer_rest_client, test_address):
@@ -93,3 +95,43 @@ async def test_historical_pnl(indexer_rest_client, test_address):
     if len(historical_pnl) > 0:
         historical_pnl0 = historical_pnl[0]
         assert historical_pnl0 is not None
+
+
+@pytest.mark.asyncio
+async def test_historical_block_trading_rewards(indexer_rest_client, test_address):
+    limit = 10
+    response = await indexer_rest_client.account.get_historical_block_trading_rewards(
+        test_address, limit
+    )
+    historical_rewards = response["rewards"]
+    assert historical_rewards is not None
+    assert isinstance(historical_rewards, list)
+    assert len(historical_rewards) <= limit
+
+    assert "createdAt" in historical_rewards[0]
+    assert "createdAtHeight" in historical_rewards[0]
+    assert "tradingReward" in historical_rewards[0]
+
+
+@pytest.mark.asyncio
+async def test_historical_trading_rewards_aggregated(indexer_rest_client, test_address):
+    period = TradingRewardAggregationPeriod.DAILY
+    limit = 10
+    response = (
+        await indexer_rest_client.account.get_historical_trading_rewards_aggregated(
+            test_address, period, limit
+        )
+    )
+    aggregations = response["rewards"]
+    assert aggregations is not None
+    assert isinstance(aggregations, list)
+    assert len(aggregations) <= limit
+
+    for aggregation in aggregations:
+        assert "period" in aggregation
+        assert aggregation["period"] == period
+        assert "tradingReward" in aggregation
+        assert "startedAt" in aggregation
+        assert "endedAt" in aggregation
+        assert "startedAtHeight" in aggregation
+        assert "endedAtHeight" in aggregation

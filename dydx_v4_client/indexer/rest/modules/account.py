@@ -2,7 +2,14 @@ from typing import Any, Optional
 
 from dydx_v4_client.indexer.rest.shared.rest import RestClient
 
-from ..constants import OrderSide, OrderStatus, OrderType, PositionStatus, TickerType
+from ..constants import (
+    OrderSide,
+    OrderStatus,
+    OrderType,
+    PositionStatus,
+    TickerType,
+    TradingRewardAggregationPeriod,
+)
 
 
 class AccountClient(RestClient):
@@ -163,3 +170,28 @@ class AccountClient(RestClient):
                 "effectiveAtOrAfter": effective_at_or_after,
             },
         )
+
+    async def get_historical_block_trading_rewards(
+        self,
+        address: str,
+        limit: Optional[int] = None,
+    ) -> Any:
+        uri = f"/v4/historicalBlockTradingRewards/{address}"
+        return await self.get(uri, params={"limit": limit})
+
+    async def get_historical_trading_rewards_aggregated(
+        self,
+        address: str,
+        period: TradingRewardAggregationPeriod = TradingRewardAggregationPeriod.DAILY,
+        limit: Optional[int] = None,
+        starting_before_or_at: Optional[str] = None,
+        starting_before_or_at_height: Optional[int] = None,
+    ) -> Any:
+        uri = f"/v4/historicalTradingRewardAggregations/{address}"
+        params = {
+            "period": period,
+            "limit": limit,
+            "startingBeforeOrAt": starting_before_or_at,
+            "startingBeforeOrAtHeight": starting_before_or_at_height,
+        }
+        return await self.get(uri, params=params)
