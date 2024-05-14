@@ -127,12 +127,11 @@ class Broadcast(TransactionSender):
     mode: BroadcastMode = field(default=BroadcastMode.BROADCAST_MODE_SYNC)
 
     def send(self, transaction: Tx):
-        request = SimulateRequest(
-            tx=transaction,
-            tx_bytes=transaction.SerializeToString(),
+        request = BroadcastTxRequest(
+            tx_bytes=transaction.SerializeToString(), mode=self.mode
         )
 
-        return service_pb2_grpc.ServiceStub(self.channel).Sim(request)
+        return service_pb2_grpc.ServiceStub(self.channel).BroadcastTx(request)
 
 
 @dataclass
