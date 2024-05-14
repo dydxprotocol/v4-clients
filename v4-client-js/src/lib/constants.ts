@@ -21,7 +21,7 @@ export const ZERO_FEE: StdFee = {
 
 // Validation
 export const MAX_UINT_32 = 4_294_967_295;
-export const MAX_SUBACCOUNT_NUMBER = 127;
+export const MAX_SUBACCOUNT_NUMBER = 128_000;
 
 export const DEFAULT_SEQUENCE: number = 0;
 

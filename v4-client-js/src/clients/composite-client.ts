@@ -741,7 +741,7 @@ export class CompositeClient {
     return this.send(
       subaccount.wallet,
       () => msgs,
-      true,
+      false,
       undefined,
       memo,
     );

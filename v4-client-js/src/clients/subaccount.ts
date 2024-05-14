@@ -1,3 +1,4 @@
+import { MAX_SUBACCOUNT_NUMBER } from './constants';
 import LocalWallet from './modules/local-wallet';
 
 export class SubaccountInfo {
@@ -6,8 +7,8 @@ export class SubaccountInfo {
     readonly subaccountNumber: number;
 
     constructor(wallet: LocalWallet, subaccountNumber: number = 0) {
-      if (subaccountNumber < 0 || subaccountNumber > 127) {
-        throw new Error('Subaccount number must be between 0 and 127');
+      if (subaccountNumber < 0 || subaccountNumber > MAX_SUBACCOUNT_NUMBER) {
+        throw new Error(`Subaccount number must be between 0 and ${MAX_SUBACCOUNT_NUMBER}`);
       }
       this.wallet = wallet;
       this.subaccountNumber = subaccountNumber;
