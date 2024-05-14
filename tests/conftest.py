@@ -12,7 +12,7 @@ from dydx_v4_client.indexer.rest.constants import (
 from dydx_v4_client.indexer.rest.indexer_client import IndexerClient
 from dydx_v4_client.indexer.socket.websocket import IndexerSocket
 from dydx_v4_client.network import TESTNET
-from dydx_v4_client.node.message import order
+from dydx_v4_client.node.message import order, order_id
 from dydx_v4_client.wallet import from_mnemonic
 
 pytest_plugins = ("pytest_asyncio",)
@@ -67,15 +67,22 @@ def private_key():
 
 
 @pytest.fixture
-def test_order(test_address):
-    return order(
+def test_order_id(test_address):
+    return order_id(
         test_address,
         subaccount_number=0,
         client_id=random.randint(0, 1000000000),
         clob_pair_id=0,
+        order_flags=64,
+    )
+
+
+@pytest.fixture
+def test_order(test_order_id):
+    return order(
+        test_order_id,
         time_in_force=0,
         reduce_only=False,
-        order_flags=64,
         side=1,
         quantums=10000000,
         subticks=40000000000,

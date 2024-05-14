@@ -73,36 +73,16 @@ def get_signature(private_key, body, auth_info, account_number, chain_id):
 
 
 @dataclass
-class NodeClient:
+class TransactionSender:
     chain_id: str
     channel: grpc.Channel
 
-    @staticmethod
-    async def connect(chain_id: str, url: str) -> Self:
-        return NodeClient(
-            chain_id,
-            grpc.secure_channel(url, grpc.ssl_channel_credentials()),
-        )
-
-    async def get_account_balances(
-        self, address: str
-    ) -> bank_query.QueryAllBalancesResponse:
-        stub = bank_query_grpc.QueryStub(self.channel)
-        return stub.AllBalances(bank_query.QueryAllBalancesRequest(address=address))
-
-    async def get_account(self, address: str) -> BaseAccount:
-        account = BaseAccount()
-        response = auth.QueryStub(self.channel).Account(
-            QueryAccountRequest(address=address)
-        )
-        if not response.account.Unpack(account):
-            raise Exception("Failed to unpack account")
-        return account
+    def send(self, transaction: Tx):
+        raise NotImplementedError()
 
     async def place_order(
         self, key: ecdsa.SigningKey, order: Order, account_number: int, sequence: int
     ):
-
         body = TxBody(
             messages=[as_any(MsgPlaceOrder(order=order))], memo="Client Example"
         )
@@ -114,9 +94,86 @@ class NodeClient:
 
         transaction = Tx(body=body, auth_info=auth_info, signatures=[signature])
 
-        request = BroadcastTxRequest(
+        return self.send(transaction)
+
+    async def cancel_order(
+        self,
+        key,
+        account_number,
+        sequence,
+        order_id,
+        good_til_block: int = 0,
+        good_til_block_time: int = 0,
+    ):
+        message = MsgCancelOrder(
+            order_id=order_id,
+            good_til_block=good_til_block,
+            good_til_block_time=good_til_block_time,
+        )
+        body = TxBody(messages=[as_any(message)], memo="Client Example")
+        auth_info = AuthInfo(
+            signer_infos=[get_signer_info(key, sequence)],
+            fee=Fee(amount=[Coin(amount="0", denom="afet")]),
+        )
+        signature = get_signature(key, body, auth_info, account_number, self.chain_id)
+
+        transaction = Tx(body=body, auth_info=auth_info, signatures=[signature])
+
+        return self.send(transaction)
+
+
+@dataclass
+class Broadcast(TransactionSender):
+    mode: BroadcastMode = field(default=BroadcastMode.BROADCAST_MODE_SYNC)
+
+    def send(self, transaction: Tx):
+        request = SimulateRequest(
+            tx=transaction,
             tx_bytes=transaction.SerializeToString(),
-            mode=BroadcastMode.BROADCAST_MODE_SYNC,
         )
 
-        return service_pb2_grpc.ServiceStub(self.channel).BroadcastTx(request)
+        return service_pb2_grpc.ServiceStub(self.channel).Sim(request)
+
+
+@dataclass
+class NodeClient:
+    chain_id: str
+    channel: grpc.Channel
+
+    @staticmethod
+    async def connect(chain_id: str, url: str) -> Self:
+        return NodeClient(
+            chain_id,
+            grpc.secure_channel(url, grpc.ssl_channel_credentials()),
+        )
+
+    def broadcast(self, mode=BroadcastMode.BROADCAST_MODE_SYNC) -> Broadcast:
+        return Broadcast(self.chain_id, self.channel, mode)
+
+    async def get_account_balances(
+        self, address: str
+    ) -> bank_query.QueryAllBalancesResponse:
+        stub = bank_query_grpc.QueryStub(self.channel)
+        return stub.AllBalances(bank_query.QueryAllBalancesRequest(address=address))
+
+    async def get_account_balance(
+        self, address: str, denom: str
+    ) -> bank_query.QueryBalanceResponse:
+        stub = bank_query_grpc.QueryStub(self.channel)
+        return stub.Balance(
+            bank_query.QueryBalanceRequest(address=address, denom=denom)
+        )
+
+    async def get_account(self, address: str) -> BaseAccount:
+        account = BaseAccount()
+        response = auth.QueryStub(self.channel).Account(
+            QueryAccountRequest(address=address)
+        )
+        if not response.account.Unpack(account):
+            raise Exception("Failed to unpack account")
+        return account
+
+    async def latest_block(self) -> tendermint_query.GetLatestBlockResponse:
+        return tendermint_query_grpc.ServiceStub(self.channel).GetLatestBlock(
+            tendermint_query.GetLatestBlockRequest()
+        )

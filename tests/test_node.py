@@ -6,18 +6,34 @@ def is_successful(response):
     return response.tx_response.code == 0
 
 
+def assert_successful_broadcast(response):
+    assert type(response) == v4_proto.cosmos.tx.v1beta1.service_pb2.BroadcastTxResponse
+    assert is_successful(response)
+
+
 async def test_get_account_balances(node, test_address):
     result = await node.get_account_balances(test_address)
     assert type(result) == bank_query.QueryAllBalancesResponse
 
 
-async def test_place_order(node, test_order, account, private_key):
-    result = await node.place_order(
+async def test_order(node, test_order, test_order_id, account, private_key):
+    placed = await node.broadcast().place_order(
         private_key,
         test_order,
         account.account_number,
         sequence=account.sequence,
     )
 
-    assert type(result) == v4_proto.cosmos.tx.v1beta1.service_pb2.BroadcastTxResponse
-    assert is_successful(result)
+    assert_successful_broadcast(placed)
+
+    canceled = await node.broadcast().cancel_order(
+        private_key,
+        account.account_number,
+        # May break potentially if 2 instances are using test account simultaneously.
+        # `await node.get_account(test_address)` returns the wrong sequence (same as account.sequence) if called right after place order
+        account.sequence + 1,
+        test_order_id,
+        good_til_block_time=test_order.good_til_block_time,
+    )
+
+    assert_successful_broadcast(canceled)
