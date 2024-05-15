@@ -58,12 +58,9 @@ async def account(node, test_address):
     return await node.get_account(test_address)
 
 
-MNEMONIC = "mirror actor skill push coach wait confirm orchard lunch mobile athlete gossip awake miracle matter bus reopen team ladder lazy list timber render wait"
-
-
 @pytest.fixture
 def private_key():
-    return from_mnemonic(MNEMONIC)
+    return from_mnemonic(DYDX_TEST_MNEMONIC)
 
 
 @pytest.fixture
