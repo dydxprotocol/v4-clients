@@ -2,6 +2,7 @@ import { EncodeObject } from '@cosmjs/proto-signing';
 import {
   Account, GasPrice, IndexedTx, StdFee,
 } from '@cosmjs/stargate';
+import { Method } from '@cosmjs/tendermint-rpc';
 import { BroadcastTxAsyncResponse, BroadcastTxSyncResponse } from '@cosmjs/tendermint-rpc/build/tendermint37';
 import { Order_ConditionType, Order_TimeInForce } from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/clob/order';
 import { parseUnits } from 'ethers';
@@ -35,6 +36,7 @@ import { UserError } from './lib/errors';
 import { generateRegistry } from './lib/registry';
 import LocalWallet from './modules/local-wallet';
 import { SubaccountInfo } from './subaccount';
+import { BroadcastMode } from './types';
 import { ValidatorClient } from './validator-client';
 
 // Required for encoding and decoding queries that are of type Long.
@@ -143,6 +145,7 @@ export class CompositeClient {
     zeroFee: boolean,
     gasPrice?: GasPrice,
     memo?: string,
+    broadcastMode?: BroadcastMode,
     account?: () => Promise<Account>,
   ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
     return this.validatorClient.post.send(
@@ -151,7 +154,7 @@ export class CompositeClient {
       zeroFee,
       gasPrice,
       memo,
-      undefined,
+      broadcastMode,
       account,
     );
   }
@@ -324,6 +327,7 @@ export class CompositeClient {
       true,
       undefined,
       memo,
+      undefined,
       () => account,
     );
   }
@@ -385,7 +389,6 @@ export class CompositeClient {
         type,
         side,
         price,
-        // trigger_price: number,   // not used for MARKET and LIMIT
         size,
         clientId,
         timeInForce,
@@ -413,6 +416,7 @@ export class CompositeClient {
       true,
       undefined,
       memo,
+      undefined,
       () => account,
     );
   }
@@ -728,6 +732,7 @@ export class CompositeClient {
     recipientSubaccountNumber: number,
     amount: string,
     memo?: string,
+    broadcastMode?: BroadcastMode,
   ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
     const msgs: Promise<EncodeObject[]> = new Promise((resolve) => {
       const msg = this.transferToSubaccountMessage(
@@ -744,6 +749,7 @@ export class CompositeClient {
       false,
       undefined,
       memo,
+      broadcastMode ?? Method.BroadcastTxCommit,
     );
   }
 
