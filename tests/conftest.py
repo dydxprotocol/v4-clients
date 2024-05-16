@@ -9,9 +9,11 @@ from dydx_v4_client.indexer.rest.constants import (
     IndexerApiHost,
     IndexerConfig,
     IndexerWSHost,
+    NobleClientHost,
 )
 from dydx_v4_client.indexer.rest.faucet_client import FaucetClient
 from dydx_v4_client.indexer.rest.indexer_client import IndexerClient
+from dydx_v4_client.indexer.rest.noble_client import NobleClient
 from dydx_v4_client.indexer.rest.shared.rest import RestClient
 from dydx_v4_client.indexer.socket.websocket import IndexerSocket
 from dydx_v4_client.network import TESTNET
@@ -47,13 +49,20 @@ async def indexer_socket_client(indexer_config):
 
 
 @pytest.fixture
-async def rest_client(indexer_config):
+async def faucet_client(indexer_config):
     return FaucetClient(faucet_url=FaucetApiHost.TESTNET)
 
 
 @pytest.fixture
-async def node():
-    return await NodeClient.connect(TESTNET.chain_id, TESTNET.node)
+async def node_client():
+    return await NodeClient.connect(TESTNET.chain_id, TESTNET.node_client)
+
+
+@pytest.fixture
+async def noble_client():
+    client = NobleClient(NobleClientHost.TESTNET)
+    await client.connect(DYDX_TEST_MNEMONIC)
+    yield client
 
 
 @pytest.fixture
@@ -62,8 +71,8 @@ def test_address():
 
 
 @pytest.fixture
-async def account(node, test_address):
-    return await node.get_account(test_address)
+async def account(node_client, test_address):
+    return await node_client.get_account(test_address)
 
 
 @pytest.fixture

@@ -11,13 +11,13 @@ def assert_successful_broadcast(response):
     assert is_successful(response)
 
 
-async def test_get_account_balances(node, test_address):
-    result = await node.get_account_balances(test_address)
+async def test_get_account_balances(node_client, test_address):
+    result = await node_client.get_account_balances(test_address)
     assert type(result) == bank_query.QueryAllBalancesResponse
 
 
-async def test_order(node, test_order, test_order_id, account, private_key):
-    placed = await node.broadcast().place_order(
+async def test_order(node_client, test_order, test_order_id, account, private_key):
+    placed = await node_client.broadcast().place_order(
         private_key,
         test_order,
         account.account_number,
@@ -26,7 +26,7 @@ async def test_order(node, test_order, test_order_id, account, private_key):
 
     assert_successful_broadcast(placed)
 
-    canceled = await node.broadcast().cancel_order(
+    canceled = await node_client.broadcast().cancel_order(
         private_key,
         account.account_number,
         # May break potentially if 2 instances are using test account simultaneously.
