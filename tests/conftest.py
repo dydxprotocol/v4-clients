@@ -5,11 +5,14 @@ import pytest
 
 from dydx_v4_client import NodeClient
 from dydx_v4_client.indexer.rest.constants import (
+    FaucetApiHost,
     IndexerApiHost,
     IndexerConfig,
     IndexerWSHost,
 )
+from dydx_v4_client.indexer.rest.faucet_client import FaucetClient
 from dydx_v4_client.indexer.rest.indexer_client import IndexerClient
+from dydx_v4_client.indexer.rest.shared.rest import RestClient
 from dydx_v4_client.indexer.socket.websocket import IndexerSocket
 from dydx_v4_client.network import TESTNET
 from dydx_v4_client.node.message import order, order_id
@@ -44,6 +47,11 @@ async def indexer_socket_client(indexer_config):
 
 
 @pytest.fixture
+async def rest_client(indexer_config):
+    return FaucetClient(faucet_url=FaucetApiHost.TESTNET)
+
+
+@pytest.fixture
 async def node():
     return await NodeClient.connect(TESTNET.chain_id, TESTNET.node)
 
@@ -58,12 +66,9 @@ async def account(node, test_address):
     return await node.get_account(test_address)
 
 
-MNEMONIC = "mirror actor skill push coach wait confirm orchard lunch mobile athlete gossip awake miracle matter bus reopen team ladder lazy list timber render wait"
-
-
 @pytest.fixture
 def private_key():
-    return from_mnemonic(MNEMONIC)
+    return from_mnemonic(DYDX_TEST_MNEMONIC)
 
 
 @pytest.fixture
