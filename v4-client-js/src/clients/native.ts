@@ -1223,3 +1223,49 @@ export async function getWithdrawalAndTransferGatingStatus(
     return wrappedError(error);
   }
 }
+
+export async function subaccountTransfer(
+  payload: string,
+): Promise<string> {
+  try {
+    const client = globalThis.client;
+    if (client === undefined) {
+      throw new UserError('client is not connected. Call connectNetwork() first');
+    }
+    const wallet = globalThis.wallet;
+    if (wallet === undefined) {
+      throw new UserError('wallet is not set. Call connectWallet() first');
+    }
+
+    const json = JSON.parse(payload);
+    const subaccountNumber = json.subaccountNumber;
+    if (subaccountNumber === undefined) {
+      throw new UserError('subaccountNumber is not set');
+    }
+    const amount = json.amount;
+    if (amount === undefined) {
+      throw new UserError('amount is not set');
+    }
+
+    let destinationAddress = json.destinationAddress;
+    if (destinationAddress === undefined) {
+      destinationAddress = wallet.address!;
+    }
+
+    const destinationSubaccountNumber = json.destinationSubaccountNumber;
+    if (destinationSubaccountNumber === undefined) {
+      throw new UserError('destinationSubaccountNumber is not set');
+    }
+
+    const subaccount = new SubaccountInfo(wallet, subaccountNumber);
+    const tx = await client.transferToSubaccount(
+      subaccount,
+      destinationAddress,
+      destinationSubaccountNumber,
+      parseFloat(amount).toFixed(6),
+    );
+    return encodeJson(tx);
+  } catch (error) {
+    return wrappedError(error);
+  }
+}
