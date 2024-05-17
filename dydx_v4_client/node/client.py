@@ -13,6 +13,7 @@ from v4_proto.cosmos.auth.v1beta1.auth_pb2 import BaseAccount
 from v4_proto.cosmos.auth.v1beta1.query_pb2 import QueryAccountRequest
 from v4_proto.cosmos.bank.v1beta1 import query_pb2 as bank_query
 from v4_proto.cosmos.bank.v1beta1 import query_pb2_grpc as bank_query_grpc
+from v4_proto.cosmos.bank.v1beta1.tx_pb2 import MsgSend
 from v4_proto.cosmos.base.tendermint.v1beta1 import query_pb2 as tendermint_query
 from v4_proto.cosmos.base.tendermint.v1beta1 import (
     query_pb2_grpc as tendermint_query_grpc,
@@ -52,6 +53,11 @@ from v4_proto.dydxprotocol.clob.query_pb2 import (
     QueryClobPairAllResponse,
 )
 from v4_proto.dydxprotocol.clob.tx_pb2 import MsgCancelOrder, MsgPlaceOrder
+from v4_proto.dydxprotocol.sending.transfer_pb2 import (
+    MsgDepositToSubaccount,
+    MsgWithdrawFromSubaccount,
+    Transfer,
+)
 from v4_proto.dydxprotocol.feetiers import query_pb2 as fee_tier_query
 from v4_proto.dydxprotocol.feetiers import query_pb2_grpc as fee_tier_query_grpc
 from v4_proto.dydxprotocol.perpetuals import query_pb2_grpc as perpetuals_query_grpc
@@ -155,6 +161,128 @@ class TransactionSender:
         auth_info = AuthInfo(
             signer_infos=[get_signer_info(key, sequence)],
             fee=Fee(amount=[Coin(amount="0", denom="afet")]),
+        )
+        signature = get_signature(key, body, auth_info, account_number, self.chain_id)
+
+        transaction = Tx(body=body, auth_info=auth_info, signatures=[signature])
+
+        return self.send(transaction)
+
+    async def transfer(
+        self,
+        key,
+        account_number,
+        sequence,
+        sender: str,
+        sender_subaccount: int,
+        recipient: str,
+        recipient_subaccount: int,
+        asset_id: int,
+        amount: int,
+    ):
+        message = Transfer(
+            sender=SubaccountId(owner=sender, number=sender_subaccount),
+            recipient=SubaccountId(owner=recipient, number=recipient_subaccount),
+            asset_id=asset_id,
+            amount=amount,
+        )
+        body = TxBody(messages=[as_any(message)], memo="Client Example")
+        auth_info = AuthInfo(
+            signer_infos=[get_signer_info(key, sequence)],
+            fee=Fee(
+                amount=[Coin(amount="25000000000000000", denom="adv4tnt")],
+                gas_limit=1000000,
+            ),
+        )
+        signature = get_signature(key, body, auth_info, account_number, self.chain_id)
+
+        transaction = Tx(body=body, auth_info=auth_info, signatures=[signature])
+
+        return self.send(transaction)
+
+    async def deposit(
+        self,
+        key,
+        account_number,
+        sequence,
+        sender: str,
+        recipient: str,
+        recipient_subaccount: int,
+        asset_id: int,
+        quantums: int,
+    ):
+        message = MsgDepositToSubaccount(
+            sender=sender,
+            recipient=SubaccountId(owner=recipient, number=recipient_subaccount),
+            asset_id=asset_id,
+            quantums=quantums,
+        )
+        body = TxBody(messages=[as_any(message)], memo="Client Example")
+        auth_info = AuthInfo(
+            signer_infos=[get_signer_info(key, sequence)],
+            fee=Fee(
+                amount=[Coin(amount="25000000000000000", denom="adv4tnt")],
+                gas_limit=1000000,
+            ),
+        )
+        signature = get_signature(key, body, auth_info, account_number, self.chain_id)
+
+        transaction = Tx(body=body, auth_info=auth_info, signatures=[signature])
+
+        return self.send(transaction)
+
+    async def withdraw(
+        self,
+        key,
+        account_number,
+        sequence,
+        sender: str,
+        sender_subaccount: int,
+        recipient: str,
+        asset_id: int,
+        quantums: int,
+    ):
+        message = MsgWithdrawFromSubaccount(
+            sender=SubaccountId(owner=sender, number=sender_subaccount),
+            recipient=recipient,
+            asset_id=asset_id,
+            quantums=quantums,
+        )
+        body = TxBody(messages=[as_any(message)], memo="Client Example")
+        auth_info = AuthInfo(
+            signer_infos=[get_signer_info(key, sequence)],
+            fee=Fee(
+                amount=[Coin(amount="25000000000000000", denom="adv4tnt")],
+                gas_limit=1000000,
+            ),
+        )
+        signature = get_signature(key, body, auth_info, account_number, self.chain_id)
+
+        transaction = Tx(body=body, auth_info=auth_info, signatures=[signature])
+
+        return self.send(transaction)
+
+    async def send_token(
+        self,
+        key,
+        account_number,
+        sequence,
+        sender: str,
+        recipient: str,
+        quantums: int,
+    ):
+        message = MsgSend(
+            from_address=sender,
+            to_address=recipient,
+            amount=[Coin(amount=str(quantums), denom="adv4tnt")],
+        )
+        body = TxBody(messages=[as_any(message)], memo="Client Example")
+        auth_info = AuthInfo(
+            signer_infos=[get_signer_info(key, sequence)],
+            fee=Fee(
+                amount=[Coin(amount="25000000000000000", denom="adv4tnt")],
+                gas_limit=1000000,
+            ),
         )
         signature = get_signature(key, body, auth_info, account_number, self.chain_id)
 

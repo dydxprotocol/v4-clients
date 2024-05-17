@@ -71,6 +71,11 @@ def test_address():
 
 
 @pytest.fixture
+def recipient():
+    return "dydx1slanxj8x9ntk9knwa6cvfv2tzlsq5gk3dshml0"
+
+
+@pytest.fixture
 async def account(node_client, test_address):
     return await node_client.get_account(test_address)
 
