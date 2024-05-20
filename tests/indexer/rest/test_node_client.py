@@ -1,6 +1,8 @@
 import pytest
 from v4_proto.cosmos.auth.v1beta1.auth_pb2 import BaseAccount
+from v4_proto.cosmos.bank.v1beta1 import query_pb2 as bank_query
 from v4_proto.cosmos.base.tendermint.v1beta1.query_pb2 import GetLatestBlockResponse
+from v4_proto.cosmos.base.v1beta1.coin_pb2 import Coin
 from v4_proto.cosmos.staking.v1beta1.query_pb2 import (
     QueryDelegatorDelegationsResponse,
     QueryDelegatorUnbondingDelegationsResponse,
@@ -34,6 +36,21 @@ from v4_proto.dydxprotocol.subaccounts.subaccount_pb2 import Subaccount
 async def test_get_account(node_client, test_address):
     account = await node_client.get_account(test_address)
     assert isinstance(account, BaseAccount)
+
+
+@pytest.mark.asyncio
+async def test_get_account_balances(node_client, test_address):
+    response = await node_client.get_account_balances(test_address)
+    assert isinstance(response, bank_query.QueryAllBalancesResponse)
+    assert all(isinstance(balance, Coin) for balance in response.balances)
+
+
+@pytest.mark.asyncio
+async def test_get_account_balance(node_client, test_address):
+    response = await node_client.get_account_balance(test_address, "usdc")
+    assert isinstance(response, bank_query.QueryBalanceResponse)
+    assert response.balance.denom == "usdc"
+    assert isinstance(response.balance.amount, str)
 
 
 @pytest.mark.asyncio
