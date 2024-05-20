@@ -55,7 +55,7 @@ async def faucet_client(indexer_config):
 
 @pytest.fixture
 async def node_client():
-    return await NodeClient.connect(TESTNET.chain_id, TESTNET.node_client)
+    return await NodeClient.connect(TESTNET.chain_id, TESTNET.node)
 
 
 @pytest.fixture
