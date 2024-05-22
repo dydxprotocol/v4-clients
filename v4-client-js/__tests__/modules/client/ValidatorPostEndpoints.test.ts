@@ -15,7 +15,7 @@ function dummyOrder(height: number): IPlaceOrder {
   placeOrder.goodTilBlock = height + 3;
   // placeOrder.goodTilBlockTime = height + 3;
   const random = randomInt(1000);
-  if ((random % 2) === 0) {
+  if (random % 2 === 0) {
     placeOrder.side = Order_Side.SIDE_BUY;
   } else {
     placeOrder.side = Order_Side.SIDE_SELL;
@@ -44,10 +44,7 @@ describe('Validator Client', () => {
       const subaccount = new SubaccountInfo(wallet, 0);
       const placeOrder = dummyOrder(height);
       placeOrder.clientId = randomInt(1_000_000_000);
-      const tx = await client.post.placeOrderObject(
-        subaccount,
-        placeOrder,
-      );
+      const tx = await client.post.placeOrderObject(subaccount, placeOrder);
       console.log('**Order Tx**');
       console.log(tx);
     });

@@ -26,36 +26,34 @@ export class ValidatorClient {
   private _post?: Post;
 
   /**
-     * @description Connect to a validator client
-     *
-     * @returns The validator client
-     */
+   * @description Connect to a validator client
+   *
+   * @returns The validator client
+   */
   static async connect(config: ValidatorConfig): Promise<ValidatorClient> {
     const client = new ValidatorClient(config);
     await client.initialize();
     return client;
   }
 
-  private constructor(
-    config: ValidatorConfig,
-  ) {
+  private constructor(config: ValidatorConfig) {
     this.config = config;
   }
 
   /**
-     * @description Get the query module, used for retrieving on-chain data.
-     *
-     * @returns The query module
-     */
+   * @description Get the query module, used for retrieving on-chain data.
+   *
+   * @returns The query module
+   */
   get get(): Get {
     return this._get!;
   }
 
   /**
-     * @description transaction module, used for sending transactions.
-     *
-     * @returns The transaction module
-     */
+   * @description transaction module, used for sending transactions.
+   *
+   * @returns The transaction module
+   */
   get post(): Post {
     return this._post!;
   }
@@ -80,7 +78,7 @@ export class ValidatorClient {
       broadcastPollIntervalMs: BROADCAST_POLL_INTERVAL_MS,
       broadcastTimeoutMs: BROADCAST_TIMEOUT_MS,
     });
-    const queryClient: (QueryClient & TxExtension) = QueryClient.withExtensions(
+    const queryClient: QueryClient & TxExtension = QueryClient.withExtensions(
       tendermint37Client,
       setupTxExtension,
     );

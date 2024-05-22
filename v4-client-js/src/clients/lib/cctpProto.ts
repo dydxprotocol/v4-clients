@@ -1,8 +1,8 @@
 /* eslint-disable */
-import Long from "long";
-import _m0 from "protobufjs/minimal";
+import Long from 'long';
+import _m0 from 'protobufjs/minimal';
 
-export const protobufPackage = "circle.cctp.v1";
+export const protobufPackage = 'circle.cctp.v1';
 
 /**
  * Copyright (c) 2023, © Circle Internet Financial, LTD.
@@ -26,91 +26,79 @@ export interface MsgUpdateOwner {
   newOwner: string;
 }
 
-export interface MsgUpdateOwnerResponse {
-}
+export interface MsgUpdateOwnerResponse {}
 
 export interface MsgUpdateAttesterManager {
   from: string;
   newAttesterManager: string;
 }
 
-export interface MsgUpdateAttesterManagerResponse {
-}
+export interface MsgUpdateAttesterManagerResponse {}
 
 export interface MsgUpdateTokenController {
   from: string;
   newTokenController: string;
 }
 
-export interface MsgUpdateTokenControllerResponse {
-}
+export interface MsgUpdateTokenControllerResponse {}
 
 export interface MsgUpdatePauser {
   from: string;
   newPauser: string;
 }
 
-export interface MsgUpdatePauserResponse {
-}
+export interface MsgUpdatePauserResponse {}
 
 export interface MsgAcceptOwner {
   from: string;
 }
 
-export interface MsgAcceptOwnerResponse {
-}
+export interface MsgAcceptOwnerResponse {}
 
 export interface MsgEnableAttester {
   from: string;
   attester: string;
 }
 
-export interface MsgEnableAttesterResponse {
-}
+export interface MsgEnableAttesterResponse {}
 
 export interface MsgDisableAttester {
   from: string;
   attester: string;
 }
 
-export interface MsgDisableAttesterResponse {
-}
+export interface MsgDisableAttesterResponse {}
 
 export interface MsgPauseBurningAndMinting {
   from: string;
 }
 
-export interface MsgPauseBurningAndMintingResponse {
-}
+export interface MsgPauseBurningAndMintingResponse {}
 
 export interface MsgUnpauseBurningAndMinting {
   from: string;
 }
 
-export interface MsgUnpauseBurningAndMintingResponse {
-}
+export interface MsgUnpauseBurningAndMintingResponse {}
 
 export interface MsgPauseSendingAndReceivingMessages {
   from: string;
 }
 
-export interface MsgPauseSendingAndReceivingMessagesResponse {
-}
+export interface MsgPauseSendingAndReceivingMessagesResponse {}
 
 export interface MsgUnpauseSendingAndReceivingMessages {
   from: string;
 }
 
-export interface MsgUnpauseSendingAndReceivingMessagesResponse {
-}
+export interface MsgUnpauseSendingAndReceivingMessagesResponse {}
 
 export interface MsgUpdateMaxMessageBodySize {
   from: string;
   messageSize: Long;
 }
 
-export interface MsgUpdateMaxMessageBodySizeResponse {
-}
+export interface MsgUpdateMaxMessageBodySizeResponse {}
 
 export interface MsgSetMaxBurnAmountPerMessage {
   from: string;
@@ -118,8 +106,7 @@ export interface MsgSetMaxBurnAmountPerMessage {
   amount: string;
 }
 
-export interface MsgSetMaxBurnAmountPerMessageResponse {
-}
+export interface MsgSetMaxBurnAmountPerMessageResponse {}
 
 export interface MsgDepositForBurn {
   from: string;
@@ -154,8 +141,7 @@ export interface MsgReplaceDepositForBurn {
   newMintRecipient: Uint8Array;
 }
 
-export interface MsgReplaceDepositForBurnResponse {
-}
+export interface MsgReplaceDepositForBurnResponse {}
 
 export interface MsgReceiveMessage {
   from: string;
@@ -198,16 +184,14 @@ export interface MsgReplaceMessage {
   newDestinationCaller: Uint8Array;
 }
 
-export interface MsgReplaceMessageResponse {
-}
+export interface MsgReplaceMessageResponse {}
 
 export interface MsgUpdateSignatureThreshold {
   from: string;
   amount: number;
 }
 
-export interface MsgUpdateSignatureThresholdResponse {
-}
+export interface MsgUpdateSignatureThresholdResponse {}
 
 export interface MsgLinkTokenPair {
   from: string;
@@ -216,8 +200,7 @@ export interface MsgLinkTokenPair {
   localToken: string;
 }
 
-export interface MsgLinkTokenPairResponse {
-}
+export interface MsgLinkTokenPairResponse {}
 
 export interface MsgUnlinkTokenPair {
   from: string;
@@ -226,8 +209,7 @@ export interface MsgUnlinkTokenPair {
   localToken: string;
 }
 
-export interface MsgUnlinkTokenPairResponse {
-}
+export interface MsgUnlinkTokenPairResponse {}
 
 export interface MsgAddRemoteTokenMessenger {
   from: string;
@@ -235,27 +217,25 @@ export interface MsgAddRemoteTokenMessenger {
   address: Uint8Array;
 }
 
-export interface MsgAddRemoteTokenMessengerResponse {
-}
+export interface MsgAddRemoteTokenMessengerResponse {}
 
 export interface MsgRemoveRemoteTokenMessenger {
   from: string;
   domainId: number;
 }
 
-export interface MsgRemoveRemoteTokenMessengerResponse {
-}
+export interface MsgRemoveRemoteTokenMessengerResponse {}
 
 function createBaseMsgUpdateOwner(): MsgUpdateOwner {
-  return { from: "", newOwner: "" };
+  return { from: '', newOwner: '' };
 }
 
 export const MsgUpdateOwner = {
   encode(message: MsgUpdateOwner, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    if (message.from !== "") {
+    if (message.from !== '') {
       writer.uint32(10).string(message.from);
     }
-    if (message.newOwner !== "") {
+    if (message.newOwner !== '') {
       writer.uint32(18).string(message.newOwner);
     }
     return writer;
@@ -293,17 +273,17 @@ export const MsgUpdateOwner = {
 
   fromJSON(object: any): MsgUpdateOwner {
     return {
-      from: isSet(object.from) ? gt.String(object.from) : "",
-      newOwner: isSet(object.newOwner) ? gt.String(object.newOwner) : "",
+      from: isSet(object.from) ? gt.String(object.from) : '',
+      newOwner: isSet(object.newOwner) ? gt.String(object.newOwner) : '',
     };
   },
 
   toJSON(message: MsgUpdateOwner): unknown {
     const obj: any = {};
-    if (message.from !== "") {
+    if (message.from !== '') {
       obj.from = message.from;
     }
-    if (message.newOwner !== "") {
+    if (message.newOwner !== '') {
       obj.newOwner = message.newOwner;
     }
     return obj;
@@ -314,8 +294,8 @@ export const MsgUpdateOwner = {
   },
   fromPartial<I extends Exact<DeepPartial<MsgUpdateOwner>, I>>(object: I): MsgUpdateOwner {
     const message = createBaseMsgUpdateOwner();
-    message.from = object.from ?? "";
-    message.newOwner = object.newOwner ?? "";
+    message.from = object.from ?? '';
+    message.newOwner = object.newOwner ?? '';
     return message;
   },
 };
@@ -354,25 +334,29 @@ export const MsgUpdateOwnerResponse = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<MsgUpdateOwnerResponse>, I>>(base?: I): MsgUpdateOwnerResponse {
+  create<I extends Exact<DeepPartial<MsgUpdateOwnerResponse>, I>>(
+    base?: I,
+  ): MsgUpdateOwnerResponse {
     return MsgUpdateOwnerResponse.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<MsgUpdateOwnerResponse>, I>>(_: I): MsgUpdateOwnerResponse {
+  fromPartial<I extends Exact<DeepPartial<MsgUpdateOwnerResponse>, I>>(
+    _: I,
+  ): MsgUpdateOwnerResponse {
     const message = createBaseMsgUpdateOwnerResponse();
     return message;
   },
 };
 
 function createBaseMsgUpdateAttesterManager(): MsgUpdateAttesterManager {
-  return { from: "", newAttesterManager: "" };
+  return { from: '', newAttesterManager: '' };
 }
 
 export const MsgUpdateAttesterManager = {
   encode(message: MsgUpdateAttesterManager, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    if (message.from !== "") {
+    if (message.from !== '') {
       writer.uint32(10).string(message.from);
     }
-    if (message.newAttesterManager !== "") {
+    if (message.newAttesterManager !== '') {
       writer.uint32(18).string(message.newAttesterManager);
     }
     return writer;
@@ -410,29 +394,35 @@ export const MsgUpdateAttesterManager = {
 
   fromJSON(object: any): MsgUpdateAttesterManager {
     return {
-      from: isSet(object.from) ? gt.String(object.from) : "",
-      newAttesterManager: isSet(object.newAttesterManager) ? gt.String(object.newAttesterManager) : "",
+      from: isSet(object.from) ? gt.String(object.from) : '',
+      newAttesterManager: isSet(object.newAttesterManager)
+        ? gt.String(object.newAttesterManager)
+        : '',
     };
   },
 
   toJSON(message: MsgUpdateAttesterManager): unknown {
     const obj: any = {};
-    if (message.from !== "") {
+    if (message.from !== '') {
       obj.from = message.from;
     }
-    if (message.newAttesterManager !== "") {
+    if (message.newAttesterManager !== '') {
       obj.newAttesterManager = message.newAttesterManager;
     }
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<MsgUpdateAttesterManager>, I>>(base?: I): MsgUpdateAttesterManager {
+  create<I extends Exact<DeepPartial<MsgUpdateAttesterManager>, I>>(
+    base?: I,
+  ): MsgUpdateAttesterManager {
     return MsgUpdateAttesterManager.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<MsgUpdateAttesterManager>, I>>(object: I): MsgUpdateAttesterManager {
+  fromPartial<I extends Exact<DeepPartial<MsgUpdateAttesterManager>, I>>(
+    object: I,
+  ): MsgUpdateAttesterManager {
     const message = createBaseMsgUpdateAttesterManager();
-    message.from = object.from ?? "";
-    message.newAttesterManager = object.newAttesterManager ?? "";
+    message.from = object.from ?? '';
+    message.newAttesterManager = object.newAttesterManager ?? '';
     return message;
   },
 };
@@ -442,7 +432,10 @@ function createBaseMsgUpdateAttesterManagerResponse(): MsgUpdateAttesterManagerR
 }
 
 export const MsgUpdateAttesterManagerResponse = {
-  encode(_: MsgUpdateAttesterManagerResponse, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+  encode(
+    _: MsgUpdateAttesterManagerResponse,
+    writer: _m0.Writer = _m0.Writer.create(),
+  ): _m0.Writer {
     return writer;
   },
 
@@ -485,15 +478,15 @@ export const MsgUpdateAttesterManagerResponse = {
 };
 
 function createBaseMsgUpdateTokenController(): MsgUpdateTokenController {
-  return { from: "", newTokenController: "" };
+  return { from: '', newTokenController: '' };
 }
 
 export const MsgUpdateTokenController = {
   encode(message: MsgUpdateTokenController, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    if (message.from !== "") {
+    if (message.from !== '') {
       writer.uint32(10).string(message.from);
     }
-    if (message.newTokenController !== "") {
+    if (message.newTokenController !== '') {
       writer.uint32(18).string(message.newTokenController);
     }
     return writer;
@@ -531,29 +524,35 @@ export const MsgUpdateTokenController = {
 
   fromJSON(object: any): MsgUpdateTokenController {
     return {
-      from: isSet(object.from) ? gt.String(object.from) : "",
-      newTokenController: isSet(object.newTokenController) ? gt.String(object.newTokenController) : "",
+      from: isSet(object.from) ? gt.String(object.from) : '',
+      newTokenController: isSet(object.newTokenController)
+        ? gt.String(object.newTokenController)
+        : '',
     };
   },
 
   toJSON(message: MsgUpdateTokenController): unknown {
     const obj: any = {};
-    if (message.from !== "") {
+    if (message.from !== '') {
       obj.from = message.from;
     }
-    if (message.newTokenController !== "") {
+    if (message.newTokenController !== '') {
       obj.newTokenController = message.newTokenController;
     }
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<MsgUpdateTokenController>, I>>(base?: I): MsgUpdateTokenController {
+  create<I extends Exact<DeepPartial<MsgUpdateTokenController>, I>>(
+    base?: I,
+  ): MsgUpdateTokenController {
     return MsgUpdateTokenController.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<MsgUpdateTokenController>, I>>(object: I): MsgUpdateTokenController {
+  fromPartial<I extends Exact<DeepPartial<MsgUpdateTokenController>, I>>(
+    object: I,
+  ): MsgUpdateTokenController {
     const message = createBaseMsgUpdateTokenController();
-    message.from = object.from ?? "";
-    message.newTokenController = object.newTokenController ?? "";
+    message.from = object.from ?? '';
+    message.newTokenController = object.newTokenController ?? '';
     return message;
   },
 };
@@ -563,7 +562,10 @@ function createBaseMsgUpdateTokenControllerResponse(): MsgUpdateTokenControllerR
 }
 
 export const MsgUpdateTokenControllerResponse = {
-  encode(_: MsgUpdateTokenControllerResponse, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+  encode(
+    _: MsgUpdateTokenControllerResponse,
+    writer: _m0.Writer = _m0.Writer.create(),
+  ): _m0.Writer {
     return writer;
   },
 
@@ -606,15 +608,15 @@ export const MsgUpdateTokenControllerResponse = {
 };
 
 function createBaseMsgUpdatePauser(): MsgUpdatePauser {
-  return { from: "", newPauser: "" };
+  return { from: '', newPauser: '' };
 }
 
 export const MsgUpdatePauser = {
   encode(message: MsgUpdatePauser, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    if (message.from !== "") {
+    if (message.from !== '') {
       writer.uint32(10).string(message.from);
     }
-    if (message.newPauser !== "") {
+    if (message.newPauser !== '') {
       writer.uint32(18).string(message.newPauser);
     }
     return writer;
@@ -652,17 +654,17 @@ export const MsgUpdatePauser = {
 
   fromJSON(object: any): MsgUpdatePauser {
     return {
-      from: isSet(object.from) ? gt.String(object.from) : "",
-      newPauser: isSet(object.newPauser) ? gt.String(object.newPauser) : "",
+      from: isSet(object.from) ? gt.String(object.from) : '',
+      newPauser: isSet(object.newPauser) ? gt.String(object.newPauser) : '',
     };
   },
 
   toJSON(message: MsgUpdatePauser): unknown {
     const obj: any = {};
-    if (message.from !== "") {
+    if (message.from !== '') {
       obj.from = message.from;
     }
-    if (message.newPauser !== "") {
+    if (message.newPauser !== '') {
       obj.newPauser = message.newPauser;
     }
     return obj;
@@ -673,8 +675,8 @@ export const MsgUpdatePauser = {
   },
   fromPartial<I extends Exact<DeepPartial<MsgUpdatePauser>, I>>(object: I): MsgUpdatePauser {
     const message = createBaseMsgUpdatePauser();
-    message.from = object.from ?? "";
-    message.newPauser = object.newPauser ?? "";
+    message.from = object.from ?? '';
+    message.newPauser = object.newPauser ?? '';
     return message;
   },
 };
@@ -713,22 +715,26 @@ export const MsgUpdatePauserResponse = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<MsgUpdatePauserResponse>, I>>(base?: I): MsgUpdatePauserResponse {
+  create<I extends Exact<DeepPartial<MsgUpdatePauserResponse>, I>>(
+    base?: I,
+  ): MsgUpdatePauserResponse {
     return MsgUpdatePauserResponse.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<MsgUpdatePauserResponse>, I>>(_: I): MsgUpdatePauserResponse {
+  fromPartial<I extends Exact<DeepPartial<MsgUpdatePauserResponse>, I>>(
+    _: I,
+  ): MsgUpdatePauserResponse {
     const message = createBaseMsgUpdatePauserResponse();
     return message;
   },
 };
 
 function createBaseMsgAcceptOwner(): MsgAcceptOwner {
-  return { from: "" };
+  return { from: '' };
 }
 
 export const MsgAcceptOwner = {
   encode(message: MsgAcceptOwner, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    if (message.from !== "") {
+    if (message.from !== '') {
       writer.uint32(10).string(message.from);
     }
     return writer;
@@ -758,12 +764,12 @@ export const MsgAcceptOwner = {
   },
 
   fromJSON(object: any): MsgAcceptOwner {
-    return { from: isSet(object.from) ? gt.String(object.from) : "" };
+    return { from: isSet(object.from) ? gt.String(object.from) : '' };
   },
 
   toJSON(message: MsgAcceptOwner): unknown {
     const obj: any = {};
-    if (message.from !== "") {
+    if (message.from !== '') {
       obj.from = message.from;
     }
     return obj;
@@ -774,7 +780,7 @@ export const MsgAcceptOwner = {
   },
   fromPartial<I extends Exact<DeepPartial<MsgAcceptOwner>, I>>(object: I): MsgAcceptOwner {
     const message = createBaseMsgAcceptOwner();
-    message.from = object.from ?? "";
+    message.from = object.from ?? '';
     return message;
   },
 };
@@ -813,25 +819,29 @@ export const MsgAcceptOwnerResponse = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<MsgAcceptOwnerResponse>, I>>(base?: I): MsgAcceptOwnerResponse {
+  create<I extends Exact<DeepPartial<MsgAcceptOwnerResponse>, I>>(
+    base?: I,
+  ): MsgAcceptOwnerResponse {
     return MsgAcceptOwnerResponse.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<MsgAcceptOwnerResponse>, I>>(_: I): MsgAcceptOwnerResponse {
+  fromPartial<I extends Exact<DeepPartial<MsgAcceptOwnerResponse>, I>>(
+    _: I,
+  ): MsgAcceptOwnerResponse {
     const message = createBaseMsgAcceptOwnerResponse();
     return message;
   },
 };
 
 function createBaseMsgEnableAttester(): MsgEnableAttester {
-  return { from: "", attester: "" };
+  return { from: '', attester: '' };
 }
 
 export const MsgEnableAttester = {
   encode(message: MsgEnableAttester, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    if (message.from !== "") {
+    if (message.from !== '') {
       writer.uint32(10).string(message.from);
     }
-    if (message.attester !== "") {
+    if (message.attester !== '') {
       writer.uint32(18).string(message.attester);
     }
     return writer;
@@ -869,17 +879,17 @@ export const MsgEnableAttester = {
 
   fromJSON(object: any): MsgEnableAttester {
     return {
-      from: isSet(object.from) ? gt.String(object.from) : "",
-      attester: isSet(object.attester) ? gt.String(object.attester) : "",
+      from: isSet(object.from) ? gt.String(object.from) : '',
+      attester: isSet(object.attester) ? gt.String(object.attester) : '',
     };
   },
 
   toJSON(message: MsgEnableAttester): unknown {
     const obj: any = {};
-    if (message.from !== "") {
+    if (message.from !== '') {
       obj.from = message.from;
     }
-    if (message.attester !== "") {
+    if (message.attester !== '') {
       obj.attester = message.attester;
     }
     return obj;
@@ -890,8 +900,8 @@ export const MsgEnableAttester = {
   },
   fromPartial<I extends Exact<DeepPartial<MsgEnableAttester>, I>>(object: I): MsgEnableAttester {
     const message = createBaseMsgEnableAttester();
-    message.from = object.from ?? "";
-    message.attester = object.attester ?? "";
+    message.from = object.from ?? '';
+    message.attester = object.attester ?? '';
     return message;
   },
 };
@@ -930,25 +940,29 @@ export const MsgEnableAttesterResponse = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<MsgEnableAttesterResponse>, I>>(base?: I): MsgEnableAttesterResponse {
+  create<I extends Exact<DeepPartial<MsgEnableAttesterResponse>, I>>(
+    base?: I,
+  ): MsgEnableAttesterResponse {
     return MsgEnableAttesterResponse.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<MsgEnableAttesterResponse>, I>>(_: I): MsgEnableAttesterResponse {
+  fromPartial<I extends Exact<DeepPartial<MsgEnableAttesterResponse>, I>>(
+    _: I,
+  ): MsgEnableAttesterResponse {
     const message = createBaseMsgEnableAttesterResponse();
     return message;
   },
 };
 
 function createBaseMsgDisableAttester(): MsgDisableAttester {
-  return { from: "", attester: "" };
+  return { from: '', attester: '' };
 }
 
 export const MsgDisableAttester = {
   encode(message: MsgDisableAttester, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    if (message.from !== "") {
+    if (message.from !== '') {
       writer.uint32(10).string(message.from);
     }
-    if (message.attester !== "") {
+    if (message.attester !== '') {
       writer.uint32(18).string(message.attester);
     }
     return writer;
@@ -986,17 +1000,17 @@ export const MsgDisableAttester = {
 
   fromJSON(object: any): MsgDisableAttester {
     return {
-      from: isSet(object.from) ? gt.String(object.from) : "",
-      attester: isSet(object.attester) ? gt.String(object.attester) : "",
+      from: isSet(object.from) ? gt.String(object.from) : '',
+      attester: isSet(object.attester) ? gt.String(object.attester) : '',
     };
   },
 
   toJSON(message: MsgDisableAttester): unknown {
     const obj: any = {};
-    if (message.from !== "") {
+    if (message.from !== '') {
       obj.from = message.from;
     }
-    if (message.attester !== "") {
+    if (message.attester !== '') {
       obj.attester = message.attester;
     }
     return obj;
@@ -1007,8 +1021,8 @@ export const MsgDisableAttester = {
   },
   fromPartial<I extends Exact<DeepPartial<MsgDisableAttester>, I>>(object: I): MsgDisableAttester {
     const message = createBaseMsgDisableAttester();
-    message.from = object.from ?? "";
-    message.attester = object.attester ?? "";
+    message.from = object.from ?? '';
+    message.attester = object.attester ?? '';
     return message;
   },
 };
@@ -1047,22 +1061,26 @@ export const MsgDisableAttesterResponse = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<MsgDisableAttesterResponse>, I>>(base?: I): MsgDisableAttesterResponse {
+  create<I extends Exact<DeepPartial<MsgDisableAttesterResponse>, I>>(
+    base?: I,
+  ): MsgDisableAttesterResponse {
     return MsgDisableAttesterResponse.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<MsgDisableAttesterResponse>, I>>(_: I): MsgDisableAttesterResponse {
+  fromPartial<I extends Exact<DeepPartial<MsgDisableAttesterResponse>, I>>(
+    _: I,
+  ): MsgDisableAttesterResponse {
     const message = createBaseMsgDisableAttesterResponse();
     return message;
   },
 };
 
 function createBaseMsgPauseBurningAndMinting(): MsgPauseBurningAndMinting {
-  return { from: "" };
+  return { from: '' };
 }
 
 export const MsgPauseBurningAndMinting = {
   encode(message: MsgPauseBurningAndMinting, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    if (message.from !== "") {
+    if (message.from !== '') {
       writer.uint32(10).string(message.from);
     }
     return writer;
@@ -1092,23 +1110,27 @@ export const MsgPauseBurningAndMinting = {
   },
 
   fromJSON(object: any): MsgPauseBurningAndMinting {
-    return { from: isSet(object.from) ? gt.String(object.from) : "" };
+    return { from: isSet(object.from) ? gt.String(object.from) : '' };
   },
 
   toJSON(message: MsgPauseBurningAndMinting): unknown {
     const obj: any = {};
-    if (message.from !== "") {
+    if (message.from !== '') {
       obj.from = message.from;
     }
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<MsgPauseBurningAndMinting>, I>>(base?: I): MsgPauseBurningAndMinting {
+  create<I extends Exact<DeepPartial<MsgPauseBurningAndMinting>, I>>(
+    base?: I,
+  ): MsgPauseBurningAndMinting {
     return MsgPauseBurningAndMinting.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<MsgPauseBurningAndMinting>, I>>(object: I): MsgPauseBurningAndMinting {
+  fromPartial<I extends Exact<DeepPartial<MsgPauseBurningAndMinting>, I>>(
+    object: I,
+  ): MsgPauseBurningAndMinting {
     const message = createBaseMsgPauseBurningAndMinting();
-    message.from = object.from ?? "";
+    message.from = object.from ?? '';
     return message;
   },
 };
@@ -1118,7 +1140,10 @@ function createBaseMsgPauseBurningAndMintingResponse(): MsgPauseBurningAndMintin
 }
 
 export const MsgPauseBurningAndMintingResponse = {
-  encode(_: MsgPauseBurningAndMintingResponse, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+  encode(
+    _: MsgPauseBurningAndMintingResponse,
+    writer: _m0.Writer = _m0.Writer.create(),
+  ): _m0.Writer {
     return writer;
   },
 
@@ -1161,12 +1186,15 @@ export const MsgPauseBurningAndMintingResponse = {
 };
 
 function createBaseMsgUnpauseBurningAndMinting(): MsgUnpauseBurningAndMinting {
-  return { from: "" };
+  return { from: '' };
 }
 
 export const MsgUnpauseBurningAndMinting = {
-  encode(message: MsgUnpauseBurningAndMinting, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    if (message.from !== "") {
+  encode(
+    message: MsgUnpauseBurningAndMinting,
+    writer: _m0.Writer = _m0.Writer.create(),
+  ): _m0.Writer {
+    if (message.from !== '') {
       writer.uint32(10).string(message.from);
     }
     return writer;
@@ -1196,23 +1224,27 @@ export const MsgUnpauseBurningAndMinting = {
   },
 
   fromJSON(object: any): MsgUnpauseBurningAndMinting {
-    return { from: isSet(object.from) ? gt.String(object.from) : "" };
+    return { from: isSet(object.from) ? gt.String(object.from) : '' };
   },
 
   toJSON(message: MsgUnpauseBurningAndMinting): unknown {
     const obj: any = {};
-    if (message.from !== "") {
+    if (message.from !== '') {
       obj.from = message.from;
     }
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<MsgUnpauseBurningAndMinting>, I>>(base?: I): MsgUnpauseBurningAndMinting {
+  create<I extends Exact<DeepPartial<MsgUnpauseBurningAndMinting>, I>>(
+    base?: I,
+  ): MsgUnpauseBurningAndMinting {
     return MsgUnpauseBurningAndMinting.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<MsgUnpauseBurningAndMinting>, I>>(object: I): MsgUnpauseBurningAndMinting {
+  fromPartial<I extends Exact<DeepPartial<MsgUnpauseBurningAndMinting>, I>>(
+    object: I,
+  ): MsgUnpauseBurningAndMinting {
     const message = createBaseMsgUnpauseBurningAndMinting();
-    message.from = object.from ?? "";
+    message.from = object.from ?? '';
     return message;
   },
 };
@@ -1222,7 +1254,10 @@ function createBaseMsgUnpauseBurningAndMintingResponse(): MsgUnpauseBurningAndMi
 }
 
 export const MsgUnpauseBurningAndMintingResponse = {
-  encode(_: MsgUnpauseBurningAndMintingResponse, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+  encode(
+    _: MsgUnpauseBurningAndMintingResponse,
+    writer: _m0.Writer = _m0.Writer.create(),
+  ): _m0.Writer {
     return writer;
   },
 
@@ -1265,12 +1300,15 @@ export const MsgUnpauseBurningAndMintingResponse = {
 };
 
 function createBaseMsgPauseSendingAndReceivingMessages(): MsgPauseSendingAndReceivingMessages {
-  return { from: "" };
+  return { from: '' };
 }
 
 export const MsgPauseSendingAndReceivingMessages = {
-  encode(message: MsgPauseSendingAndReceivingMessages, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    if (message.from !== "") {
+  encode(
+    message: MsgPauseSendingAndReceivingMessages,
+    writer: _m0.Writer = _m0.Writer.create(),
+  ): _m0.Writer {
+    if (message.from !== '') {
       writer.uint32(10).string(message.from);
     }
     return writer;
@@ -1300,12 +1338,12 @@ export const MsgPauseSendingAndReceivingMessages = {
   },
 
   fromJSON(object: any): MsgPauseSendingAndReceivingMessages {
-    return { from: isSet(object.from) ? gt.String(object.from) : "" };
+    return { from: isSet(object.from) ? gt.String(object.from) : '' };
   },
 
   toJSON(message: MsgPauseSendingAndReceivingMessages): unknown {
     const obj: any = {};
-    if (message.from !== "") {
+    if (message.from !== '') {
       obj.from = message.from;
     }
     return obj;
@@ -1320,7 +1358,7 @@ export const MsgPauseSendingAndReceivingMessages = {
     object: I,
   ): MsgPauseSendingAndReceivingMessages {
     const message = createBaseMsgPauseSendingAndReceivingMessages();
-    message.from = object.from ?? "";
+    message.from = object.from ?? '';
     return message;
   },
 };
@@ -1330,11 +1368,17 @@ function createBaseMsgPauseSendingAndReceivingMessagesResponse(): MsgPauseSendin
 }
 
 export const MsgPauseSendingAndReceivingMessagesResponse = {
-  encode(_: MsgPauseSendingAndReceivingMessagesResponse, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+  encode(
+    _: MsgPauseSendingAndReceivingMessagesResponse,
+    writer: _m0.Writer = _m0.Writer.create(),
+  ): _m0.Writer {
     return writer;
   },
 
-  decode(input: _m0.Reader | Uint8Array, length?: number): MsgPauseSendingAndReceivingMessagesResponse {
+  decode(
+    input: _m0.Reader | Uint8Array,
+    length?: number,
+  ): MsgPauseSendingAndReceivingMessagesResponse {
     const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseMsgPauseSendingAndReceivingMessagesResponse();
@@ -1373,12 +1417,15 @@ export const MsgPauseSendingAndReceivingMessagesResponse = {
 };
 
 function createBaseMsgUnpauseSendingAndReceivingMessages(): MsgUnpauseSendingAndReceivingMessages {
-  return { from: "" };
+  return { from: '' };
 }
 
 export const MsgUnpauseSendingAndReceivingMessages = {
-  encode(message: MsgUnpauseSendingAndReceivingMessages, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    if (message.from !== "") {
+  encode(
+    message: MsgUnpauseSendingAndReceivingMessages,
+    writer: _m0.Writer = _m0.Writer.create(),
+  ): _m0.Writer {
+    if (message.from !== '') {
       writer.uint32(10).string(message.from);
     }
     return writer;
@@ -1408,12 +1455,12 @@ export const MsgUnpauseSendingAndReceivingMessages = {
   },
 
   fromJSON(object: any): MsgUnpauseSendingAndReceivingMessages {
-    return { from: isSet(object.from) ? gt.String(object.from) : "" };
+    return { from: isSet(object.from) ? gt.String(object.from) : '' };
   },
 
   toJSON(message: MsgUnpauseSendingAndReceivingMessages): unknown {
     const obj: any = {};
-    if (message.from !== "") {
+    if (message.from !== '') {
       obj.from = message.from;
     }
     return obj;
@@ -1428,7 +1475,7 @@ export const MsgUnpauseSendingAndReceivingMessages = {
     object: I,
   ): MsgUnpauseSendingAndReceivingMessages {
     const message = createBaseMsgUnpauseSendingAndReceivingMessages();
-    message.from = object.from ?? "";
+    message.from = object.from ?? '';
     return message;
   },
 };
@@ -1438,11 +1485,17 @@ function createBaseMsgUnpauseSendingAndReceivingMessagesResponse(): MsgUnpauseSe
 }
 
 export const MsgUnpauseSendingAndReceivingMessagesResponse = {
-  encode(_: MsgUnpauseSendingAndReceivingMessagesResponse, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+  encode(
+    _: MsgUnpauseSendingAndReceivingMessagesResponse,
+    writer: _m0.Writer = _m0.Writer.create(),
+  ): _m0.Writer {
     return writer;
   },
 
-  decode(input: _m0.Reader | Uint8Array, length?: number): MsgUnpauseSendingAndReceivingMessagesResponse {
+  decode(
+    input: _m0.Reader | Uint8Array,
+    length?: number,
+  ): MsgUnpauseSendingAndReceivingMessagesResponse {
     const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
     let end = length === undefined ? reader.len : reader.pos + length;
     const message = createBaseMsgUnpauseSendingAndReceivingMessagesResponse();
@@ -1481,12 +1534,15 @@ export const MsgUnpauseSendingAndReceivingMessagesResponse = {
 };
 
 function createBaseMsgUpdateMaxMessageBodySize(): MsgUpdateMaxMessageBodySize {
-  return { from: "", messageSize: Long.UZERO };
+  return { from: '', messageSize: Long.UZERO };
 }
 
 export const MsgUpdateMaxMessageBodySize = {
-  encode(message: MsgUpdateMaxMessageBodySize, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    if (message.from !== "") {
+  encode(
+    message: MsgUpdateMaxMessageBodySize,
+    writer: _m0.Writer = _m0.Writer.create(),
+  ): _m0.Writer {
+    if (message.from !== '') {
       writer.uint32(10).string(message.from);
     }
     if (!message.messageSize.isZero()) {
@@ -1527,14 +1583,14 @@ export const MsgUpdateMaxMessageBodySize = {
 
   fromJSON(object: any): MsgUpdateMaxMessageBodySize {
     return {
-      from: isSet(object.from) ? gt.String(object.from) : "",
+      from: isSet(object.from) ? gt.String(object.from) : '',
       messageSize: isSet(object.messageSize) ? Long.fromValue(object.messageSize) : Long.UZERO,
     };
   },
 
   toJSON(message: MsgUpdateMaxMessageBodySize): unknown {
     const obj: any = {};
-    if (message.from !== "") {
+    if (message.from !== '') {
       obj.from = message.from;
     }
     if (!message.messageSize.isZero()) {
@@ -1543,15 +1599,20 @@ export const MsgUpdateMaxMessageBodySize = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<MsgUpdateMaxMessageBodySize>, I>>(base?: I): MsgUpdateMaxMessageBodySize {
+  create<I extends Exact<DeepPartial<MsgUpdateMaxMessageBodySize>, I>>(
+    base?: I,
+  ): MsgUpdateMaxMessageBodySize {
     return MsgUpdateMaxMessageBodySize.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<MsgUpdateMaxMessageBodySize>, I>>(object: I): MsgUpdateMaxMessageBodySize {
+  fromPartial<I extends Exact<DeepPartial<MsgUpdateMaxMessageBodySize>, I>>(
+    object: I,
+  ): MsgUpdateMaxMessageBodySize {
     const message = createBaseMsgUpdateMaxMessageBodySize();
-    message.from = object.from ?? "";
-    message.messageSize = (object.messageSize !== undefined && object.messageSize !== null)
-      ? Long.fromValue(object.messageSize)
-      : Long.UZERO;
+    message.from = object.from ?? '';
+    message.messageSize =
+      object.messageSize !== undefined && object.messageSize !== null
+        ? Long.fromValue(object.messageSize)
+        : Long.UZERO;
     return message;
   },
 };
@@ -1561,7 +1622,10 @@ function createBaseMsgUpdateMaxMessageBodySizeResponse(): MsgUpdateMaxMessageBod
 }
 
 export const MsgUpdateMaxMessageBodySizeResponse = {
-  encode(_: MsgUpdateMaxMessageBodySizeResponse, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+  encode(
+    _: MsgUpdateMaxMessageBodySizeResponse,
+    writer: _m0.Writer = _m0.Writer.create(),
+  ): _m0.Writer {
     return writer;
   },
 
@@ -1604,18 +1668,21 @@ export const MsgUpdateMaxMessageBodySizeResponse = {
 };
 
 function createBaseMsgSetMaxBurnAmountPerMessage(): MsgSetMaxBurnAmountPerMessage {
-  return { from: "", localToken: "", amount: "" };
+  return { from: '', localToken: '', amount: '' };
 }
 
 export const MsgSetMaxBurnAmountPerMessage = {
-  encode(message: MsgSetMaxBurnAmountPerMessage, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    if (message.from !== "") {
+  encode(
+    message: MsgSetMaxBurnAmountPerMessage,
+    writer: _m0.Writer = _m0.Writer.create(),
+  ): _m0.Writer {
+    if (message.from !== '') {
       writer.uint32(10).string(message.from);
     }
-    if (message.localToken !== "") {
+    if (message.localToken !== '') {
       writer.uint32(18).string(message.localToken);
     }
-    if (message.amount !== "") {
+    if (message.amount !== '') {
       writer.uint32(26).string(message.amount);
     }
     return writer;
@@ -1660,36 +1727,38 @@ export const MsgSetMaxBurnAmountPerMessage = {
 
   fromJSON(object: any): MsgSetMaxBurnAmountPerMessage {
     return {
-      from: isSet(object.from) ? gt.String(object.from) : "",
-      localToken: isSet(object.localToken) ? gt.String(object.localToken) : "",
-      amount: isSet(object.amount) ? gt.String(object.amount) : "",
+      from: isSet(object.from) ? gt.String(object.from) : '',
+      localToken: isSet(object.localToken) ? gt.String(object.localToken) : '',
+      amount: isSet(object.amount) ? gt.String(object.amount) : '',
     };
   },
 
   toJSON(message: MsgSetMaxBurnAmountPerMessage): unknown {
     const obj: any = {};
-    if (message.from !== "") {
+    if (message.from !== '') {
       obj.from = message.from;
     }
-    if (message.localToken !== "") {
+    if (message.localToken !== '') {
       obj.localToken = message.localToken;
     }
-    if (message.amount !== "") {
+    if (message.amount !== '') {
       obj.amount = message.amount;
     }
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<MsgSetMaxBurnAmountPerMessage>, I>>(base?: I): MsgSetMaxBurnAmountPerMessage {
+  create<I extends Exact<DeepPartial<MsgSetMaxBurnAmountPerMessage>, I>>(
+    base?: I,
+  ): MsgSetMaxBurnAmountPerMessage {
     return MsgSetMaxBurnAmountPerMessage.fromPartial(base ?? ({} as any));
   },
   fromPartial<I extends Exact<DeepPartial<MsgSetMaxBurnAmountPerMessage>, I>>(
     object: I,
   ): MsgSetMaxBurnAmountPerMessage {
     const message = createBaseMsgSetMaxBurnAmountPerMessage();
-    message.from = object.from ?? "";
-    message.localToken = object.localToken ?? "";
-    message.amount = object.amount ?? "";
+    message.from = object.from ?? '';
+    message.localToken = object.localToken ?? '';
+    message.amount = object.amount ?? '';
     return message;
   },
 };
@@ -1699,7 +1768,10 @@ function createBaseMsgSetMaxBurnAmountPerMessageResponse(): MsgSetMaxBurnAmountP
 }
 
 export const MsgSetMaxBurnAmountPerMessageResponse = {
-  encode(_: MsgSetMaxBurnAmountPerMessageResponse, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+  encode(
+    _: MsgSetMaxBurnAmountPerMessageResponse,
+    writer: _m0.Writer = _m0.Writer.create(),
+  ): _m0.Writer {
     return writer;
   },
 
@@ -1742,15 +1814,21 @@ export const MsgSetMaxBurnAmountPerMessageResponse = {
 };
 
 function createBaseMsgDepositForBurn(): MsgDepositForBurn {
-  return { from: "", amount: "", destinationDomain: 0, mintRecipient: new Uint8Array(0), burnToken: "" };
+  return {
+    from: '',
+    amount: '',
+    destinationDomain: 0,
+    mintRecipient: new Uint8Array(0),
+    burnToken: '',
+  };
 }
 
 export const MsgDepositForBurn = {
   encode(message: MsgDepositForBurn, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    if (message.from !== "") {
+    if (message.from !== '') {
       writer.uint32(10).string(message.from);
     }
-    if (message.amount !== "") {
+    if (message.amount !== '') {
       writer.uint32(18).string(message.amount);
     }
     if (message.destinationDomain !== 0) {
@@ -1759,7 +1837,7 @@ export const MsgDepositForBurn = {
     if (message.mintRecipient.length !== 0) {
       writer.uint32(34).bytes(message.mintRecipient);
     }
-    if (message.burnToken !== "") {
+    if (message.burnToken !== '') {
       writer.uint32(42).string(message.burnToken);
     }
     return writer;
@@ -1818,20 +1896,22 @@ export const MsgDepositForBurn = {
 
   fromJSON(object: any): MsgDepositForBurn {
     return {
-      from: isSet(object.from) ? gt.String(object.from) : "",
-      amount: isSet(object.amount) ? gt.String(object.amount) : "",
+      from: isSet(object.from) ? gt.String(object.from) : '',
+      amount: isSet(object.amount) ? gt.String(object.amount) : '',
       destinationDomain: isSet(object.destinationDomain) ? gt.Number(object.destinationDomain) : 0,
-      mintRecipient: isSet(object.mintRecipient) ? bytesFromBase64(object.mintRecipient) : new Uint8Array(0),
-      burnToken: isSet(object.burnToken) ? gt.String(object.burnToken) : "",
+      mintRecipient: isSet(object.mintRecipient)
+        ? bytesFromBase64(object.mintRecipient)
+        : new Uint8Array(0),
+      burnToken: isSet(object.burnToken) ? gt.String(object.burnToken) : '',
     };
   },
 
   toJSON(message: MsgDepositForBurn): unknown {
     const obj: any = {};
-    if (message.from !== "") {
+    if (message.from !== '') {
       obj.from = message.from;
     }
-    if (message.amount !== "") {
+    if (message.amount !== '') {
       obj.amount = message.amount;
     }
     if (message.destinationDomain !== 0) {
@@ -1840,7 +1920,7 @@ export const MsgDepositForBurn = {
     if (message.mintRecipient.length !== 0) {
       obj.mintRecipient = base64FromBytes(message.mintRecipient);
     }
-    if (message.burnToken !== "") {
+    if (message.burnToken !== '') {
       obj.burnToken = message.burnToken;
     }
     return obj;
@@ -1851,11 +1931,11 @@ export const MsgDepositForBurn = {
   },
   fromPartial<I extends Exact<DeepPartial<MsgDepositForBurn>, I>>(object: I): MsgDepositForBurn {
     const message = createBaseMsgDepositForBurn();
-    message.from = object.from ?? "";
-    message.amount = object.amount ?? "";
+    message.from = object.from ?? '';
+    message.amount = object.amount ?? '';
     message.destinationDomain = object.destinationDomain ?? 0;
     message.mintRecipient = object.mintRecipient ?? new Uint8Array(0);
-    message.burnToken = object.burnToken ?? "";
+    message.burnToken = object.burnToken ?? '';
     return message;
   },
 };
@@ -1907,33 +1987,43 @@ export const MsgDepositForBurnResponse = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<MsgDepositForBurnResponse>, I>>(base?: I): MsgDepositForBurnResponse {
+  create<I extends Exact<DeepPartial<MsgDepositForBurnResponse>, I>>(
+    base?: I,
+  ): MsgDepositForBurnResponse {
     return MsgDepositForBurnResponse.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<MsgDepositForBurnResponse>, I>>(object: I): MsgDepositForBurnResponse {
+  fromPartial<I extends Exact<DeepPartial<MsgDepositForBurnResponse>, I>>(
+    object: I,
+  ): MsgDepositForBurnResponse {
     const message = createBaseMsgDepositForBurnResponse();
-    message.nonce = (object.nonce !== undefined && object.nonce !== null) ? Long.fromValue(object.nonce) : Long.UZERO;
+    message.nonce =
+      object.nonce !== undefined && object.nonce !== null
+        ? Long.fromValue(object.nonce)
+        : Long.UZERO;
     return message;
   },
 };
 
 function createBaseMsgDepositForBurnWithCaller(): MsgDepositForBurnWithCaller {
   return {
-    from: "",
-    amount: "",
+    from: '',
+    amount: '',
     destinationDomain: 0,
     mintRecipient: new Uint8Array(0),
-    burnToken: "",
+    burnToken: '',
     destinationCaller: new Uint8Array(0),
   };
 }
 
 export const MsgDepositForBurnWithCaller = {
-  encode(message: MsgDepositForBurnWithCaller, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    if (message.from !== "") {
+  encode(
+    message: MsgDepositForBurnWithCaller,
+    writer: _m0.Writer = _m0.Writer.create(),
+  ): _m0.Writer {
+    if (message.from !== '') {
       writer.uint32(10).string(message.from);
     }
-    if (message.amount !== "") {
+    if (message.amount !== '') {
       writer.uint32(18).string(message.amount);
     }
     if (message.destinationDomain !== 0) {
@@ -1942,7 +2032,7 @@ export const MsgDepositForBurnWithCaller = {
     if (message.mintRecipient.length !== 0) {
       writer.uint32(34).bytes(message.mintRecipient);
     }
-    if (message.burnToken !== "") {
+    if (message.burnToken !== '') {
       writer.uint32(42).string(message.burnToken);
     }
     if (message.destinationCaller.length !== 0) {
@@ -2011,11 +2101,13 @@ export const MsgDepositForBurnWithCaller = {
 
   fromJSON(object: any): MsgDepositForBurnWithCaller {
     return {
-      from: isSet(object.from) ? gt.String(object.from) : "",
-      amount: isSet(object.amount) ? gt.String(object.amount) : "",
+      from: isSet(object.from) ? gt.String(object.from) : '',
+      amount: isSet(object.amount) ? gt.String(object.amount) : '',
       destinationDomain: isSet(object.destinationDomain) ? gt.Number(object.destinationDomain) : 0,
-      mintRecipient: isSet(object.mintRecipient) ? bytesFromBase64(object.mintRecipient) : new Uint8Array(0),
-      burnToken: isSet(object.burnToken) ? gt.String(object.burnToken) : "",
+      mintRecipient: isSet(object.mintRecipient)
+        ? bytesFromBase64(object.mintRecipient)
+        : new Uint8Array(0),
+      burnToken: isSet(object.burnToken) ? gt.String(object.burnToken) : '',
       destinationCaller: isSet(object.destinationCaller)
         ? bytesFromBase64(object.destinationCaller)
         : new Uint8Array(0),
@@ -2024,10 +2116,10 @@ export const MsgDepositForBurnWithCaller = {
 
   toJSON(message: MsgDepositForBurnWithCaller): unknown {
     const obj: any = {};
-    if (message.from !== "") {
+    if (message.from !== '') {
       obj.from = message.from;
     }
-    if (message.amount !== "") {
+    if (message.amount !== '') {
       obj.amount = message.amount;
     }
     if (message.destinationDomain !== 0) {
@@ -2036,7 +2128,7 @@ export const MsgDepositForBurnWithCaller = {
     if (message.mintRecipient.length !== 0) {
       obj.mintRecipient = base64FromBytes(message.mintRecipient);
     }
-    if (message.burnToken !== "") {
+    if (message.burnToken !== '') {
       obj.burnToken = message.burnToken;
     }
     if (message.destinationCaller.length !== 0) {
@@ -2045,16 +2137,20 @@ export const MsgDepositForBurnWithCaller = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<MsgDepositForBurnWithCaller>, I>>(base?: I): MsgDepositForBurnWithCaller {
+  create<I extends Exact<DeepPartial<MsgDepositForBurnWithCaller>, I>>(
+    base?: I,
+  ): MsgDepositForBurnWithCaller {
     return MsgDepositForBurnWithCaller.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<MsgDepositForBurnWithCaller>, I>>(object: I): MsgDepositForBurnWithCaller {
+  fromPartial<I extends Exact<DeepPartial<MsgDepositForBurnWithCaller>, I>>(
+    object: I,
+  ): MsgDepositForBurnWithCaller {
     const message = createBaseMsgDepositForBurnWithCaller();
-    message.from = object.from ?? "";
-    message.amount = object.amount ?? "";
+    message.from = object.from ?? '';
+    message.amount = object.amount ?? '';
     message.destinationDomain = object.destinationDomain ?? 0;
     message.mintRecipient = object.mintRecipient ?? new Uint8Array(0);
-    message.burnToken = object.burnToken ?? "";
+    message.burnToken = object.burnToken ?? '';
     message.destinationCaller = object.destinationCaller ?? new Uint8Array(0);
     return message;
   },
@@ -2065,7 +2161,10 @@ function createBaseMsgDepositForBurnWithCallerResponse(): MsgDepositForBurnWithC
 }
 
 export const MsgDepositForBurnWithCallerResponse = {
-  encode(message: MsgDepositForBurnWithCallerResponse, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+  encode(
+    message: MsgDepositForBurnWithCallerResponse,
+    writer: _m0.Writer = _m0.Writer.create(),
+  ): _m0.Writer {
     if (!message.nonce.isZero()) {
       writer.uint32(8).uint64(message.nonce);
     }
@@ -2116,14 +2215,17 @@ export const MsgDepositForBurnWithCallerResponse = {
     object: I,
   ): MsgDepositForBurnWithCallerResponse {
     const message = createBaseMsgDepositForBurnWithCallerResponse();
-    message.nonce = (object.nonce !== undefined && object.nonce !== null) ? Long.fromValue(object.nonce) : Long.UZERO;
+    message.nonce =
+      object.nonce !== undefined && object.nonce !== null
+        ? Long.fromValue(object.nonce)
+        : Long.UZERO;
     return message;
   },
 };
 
 function createBaseMsgReplaceDepositForBurn(): MsgReplaceDepositForBurn {
   return {
-    from: "",
+    from: '',
     originalMessage: new Uint8Array(0),
     originalAttestation: new Uint8Array(0),
     newDestinationCaller: new Uint8Array(0),
@@ -2133,7 +2235,7 @@ function createBaseMsgReplaceDepositForBurn(): MsgReplaceDepositForBurn {
 
 export const MsgReplaceDepositForBurn = {
   encode(message: MsgReplaceDepositForBurn, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    if (message.from !== "") {
+    if (message.from !== '') {
       writer.uint32(10).string(message.from);
     }
     if (message.originalMessage.length !== 0) {
@@ -2204,21 +2306,25 @@ export const MsgReplaceDepositForBurn = {
 
   fromJSON(object: any): MsgReplaceDepositForBurn {
     return {
-      from: isSet(object.from) ? gt.String(object.from) : "",
-      originalMessage: isSet(object.originalMessage) ? bytesFromBase64(object.originalMessage) : new Uint8Array(0),
+      from: isSet(object.from) ? gt.String(object.from) : '',
+      originalMessage: isSet(object.originalMessage)
+        ? bytesFromBase64(object.originalMessage)
+        : new Uint8Array(0),
       originalAttestation: isSet(object.originalAttestation)
         ? bytesFromBase64(object.originalAttestation)
         : new Uint8Array(0),
       newDestinationCaller: isSet(object.newDestinationCaller)
         ? bytesFromBase64(object.newDestinationCaller)
         : new Uint8Array(0),
-      newMintRecipient: isSet(object.newMintRecipient) ? bytesFromBase64(object.newMintRecipient) : new Uint8Array(0),
+      newMintRecipient: isSet(object.newMintRecipient)
+        ? bytesFromBase64(object.newMintRecipient)
+        : new Uint8Array(0),
     };
   },
 
   toJSON(message: MsgReplaceDepositForBurn): unknown {
     const obj: any = {};
-    if (message.from !== "") {
+    if (message.from !== '') {
       obj.from = message.from;
     }
     if (message.originalMessage.length !== 0) {
@@ -2236,12 +2342,16 @@ export const MsgReplaceDepositForBurn = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<MsgReplaceDepositForBurn>, I>>(base?: I): MsgReplaceDepositForBurn {
+  create<I extends Exact<DeepPartial<MsgReplaceDepositForBurn>, I>>(
+    base?: I,
+  ): MsgReplaceDepositForBurn {
     return MsgReplaceDepositForBurn.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<MsgReplaceDepositForBurn>, I>>(object: I): MsgReplaceDepositForBurn {
+  fromPartial<I extends Exact<DeepPartial<MsgReplaceDepositForBurn>, I>>(
+    object: I,
+  ): MsgReplaceDepositForBurn {
     const message = createBaseMsgReplaceDepositForBurn();
-    message.from = object.from ?? "";
+    message.from = object.from ?? '';
     message.originalMessage = object.originalMessage ?? new Uint8Array(0);
     message.originalAttestation = object.originalAttestation ?? new Uint8Array(0);
     message.newDestinationCaller = object.newDestinationCaller ?? new Uint8Array(0);
@@ -2255,7 +2365,10 @@ function createBaseMsgReplaceDepositForBurnResponse(): MsgReplaceDepositForBurnR
 }
 
 export const MsgReplaceDepositForBurnResponse = {
-  encode(_: MsgReplaceDepositForBurnResponse, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+  encode(
+    _: MsgReplaceDepositForBurnResponse,
+    writer: _m0.Writer = _m0.Writer.create(),
+  ): _m0.Writer {
     return writer;
   },
 
@@ -2298,12 +2411,12 @@ export const MsgReplaceDepositForBurnResponse = {
 };
 
 function createBaseMsgReceiveMessage(): MsgReceiveMessage {
-  return { from: "", message: new Uint8Array(0), attestation: new Uint8Array(0) };
+  return { from: '', message: new Uint8Array(0), attestation: new Uint8Array(0) };
 }
 
 export const MsgReceiveMessage = {
   encode(message: MsgReceiveMessage, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    if (message.from !== "") {
+    if (message.from !== '') {
       writer.uint32(10).string(message.from);
     }
     if (message.message.length !== 0) {
@@ -2354,15 +2467,17 @@ export const MsgReceiveMessage = {
 
   fromJSON(object: any): MsgReceiveMessage {
     return {
-      from: isSet(object.from) ? gt.String(object.from) : "",
+      from: isSet(object.from) ? gt.String(object.from) : '',
       message: isSet(object.message) ? bytesFromBase64(object.message) : new Uint8Array(0),
-      attestation: isSet(object.attestation) ? bytesFromBase64(object.attestation) : new Uint8Array(0),
+      attestation: isSet(object.attestation)
+        ? bytesFromBase64(object.attestation)
+        : new Uint8Array(0),
     };
   },
 
   toJSON(message: MsgReceiveMessage): unknown {
     const obj: any = {};
-    if (message.from !== "") {
+    if (message.from !== '') {
       obj.from = message.from;
     }
     if (message.message.length !== 0) {
@@ -2379,7 +2494,7 @@ export const MsgReceiveMessage = {
   },
   fromPartial<I extends Exact<DeepPartial<MsgReceiveMessage>, I>>(object: I): MsgReceiveMessage {
     const message = createBaseMsgReceiveMessage();
-    message.from = object.from ?? "";
+    message.from = object.from ?? '';
     message.message = object.message ?? new Uint8Array(0);
     message.attestation = object.attestation ?? new Uint8Array(0);
     return message;
@@ -2433,10 +2548,14 @@ export const MsgReceiveMessageResponse = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<MsgReceiveMessageResponse>, I>>(base?: I): MsgReceiveMessageResponse {
+  create<I extends Exact<DeepPartial<MsgReceiveMessageResponse>, I>>(
+    base?: I,
+  ): MsgReceiveMessageResponse {
     return MsgReceiveMessageResponse.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<MsgReceiveMessageResponse>, I>>(object: I): MsgReceiveMessageResponse {
+  fromPartial<I extends Exact<DeepPartial<MsgReceiveMessageResponse>, I>>(
+    object: I,
+  ): MsgReceiveMessageResponse {
     const message = createBaseMsgReceiveMessageResponse();
     message.success = object.success ?? false;
     return message;
@@ -2444,12 +2563,17 @@ export const MsgReceiveMessageResponse = {
 };
 
 function createBaseMsgSendMessage(): MsgSendMessage {
-  return { from: "", destinationDomain: 0, recipient: new Uint8Array(0), messageBody: new Uint8Array(0) };
+  return {
+    from: '',
+    destinationDomain: 0,
+    recipient: new Uint8Array(0),
+    messageBody: new Uint8Array(0),
+  };
 }
 
 export const MsgSendMessage = {
   encode(message: MsgSendMessage, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    if (message.from !== "") {
+    if (message.from !== '') {
       writer.uint32(10).string(message.from);
     }
     if (message.destinationDomain !== 0) {
@@ -2510,16 +2634,18 @@ export const MsgSendMessage = {
 
   fromJSON(object: any): MsgSendMessage {
     return {
-      from: isSet(object.from) ? gt.String(object.from) : "",
+      from: isSet(object.from) ? gt.String(object.from) : '',
       destinationDomain: isSet(object.destinationDomain) ? gt.Number(object.destinationDomain) : 0,
       recipient: isSet(object.recipient) ? bytesFromBase64(object.recipient) : new Uint8Array(0),
-      messageBody: isSet(object.messageBody) ? bytesFromBase64(object.messageBody) : new Uint8Array(0),
+      messageBody: isSet(object.messageBody)
+        ? bytesFromBase64(object.messageBody)
+        : new Uint8Array(0),
     };
   },
 
   toJSON(message: MsgSendMessage): unknown {
     const obj: any = {};
-    if (message.from !== "") {
+    if (message.from !== '') {
       obj.from = message.from;
     }
     if (message.destinationDomain !== 0) {
@@ -2539,7 +2665,7 @@ export const MsgSendMessage = {
   },
   fromPartial<I extends Exact<DeepPartial<MsgSendMessage>, I>>(object: I): MsgSendMessage {
     const message = createBaseMsgSendMessage();
-    message.from = object.from ?? "";
+    message.from = object.from ?? '';
     message.destinationDomain = object.destinationDomain ?? 0;
     message.recipient = object.recipient ?? new Uint8Array(0);
     message.messageBody = object.messageBody ?? new Uint8Array(0);
@@ -2594,19 +2720,26 @@ export const MsgSendMessageResponse = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<MsgSendMessageResponse>, I>>(base?: I): MsgSendMessageResponse {
+  create<I extends Exact<DeepPartial<MsgSendMessageResponse>, I>>(
+    base?: I,
+  ): MsgSendMessageResponse {
     return MsgSendMessageResponse.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<MsgSendMessageResponse>, I>>(object: I): MsgSendMessageResponse {
+  fromPartial<I extends Exact<DeepPartial<MsgSendMessageResponse>, I>>(
+    object: I,
+  ): MsgSendMessageResponse {
     const message = createBaseMsgSendMessageResponse();
-    message.nonce = (object.nonce !== undefined && object.nonce !== null) ? Long.fromValue(object.nonce) : Long.UZERO;
+    message.nonce =
+      object.nonce !== undefined && object.nonce !== null
+        ? Long.fromValue(object.nonce)
+        : Long.UZERO;
     return message;
   },
 };
 
 function createBaseMsgSendMessageWithCaller(): MsgSendMessageWithCaller {
   return {
-    from: "",
+    from: '',
     destinationDomain: 0,
     recipient: new Uint8Array(0),
     messageBody: new Uint8Array(0),
@@ -2616,7 +2749,7 @@ function createBaseMsgSendMessageWithCaller(): MsgSendMessageWithCaller {
 
 export const MsgSendMessageWithCaller = {
   encode(message: MsgSendMessageWithCaller, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    if (message.from !== "") {
+    if (message.from !== '') {
       writer.uint32(10).string(message.from);
     }
     if (message.destinationDomain !== 0) {
@@ -2687,10 +2820,12 @@ export const MsgSendMessageWithCaller = {
 
   fromJSON(object: any): MsgSendMessageWithCaller {
     return {
-      from: isSet(object.from) ? gt.String(object.from) : "",
+      from: isSet(object.from) ? gt.String(object.from) : '',
       destinationDomain: isSet(object.destinationDomain) ? gt.Number(object.destinationDomain) : 0,
       recipient: isSet(object.recipient) ? bytesFromBase64(object.recipient) : new Uint8Array(0),
-      messageBody: isSet(object.messageBody) ? bytesFromBase64(object.messageBody) : new Uint8Array(0),
+      messageBody: isSet(object.messageBody)
+        ? bytesFromBase64(object.messageBody)
+        : new Uint8Array(0),
       destinationCaller: isSet(object.destinationCaller)
         ? bytesFromBase64(object.destinationCaller)
         : new Uint8Array(0),
@@ -2699,7 +2834,7 @@ export const MsgSendMessageWithCaller = {
 
   toJSON(message: MsgSendMessageWithCaller): unknown {
     const obj: any = {};
-    if (message.from !== "") {
+    if (message.from !== '') {
       obj.from = message.from;
     }
     if (message.destinationDomain !== 0) {
@@ -2717,12 +2852,16 @@ export const MsgSendMessageWithCaller = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<MsgSendMessageWithCaller>, I>>(base?: I): MsgSendMessageWithCaller {
+  create<I extends Exact<DeepPartial<MsgSendMessageWithCaller>, I>>(
+    base?: I,
+  ): MsgSendMessageWithCaller {
     return MsgSendMessageWithCaller.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<MsgSendMessageWithCaller>, I>>(object: I): MsgSendMessageWithCaller {
+  fromPartial<I extends Exact<DeepPartial<MsgSendMessageWithCaller>, I>>(
+    object: I,
+  ): MsgSendMessageWithCaller {
     const message = createBaseMsgSendMessageWithCaller();
-    message.from = object.from ?? "";
+    message.from = object.from ?? '';
     message.destinationDomain = object.destinationDomain ?? 0;
     message.recipient = object.recipient ?? new Uint8Array(0);
     message.messageBody = object.messageBody ?? new Uint8Array(0);
@@ -2736,7 +2875,10 @@ function createBaseMsgSendMessageWithCallerResponse(): MsgSendMessageWithCallerR
 }
 
 export const MsgSendMessageWithCallerResponse = {
-  encode(message: MsgSendMessageWithCallerResponse, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+  encode(
+    message: MsgSendMessageWithCallerResponse,
+    writer: _m0.Writer = _m0.Writer.create(),
+  ): _m0.Writer {
     if (!message.nonce.isZero()) {
       writer.uint32(8).uint64(message.nonce);
     }
@@ -2787,14 +2929,17 @@ export const MsgSendMessageWithCallerResponse = {
     object: I,
   ): MsgSendMessageWithCallerResponse {
     const message = createBaseMsgSendMessageWithCallerResponse();
-    message.nonce = (object.nonce !== undefined && object.nonce !== null) ? Long.fromValue(object.nonce) : Long.UZERO;
+    message.nonce =
+      object.nonce !== undefined && object.nonce !== null
+        ? Long.fromValue(object.nonce)
+        : Long.UZERO;
     return message;
   },
 };
 
 function createBaseMsgReplaceMessage(): MsgReplaceMessage {
   return {
-    from: "",
+    from: '',
     originalMessage: new Uint8Array(0),
     originalAttestation: new Uint8Array(0),
     newMessageBody: new Uint8Array(0),
@@ -2804,7 +2949,7 @@ function createBaseMsgReplaceMessage(): MsgReplaceMessage {
 
 export const MsgReplaceMessage = {
   encode(message: MsgReplaceMessage, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    if (message.from !== "") {
+    if (message.from !== '') {
       writer.uint32(10).string(message.from);
     }
     if (message.originalMessage.length !== 0) {
@@ -2875,12 +3020,16 @@ export const MsgReplaceMessage = {
 
   fromJSON(object: any): MsgReplaceMessage {
     return {
-      from: isSet(object.from) ? gt.String(object.from) : "",
-      originalMessage: isSet(object.originalMessage) ? bytesFromBase64(object.originalMessage) : new Uint8Array(0),
+      from: isSet(object.from) ? gt.String(object.from) : '',
+      originalMessage: isSet(object.originalMessage)
+        ? bytesFromBase64(object.originalMessage)
+        : new Uint8Array(0),
       originalAttestation: isSet(object.originalAttestation)
         ? bytesFromBase64(object.originalAttestation)
         : new Uint8Array(0),
-      newMessageBody: isSet(object.newMessageBody) ? bytesFromBase64(object.newMessageBody) : new Uint8Array(0),
+      newMessageBody: isSet(object.newMessageBody)
+        ? bytesFromBase64(object.newMessageBody)
+        : new Uint8Array(0),
       newDestinationCaller: isSet(object.newDestinationCaller)
         ? bytesFromBase64(object.newDestinationCaller)
         : new Uint8Array(0),
@@ -2889,7 +3038,7 @@ export const MsgReplaceMessage = {
 
   toJSON(message: MsgReplaceMessage): unknown {
     const obj: any = {};
-    if (message.from !== "") {
+    if (message.from !== '') {
       obj.from = message.from;
     }
     if (message.originalMessage.length !== 0) {
@@ -2912,7 +3061,7 @@ export const MsgReplaceMessage = {
   },
   fromPartial<I extends Exact<DeepPartial<MsgReplaceMessage>, I>>(object: I): MsgReplaceMessage {
     const message = createBaseMsgReplaceMessage();
-    message.from = object.from ?? "";
+    message.from = object.from ?? '';
     message.originalMessage = object.originalMessage ?? new Uint8Array(0);
     message.originalAttestation = object.originalAttestation ?? new Uint8Array(0);
     message.newMessageBody = object.newMessageBody ?? new Uint8Array(0);
@@ -2955,22 +3104,29 @@ export const MsgReplaceMessageResponse = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<MsgReplaceMessageResponse>, I>>(base?: I): MsgReplaceMessageResponse {
+  create<I extends Exact<DeepPartial<MsgReplaceMessageResponse>, I>>(
+    base?: I,
+  ): MsgReplaceMessageResponse {
     return MsgReplaceMessageResponse.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<MsgReplaceMessageResponse>, I>>(_: I): MsgReplaceMessageResponse {
+  fromPartial<I extends Exact<DeepPartial<MsgReplaceMessageResponse>, I>>(
+    _: I,
+  ): MsgReplaceMessageResponse {
     const message = createBaseMsgReplaceMessageResponse();
     return message;
   },
 };
 
 function createBaseMsgUpdateSignatureThreshold(): MsgUpdateSignatureThreshold {
-  return { from: "", amount: 0 };
+  return { from: '', amount: 0 };
 }
 
 export const MsgUpdateSignatureThreshold = {
-  encode(message: MsgUpdateSignatureThreshold, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    if (message.from !== "") {
+  encode(
+    message: MsgUpdateSignatureThreshold,
+    writer: _m0.Writer = _m0.Writer.create(),
+  ): _m0.Writer {
+    if (message.from !== '') {
       writer.uint32(10).string(message.from);
     }
     if (message.amount !== 0) {
@@ -3011,14 +3167,14 @@ export const MsgUpdateSignatureThreshold = {
 
   fromJSON(object: any): MsgUpdateSignatureThreshold {
     return {
-      from: isSet(object.from) ? gt.String(object.from) : "",
+      from: isSet(object.from) ? gt.String(object.from) : '',
       amount: isSet(object.amount) ? gt.Number(object.amount) : 0,
     };
   },
 
   toJSON(message: MsgUpdateSignatureThreshold): unknown {
     const obj: any = {};
-    if (message.from !== "") {
+    if (message.from !== '') {
       obj.from = message.from;
     }
     if (message.amount !== 0) {
@@ -3027,12 +3183,16 @@ export const MsgUpdateSignatureThreshold = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<MsgUpdateSignatureThreshold>, I>>(base?: I): MsgUpdateSignatureThreshold {
+  create<I extends Exact<DeepPartial<MsgUpdateSignatureThreshold>, I>>(
+    base?: I,
+  ): MsgUpdateSignatureThreshold {
     return MsgUpdateSignatureThreshold.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<MsgUpdateSignatureThreshold>, I>>(object: I): MsgUpdateSignatureThreshold {
+  fromPartial<I extends Exact<DeepPartial<MsgUpdateSignatureThreshold>, I>>(
+    object: I,
+  ): MsgUpdateSignatureThreshold {
     const message = createBaseMsgUpdateSignatureThreshold();
-    message.from = object.from ?? "";
+    message.from = object.from ?? '';
     message.amount = object.amount ?? 0;
     return message;
   },
@@ -3043,7 +3203,10 @@ function createBaseMsgUpdateSignatureThresholdResponse(): MsgUpdateSignatureThre
 }
 
 export const MsgUpdateSignatureThresholdResponse = {
-  encode(_: MsgUpdateSignatureThresholdResponse, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+  encode(
+    _: MsgUpdateSignatureThresholdResponse,
+    writer: _m0.Writer = _m0.Writer.create(),
+  ): _m0.Writer {
     return writer;
   },
 
@@ -3086,12 +3249,12 @@ export const MsgUpdateSignatureThresholdResponse = {
 };
 
 function createBaseMsgLinkTokenPair(): MsgLinkTokenPair {
-  return { from: "", remoteDomain: 0, remoteToken: new Uint8Array(0), localToken: "" };
+  return { from: '', remoteDomain: 0, remoteToken: new Uint8Array(0), localToken: '' };
 }
 
 export const MsgLinkTokenPair = {
   encode(message: MsgLinkTokenPair, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    if (message.from !== "") {
+    if (message.from !== '') {
       writer.uint32(10).string(message.from);
     }
     if (message.remoteDomain !== 0) {
@@ -3100,7 +3263,7 @@ export const MsgLinkTokenPair = {
     if (message.remoteToken.length !== 0) {
       writer.uint32(26).bytes(message.remoteToken);
     }
-    if (message.localToken !== "") {
+    if (message.localToken !== '') {
       writer.uint32(34).string(message.localToken);
     }
     return writer;
@@ -3152,16 +3315,18 @@ export const MsgLinkTokenPair = {
 
   fromJSON(object: any): MsgLinkTokenPair {
     return {
-      from: isSet(object.from) ? gt.String(object.from) : "",
+      from: isSet(object.from) ? gt.String(object.from) : '',
       remoteDomain: isSet(object.remoteDomain) ? gt.Number(object.remoteDomain) : 0,
-      remoteToken: isSet(object.remoteToken) ? bytesFromBase64(object.remoteToken) : new Uint8Array(0),
-      localToken: isSet(object.localToken) ? gt.String(object.localToken) : "",
+      remoteToken: isSet(object.remoteToken)
+        ? bytesFromBase64(object.remoteToken)
+        : new Uint8Array(0),
+      localToken: isSet(object.localToken) ? gt.String(object.localToken) : '',
     };
   },
 
   toJSON(message: MsgLinkTokenPair): unknown {
     const obj: any = {};
-    if (message.from !== "") {
+    if (message.from !== '') {
       obj.from = message.from;
     }
     if (message.remoteDomain !== 0) {
@@ -3170,7 +3335,7 @@ export const MsgLinkTokenPair = {
     if (message.remoteToken.length !== 0) {
       obj.remoteToken = base64FromBytes(message.remoteToken);
     }
-    if (message.localToken !== "") {
+    if (message.localToken !== '') {
       obj.localToken = message.localToken;
     }
     return obj;
@@ -3181,10 +3346,10 @@ export const MsgLinkTokenPair = {
   },
   fromPartial<I extends Exact<DeepPartial<MsgLinkTokenPair>, I>>(object: I): MsgLinkTokenPair {
     const message = createBaseMsgLinkTokenPair();
-    message.from = object.from ?? "";
+    message.from = object.from ?? '';
     message.remoteDomain = object.remoteDomain ?? 0;
     message.remoteToken = object.remoteToken ?? new Uint8Array(0);
-    message.localToken = object.localToken ?? "";
+    message.localToken = object.localToken ?? '';
     return message;
   },
 };
@@ -3223,22 +3388,26 @@ export const MsgLinkTokenPairResponse = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<MsgLinkTokenPairResponse>, I>>(base?: I): MsgLinkTokenPairResponse {
+  create<I extends Exact<DeepPartial<MsgLinkTokenPairResponse>, I>>(
+    base?: I,
+  ): MsgLinkTokenPairResponse {
     return MsgLinkTokenPairResponse.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<MsgLinkTokenPairResponse>, I>>(_: I): MsgLinkTokenPairResponse {
+  fromPartial<I extends Exact<DeepPartial<MsgLinkTokenPairResponse>, I>>(
+    _: I,
+  ): MsgLinkTokenPairResponse {
     const message = createBaseMsgLinkTokenPairResponse();
     return message;
   },
 };
 
 function createBaseMsgUnlinkTokenPair(): MsgUnlinkTokenPair {
-  return { from: "", remoteDomain: 0, remoteToken: new Uint8Array(0), localToken: "" };
+  return { from: '', remoteDomain: 0, remoteToken: new Uint8Array(0), localToken: '' };
 }
 
 export const MsgUnlinkTokenPair = {
   encode(message: MsgUnlinkTokenPair, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    if (message.from !== "") {
+    if (message.from !== '') {
       writer.uint32(10).string(message.from);
     }
     if (message.remoteDomain !== 0) {
@@ -3247,7 +3416,7 @@ export const MsgUnlinkTokenPair = {
     if (message.remoteToken.length !== 0) {
       writer.uint32(26).bytes(message.remoteToken);
     }
-    if (message.localToken !== "") {
+    if (message.localToken !== '') {
       writer.uint32(34).string(message.localToken);
     }
     return writer;
@@ -3299,16 +3468,18 @@ export const MsgUnlinkTokenPair = {
 
   fromJSON(object: any): MsgUnlinkTokenPair {
     return {
-      from: isSet(object.from) ? gt.String(object.from) : "",
+      from: isSet(object.from) ? gt.String(object.from) : '',
       remoteDomain: isSet(object.remoteDomain) ? gt.Number(object.remoteDomain) : 0,
-      remoteToken: isSet(object.remoteToken) ? bytesFromBase64(object.remoteToken) : new Uint8Array(0),
-      localToken: isSet(object.localToken) ? gt.String(object.localToken) : "",
+      remoteToken: isSet(object.remoteToken)
+        ? bytesFromBase64(object.remoteToken)
+        : new Uint8Array(0),
+      localToken: isSet(object.localToken) ? gt.String(object.localToken) : '',
     };
   },
 
   toJSON(message: MsgUnlinkTokenPair): unknown {
     const obj: any = {};
-    if (message.from !== "") {
+    if (message.from !== '') {
       obj.from = message.from;
     }
     if (message.remoteDomain !== 0) {
@@ -3317,7 +3488,7 @@ export const MsgUnlinkTokenPair = {
     if (message.remoteToken.length !== 0) {
       obj.remoteToken = base64FromBytes(message.remoteToken);
     }
-    if (message.localToken !== "") {
+    if (message.localToken !== '') {
       obj.localToken = message.localToken;
     }
     return obj;
@@ -3328,10 +3499,10 @@ export const MsgUnlinkTokenPair = {
   },
   fromPartial<I extends Exact<DeepPartial<MsgUnlinkTokenPair>, I>>(object: I): MsgUnlinkTokenPair {
     const message = createBaseMsgUnlinkTokenPair();
-    message.from = object.from ?? "";
+    message.from = object.from ?? '';
     message.remoteDomain = object.remoteDomain ?? 0;
     message.remoteToken = object.remoteToken ?? new Uint8Array(0);
-    message.localToken = object.localToken ?? "";
+    message.localToken = object.localToken ?? '';
     return message;
   },
 };
@@ -3370,22 +3541,29 @@ export const MsgUnlinkTokenPairResponse = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<MsgUnlinkTokenPairResponse>, I>>(base?: I): MsgUnlinkTokenPairResponse {
+  create<I extends Exact<DeepPartial<MsgUnlinkTokenPairResponse>, I>>(
+    base?: I,
+  ): MsgUnlinkTokenPairResponse {
     return MsgUnlinkTokenPairResponse.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<MsgUnlinkTokenPairResponse>, I>>(_: I): MsgUnlinkTokenPairResponse {
+  fromPartial<I extends Exact<DeepPartial<MsgUnlinkTokenPairResponse>, I>>(
+    _: I,
+  ): MsgUnlinkTokenPairResponse {
     const message = createBaseMsgUnlinkTokenPairResponse();
     return message;
   },
 };
 
 function createBaseMsgAddRemoteTokenMessenger(): MsgAddRemoteTokenMessenger {
-  return { from: "", domainId: 0, address: new Uint8Array(0) };
+  return { from: '', domainId: 0, address: new Uint8Array(0) };
 }
 
 export const MsgAddRemoteTokenMessenger = {
-  encode(message: MsgAddRemoteTokenMessenger, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    if (message.from !== "") {
+  encode(
+    message: MsgAddRemoteTokenMessenger,
+    writer: _m0.Writer = _m0.Writer.create(),
+  ): _m0.Writer {
+    if (message.from !== '') {
       writer.uint32(10).string(message.from);
     }
     if (message.domainId !== 0) {
@@ -3436,7 +3614,7 @@ export const MsgAddRemoteTokenMessenger = {
 
   fromJSON(object: any): MsgAddRemoteTokenMessenger {
     return {
-      from: isSet(object.from) ? gt.String(object.from) : "",
+      from: isSet(object.from) ? gt.String(object.from) : '',
       domainId: isSet(object.domainId) ? gt.Number(object.domainId) : 0,
       address: isSet(object.address) ? bytesFromBase64(object.address) : new Uint8Array(0),
     };
@@ -3444,7 +3622,7 @@ export const MsgAddRemoteTokenMessenger = {
 
   toJSON(message: MsgAddRemoteTokenMessenger): unknown {
     const obj: any = {};
-    if (message.from !== "") {
+    if (message.from !== '') {
       obj.from = message.from;
     }
     if (message.domainId !== 0) {
@@ -3456,12 +3634,16 @@ export const MsgAddRemoteTokenMessenger = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<MsgAddRemoteTokenMessenger>, I>>(base?: I): MsgAddRemoteTokenMessenger {
+  create<I extends Exact<DeepPartial<MsgAddRemoteTokenMessenger>, I>>(
+    base?: I,
+  ): MsgAddRemoteTokenMessenger {
     return MsgAddRemoteTokenMessenger.fromPartial(base ?? ({} as any));
   },
-  fromPartial<I extends Exact<DeepPartial<MsgAddRemoteTokenMessenger>, I>>(object: I): MsgAddRemoteTokenMessenger {
+  fromPartial<I extends Exact<DeepPartial<MsgAddRemoteTokenMessenger>, I>>(
+    object: I,
+  ): MsgAddRemoteTokenMessenger {
     const message = createBaseMsgAddRemoteTokenMessenger();
-    message.from = object.from ?? "";
+    message.from = object.from ?? '';
     message.domainId = object.domainId ?? 0;
     message.address = object.address ?? new Uint8Array(0);
     return message;
@@ -3473,7 +3655,10 @@ function createBaseMsgAddRemoteTokenMessengerResponse(): MsgAddRemoteTokenMessen
 }
 
 export const MsgAddRemoteTokenMessengerResponse = {
-  encode(_: MsgAddRemoteTokenMessengerResponse, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+  encode(
+    _: MsgAddRemoteTokenMessengerResponse,
+    writer: _m0.Writer = _m0.Writer.create(),
+  ): _m0.Writer {
     return writer;
   },
 
@@ -3516,12 +3701,15 @@ export const MsgAddRemoteTokenMessengerResponse = {
 };
 
 function createBaseMsgRemoveRemoteTokenMessenger(): MsgRemoveRemoteTokenMessenger {
-  return { from: "", domainId: 0 };
+  return { from: '', domainId: 0 };
 }
 
 export const MsgRemoveRemoteTokenMessenger = {
-  encode(message: MsgRemoveRemoteTokenMessenger, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
-    if (message.from !== "") {
+  encode(
+    message: MsgRemoveRemoteTokenMessenger,
+    writer: _m0.Writer = _m0.Writer.create(),
+  ): _m0.Writer {
+    if (message.from !== '') {
       writer.uint32(10).string(message.from);
     }
     if (message.domainId !== 0) {
@@ -3562,14 +3750,14 @@ export const MsgRemoveRemoteTokenMessenger = {
 
   fromJSON(object: any): MsgRemoveRemoteTokenMessenger {
     return {
-      from: isSet(object.from) ? gt.String(object.from) : "",
+      from: isSet(object.from) ? gt.String(object.from) : '',
       domainId: isSet(object.domainId) ? gt.Number(object.domainId) : 0,
     };
   },
 
   toJSON(message: MsgRemoveRemoteTokenMessenger): unknown {
     const obj: any = {};
-    if (message.from !== "") {
+    if (message.from !== '') {
       obj.from = message.from;
     }
     if (message.domainId !== 0) {
@@ -3578,14 +3766,16 @@ export const MsgRemoveRemoteTokenMessenger = {
     return obj;
   },
 
-  create<I extends Exact<DeepPartial<MsgRemoveRemoteTokenMessenger>, I>>(base?: I): MsgRemoveRemoteTokenMessenger {
+  create<I extends Exact<DeepPartial<MsgRemoveRemoteTokenMessenger>, I>>(
+    base?: I,
+  ): MsgRemoveRemoteTokenMessenger {
     return MsgRemoveRemoteTokenMessenger.fromPartial(base ?? ({} as any));
   },
   fromPartial<I extends Exact<DeepPartial<MsgRemoveRemoteTokenMessenger>, I>>(
     object: I,
   ): MsgRemoveRemoteTokenMessenger {
     const message = createBaseMsgRemoveRemoteTokenMessenger();
-    message.from = object.from ?? "";
+    message.from = object.from ?? '';
     message.domainId = object.domainId ?? 0;
     return message;
   },
@@ -3596,7 +3786,10 @@ function createBaseMsgRemoveRemoteTokenMessengerResponse(): MsgRemoveRemoteToken
 }
 
 export const MsgRemoveRemoteTokenMessengerResponse = {
-  encode(_: MsgRemoveRemoteTokenMessengerResponse, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+  encode(
+    _: MsgRemoveRemoteTokenMessengerResponse,
+    writer: _m0.Writer = _m0.Writer.create(),
+  ): _m0.Writer {
     return writer;
   },
 
@@ -3641,37 +3834,61 @@ export const MsgRemoveRemoteTokenMessengerResponse = {
 /** Msg defines the Msg service. */
 export interface Msg {
   AcceptOwner(request: MsgAcceptOwner): Promise<MsgAcceptOwnerResponse>;
-  AddRemoteTokenMessenger(request: MsgAddRemoteTokenMessenger): Promise<MsgAddRemoteTokenMessengerResponse>;
+  AddRemoteTokenMessenger(
+    request: MsgAddRemoteTokenMessenger,
+  ): Promise<MsgAddRemoteTokenMessengerResponse>;
   DepositForBurn(request: MsgDepositForBurn): Promise<MsgDepositForBurnResponse>;
-  DepositForBurnWithCaller(request: MsgDepositForBurnWithCaller): Promise<MsgDepositForBurnWithCallerResponse>;
+  DepositForBurnWithCaller(
+    request: MsgDepositForBurnWithCaller,
+  ): Promise<MsgDepositForBurnWithCallerResponse>;
   DisableAttester(request: MsgDisableAttester): Promise<MsgDisableAttesterResponse>;
   EnableAttester(request: MsgEnableAttester): Promise<MsgEnableAttesterResponse>;
   LinkTokenPair(request: MsgLinkTokenPair): Promise<MsgLinkTokenPairResponse>;
-  PauseBurningAndMinting(request: MsgPauseBurningAndMinting): Promise<MsgPauseBurningAndMintingResponse>;
+  PauseBurningAndMinting(
+    request: MsgPauseBurningAndMinting,
+  ): Promise<MsgPauseBurningAndMintingResponse>;
   PauseSendingAndReceivingMessages(
     request: MsgPauseSendingAndReceivingMessages,
   ): Promise<MsgPauseSendingAndReceivingMessagesResponse>;
   ReceiveMessage(request: MsgReceiveMessage): Promise<MsgReceiveMessageResponse>;
-  RemoveRemoteTokenMessenger(request: MsgRemoveRemoteTokenMessenger): Promise<MsgRemoveRemoteTokenMessengerResponse>;
-  ReplaceDepositForBurn(request: MsgReplaceDepositForBurn): Promise<MsgReplaceDepositForBurnResponse>;
+  RemoveRemoteTokenMessenger(
+    request: MsgRemoveRemoteTokenMessenger,
+  ): Promise<MsgRemoveRemoteTokenMessengerResponse>;
+  ReplaceDepositForBurn(
+    request: MsgReplaceDepositForBurn,
+  ): Promise<MsgReplaceDepositForBurnResponse>;
   ReplaceMessage(request: MsgReplaceMessage): Promise<MsgReplaceMessageResponse>;
   SendMessage(request: MsgSendMessage): Promise<MsgSendMessageResponse>;
-  SendMessageWithCaller(request: MsgSendMessageWithCaller): Promise<MsgSendMessageWithCallerResponse>;
+  SendMessageWithCaller(
+    request: MsgSendMessageWithCaller,
+  ): Promise<MsgSendMessageWithCallerResponse>;
   UnlinkTokenPair(request: MsgUnlinkTokenPair): Promise<MsgUnlinkTokenPairResponse>;
-  UnpauseBurningAndMinting(request: MsgUnpauseBurningAndMinting): Promise<MsgUnpauseBurningAndMintingResponse>;
+  UnpauseBurningAndMinting(
+    request: MsgUnpauseBurningAndMinting,
+  ): Promise<MsgUnpauseBurningAndMintingResponse>;
   UnpauseSendingAndReceivingMessages(
     request: MsgUnpauseSendingAndReceivingMessages,
   ): Promise<MsgUnpauseSendingAndReceivingMessagesResponse>;
   UpdateOwner(request: MsgUpdateOwner): Promise<MsgUpdateOwnerResponse>;
-  UpdateAttesterManager(request: MsgUpdateAttesterManager): Promise<MsgUpdateAttesterManagerResponse>;
-  UpdateTokenController(request: MsgUpdateTokenController): Promise<MsgUpdateTokenControllerResponse>;
+  UpdateAttesterManager(
+    request: MsgUpdateAttesterManager,
+  ): Promise<MsgUpdateAttesterManagerResponse>;
+  UpdateTokenController(
+    request: MsgUpdateTokenController,
+  ): Promise<MsgUpdateTokenControllerResponse>;
   UpdatePauser(request: MsgUpdatePauser): Promise<MsgUpdatePauserResponse>;
-  UpdateMaxMessageBodySize(request: MsgUpdateMaxMessageBodySize): Promise<MsgUpdateMaxMessageBodySizeResponse>;
-  SetMaxBurnAmountPerMessage(request: MsgSetMaxBurnAmountPerMessage): Promise<MsgSetMaxBurnAmountPerMessageResponse>;
-  UpdateSignatureThreshold(request: MsgUpdateSignatureThreshold): Promise<MsgUpdateSignatureThresholdResponse>;
+  UpdateMaxMessageBodySize(
+    request: MsgUpdateMaxMessageBodySize,
+  ): Promise<MsgUpdateMaxMessageBodySizeResponse>;
+  SetMaxBurnAmountPerMessage(
+    request: MsgSetMaxBurnAmountPerMessage,
+  ): Promise<MsgSetMaxBurnAmountPerMessageResponse>;
+  UpdateSignatureThreshold(
+    request: MsgUpdateSignatureThreshold,
+  ): Promise<MsgUpdateSignatureThresholdResponse>;
 }
 
-export const MsgServiceName = "circle.cctp.v1.Msg";
+export const MsgServiceName = 'circle.cctp.v1.Msg';
 export class MsgClientImpl implements Msg {
   private readonly rpc: Rpc;
   private readonly service: string;
@@ -3706,156 +3923,200 @@ export class MsgClientImpl implements Msg {
   }
   AcceptOwner(request: MsgAcceptOwner): Promise<MsgAcceptOwnerResponse> {
     const data = MsgAcceptOwner.encode(request).finish();
-    const promise = this.rpc.request(this.service, "AcceptOwner", data);
+    const promise = this.rpc.request(this.service, 'AcceptOwner', data);
     return promise.then((data) => MsgAcceptOwnerResponse.decode(_m0.Reader.create(data)));
   }
 
-  AddRemoteTokenMessenger(request: MsgAddRemoteTokenMessenger): Promise<MsgAddRemoteTokenMessengerResponse> {
+  AddRemoteTokenMessenger(
+    request: MsgAddRemoteTokenMessenger,
+  ): Promise<MsgAddRemoteTokenMessengerResponse> {
     const data = MsgAddRemoteTokenMessenger.encode(request).finish();
-    const promise = this.rpc.request(this.service, "AddRemoteTokenMessenger", data);
-    return promise.then((data) => MsgAddRemoteTokenMessengerResponse.decode(_m0.Reader.create(data)));
+    const promise = this.rpc.request(this.service, 'AddRemoteTokenMessenger', data);
+    return promise.then((data) =>
+      MsgAddRemoteTokenMessengerResponse.decode(_m0.Reader.create(data)),
+    );
   }
 
   DepositForBurn(request: MsgDepositForBurn): Promise<MsgDepositForBurnResponse> {
     const data = MsgDepositForBurn.encode(request).finish();
-    const promise = this.rpc.request(this.service, "DepositForBurn", data);
+    const promise = this.rpc.request(this.service, 'DepositForBurn', data);
     return promise.then((data) => MsgDepositForBurnResponse.decode(_m0.Reader.create(data)));
   }
 
-  DepositForBurnWithCaller(request: MsgDepositForBurnWithCaller): Promise<MsgDepositForBurnWithCallerResponse> {
+  DepositForBurnWithCaller(
+    request: MsgDepositForBurnWithCaller,
+  ): Promise<MsgDepositForBurnWithCallerResponse> {
     const data = MsgDepositForBurnWithCaller.encode(request).finish();
-    const promise = this.rpc.request(this.service, "DepositForBurnWithCaller", data);
-    return promise.then((data) => MsgDepositForBurnWithCallerResponse.decode(_m0.Reader.create(data)));
+    const promise = this.rpc.request(this.service, 'DepositForBurnWithCaller', data);
+    return promise.then((data) =>
+      MsgDepositForBurnWithCallerResponse.decode(_m0.Reader.create(data)),
+    );
   }
 
   DisableAttester(request: MsgDisableAttester): Promise<MsgDisableAttesterResponse> {
     const data = MsgDisableAttester.encode(request).finish();
-    const promise = this.rpc.request(this.service, "DisableAttester", data);
+    const promise = this.rpc.request(this.service, 'DisableAttester', data);
     return promise.then((data) => MsgDisableAttesterResponse.decode(_m0.Reader.create(data)));
   }
 
   EnableAttester(request: MsgEnableAttester): Promise<MsgEnableAttesterResponse> {
     const data = MsgEnableAttester.encode(request).finish();
-    const promise = this.rpc.request(this.service, "EnableAttester", data);
+    const promise = this.rpc.request(this.service, 'EnableAttester', data);
     return promise.then((data) => MsgEnableAttesterResponse.decode(_m0.Reader.create(data)));
   }
 
   LinkTokenPair(request: MsgLinkTokenPair): Promise<MsgLinkTokenPairResponse> {
     const data = MsgLinkTokenPair.encode(request).finish();
-    const promise = this.rpc.request(this.service, "LinkTokenPair", data);
+    const promise = this.rpc.request(this.service, 'LinkTokenPair', data);
     return promise.then((data) => MsgLinkTokenPairResponse.decode(_m0.Reader.create(data)));
   }
 
-  PauseBurningAndMinting(request: MsgPauseBurningAndMinting): Promise<MsgPauseBurningAndMintingResponse> {
+  PauseBurningAndMinting(
+    request: MsgPauseBurningAndMinting,
+  ): Promise<MsgPauseBurningAndMintingResponse> {
     const data = MsgPauseBurningAndMinting.encode(request).finish();
-    const promise = this.rpc.request(this.service, "PauseBurningAndMinting", data);
-    return promise.then((data) => MsgPauseBurningAndMintingResponse.decode(_m0.Reader.create(data)));
+    const promise = this.rpc.request(this.service, 'PauseBurningAndMinting', data);
+    return promise.then((data) =>
+      MsgPauseBurningAndMintingResponse.decode(_m0.Reader.create(data)),
+    );
   }
 
   PauseSendingAndReceivingMessages(
     request: MsgPauseSendingAndReceivingMessages,
   ): Promise<MsgPauseSendingAndReceivingMessagesResponse> {
     const data = MsgPauseSendingAndReceivingMessages.encode(request).finish();
-    const promise = this.rpc.request(this.service, "PauseSendingAndReceivingMessages", data);
-    return promise.then((data) => MsgPauseSendingAndReceivingMessagesResponse.decode(_m0.Reader.create(data)));
+    const promise = this.rpc.request(this.service, 'PauseSendingAndReceivingMessages', data);
+    return promise.then((data) =>
+      MsgPauseSendingAndReceivingMessagesResponse.decode(_m0.Reader.create(data)),
+    );
   }
 
   ReceiveMessage(request: MsgReceiveMessage): Promise<MsgReceiveMessageResponse> {
     const data = MsgReceiveMessage.encode(request).finish();
-    const promise = this.rpc.request(this.service, "ReceiveMessage", data);
+    const promise = this.rpc.request(this.service, 'ReceiveMessage', data);
     return promise.then((data) => MsgReceiveMessageResponse.decode(_m0.Reader.create(data)));
   }
 
-  RemoveRemoteTokenMessenger(request: MsgRemoveRemoteTokenMessenger): Promise<MsgRemoveRemoteTokenMessengerResponse> {
+  RemoveRemoteTokenMessenger(
+    request: MsgRemoveRemoteTokenMessenger,
+  ): Promise<MsgRemoveRemoteTokenMessengerResponse> {
     const data = MsgRemoveRemoteTokenMessenger.encode(request).finish();
-    const promise = this.rpc.request(this.service, "RemoveRemoteTokenMessenger", data);
-    return promise.then((data) => MsgRemoveRemoteTokenMessengerResponse.decode(_m0.Reader.create(data)));
+    const promise = this.rpc.request(this.service, 'RemoveRemoteTokenMessenger', data);
+    return promise.then((data) =>
+      MsgRemoveRemoteTokenMessengerResponse.decode(_m0.Reader.create(data)),
+    );
   }
 
-  ReplaceDepositForBurn(request: MsgReplaceDepositForBurn): Promise<MsgReplaceDepositForBurnResponse> {
+  ReplaceDepositForBurn(
+    request: MsgReplaceDepositForBurn,
+  ): Promise<MsgReplaceDepositForBurnResponse> {
     const data = MsgReplaceDepositForBurn.encode(request).finish();
-    const promise = this.rpc.request(this.service, "ReplaceDepositForBurn", data);
+    const promise = this.rpc.request(this.service, 'ReplaceDepositForBurn', data);
     return promise.then((data) => MsgReplaceDepositForBurnResponse.decode(_m0.Reader.create(data)));
   }
 
   ReplaceMessage(request: MsgReplaceMessage): Promise<MsgReplaceMessageResponse> {
     const data = MsgReplaceMessage.encode(request).finish();
-    const promise = this.rpc.request(this.service, "ReplaceMessage", data);
+    const promise = this.rpc.request(this.service, 'ReplaceMessage', data);
     return promise.then((data) => MsgReplaceMessageResponse.decode(_m0.Reader.create(data)));
   }
 
   SendMessage(request: MsgSendMessage): Promise<MsgSendMessageResponse> {
     const data = MsgSendMessage.encode(request).finish();
-    const promise = this.rpc.request(this.service, "SendMessage", data);
+    const promise = this.rpc.request(this.service, 'SendMessage', data);
     return promise.then((data) => MsgSendMessageResponse.decode(_m0.Reader.create(data)));
   }
 
-  SendMessageWithCaller(request: MsgSendMessageWithCaller): Promise<MsgSendMessageWithCallerResponse> {
+  SendMessageWithCaller(
+    request: MsgSendMessageWithCaller,
+  ): Promise<MsgSendMessageWithCallerResponse> {
     const data = MsgSendMessageWithCaller.encode(request).finish();
-    const promise = this.rpc.request(this.service, "SendMessageWithCaller", data);
+    const promise = this.rpc.request(this.service, 'SendMessageWithCaller', data);
     return promise.then((data) => MsgSendMessageWithCallerResponse.decode(_m0.Reader.create(data)));
   }
 
   UnlinkTokenPair(request: MsgUnlinkTokenPair): Promise<MsgUnlinkTokenPairResponse> {
     const data = MsgUnlinkTokenPair.encode(request).finish();
-    const promise = this.rpc.request(this.service, "UnlinkTokenPair", data);
+    const promise = this.rpc.request(this.service, 'UnlinkTokenPair', data);
     return promise.then((data) => MsgUnlinkTokenPairResponse.decode(_m0.Reader.create(data)));
   }
 
-  UnpauseBurningAndMinting(request: MsgUnpauseBurningAndMinting): Promise<MsgUnpauseBurningAndMintingResponse> {
+  UnpauseBurningAndMinting(
+    request: MsgUnpauseBurningAndMinting,
+  ): Promise<MsgUnpauseBurningAndMintingResponse> {
     const data = MsgUnpauseBurningAndMinting.encode(request).finish();
-    const promise = this.rpc.request(this.service, "UnpauseBurningAndMinting", data);
-    return promise.then((data) => MsgUnpauseBurningAndMintingResponse.decode(_m0.Reader.create(data)));
+    const promise = this.rpc.request(this.service, 'UnpauseBurningAndMinting', data);
+    return promise.then((data) =>
+      MsgUnpauseBurningAndMintingResponse.decode(_m0.Reader.create(data)),
+    );
   }
 
   UnpauseSendingAndReceivingMessages(
     request: MsgUnpauseSendingAndReceivingMessages,
   ): Promise<MsgUnpauseSendingAndReceivingMessagesResponse> {
     const data = MsgUnpauseSendingAndReceivingMessages.encode(request).finish();
-    const promise = this.rpc.request(this.service, "UnpauseSendingAndReceivingMessages", data);
-    return promise.then((data) => MsgUnpauseSendingAndReceivingMessagesResponse.decode(_m0.Reader.create(data)));
+    const promise = this.rpc.request(this.service, 'UnpauseSendingAndReceivingMessages', data);
+    return promise.then((data) =>
+      MsgUnpauseSendingAndReceivingMessagesResponse.decode(_m0.Reader.create(data)),
+    );
   }
 
   UpdateOwner(request: MsgUpdateOwner): Promise<MsgUpdateOwnerResponse> {
     const data = MsgUpdateOwner.encode(request).finish();
-    const promise = this.rpc.request(this.service, "UpdateOwner", data);
+    const promise = this.rpc.request(this.service, 'UpdateOwner', data);
     return promise.then((data) => MsgUpdateOwnerResponse.decode(_m0.Reader.create(data)));
   }
 
-  UpdateAttesterManager(request: MsgUpdateAttesterManager): Promise<MsgUpdateAttesterManagerResponse> {
+  UpdateAttesterManager(
+    request: MsgUpdateAttesterManager,
+  ): Promise<MsgUpdateAttesterManagerResponse> {
     const data = MsgUpdateAttesterManager.encode(request).finish();
-    const promise = this.rpc.request(this.service, "UpdateAttesterManager", data);
+    const promise = this.rpc.request(this.service, 'UpdateAttesterManager', data);
     return promise.then((data) => MsgUpdateAttesterManagerResponse.decode(_m0.Reader.create(data)));
   }
 
-  UpdateTokenController(request: MsgUpdateTokenController): Promise<MsgUpdateTokenControllerResponse> {
+  UpdateTokenController(
+    request: MsgUpdateTokenController,
+  ): Promise<MsgUpdateTokenControllerResponse> {
     const data = MsgUpdateTokenController.encode(request).finish();
-    const promise = this.rpc.request(this.service, "UpdateTokenController", data);
+    const promise = this.rpc.request(this.service, 'UpdateTokenController', data);
     return promise.then((data) => MsgUpdateTokenControllerResponse.decode(_m0.Reader.create(data)));
   }
 
   UpdatePauser(request: MsgUpdatePauser): Promise<MsgUpdatePauserResponse> {
     const data = MsgUpdatePauser.encode(request).finish();
-    const promise = this.rpc.request(this.service, "UpdatePauser", data);
+    const promise = this.rpc.request(this.service, 'UpdatePauser', data);
     return promise.then((data) => MsgUpdatePauserResponse.decode(_m0.Reader.create(data)));
   }
 
-  UpdateMaxMessageBodySize(request: MsgUpdateMaxMessageBodySize): Promise<MsgUpdateMaxMessageBodySizeResponse> {
+  UpdateMaxMessageBodySize(
+    request: MsgUpdateMaxMessageBodySize,
+  ): Promise<MsgUpdateMaxMessageBodySizeResponse> {
     const data = MsgUpdateMaxMessageBodySize.encode(request).finish();
-    const promise = this.rpc.request(this.service, "UpdateMaxMessageBodySize", data);
-    return promise.then((data) => MsgUpdateMaxMessageBodySizeResponse.decode(_m0.Reader.create(data)));
+    const promise = this.rpc.request(this.service, 'UpdateMaxMessageBodySize', data);
+    return promise.then((data) =>
+      MsgUpdateMaxMessageBodySizeResponse.decode(_m0.Reader.create(data)),
+    );
   }
 
-  SetMaxBurnAmountPerMessage(request: MsgSetMaxBurnAmountPerMessage): Promise<MsgSetMaxBurnAmountPerMessageResponse> {
+  SetMaxBurnAmountPerMessage(
+    request: MsgSetMaxBurnAmountPerMessage,
+  ): Promise<MsgSetMaxBurnAmountPerMessageResponse> {
     const data = MsgSetMaxBurnAmountPerMessage.encode(request).finish();
-    const promise = this.rpc.request(this.service, "SetMaxBurnAmountPerMessage", data);
-    return promise.then((data) => MsgSetMaxBurnAmountPerMessageResponse.decode(_m0.Reader.create(data)));
+    const promise = this.rpc.request(this.service, 'SetMaxBurnAmountPerMessage', data);
+    return promise.then((data) =>
+      MsgSetMaxBurnAmountPerMessageResponse.decode(_m0.Reader.create(data)),
+    );
   }
 
-  UpdateSignatureThreshold(request: MsgUpdateSignatureThreshold): Promise<MsgUpdateSignatureThresholdResponse> {
+  UpdateSignatureThreshold(
+    request: MsgUpdateSignatureThreshold,
+  ): Promise<MsgUpdateSignatureThresholdResponse> {
     const data = MsgUpdateSignatureThreshold.encode(request).finish();
-    const promise = this.rpc.request(this.service, "UpdateSignatureThreshold", data);
-    return promise.then((data) => MsgUpdateSignatureThresholdResponse.decode(_m0.Reader.create(data)));
+    const promise = this.rpc.request(this.service, 'UpdateSignatureThreshold', data);
+    return promise.then((data) =>
+      MsgUpdateSignatureThresholdResponse.decode(_m0.Reader.create(data)),
+    );
   }
 }
 
@@ -3867,24 +4128,24 @@ declare const self: any | undefined;
 declare const window: any | undefined;
 declare const global: any | undefined;
 const gt: any = (() => {
-  if (typeof globalThis !== "undefined") {
+  if (typeof globalThis !== 'undefined') {
     return globalThis;
   }
-  if (typeof self !== "undefined") {
+  if (typeof self !== 'undefined') {
     return self;
   }
-  if (typeof window !== "undefined") {
+  if (typeof window !== 'undefined') {
     return window;
   }
-  if (typeof global !== "undefined") {
+  if (typeof global !== 'undefined') {
     return global;
   }
-  throw "Unable to locate global object";
+  throw 'Unable to locate global object';
 })();
 
 function bytesFromBase64(b64: string): Uint8Array {
   if (gt.Buffer) {
-    return Uint8Array.from(gt.Buffer.from(b64, "base64"));
+    return Uint8Array.from(gt.Buffer.from(b64, 'base64'));
   } else {
     const bin = gt.atob(b64);
     const arr = new Uint8Array(bin.length);
@@ -3897,26 +4158,33 @@ function bytesFromBase64(b64: string): Uint8Array {
 
 function base64FromBytes(arr: Uint8Array): string {
   if (gt.Buffer) {
-    return gt.Buffer.from(arr).toString("base64");
+    return gt.Buffer.from(arr).toString('base64');
   } else {
     const bin: string[] = [];
     arr.forEach((byte) => {
       bin.push(gt.String.fromCharCode(byte));
     });
-    return gt.btoa(bin.join(""));
+    return gt.btoa(bin.join(''));
   }
 }
 
 type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
 
-export type DeepPartial<T> = T extends Builtin ? T
-  : T extends Long ? string | number | Long : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
-  : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
-  : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
-  : Partial<T>;
+export type DeepPartial<T> = T extends Builtin
+  ? T
+  : T extends Long
+    ? string | number | Long
+    : T extends globalThis.Array<infer U>
+      ? globalThis.Array<DeepPartial<U>>
+      : T extends ReadonlyArray<infer U>
+        ? ReadonlyArray<DeepPartial<U>>
+        : T extends {}
+          ? { [K in keyof T]?: DeepPartial<T[K]> }
+          : Partial<T>;
 
 type KeysOfUnion<T> = T extends T ? keyof T : never;
-export type Exact<P, I extends P> = P extends Builtin ? P
+export type Exact<P, I extends P> = P extends Builtin
+  ? P
   : P & { [K in keyof P]: Exact<P[K], I[K]> } & { [K in Exclude<keyof I, KeysOfUnion<P>>]: never };
 
 if (_m0.util.Long !== Long) {

@@ -6,10 +6,7 @@ module.exports = {
     tsconfigRootDir: __dirname,
   },
 
-  ignorePatterns: [
-    '**/examples/**/*.js',
-    '**/codegen/**/*.ts',
-  ],
+  ignorePatterns: ['**/examples/**/*.js', '**/codegen/**/*.ts'],
 
   rules: {
     'no-console': 'off',

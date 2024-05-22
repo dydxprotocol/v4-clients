@@ -24,6 +24,7 @@ nvm alias default $(nvm version) # optional
 ```
 
 You can run the following commands to ensure that you are running the correct `node` and `npm` versions.
+
 ```
 node -v # expected: v18.x.x (should match .nvmrc)
 npm -v  # expected: 8.x.x
@@ -32,11 +33,12 @@ npm -v  # expected: 8.x.x
 ## Single-JS for mobile apps
 
 Mobile apps needs to load JS as a single JS file. To build, run
+
 ```
 npm run webpack
 ```
 
-The file is generated in __native__/__ios__/v4-native-client.js
+The file is generated in **native**/**ios**/v4-native-client.js
 Pending: Different configurations may be needed to generate JS for Android app
 
 ## Release

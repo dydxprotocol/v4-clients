@@ -17,7 +17,8 @@ async function test(): Promise<void> {
   console.log(status);
 }
 
-test().then(() => {
-}).catch((error) => {
-  console.log(error.message);
-});
+test()
+  .then(() => {})
+  .catch((error) => {
+    console.log(error.message);
+  });

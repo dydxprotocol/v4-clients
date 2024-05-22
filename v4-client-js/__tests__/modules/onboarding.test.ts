@@ -1,4 +1,7 @@
-import { exportMnemonicAndPrivateKey, deriveHDKeyFromEthereumSignature } from '../../src/lib/onboarding';
+import {
+  exportMnemonicAndPrivateKey,
+  deriveHDKeyFromEthereumSignature,
+} from '../../src/lib/onboarding';
 import {
   DirectSecp256k1HdWallet,
   DirectSecp256k1Wallet,
@@ -15,12 +18,11 @@ import {
 describe('Onboarding', () => {
   describe('exportMnemonicAndPrivateKey', () => {
     it('Successfully creates HDKey', () => {
-      expect(exportMnemonicAndPrivateKey(ENTROPY_FROM_SIGNATURE_RESULT))
-        .toEqual({
-          mnemonic: MNEMONIC_FROM_SIGNATURE_RESULT,
-          privateKey: PRIVATE_KEY_FROM_SIGNATURE_RESULT,
-          publicKey: PUBLIC_KEY_FROM_SIGNATURE_RESULT,
-        });
+      expect(exportMnemonicAndPrivateKey(ENTROPY_FROM_SIGNATURE_RESULT)).toEqual({
+        mnemonic: MNEMONIC_FROM_SIGNATURE_RESULT,
+        privateKey: PRIVATE_KEY_FROM_SIGNATURE_RESULT,
+        publicKey: PUBLIC_KEY_FROM_SIGNATURE_RESULT,
+      });
     });
 
     it('Expect mnemonic and private key to generate the same address', async () => {

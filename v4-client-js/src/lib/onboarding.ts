@@ -18,7 +18,10 @@ import { stripHexPrefix } from './helpers';
  *
  * @returns Mnemonic and priv/pub keys
  */
-export const exportMnemonicAndPrivateKey = (entropy: Uint8Array, path: string = "m/44'/118'/0'/0/0"): {
+export const exportMnemonicAndPrivateKey = (
+  entropy: Uint8Array,
+  path: string = "m/44'/118'/0'/0/0",
+): {
   mnemonic: string;
   privateKey: Uint8Array | null;
   publicKey: Uint8Array | null;
@@ -45,7 +48,9 @@ export const exportMnemonicAndPrivateKey = (entropy: Uint8Array, path: string = 
  *
  * @returns Mnemonic and Public/Private HD keys
  */
-export const deriveHDKeyFromEthereumSignature = (signature: string): {
+export const deriveHDKeyFromEthereumSignature = (
+  signature: string,
+): {
   mnemonic: string;
   privateKey: Uint8Array | null;
   publicKey: Uint8Array | null;

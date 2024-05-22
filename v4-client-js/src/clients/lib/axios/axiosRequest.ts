@@ -1,16 +1,13 @@
 import axios, { AxiosRequestConfig } from 'axios';
 
 import { Data } from '../../types';
-import {
-  AxiosServerError,
-  AxiosError,
-} from './errors';
+import { AxiosServerError, AxiosError } from './errors';
 import { RequestMethod } from './types';
 
 export interface Response {
-  status: number,
-  data: Data,
-  headers: {},
+  status: number;
+  data: Data;
+  headers: {};
 }
 
 async function axiosRequest(options: AxiosRequestConfig): Promise<Response> {

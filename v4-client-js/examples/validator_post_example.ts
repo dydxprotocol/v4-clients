@@ -63,21 +63,19 @@ async function test(): Promise<void> {
         placeOrder.goodTilBlockTime = 0;
       }
 
-      const tx = await client.post.placeOrderObject(
-        subaccount,
-        placeOrder,
-      );
+      const tx = await client.post.placeOrderObject(subaccount, placeOrder);
       console.log('**Order Tx**');
       console.log(tx);
     } catch (error) {
       console.log(error.message);
     }
 
-    await sleep(5000);  // wait for placeOrder to complete
+    await sleep(5000); // wait for placeOrder to complete
   }
 }
 
-test().then(() => {
-}).catch((error) => {
-  console.log(error.message);
-});
+test()
+  .then(() => {})
+  .catch((error) => {
+    console.log(error.message);
+  });

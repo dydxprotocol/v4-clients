@@ -1,16 +1,11 @@
 import { EncodeObject } from '@cosmjs/proto-signing';
-import {
-  SigningStargateClient,
-  StdFee,
-} from '@cosmjs/stargate';
+import { SigningStargateClient, StdFee } from '@cosmjs/stargate';
 import { TxRaw } from 'cosmjs-types/cosmos/tx/v1beta1/tx';
 import Long from 'long';
 import protobuf from 'protobufjs';
 
 import { UserError } from '../lib/errors';
-import {
-  TransactionOptions,
-} from '../types';
+import { TransactionOptions } from '../types';
 
 // Required for encoding and decoding queries that are of type Long.
 // Must be done once but since the individal modules should be usable
@@ -23,10 +18,7 @@ export class TransactionSigner {
   readonly address: string;
   readonly stargateSigningClient: SigningStargateClient;
 
-  constructor(
-    address: string,
-    stargateSigningClient: SigningStargateClient,
-  ) {
+  constructor(address: string, stargateSigningClient: SigningStargateClient) {
     this.address = address;
     this.stargateSigningClient = stargateSigningClient;
   }
@@ -50,17 +42,11 @@ export class TransactionSigner {
     }
 
     // Sign, encode and return the transaction.
-    const rawTx: TxRaw = await this.stargateSigningClient.sign(
-      this.address,
-      messages,
-      fee,
-      memo,
-      {
-        accountNumber: transactionOptions.accountNumber,
-        sequence: transactionOptions.sequence,
-        chainId: transactionOptions.chainId,
-      },
-    );
+    const rawTx: TxRaw = await this.stargateSigningClient.sign(this.address, messages, fee, memo, {
+      accountNumber: transactionOptions.accountNumber,
+      sequence: transactionOptions.sequence,
+      chainId: transactionOptions.chainId,
+    });
     return Uint8Array.from(TxRaw.encode(rawTx).finish());
   }
 }

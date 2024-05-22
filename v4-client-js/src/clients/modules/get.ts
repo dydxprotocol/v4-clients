@@ -40,11 +40,11 @@ protobuf.configure();
 
 export class Get {
   readonly tendermintClient: TendermintClient;
-  readonly stargateQueryClient: (StargateQueryClient & TxExtension);
+  readonly stargateQueryClient: StargateQueryClient & TxExtension;
 
   constructor(
     tendermintClient: TendermintClient,
-    stargateQueryClient: (StargateQueryClient & TxExtension),
+    stargateQueryClient: StargateQueryClient & TxExtension,
   ) {
     this.tendermintClient = tendermintClient;
     this.stargateQueryClient = stargateQueryClient;
@@ -76,8 +76,7 @@ export class Get {
    */
   async getFeeTiers(): Promise<FeeTierModule.QueryPerpetualFeeParamsResponse> {
     const requestData = Uint8Array.from(
-      FeeTierModule.QueryPerpetualFeeParamsRequest.encode({})
-        .finish(),
+      FeeTierModule.QueryPerpetualFeeParamsRequest.encode({}).finish(),
     );
 
     const data: Uint8Array = await this.sendQuery(
@@ -94,8 +93,7 @@ export class Get {
    */
   async getUserFeeTier(address: string): Promise<FeeTierModule.QueryUserFeeTierResponse> {
     const requestData = Uint8Array.from(
-      FeeTierModule.QueryUserFeeTierRequest.encode({ user: address })
-        .finish(),
+      FeeTierModule.QueryUserFeeTierRequest.encode({ user: address }).finish(),
     );
 
     const data: Uint8Array = await this.sendQuery(
@@ -112,10 +110,9 @@ export class Get {
    */
   async getUserStats(
     address: string,
-  ): Promise<{ takerNotional: Long, makerNotional: Long } | undefined> {
+  ): Promise<{ takerNotional: Long; makerNotional: Long } | undefined> {
     const requestData = Uint8Array.from(
-      StatsModule.QueryUserStatsRequest.encode({ user: address })
-        .finish(),
+      StatsModule.QueryUserStatsRequest.encode({ user: address }).finish(),
     );
 
     const data: Uint8Array = await this.sendQuery(
@@ -132,8 +129,7 @@ export class Get {
    */
   async getAccountBalances(address: string): Promise<Coin[]> {
     const requestData: Uint8Array = Uint8Array.from(
-      BankModule.QueryAllBalancesRequest.encode({ address })
-        .finish(),
+      BankModule.QueryAllBalancesRequest.encode({ address }).finish(),
     );
 
     const data: Uint8Array = await this.sendQuery(
@@ -153,8 +149,7 @@ export class Get {
       BankModule.QueryBalanceRequest.encode({
         address,
         denom,
-      })
-        .finish(),
+      }).finish(),
     );
 
     const data: Uint8Array = await this.sendQuery(
@@ -172,8 +167,7 @@ export class Get {
    */
   async getSubaccounts(): Promise<SubaccountsModule.QuerySubaccountAllResponse> {
     const requestData: Uint8Array = Uint8Array.from(
-      SubaccountsModule.QueryAllSubaccountRequest.encode({})
-        .finish(),
+      SubaccountsModule.QueryAllSubaccountRequest.encode({}).finish(),
     );
 
     const data: Uint8Array = await this.sendQuery(
@@ -196,8 +190,7 @@ export class Get {
       SubaccountsModule.QueryGetSubaccountRequest.encode({
         owner: address,
         number: accountNumber,
-      })
-        .finish(),
+      }).finish(),
     );
 
     const data: Uint8Array = await this.sendQuery(
@@ -213,10 +206,7 @@ export class Get {
    * @returns Params for the rewards module.
    */
   async getRewardsParams(): Promise<RewardsModule.QueryParamsResponse> {
-    const requestData = Uint8Array.from(
-      RewardsModule.QueryParamsRequest.encode({})
-        .finish(),
-    );
+    const requestData = Uint8Array.from(RewardsModule.QueryParamsRequest.encode({}).finish());
 
     const data: Uint8Array = await this.sendQuery(
       '/dydxprotocol.rewards.Query/Params',
@@ -232,8 +222,7 @@ export class Get {
    */
   async getAllClobPairs(): Promise<ClobModule.QueryClobPairAllResponse> {
     const requestData: Uint8Array = Uint8Array.from(
-      ClobModule.QueryAllClobPairRequest.encode({ pagination: PAGE_REQUEST })
-        .finish(),
+      ClobModule.QueryAllClobPairRequest.encode({ pagination: PAGE_REQUEST }).finish(),
     );
 
     const data: Uint8Array = await this.sendQuery(
@@ -250,14 +239,10 @@ export class Get {
    */
   async getClobPair(pairId: number): Promise<ClobModule.QueryClobPairResponse> {
     const requestData: Uint8Array = Uint8Array.from(
-      ClobModule.QueryGetClobPairRequest.encode({ id: pairId })
-        .finish(),
+      ClobModule.QueryGetClobPairRequest.encode({ id: pairId }).finish(),
     );
 
-    const data: Uint8Array = await this.sendQuery(
-      '/dydxprotocol.clob.Query/ClobPair',
-      requestData,
-    );
+    const data: Uint8Array = await this.sendQuery('/dydxprotocol.clob.Query/ClobPair', requestData);
     return ClobModule.QueryClobPairResponse.decode(data);
   }
 
@@ -268,8 +253,7 @@ export class Get {
    */
   async getAllPrices(): Promise<PricesModule.QueryAllMarketPricesResponse> {
     const requestData: Uint8Array = Uint8Array.from(
-      PricesModule.QueryAllMarketPricesRequest.encode({ pagination: PAGE_REQUEST })
-        .finish(),
+      PricesModule.QueryAllMarketPricesRequest.encode({ pagination: PAGE_REQUEST }).finish(),
     );
 
     const data: Uint8Array = await this.sendQuery(
@@ -286,8 +270,7 @@ export class Get {
    */
   async getPrice(marketId: number): Promise<PricesModule.QueryMarketPriceResponse> {
     const requestData: Uint8Array = Uint8Array.from(
-      PricesModule.QueryMarketPriceRequest.encode({ id: marketId })
-        .finish(),
+      PricesModule.QueryMarketPriceRequest.encode({ id: marketId }).finish(),
     );
 
     const data: Uint8Array = await this.sendQuery(
@@ -304,8 +287,7 @@ export class Get {
    */
   async getAllPerpetuals(): Promise<PerpetualsModule.QueryAllPerpetualsResponse> {
     const requestData: Uint8Array = Uint8Array.from(
-      PerpetualsModule.QueryAllPerpetualsRequest.encode({ pagination: PAGE_REQUEST })
-        .finish(),
+      PerpetualsModule.QueryAllPerpetualsRequest.encode({ pagination: PAGE_REQUEST }).finish(),
     );
 
     const data: Uint8Array = await this.sendQuery(
@@ -320,12 +302,9 @@ export class Get {
    *
    * @returns The Perpetual for a given Perpetual Id.
    */
-  async getPerpetual(
-    perpetualId: number,
-  ): Promise<PerpetualsModule.QueryPerpetualResponse> {
+  async getPerpetual(perpetualId: number): Promise<PerpetualsModule.QueryPerpetualResponse> {
     const requestData: Uint8Array = Uint8Array.from(
-      PerpetualsModule.QueryPerpetualRequest.encode({ id: perpetualId })
-        .finish(),
+      PerpetualsModule.QueryPerpetualRequest.encode({ id: perpetualId }).finish(),
     );
 
     const data: Uint8Array = await this.sendQuery(
@@ -344,8 +323,7 @@ export class Get {
    */
   async getAccount(address: string): Promise<Account> {
     const requestData: Uint8Array = Uint8Array.from(
-      AuthModule.QueryAccountRequest.encode({ address })
-        .finish(),
+      AuthModule.QueryAccountRequest.encode({ address }).finish(),
     );
 
     const data: Uint8Array = await this.sendQuery(
@@ -366,12 +344,9 @@ export class Get {
    *
    * @returns Information on all equity tiers that are configured.
    */
-  async getEquityTierLimitConfiguration(): Promise<
-    ClobModule.QueryEquityTierLimitConfigurationResponse
-  > {
+  async getEquityTierLimitConfiguration(): Promise<ClobModule.QueryEquityTierLimitConfigurationResponse> {
     const requestData: Uint8Array = Uint8Array.from(
-      ClobModule.QueryEquityTierLimitConfigurationRequest.encode({})
-        .finish(),
+      ClobModule.QueryEquityTierLimitConfigurationRequest.encode({}).finish(),
     );
 
     const data: Uint8Array = await this.sendQuery(
@@ -394,8 +369,7 @@ export class Get {
       StakingModule.QueryDelegatorDelegationsRequest.encode({
         delegatorAddr,
         pagination: PAGE_REQUEST,
-      })
-        .finish(),
+      }).finish(),
     );
 
     const data: Uint8Array = await this.sendQuery(
@@ -418,8 +392,7 @@ export class Get {
       StakingModule.QueryDelegatorUnbondingDelegationsRequest.encode({
         delegatorAddr,
         pagination: PAGE_REQUEST,
-      })
-        .finish(),
+      }).finish(),
     );
 
     const data: Uint8Array = await this.sendQuery(
@@ -438,8 +411,7 @@ export class Get {
     address: string = '',
   ): Promise<BridgeModule.QueryDelayedCompleteBridgeMessagesResponse> {
     const requestData: Uint8Array = Uint8Array.from(
-      BridgeModule.QueryDelayedCompleteBridgeMessagesRequest.encode({ address })
-        .finish(),
+      BridgeModule.QueryDelayedCompleteBridgeMessagesRequest.encode({ address }).finish(),
     );
 
     const data: Uint8Array = await this.sendQuery(
@@ -454,16 +426,12 @@ export class Get {
    *
    * @returns all validators of a status.
    */
-  async getAllValidators(
-    status: string = '',
-  ): Promise<StakingModule.QueryValidatorsResponse> {
+  async getAllValidators(status: string = ''): Promise<StakingModule.QueryValidatorsResponse> {
     const requestData = Uint8Array.from(
-      StakingModule.QueryValidatorsRequest
-        .encode({
-          status,
-          pagination: PAGE_REQUEST,
-        })
-        .finish(),
+      StakingModule.QueryValidatorsRequest.encode({
+        status,
+        pagination: PAGE_REQUEST,
+      }).finish(),
     );
 
     const data: Uint8Array = await this.sendQuery(
@@ -488,28 +456,20 @@ export class Get {
     depositor: string = '',
   ): Promise<GovV1Module.QueryProposalsResponse> {
     const requestData = Uint8Array.from(
-      GovV1Module.QueryProposalsRequest
-        .encode({
-          proposalStatus,
-          voter,
-          depositor,
-          pagination: PAGE_REQUEST,
-        })
-        .finish(),
+      GovV1Module.QueryProposalsRequest.encode({
+        proposalStatus,
+        voter,
+        depositor,
+        pagination: PAGE_REQUEST,
+      }).finish(),
     );
-    const data: Uint8Array = await this.sendQuery(
-      '/cosmos.gov.v1.Query/Proposals',
-      requestData,
-    );
+    const data: Uint8Array = await this.sendQuery('/cosmos.gov.v1.Query/Proposals', requestData);
     return GovV1Module.QueryProposalsResponse.decode(data);
   }
 
-  async getWithdrawalAndTransferGatingStatus(
-  ): Promise<SubaccountsModule.QueryGetWithdrawalAndTransfersBlockedInfoResponse> {
+  async getWithdrawalAndTransferGatingStatus(): Promise<SubaccountsModule.QueryGetWithdrawalAndTransfersBlockedInfoResponse> {
     const requestData = Uint8Array.from(
-      SubaccountsModule.QueryGetWithdrawalAndTransfersBlockedInfoRequest
-        .encode({})
-        .finish(),
+      SubaccountsModule.QueryGetWithdrawalAndTransfersBlockedInfoRequest.encode({}).finish(),
     );
 
     const data = await this.sendQuery(
@@ -524,24 +484,22 @@ export class Get {
     denom: string,
   ): Promise<RateLimitModule.QueryCapacityByDenomResponse> {
     const requestData = Uint8Array.from(
-      RateLimitModule.QueryCapacityByDenomRequest
-        .encode({
-          denom,
-        })
-        .finish(),
+      RateLimitModule.QueryCapacityByDenomRequest.encode({
+        denom,
+      }).finish(),
     );
 
-    const data = await this.sendQuery(
-      '/dydxprotocol.ratelimit.Query/CapacityByDenom',
-      requestData,
-    );
+    const data = await this.sendQuery('/dydxprotocol.ratelimit.Query/CapacityByDenom', requestData);
 
     return RateLimitModule.QueryCapacityByDenomResponse.decode(data);
   }
 
   private async sendQuery(requestUrl: string, requestData: Uint8Array): Promise<Uint8Array> {
     // eslint-disable-next-line max-len
-    const resp: QueryAbciResponse = await this.stargateQueryClient.queryAbci(requestUrl, requestData);
+    const resp: QueryAbciResponse = await this.stargateQueryClient.queryAbci(
+      requestUrl,
+      requestData,
+    );
     return resp.value;
   }
 }

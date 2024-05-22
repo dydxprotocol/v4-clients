@@ -3,10 +3,10 @@ import RestClient from './modules/rest';
 
 export class FaucetClient extends RestClient {
   /**
-     * @description For testnet only, add USDC to an subaccount
-     *
-     * @returns The HTTP response.
-     */
+   * @description For testnet only, add USDC to an subaccount
+   *
+   * @returns The HTTP response.
+   */
   public async fill(
     address: string,
     subaccountNumber: number,
@@ -33,10 +33,7 @@ export class FaucetClient extends RestClient {
    * @param headers requestHeaders
    * @returns The HTTP response.
    */
-  public async fillNative(
-    address: string,
-    headers?: {},
-  ): Promise<Response> {
+  public async fillNative(address: string, headers?: {}): Promise<Response> {
     const uri = '/faucet/native-token';
 
     return this.post(

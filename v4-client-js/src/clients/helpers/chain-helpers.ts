@@ -1,8 +1,6 @@
 import Long from 'long';
 
-import {
-  OrderType, OrderSide, OrderTimeInForce, OrderExecution,
-} from '../constants';
+import { OrderType, OrderSide, OrderTimeInForce, OrderExecution } from '../constants';
 import { Order_ConditionType, Order_Side, Order_TimeInForce } from '../modules/proto-includes';
 import { OrderFlags } from '../types';
 
@@ -105,10 +103,14 @@ export function calculateTimeInForce(
       }
       switch (execution) {
         case OrderExecution.DEFAULT:
-          throw new Error('Execution value DEFAULT not supported for STOP_MARKET or TAKE_PROFIT_MARKET');
+          throw new Error(
+            'Execution value DEFAULT not supported for STOP_MARKET or TAKE_PROFIT_MARKET',
+          );
 
         case OrderExecution.POST_ONLY:
-          throw new Error('Execution value POST_ONLY not supported for STOP_MARKET or TAKE_PROFIT_MARKET');
+          throw new Error(
+            'Execution value POST_ONLY not supported for STOP_MARKET or TAKE_PROFIT_MARKET',
+          );
 
         case OrderExecution.FOK:
           return Order_TimeInForce.TIME_IN_FORCE_FILL_OR_KILL;
@@ -201,7 +203,9 @@ export function calculateConditionalOrderTriggerSubticks(
     case OrderType.TAKE_PROFIT_LIMIT:
     case OrderType.TAKE_PROFIT_MARKET:
       if (triggerPrice === undefined) {
-        throw new Error('triggerPrice must be set if orderType is STOP_LIMIT, STOP_MARKET, TAKE_PROFIT_LIMIT, or TAKE_PROFIT_MARKET');
+        throw new Error(
+          'triggerPrice must be set if orderType is STOP_LIMIT, STOP_MARKET, TAKE_PROFIT_LIMIT, or TAKE_PROFIT_MARKET',
+        );
       }
       return calculateSubticks(
         triggerPrice,

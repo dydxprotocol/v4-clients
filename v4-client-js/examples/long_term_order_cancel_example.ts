@@ -1,7 +1,11 @@
 import { BECH32_PREFIX, OrderFlags } from '../src';
 import { CompositeClient } from '../src/clients/composite-client';
 import {
-  Network, OrderExecution, OrderSide, OrderTimeInForce, OrderType,
+  Network,
+  OrderExecution,
+  OrderSide,
+  OrderTimeInForce,
+  OrderType,
 } from '../src/clients/constants';
 import LocalWallet from '../src/clients/modules/local-wallet';
 import { SubaccountInfo } from '../src/clients/subaccount';
@@ -56,7 +60,7 @@ async function test(): Promise<void> {
     console.log(error.message);
   }
 
-  await sleep(5000);  // wait for placeOrder to complete
+  await sleep(5000); // wait for placeOrder to complete
 
   try {
     // cancel the long term order
@@ -76,7 +80,8 @@ async function test(): Promise<void> {
   }
 }
 
-test().then(() => {
-}).catch((error) => {
-  console.log(error.message);
-});
+test()
+  .then(() => {})
+  .catch((error) => {
+    console.log(error.message);
+  });
