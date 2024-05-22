@@ -180,6 +180,7 @@ class Account(object):
         limit: int = None,
         created_before_or_at_height: int = None,
         created_before_or_at_time: str = None,
+        page: int = None,
     ) -> Response:
         '''
         Get asset transfers record
@@ -199,6 +200,9 @@ class Account(object):
         :param created_before_or_at_time: optional
         :type created_before_or_at_time: ISO str
 
+        :param page: optional
+        :type page: number
+
         :returns: Array of transfers
 
         :raises: DydxAPIError
@@ -211,6 +215,7 @@ class Account(object):
                 'limit': limit,
                 'createdBeforeOrAtHeight': created_before_or_at_height,
                 'createdBeforeOrAt': created_before_or_at_time,
+                'page': page,
             },
         )
     
@@ -334,6 +339,7 @@ class Account(object):
         limit: int = None,
         created_before_or_at_height: int = None,
         created_before_or_at_time: str = None,
+        page: int = None,
     ) -> Response:
         '''
         Get asset transfers record
@@ -367,6 +373,9 @@ class Account(object):
         :param created_before_or_at_time: optional
         :type created_before_or_at_time: ISO str
 
+        :param page: optional
+        :type page: number
+
         :returns: Array of fills
 
         :raises: DydxAPIError
@@ -381,6 +390,7 @@ class Account(object):
                 'limit': limit,
                 'createdBeforeOrAtHeight': created_before_or_at_height,
                 'createdBeforeOrAt': created_before_or_at_time,
+                'page': page,
             },
         )
     
@@ -390,6 +400,8 @@ class Account(object):
         subaccount_number: int,
         effective_before_or_at: str = None,
         effective_at_or_after: str = None,
+        limit: int = None,
+        page: int = None,
     ) -> Response:
         '''
         Get asset transfers record
@@ -406,6 +418,12 @@ class Account(object):
         :param effective_at_or_after: optional
         :type effective_at_or_after: ISO str
 
+        :param limit: optional
+        :type limit: number
+
+        :param page: optional
+        :type page: number
+
         :returns: Array of historical PNL
 
         :raises: DydxAPIError
@@ -417,5 +435,7 @@ class Account(object):
                 'subaccountNumber': subaccount_number,
                 'effectiveBeforeOrAt': effective_before_or_at,
                 'effectiveAtOrAfter': effective_at_or_after,
+                'limit': limit,
+                'page': page,
             },
         )
