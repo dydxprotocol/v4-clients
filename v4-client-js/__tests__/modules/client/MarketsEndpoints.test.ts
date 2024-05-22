@@ -28,6 +28,22 @@ describe('IndexerClient', () => {
       expect(trades).not.toBeUndefined();
     });
 
+    it('BTC Trades Pagination', async () => {
+      const response = await client.markets.getPerpetualMarketTrades(MARKET_BTC_USD, undefined, 1, 1);
+      const trades = response.trades;
+      expect(trades).not.toBeUndefined();
+
+      if (trades.length > 0) {
+        const trade = trades[0];
+        expect(trade).not.toBeNull();
+
+        expect(response.totalResults).toBeGreaterThanOrEqual(1);
+      }
+
+      expect(response.pageSize).toStrictEqual(1);
+      expect(response.offset).toStrictEqual(0);
+    });
+
     it('BTC Orderbook', async () => {
       const response = await client.markets.getPerpetualMarketOrderbook(MARKET_BTC_USD);
       const asks = response.asks;
