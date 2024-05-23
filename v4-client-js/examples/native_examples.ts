@@ -49,7 +49,7 @@ async function test(): Promise<void> {
 
     const sendTokenPayload = {
       subaccountNumber: 0,
-      amount: '10',   // Dydx Token
+      amount: '10', // Dydx Token
       recipient: 'dydx15ndn9c895f8ntck25qughtuck9spv2d9svw5qx',
     };
     const fees = await simulateTransferNativeToken(JSON.stringify(sendTokenPayload));
@@ -63,7 +63,7 @@ async function test(): Promise<void> {
 
     const simulatePayload = {
       subaccountNumber: 0,
-      amount: 20,   // In USDC i.e. $20.00
+      amount: 20, // In USDC i.e. $20.00
     };
     let stdFee = await simulateWithdraw(JSON.stringify(simulatePayload));
     console.log(stdFee);
@@ -114,7 +114,7 @@ async function test(): Promise<void> {
   }`;
     console.log(squidPayload);
 
-    const encode = (str: string):string => Buffer.from(str, 'binary').toString('base64');
+    const encode = (str: string): string => Buffer.from(str, 'binary').toString('base64');
     const encoded = encode(squidPayload);
 
     tx = await withdrawToIBC(0, '13', encoded);
@@ -124,10 +124,11 @@ async function test(): Promise<void> {
   }
 }
 
-test().then(() => {
-}).catch((error) => {
-  console.log(error.message);
-});
+test()
+  .then(() => {})
+  .catch((error) => {
+    console.log(error.message);
+  });
 
 const error = new UserError('client is not connected. Call connectClient() first');
 const text = wrappedError(error);

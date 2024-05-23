@@ -1,7 +1,11 @@
 import { BECH32_PREFIX } from '../src';
 import { CompositeClient } from '../src/clients/composite-client';
 import {
-  Network, OrderExecution, OrderSide, OrderTimeInForce, OrderType,
+  Network,
+  OrderExecution,
+  OrderSide,
+  OrderTimeInForce,
+  OrderType,
 } from '../src/clients/constants';
 import LocalWallet from '../src/clients/modules/local-wallet';
 import { SubaccountInfo } from '../src/clients/subaccount';
@@ -28,7 +32,7 @@ async function test(): Promise<void> {
       const timeInForceString = orderParams.timeInForce ?? 'GTT';
       const timeInForce = OrderTimeInForce[timeInForceString as keyof typeof OrderTimeInForce];
       const price = orderParams.price ?? 1350;
-      const timeInForceSeconds = (timeInForce === OrderTimeInForce.GTT) ? 60 : 0;
+      const timeInForceSeconds = timeInForce === OrderTimeInForce.GTT ? 60 : 0;
       const postOnly = orderParams.postOnly ?? false;
       const tx = await client.placeOrder(
         subaccount,
@@ -50,11 +54,12 @@ async function test(): Promise<void> {
       console.log(error.message);
     }
 
-    await sleep(5000);  // wait for placeOrder to complete
+    await sleep(5000); // wait for placeOrder to complete
   }
 }
 
-test().then(() => {
-}).catch((error) => {
-  console.log(error.message);
-});
+test()
+  .then(() => {})
+  .catch((error) => {
+    console.log(error.message);
+  });

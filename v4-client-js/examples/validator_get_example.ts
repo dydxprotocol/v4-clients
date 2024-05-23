@@ -110,8 +110,8 @@ async function test(): Promise<void> {
   }
 
   try {
-    const unbondingDelegations = await client
-      .get.getDelegatorUnbondingDelegations(DYDX_TEST_ADDRESS);
+    const unbondingDelegations =
+      await client.get.getDelegatorUnbondingDelegations(DYDX_TEST_ADDRESS);
     console.log('Unbonding Delegationss');
     console.log(JSON.stringify(unbondingDelegations));
   } catch (error) {
@@ -127,8 +127,7 @@ async function test(): Promise<void> {
   }
 
   try {
-    const delayedCompleteBridgeMessagesParams = await client
-      .get.getDelayedCompleteBridgeMessages();
+    const delayedCompleteBridgeMessagesParams = await client.get.getDelayedCompleteBridgeMessages();
     console.log('All delayed complete bridge messages');
     console.log(JSON.stringify(delayedCompleteBridgeMessagesParams));
   } catch (error) {
@@ -136,8 +135,8 @@ async function test(): Promise<void> {
   }
 
   try {
-    const delayedCompleteBridgeMessagesParams = await client
-      .get.getDelayedCompleteBridgeMessages(DYDX_TEST_ADDRESS);
+    const delayedCompleteBridgeMessagesParams =
+      await client.get.getDelayedCompleteBridgeMessages(DYDX_TEST_ADDRESS);
     console.log('Filtered delayed complete bridge messages');
     console.log(JSON.stringify(delayedCompleteBridgeMessagesParams));
   } catch (error) {
@@ -145,7 +144,8 @@ async function test(): Promise<void> {
   }
 }
 
-test().then(() => {
-}).catch((error) => {
-  console.log(error.message);
-});
+test()
+  .then(() => {})
+  .catch((error) => {
+    console.log(error.message);
+  });

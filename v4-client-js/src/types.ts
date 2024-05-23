@@ -1,7 +1,5 @@
 import { StdFee } from '@cosmjs/amino';
-import {
-  Method,
-} from '@cosmjs/tendermint-rpc';
+import { Method } from '@cosmjs/tendermint-rpc';
 
 import { TransactionOptions } from './clients/types';
 
@@ -27,9 +25,10 @@ export interface ApiOptions {
 // 2. Once the transaction is added to the memPool
 // 3. Once the transaction is committed to a block
 // See https://docs.cosmos.network/master/run-node/txs.html for more information
-export type BroadcastMode = (
-  Method.BroadcastTxAsync | Method.BroadcastTxSync | Method.BroadcastTxCommit
-);
+export type BroadcastMode =
+  | Method.BroadcastTxAsync
+  | Method.BroadcastTxSync
+  | Method.BroadcastTxCommit;
 
 // Defines the options for a transaction.
 export interface Options {

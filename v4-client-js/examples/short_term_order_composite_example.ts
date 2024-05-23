@@ -2,9 +2,7 @@ import { Order_TimeInForce } from '@dydxprotocol/v4-proto/src/codegen/dydxprotoc
 
 import { BECH32_PREFIX } from '../src';
 import { CompositeClient } from '../src/clients/composite-client';
-import {
-  Network, OrderExecution, OrderSide,
-} from '../src/clients/constants';
+import { Network, OrderExecution, OrderSide } from '../src/clients/constants';
 import LocalWallet from '../src/clients/modules/local-wallet';
 import { SubaccountInfo } from '../src/clients/subaccount';
 import { randomInt } from '../src/lib/utils';
@@ -56,7 +54,7 @@ async function test(): Promise<void> {
       console.log(error.message);
     }
 
-    await sleep(5000);  // wait for placeOrder to complete
+    await sleep(5000); // wait for placeOrder to complete
   }
 }
 
@@ -75,7 +73,8 @@ function orderExecutionToTimeInForce(orderExecution: string): Order_TimeInForce 
   }
 }
 
-test().then(() => {
-}).catch((error) => {
-  console.log(error.message);
-});
+test()
+  .then(() => {})
+  .catch((error) => {
+    console.log(error.message);
+  });

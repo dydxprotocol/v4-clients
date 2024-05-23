@@ -99,11 +99,7 @@ export class NobleClient {
       throw new Error('NobleClient wallet not initialized');
     }
     // Get simulated response
-    const gasEstimate = await this.stargateClient.simulate(
-      this.wallet?.address,
-      messages,
-      memo,
-    );
+    const gasEstimate = await this.stargateClient.simulate(this.wallet?.address, messages, memo);
 
     // Calculate and return the fee
     return calculateFee(Math.floor(gasEstimate * GAS_MULTIPLIER), gasPrice);

@@ -11,10 +11,7 @@ import { ValidatorClient } from '../src/clients/validator-client';
 import { DYDX_TEST_MNEMONIC } from './constants';
 
 async function test(): Promise<void> {
-  const wallet = await LocalWallet.fromMnemonic(
-    DYDX_TEST_MNEMONIC,
-    BECH32_PREFIX,
-  );
+  const wallet = await LocalWallet.fromMnemonic(DYDX_TEST_MNEMONIC, BECH32_PREFIX);
   console.log(wallet);
 
   const client = await ValidatorClient.connect(Network.testnet().validatorConfig);
@@ -36,12 +33,7 @@ async function test(): Promise<void> {
     resolve([msg]);
   });
 
-  const totalFee = await client.post.simulate(
-    subaccount.wallet,
-    () => msgs,
-    undefined,
-    undefined,
-  );
+  const totalFee = await client.post.simulate(subaccount.wallet, () => msgs, undefined, undefined);
   console.log('**Total Fee**');
   console.log(totalFee);
 

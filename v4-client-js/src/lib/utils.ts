@@ -3,9 +3,7 @@ import { MAX_UINT_32 } from '../clients/constants';
 /**
  * Returns a random integer value between 0 and (n-1).
  */
-export function randomInt(
-  n: number,
-): number {
+export function randomInt(n: number): number {
   return Math.floor(Math.random() * n);
 }
 
@@ -20,19 +18,17 @@ export function generateRandomClientId(): number {
  * Deterministically generate a valid clientId from an arbitrary string by performing a
  * quick hashing function on the string.
  */
-export function clientIdFromString(
-  input: string,
-): number {
+export function clientIdFromString(input: string): number {
   let hash: number = 0;
   if (input.length === 0) return hash;
   for (let i = 0; i < input.length; i++) {
-    hash = ((hash << 5) - hash) + input.charCodeAt(i); // eslint-disable-line no-bitwise
+    hash = (hash << 5) - hash + input.charCodeAt(i); // eslint-disable-line no-bitwise
     hash |= 0; // eslint-disable-line no-bitwise
   }
 
   // Bitwise operators covert the value to a 32-bit integer.
   // We must coerce this into a 32-bit unsigned integer.
-  return hash + (2 ** 31);
+  return hash + 2 ** 31;
 }
 
 /**
@@ -61,9 +57,6 @@ export function getGovAddNewMarketTitle(ticker: string): string {
  * @param delayBlocks number of blocks to wait before activating the market.
  * @returns summary for the gov proposal.
  */
-export function getGovAddNewMarketSummary(
-  ticker: string,
-  delayBlocks: number,
-): string {
+export function getGovAddNewMarketSummary(ticker: string, delayBlocks: number): string {
   return `Add the x/prices, x/perpetuals and x/clob parameters needed for a ${ticker} perpetual market. Create the market in INITIALIZING status and transition it to ACTIVE status after ${delayBlocks} blocks.`;
 }

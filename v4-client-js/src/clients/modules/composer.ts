@@ -1,10 +1,6 @@
 import { EncodeObject, Registry } from '@cosmjs/proto-signing';
-import {
-  MsgSubmitProposal,
-} from '@dydxprotocol/v4-proto/src/codegen/cosmos/gov/v1/tx';
-import {
-  ClobPair_Status,
-} from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/clob/clob_pair';
+import { MsgSubmitProposal } from '@dydxprotocol/v4-proto/src/codegen/cosmos/gov/v1/tx';
+import { ClobPair_Status } from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/clob/clob_pair';
 import {
   MsgCreateClobPair,
   MsgUpdateClobPair,
@@ -55,7 +51,6 @@ protobuf.util.Long = Long;
 protobuf.configure();
 
 export class Composer {
-
   // ------------ x/clob ------------
   public composeMsgPlaceOrder(
     address: string,
@@ -366,10 +361,7 @@ export class Composer {
   }
 
   // ------------ x/delaymsg ------------
-  public composeMsgDelayMessage(
-    embeddedMsg: EncodeObject,
-    delayBlocks: number,
-  ): EncodeObject {
+  public composeMsgDelayMessage(embeddedMsg: EncodeObject, delayBlocks: number): EncodeObject {
     const msg: MsgDelayMessage = {
       // all msgs sent to x/delay must be from x/gov module account.
       authority: GOV_MODULE_ADDRESS,
@@ -394,10 +386,12 @@ export class Composer {
     metadata: string = '',
     expedited: boolean = false,
   ): EncodeObject {
-    const initialDeposit: Coin[] = [{
-      amount: initialDepositAmount,
-      denom: initialDepositDenomConfig.CHAINTOKEN_DENOM,
-    }];
+    const initialDeposit: Coin[] = [
+      {
+        amount: initialDepositAmount,
+        denom: initialDepositDenomConfig.CHAINTOKEN_DENOM,
+      },
+    ];
 
     const msg: MsgSubmitProposal = {
       title,
@@ -432,12 +426,9 @@ export class Composer {
     return registry.encodeAsAny(message);
   }
 
-  public wrapMessageArrAsAny(
-    registry: Registry,
-    messages: EncodeObject[],
-  ): Any[] {
-    const encodedMessages: Any[] = messages.map(
-      (message: EncodeObject) => this.wrapMessageAsAny(registry, message),
+  public wrapMessageArrAsAny(registry: Registry, messages: EncodeObject[]): Any[] {
+    const encodedMessages: Any[] = messages.map((message: EncodeObject) =>
+      this.wrapMessageAsAny(registry, message),
     );
     return encodedMessages;
   }

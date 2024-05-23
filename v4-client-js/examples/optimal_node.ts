@@ -1,6 +1,4 @@
-import {
-  TESTNET_CHAIN_ID,
-} from '../src/clients/constants';
+import { TESTNET_CHAIN_ID } from '../src/clients/constants';
 import { NetworkOptimizer } from '../src/network_optimizer';
 
 async function testNodes(): Promise<void> {
@@ -37,10 +35,7 @@ async function testNodes(): Promise<void> {
 
   try {
     const optimizer = new NetworkOptimizer();
-    const endpoints = [
-      'https://example.com',
-      'https://example.org',
-    ];
+    const endpoints = ['https://example.com', 'https://example.org'];
     const optimal = await optimizer.findOptimalNode(endpoints, TESTNET_CHAIN_ID);
     console.log(optimal);
   } catch (error) {
@@ -52,9 +47,7 @@ async function testIndexers(): Promise<void> {
   // all valid endpoints
   try {
     const optimizer = new NetworkOptimizer();
-    const endpoints = [
-      'https://indexer.v4testnet2.dydx.exchange',
-    ];
+    const endpoints = ['https://indexer.v4testnet2.dydx.exchange'];
     const optimal = await optimizer.findOptimalIndexer(endpoints);
     console.log(optimal);
   } catch (error) {
@@ -65,10 +58,7 @@ async function testIndexers(): Promise<void> {
 
   try {
     const optimizer = new NetworkOptimizer();
-    const endpoints = [
-      'https://example.com',
-      'https://example.org',
-    ];
+    const endpoints = ['https://example.com', 'https://example.org'];
     const optimal = await optimizer.findOptimalIndexer(endpoints);
     console.log(optimal);
   } catch (error) {

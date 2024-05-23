@@ -2,12 +2,7 @@ import { decode } from 'bech32';
 import Long from 'long';
 
 import { MAX_SUBACCOUNT_NUMBER, MAX_UINT_32 } from '../clients/constants';
-import {
-  Transfer,
-  OrderFlags,
-  ICancelOrder,
-  IPlaceOrder,
-} from '../clients/types';
+import { Transfer, OrderFlags, ICancelOrder, IPlaceOrder } from '../clients/types';
 import { UserError } from './errors';
 
 /**
@@ -36,7 +31,9 @@ export function validatePlaceOrderMessage(
     return new UserError(`goodTilBlock: ${order.goodTilBlock} is not a valid uint32 or is 0`);
   }
   if (isStatefulOrder(order.orderFlags) && !verifyGoodTilBlockTime(order.goodTilBlockTime)) {
-    return new UserError(`goodTilBlockTime: ${order.goodTilBlockTime} is not a valid uint32 or is 0`);
+    return new UserError(
+      `goodTilBlockTime: ${order.goodTilBlockTime} is not a valid uint32 or is 0`,
+    );
   }
 
   return undefined;
@@ -57,13 +54,19 @@ export function validateCancelOrderMessage(
     return new UserError(`goodTilBlock: ${order.goodTilBlock} is not a valid uint32 or is 0`);
   }
   if (!isStatefulOrder(order.orderFlags) && order.goodTilBlockTime !== undefined) {
-    return new UserError(`goodTilBlockTime is ${order.goodTilBlockTime}, but should not be set for non-stateful orders`);
+    return new UserError(
+      `goodTilBlockTime is ${order.goodTilBlockTime}, but should not be set for non-stateful orders`,
+    );
   }
   if (isStatefulOrder(order.orderFlags) && !verifyGoodTilBlockTime(order.goodTilBlockTime)) {
-    return new UserError(`goodTilBlockTime: ${order.goodTilBlockTime} is not a valid uint32 or is 0`);
+    return new UserError(
+      `goodTilBlockTime: ${order.goodTilBlockTime} is not a valid uint32 or is 0`,
+    );
   }
   if (isStatefulOrder(order.orderFlags) && order.goodTilBlock !== undefined) {
-    return new UserError(`goodTilBlock is ${order.goodTilBlock}, but should not be set for stateful orders`);
+    return new UserError(
+      `goodTilBlock is ${order.goodTilBlock}, but should not be set for stateful orders`,
+    );
   }
   if (!verifySubaccountNumber(subaccountNumber)) {
     return new UserError(
@@ -90,14 +93,10 @@ export function validateTransferMessage(transfer: Transfer): UserError | undefin
     );
   }
   if (transfer.assetId !== 0) {
-    return new UserError(
-      `asset id: ${transfer.assetId} not supported`,
-    );
+    return new UserError(`asset id: ${transfer.assetId} not supported`);
   }
   if (transfer.amount.lessThanOrEqual(Long.ZERO)) {
-    return new UserError(
-      `amount: ${transfer.amount} cannot be <= 0`,
-    );
+    return new UserError(`amount: ${transfer.amount} cannot be <= 0`);
   }
 
   const addressError: Error | undefined = verifyIsBech32(transfer.recipient!!.owner);
@@ -132,8 +131,11 @@ function verifyNumberIsUint32(num: number): boolean {
 }
 
 export function verifyOrderFlags(orderFlags: OrderFlags): boolean {
-  return orderFlags === OrderFlags.SHORT_TERM ||
-    orderFlags === OrderFlags.LONG_TERM || orderFlags === OrderFlags.CONDITIONAL;
+  return (
+    orderFlags === OrderFlags.SHORT_TERM ||
+    orderFlags === OrderFlags.LONG_TERM ||
+    orderFlags === OrderFlags.CONDITIONAL
+  );
 }
 
 export function isStatefulOrder(orderFlags: OrderFlags): boolean {
@@ -152,5 +154,5 @@ function verifyIsBech32(address: string): Error | undefined {
 
 export function isValidAddress(address: string): boolean {
   // An address is valid if it starts with `dydx1` and is Bech32 format.
-  return address.startsWith('dydx1') && (verifyIsBech32(address) === undefined);
+  return address.startsWith('dydx1') && verifyIsBech32(address) === undefined;
 }

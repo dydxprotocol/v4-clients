@@ -1,9 +1,6 @@
 {
   "extends": "./tsconfig.json",
-  "exclude": [
-    "__native__/*.js",
-    "__native__/__ios__/*.js"
-  ],
+  "exclude": ["__native__/*.js", "__native__/__ios__/*.js"],
   "include": [
     // Repeat included files from tsconfig.json.
     "__tests__",

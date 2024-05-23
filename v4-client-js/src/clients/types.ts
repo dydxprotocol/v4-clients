@@ -1,6 +1,10 @@
 import { Coin } from '@cosmjs/proto-signing';
 import { Method } from '@cosmjs/tendermint-rpc';
-import { Order_ConditionType, Order_Side, Order_TimeInForce } from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/clob/order';
+import {
+  Order_ConditionType,
+  Order_Side,
+  Order_TimeInForce,
+} from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/clob/order';
 import { PerpetualMarketType } from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/perpetuals/perpetual';
 import BigNumber from 'bignumber.js';
 import Long from 'long';
@@ -36,7 +40,7 @@ export enum OrderFlags {
 
 export interface IBasicOrder {
   clientId: number;
-  orderFlags: OrderFlags,
+  orderFlags: OrderFlags;
   clobPairId: number;
   goodTilBlock?: number;
   goodTilBlockTime?: number;
@@ -46,15 +50,14 @@ export interface IPlaceOrder extends IBasicOrder {
   side: Order_Side;
   quantums: Long;
   subticks: Long;
-  timeInForce: Order_TimeInForce,
+  timeInForce: Order_TimeInForce;
   reduceOnly: boolean;
   clientMetadata: number;
-  conditionType?: Order_ConditionType,
-  conditionalOrderTriggerSubticks?: Long,
+  conditionType?: Order_ConditionType;
+  conditionalOrderTriggerSubticks?: Long;
 }
 
-export interface ICancelOrder extends IBasicOrder {
-}
+export interface ICancelOrder extends IBasicOrder {}
 
 // How long to wait and how often to check when calling Broadcast with
 // Method.BroadcastTxCommit
@@ -78,9 +81,10 @@ export interface DenomConfig {
 // 2. Once the transaction is added to the memPool
 // 3. Once the transaction is committed to a block
 // See https://docs.cosmos.network/master/run-node/txs.html for more information
-export type BroadcastMode = (
-  Method.BroadcastTxAsync | Method.BroadcastTxSync | Method.BroadcastTxCommit
-);
+export type BroadcastMode =
+  | Method.BroadcastTxAsync
+  | Method.BroadcastTxSync
+  | Method.BroadcastTxCommit;
 
 // ------ Utility Endpoint Responses ------ //
 export interface TimeResponse {

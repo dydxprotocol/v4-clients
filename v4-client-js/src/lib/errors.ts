@@ -1,13 +1,10 @@
-import {
-  BroadcastTxSyncResponse,
-} from '@cosmjs/tendermint-rpc/build/tendermint37';
+import { BroadcastTxSyncResponse } from '@cosmjs/tendermint-rpc/build/tendermint37';
 
 /**
  * An edge-case was hit in the client that should never have been reached.
  */
 export class UnexpectedClientError extends Error {
-  constructor(
-  ) {
+  constructor() {
     super('An unexpected error occurred on the client');
     this.name = 'UnexpectedClientError';
   }
@@ -21,10 +18,7 @@ export class BroadcastErrorObject extends Error {
   code: number;
   codespace?: string;
 
-  constructor(
-    message: string,
-    result: BroadcastTxSyncResponse,
-  ) {
+  constructor(message: string, result: BroadcastTxSyncResponse) {
     super(message);
     this.name = 'BroadcastError';
     this.result = result;
