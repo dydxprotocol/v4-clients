@@ -34,10 +34,6 @@ from dydx_v4_client.indexer.rest.constants import GAS_MULTIPLIER
 from dydx_v4_client.node.client import as_any
 from dydx_v4_client.wallet import from_mnemonic
 
-from_string = partial(
-    ecdsa.SigningKey.from_string, curve=ecdsa.SECP256k1, hashfunc=hashlib.sha256
-)
-
 
 class NobleClient:
     def __init__(self, rest_endpoint: str, default_client_memo: Optional[str] = None):

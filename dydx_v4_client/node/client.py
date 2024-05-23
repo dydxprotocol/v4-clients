@@ -318,10 +318,6 @@ class NodeClient:
         stub = fee_tier_query_grpc.QueryStub(self.channel)
         return stub.UserFeeTier(fee_tier_query.QueryUserFeeTierRequest(user=address))
 
-    async def get_user_stats(self, address: str) -> stats_query.QueryUserStatsResponse:
-        stub = stats_query_grpc.QueryStub(self.channel)
-        return stub.UserStats(stats_query.QueryUserStatsRequest(user=address))
-
     async def get_rewards_params(self) -> rewards_query.QueryParamsResponse:
         stub = rewards_query_grpc.QueryStub(self.channel)
         return stub.Params(rewards_query.QueryParamsRequest())
