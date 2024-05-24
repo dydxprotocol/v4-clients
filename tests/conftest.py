@@ -18,7 +18,7 @@ from dydx_v4_client.indexer.rest.shared.rest import RestClient
 from dydx_v4_client.indexer.socket.websocket import IndexerSocket
 from dydx_v4_client.network import TESTNET
 from dydx_v4_client.node.message import order, order_id
-from dydx_v4_client.wallet import from_mnemonic
+from dydx_v4_client.wallet import Wallet, from_mnemonic
 
 pytest_plugins = ("pytest_asyncio",)
 
@@ -49,6 +49,8 @@ async def indexer_socket_client(indexer_config):
 
 
 @pytest.fixture
+async def node():
+    return await NodeClient.connect(TESTNET.node)
 async def faucet_client(indexer_config):
     return FaucetClient(faucet_url=FaucetApiHost.TESTNET)
 
@@ -107,3 +109,8 @@ def test_order(test_order_id):
         subticks=40000000000,
         good_til_block_time=int(time.time() + 60),
     )
+
+
+@pytest.fixture
+def wallet(private_key, account):
+    return Wallet(private_key, account.account_number, account.sequence)

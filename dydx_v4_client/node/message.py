@@ -1,3 +1,5 @@
+from v4_proto.cosmos.bank.v1beta1.tx_pb2 import MsgSend
+from v4_proto.cosmos.base.v1beta1.coin_pb2 import Coin
 from v4_proto.dydxprotocol.clob.order_pb2 import Order, OrderId
 from v4_proto.dydxprotocol.clob.tx_pb2 import MsgCancelOrder, MsgPlaceOrder
 from v4_proto.dydxprotocol.sending.transfer_pb2 import (
@@ -45,8 +47,83 @@ def order_id(
     order_flags: int,
 ):
     return OrderId(
-        subaccount_id=SubaccountId(owner=address, number=subaccount_number),
+        subaccount_id=subaccount(owner=address, number=subaccount_number),
         client_id=client_id,
         order_flags=order_flags,
         clob_pair_id=clob_pair_id,
     )
+
+
+def subaccount(owner, number):
+    return SubaccountId(owner=owner, number=number)
+
+
+def place_order(order: Order):
+    return MsgPlaceOrder(order=order)
+
+
+def cancel_order(
+    order_id,
+    good_til_block: int = 0,
+    good_til_block_time: int = 0,
+):
+    message = MsgCancelOrder(
+        order_id=order_id,
+        good_til_block=good_til_block,
+        good_til_block_time=good_til_block_time,
+    )
+    return message
+
+
+def transfer(
+    sender_subaccount: SubaccountId,
+    recipient_subaccount: SubaccountId,
+    asset_id: int,
+    amount: int,
+):
+    message = Transfer(
+        sender=sender_subaccount,
+        recipient=recipient_subaccount,
+        asset_id=asset_id,
+        amount=amount,
+    )
+    return message
+
+
+def deposit(
+    sender: str,
+    recipient_subaccount: SubaccountId,
+    asset_id: int,
+    quantums: int,
+):
+    message = MsgDepositToSubaccount(
+        sender=sender,
+        recipient=recipient_subaccount,
+        asset_id=asset_id,
+        quantums=quantums,
+    )
+    return message
+
+
+def withdraw(
+    sender_subaccount: SubaccountId,
+    recipient: str,
+    asset_id: int,
+    quantums: int,
+):
+    message = MsgWithdrawFromSubaccount(
+        sender=sender_subaccount,
+        recipient=recipient,
+        asset_id=asset_id,
+        quantums=quantums,
+    )
+    return message
+
+
+def send_token(sender: str, recipient: str, quantums: int, denomination: str):
+    message = MsgSend(
+        from_address=sender,
+        to_address=recipient,
+        amount=[Coin(amount=str(quantums), denom=denomination)],
+    )
+    return message
