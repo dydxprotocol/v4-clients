@@ -684,31 +684,47 @@ export class Post {
     });
   }
 
-  async composeMsgDelegate(
+  async delegate(
+    subaccount: SubaccountInfo,
     delegator: string,
     validator: string,
     amount: string,
-  ): Promise<EncodeObject> {
-    return new Promise((resolve) => {
-      const msg = this.composer.composeMsgDelegate(delegator, validator, {
-        denom: this.denoms.CHAINTOKEN_DENOM,
-        amount,
-      });
-      resolve(msg);
+    broadcastMode?: BroadcastMode,
+  ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
+    const msg = this.composer.composeMsgDelegate(delegator, validator, {
+      denom: this.denoms.CHAINTOKEN_DENOM,
+      amount,
     });
+    return this.send(
+      subaccount.wallet,
+      () => Promise.resolve([msg]),
+      false,
+      undefined,
+      undefined,
+      broadcastMode,
+    );
   }
 
-  async composeMsgUnDelegate(
+  async undelegate(
+    subaccount: SubaccountInfo,
     delegator: string,
     validator: string,
     amount: string,
-  ): Promise<EncodeObject> {
-    return new Promise((resolve) => {
-      const msg = this.composer.composeMsgUnDelegate(delegator, validator, {
-        denom: this.denoms.CHAINTOKEN_DENOM,
-        amount,
-      });
-      resolve(msg);
+    broadcastMode?: BroadcastMode,
+  ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
+    const msg = this.composer.composeMsgUndelegate(delegator, validator, {
+      denom: this.denoms.CHAINTOKEN_DENOM,
+      amount,
     });
+    return this.send(
+      subaccount.wallet,
+      () => Promise.resolve([msg]),
+      false,
+      undefined,
+      undefined,
+      broadcastMode,
+    );
   }
+
+  async;
 }
