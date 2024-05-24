@@ -23,6 +23,10 @@ class FaucetApiHost:
     TESTNET = "https://faucet.v4testnet.dydx.exchange"
 
 
+class NobleClientHost:
+    TESTNET = "https://rpc.testnet.noble.strange.love"
+
+
 class ValidatorApiHost:
     TESTNET = "https://test-dydx.kingnodes.com"
     LOCAL = "http://localhost:26657"
@@ -139,3 +143,6 @@ class IndexerConfig:
     def __init__(self, rest_endpoint: str, websocket_endpoint: str):
         self.rest_endpoint = rest_endpoint
         self.websocket_endpoint = websocket_endpoint
+
+
+GAS_MULTIPLIER = 1.4
