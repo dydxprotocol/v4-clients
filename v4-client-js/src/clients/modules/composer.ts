@@ -1,5 +1,12 @@
+/* eslint-disable comma-dangle */
+/* eslint-disable @typescript-eslint/quotes */
 import { EncodeObject, Registry } from '@cosmjs/proto-signing';
+import { MsgWithdrawDelegatorReward } from '@dydxprotocol/v4-proto/src/codegen/cosmos/distribution/v1beta1/tx';
 import { MsgSubmitProposal } from '@dydxprotocol/v4-proto/src/codegen/cosmos/gov/v1/tx';
+import {
+  MsgDelegate,
+  MsgUndelegate,
+} from '@dydxprotocol/v4-proto/src/codegen/cosmos/staking/v1beta1/tx';
 import { ClobPair_Status } from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/clob/clob_pair';
 import {
   MsgCreateClobPair,
@@ -30,6 +37,9 @@ import {
   TYPE_URL_MSG_CREATE_TRANSFER,
   TYPE_URL_MSG_WITHDRAW_FROM_SUBACCOUNT,
   TYPE_URL_MSG_DEPOSIT_TO_SUBACCOUNT,
+  TYPE_URL_MSG_DELEGATE,
+  TYPE_URL_MSG_UNDELEGATE,
+  TYPE_URL_MSG_WITHDRAW_DELEGATOR_REWARD,
 } from '../constants';
 import { DenomConfig } from '../types';
 import {
@@ -405,6 +415,46 @@ export class Composer {
 
     return {
       typeUrl: TYPE_URL_MSG_SUBMIT_PROPOSAL,
+      value: msg,
+    };
+  }
+
+  // ------------ x/staking ------------
+  public composeMsgDelegate(delegator: string, validator: string, amount: Coin): EncodeObject {
+    const msg: MsgDelegate = {
+      delegatorAddress: delegator,
+      validatorAddress: validator,
+      amount,
+    };
+
+    return {
+      typeUrl: TYPE_URL_MSG_DELEGATE,
+      value: msg,
+    };
+  }
+
+  public composeMsgUndelegate(delegator: string, validator: string, amount: Coin): EncodeObject {
+    const msg: MsgUndelegate = {
+      delegatorAddress: delegator,
+      validatorAddress: validator,
+      amount,
+    };
+
+    return {
+      typeUrl: TYPE_URL_MSG_UNDELEGATE,
+      value: msg,
+    };
+  }
+
+  // ------------ x/distribution ------------
+  public composeMsgWithdrawDelegatorReward(delegator: string, validator: string): EncodeObject {
+    const msg: MsgWithdrawDelegatorReward = {
+      delegatorAddress: delegator,
+      validatorAddress: validator,
+    };
+
+    return {
+      typeUrl: TYPE_URL_MSG_WITHDRAW_DELEGATOR_REWARD,
       value: msg,
     };
   }

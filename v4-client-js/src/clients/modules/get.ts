@@ -18,6 +18,7 @@ import { UnexpectedClientError } from '../lib/errors';
 import {
   BridgeModule,
   ClobModule,
+  DistributionModule,
   FeeTierModule,
   GovV1Module,
   PerpetualsModule,
@@ -400,6 +401,29 @@ export class Get {
       requestData,
     );
     return StakingModule.QueryDelegatorUnbondingDelegationsResponse.decode(data);
+  }
+
+  /**
+   *
+   * @description Get all unbonding delegations from a delegator.
+   *
+   * @returns All unbonding delegations from a delegator.
+   */
+  async getDelegationTotalRewards(
+    delegatorAddress: string,
+  ): Promise<DistributionModule.QueryDelegationTotalRewardsResponse> {
+    const requestData = Uint8Array.from(
+      DistributionModule.QueryDelegationTotalRewardsRequest.encode({
+        delegatorAddress,
+      })
+        .finish(),
+    );
+
+    const data: Uint8Array = await this.sendQuery(
+      '/cosmos.distribution.v1beta1.Query/DelegationTotalRewards',
+      requestData,
+    );
+    return DistributionModule.QueryDelegationTotalRewardsResponse.decode(data);
   }
 
   /**
