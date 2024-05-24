@@ -1,7 +1,9 @@
 import random
 import time
 
+import grpc
 import pytest
+from grpc import StatusCode
 
 from dydx_v4_client import NodeClient
 from dydx_v4_client.indexer.rest.constants import (
@@ -48,12 +50,7 @@ async def indexer_socket_client(indexer_config):
     return IndexerSocket(indexer_config)
 
 
-@pytest.fixture
-async def node():
-    return await NodeClient.connect(TESTNET.node)
-
-
-async def faucet_client(indexer_config):
+async def faucet_client():
     return FaucetClient(faucet_url=FaucetApiHost.TESTNET)
 
 
@@ -115,4 +112,22 @@ def test_order(test_order_id):
 
 @pytest.fixture
 def wallet(private_key, account):
-    return Wallet(private_key, account.account_number, account.sequence)
+    yield Wallet(private_key, account.account_number, account.sequence)
+
+
+async def retry_on_sequence_mismatch(func, wallet, *args, **kwargs):
+    max_retries = 5
+    for attempt in range(max_retries):
+        try:
+            return await func(wallet, *args, **kwargs)
+        except grpc.RpcError as e:
+            if (
+                e.code() == StatusCode.UNKNOWN
+                and "account sequence mismatch" in e.details()
+            ):
+                # Extract the expected sequence number from the error message
+                expected_sequence = int(e.details().split("expected ")[1].split(",")[0])
+                wallet.sequence = expected_sequence
+                if attempt < max_retries - 1:
+                    continue
+            raise

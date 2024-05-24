@@ -15,6 +15,7 @@ python-dotenv = "^1.0.1"
 bip-utils = "^2.9.3"
 ecdsa = "^0.19.0"
 nest-asyncio = "^1.6.0"
+pytest-order = "^1.2.1"
 
 
 [tool.poetry.group.dev.dependencies]
