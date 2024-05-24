@@ -2,7 +2,7 @@ from typing import Dict, Optional
 
 import httpx
 
-from dydx_v4_client.indexer.rest.constants import DEFAULT_API_TIMEOUT, IndexerConfig
+from dydx_v4_client.indexer.rest.constants import DEFAULT_API_TIMEOUT
 from dydx_v4_client.indexer.rest.shared.rest import RestClient
 
 

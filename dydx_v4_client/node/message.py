@@ -7,7 +7,6 @@ from v4_proto.dydxprotocol.sending.transfer_pb2 import (
     MsgWithdrawFromSubaccount,
     Transfer,
 )
-from v4_proto.dydxprotocol.sending.tx_pb2 import MsgCreateTransfer
 from v4_proto.dydxprotocol.subaccounts.subaccount_pb2 import SubaccountId
 
 

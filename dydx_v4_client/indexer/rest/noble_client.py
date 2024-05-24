@@ -1,8 +1,5 @@
-import hashlib
-from functools import partial
 from typing import List, Optional
 
-import ecdsa
 import grpc
 from ecdsa.util import sigencode_string_canonize
 from v4_proto.cosmos.auth.v1beta1 import query_pb2_grpc as auth
@@ -31,7 +28,7 @@ from v4_proto.cosmos.tx.v1beta1.tx_pb2 import (
 )
 
 from dydx_v4_client.indexer.rest.constants import GAS_MULTIPLIER
-from dydx_v4_client.node.client import as_any
+from dydx_v4_client.node.builder import as_any
 from dydx_v4_client.wallet import from_mnemonic
 
 

@@ -4,7 +4,6 @@ from math import floor
 from typing import Any, Optional, Self
 
 import grpc
-from google.protobuf.json_format import MessageToJson
 from google.protobuf.message import Message
 from v4_proto.cosmos.auth.v1beta1 import query_pb2_grpc as auth
 from v4_proto.cosmos.auth.v1beta1.auth_pb2 import BaseAccount
@@ -15,27 +14,15 @@ from v4_proto.cosmos.base.tendermint.v1beta1 import query_pb2 as tendermint_quer
 from v4_proto.cosmos.base.tendermint.v1beta1 import (
     query_pb2_grpc as tendermint_query_grpc,
 )
-from v4_proto.cosmos.crypto.secp256k1.keys_pb2 import PubKey
 from v4_proto.cosmos.staking.v1beta1 import query_pb2 as staking_query
 from v4_proto.cosmos.staking.v1beta1 import query_pb2_grpc as staking_query_grpc
-from v4_proto.cosmos.tx.signing.v1beta1.signing_pb2 import SignMode
 from v4_proto.cosmos.tx.v1beta1 import service_pb2_grpc
 from v4_proto.cosmos.tx.v1beta1.service_pb2 import (
     BroadcastMode,
     BroadcastTxRequest,
-    GetTxRequest,
     SimulateRequest,
 )
 from v4_proto.cosmos.tx.v1beta1.tx_pb2 import Tx
-from v4_proto.cosmos.tx.v1beta1.tx_pb2 import (
-    AuthInfo,
-    Fee,
-    ModeInfo,
-    SignDoc,
-    SignerInfo,
-    Tx,
-    TxBody,
-)
 from v4_proto.dydxprotocol.bridge import query_pb2 as bridge_query
 from v4_proto.dydxprotocol.bridge import query_pb2_grpc as bridge_query_grpc
 from v4_proto.dydxprotocol.clob import clob_pair_pb2 as clob_pair_type
@@ -48,12 +35,6 @@ from v4_proto.dydxprotocol.clob.order_pb2 import Order, OrderId
 from v4_proto.dydxprotocol.clob.query_pb2 import (
     QueryAllClobPairRequest,
     QueryClobPairAllResponse,
-)
-from v4_proto.dydxprotocol.clob.tx_pb2 import MsgCancelOrder, MsgPlaceOrder
-from v4_proto.dydxprotocol.sending.transfer_pb2 import (
-    MsgDepositToSubaccount,
-    MsgWithdrawFromSubaccount,
-    Transfer,
 )
 from v4_proto.dydxprotocol.feetiers import query_pb2 as fee_tier_query
 from v4_proto.dydxprotocol.feetiers import query_pb2_grpc as fee_tier_query_grpc
@@ -84,7 +65,7 @@ from v4_proto.dydxprotocol.subaccounts.query_pb2 import (
 )
 from v4_proto.dydxprotocol.subaccounts.subaccount_pb2 import SubaccountId
 
-from dydx_v4_client.network import Network, NodeConfig
+from dydx_v4_client.network import NodeConfig
 from dydx_v4_client.node.builder import Builder
 from dydx_v4_client.node.message import (
     cancel_order,
