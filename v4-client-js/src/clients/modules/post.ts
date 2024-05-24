@@ -67,7 +67,11 @@ export class Post {
       `0.025${denoms.USDC_GAS_DENOM !== undefined ? denoms.USDC_GAS_DENOM : denoms.USDC_DENOM}`,
     );
     this.defaultDydxGasPrice = GasPrice.fromString(
-      `25000000000${denoms.CHAINTOKEN_GAS_DENOM !== undefined ? denoms.CHAINTOKEN_GAS_DENOM : denoms.CHAINTOKEN_DENOM}`,
+      `25000000000${
+        denoms.CHAINTOKEN_GAS_DENOM !== undefined
+          ? denoms.CHAINTOKEN_GAS_DENOM
+          : denoms.CHAINTOKEN_DENOM
+      }`,
     );
   }
 
@@ -676,6 +680,34 @@ export class Post {
 
     return new Promise((resolve) => {
       const msg = this.composer.composeMsgSendToken(address, recipient, coinDenom, quantums);
+      resolve(msg);
+    });
+  }
+
+  async composeMsgDelegate(
+    delegator: string,
+    validator: string,
+    amount: string,
+  ): Promise<EncodeObject> {
+    return new Promise((resolve) => {
+      const msg = this.composer.composeMsgDelegate(delegator, validator, {
+        denom: this.denoms.CHAINTOKEN_DENOM,
+        amount,
+      });
+      resolve(msg);
+    });
+  }
+
+  async composeMsgUnDelegate(
+    delegator: string,
+    validator: string,
+    amount: string,
+  ): Promise<EncodeObject> {
+    return new Promise((resolve) => {
+      const msg = this.composer.composeMsgUnDelegate(delegator, validator, {
+        denom: this.denoms.CHAINTOKEN_DENOM,
+        amount,
+      });
       resolve(msg);
     });
   }

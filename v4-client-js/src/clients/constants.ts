@@ -93,6 +93,12 @@ export const TYPE_URL_MSG_WITHDRAW_FROM_SUBACCOUNT =
   '/dydxprotocol.sending.MsgWithdrawFromSubaccount';
 export const TYPE_URL_MSG_DEPOSIT_TO_SUBACCOUNT = '/dydxprotocol.sending.MsgDepositToSubaccount';
 
+// x/staking
+export const TYPE_URL_MSG_DELEGATE = '/cosmos.staking.v1beta1.MsgDelegate';
+export const TYPE_URL_MSG_UNDELEGATE = '/cosmos.staking.v1beta1.MsgUndelegate';
+export const TYPE_URL_MSG_WITHDRAW_DELEGATOR_REWARD =
+  '/cosmos.staking.v1beta1.MsgWithdrawDelegatorReward';
+
 // ------------ Chain Constants ------------
 // The following are same across different networks / deployments.
 export const GOV_MODULE_ADDRESS = 'dydx10d07y265gmmuvt4z0w9aw880jnsr700jnmapky';
