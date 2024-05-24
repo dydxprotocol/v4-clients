@@ -726,5 +726,20 @@ export class Post {
     );
   }
 
-  async;
+  async withdrawDelegatorReward(
+    subaccount: SubaccountInfo,
+    delegator: string,
+    validator: string,
+    broadcastMode?: BroadcastMode,
+  ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
+    const msg = this.composer.composeMsgWithdrawDelegatorReward(delegator, validator);
+    return this.send(
+      subaccount.wallet,
+      () => Promise.resolve([msg]),
+      false,
+      undefined,
+      undefined,
+      broadcastMode,
+    );
+  }
 }

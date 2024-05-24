@@ -119,6 +119,15 @@ async function test(): Promise<void> {
   }
 
   try {
+    const delegationsTotalRewards =
+      await client.get.getDelegationTotalRewards(DYDX_TEST_ADDRESS);
+    console.log('Delegations total rewards');
+    console.log(JSON.stringify(delegationsTotalRewards));
+  } catch (error) {
+    console.log(JSON.stringify(error.message));
+  }
+
+  try {
     const getAllBondedValidators = await client.get.getAllValidators('BOND_STATUS_BONDED');
     console.log('All Validators');
     console.log(JSON.stringify(getAllBondedValidators));
