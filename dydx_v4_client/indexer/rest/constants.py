@@ -23,12 +23,6 @@ class NobleClientHost:
     TESTNET = "https://rpc.testnet.noble.strange.love"
 
 
-class ValidatorApiHost:
-    TESTNET = "https://test-dydx.kingnodes.com"
-    LOCAL = "http://localhost:26657"
-    MAINNET = "https://dydx-ops-rpc.kingnodes.com:443"
-
-
 # Network IDs
 class NetworkId:
     TESTNET = "dydx-testnet-4"
