@@ -1,7 +1,9 @@
 import random
 import time
 
+import grpc
 import pytest
+from grpc import StatusCode
 
 from dydx_v4_client import NodeClient
 from dydx_v4_client.indexer.rest.constants import (
@@ -18,7 +20,7 @@ from dydx_v4_client.indexer.rest.shared.rest import RestClient
 from dydx_v4_client.indexer.socket.websocket import IndexerSocket
 from dydx_v4_client.network import TESTNET
 from dydx_v4_client.node.message import order, order_id
-from dydx_v4_client.wallet import from_mnemonic
+from dydx_v4_client.wallet import Wallet, from_mnemonic
 
 pytest_plugins = ("pytest_asyncio",)
 
@@ -48,14 +50,13 @@ async def indexer_socket_client(indexer_config):
     return IndexerSocket(indexer_config)
 
 
-@pytest.fixture
-async def faucet_client(indexer_config):
+async def faucet_client():
     return FaucetClient(faucet_url=FaucetApiHost.TESTNET)
 
 
 @pytest.fixture
 async def node_client():
-    return await NodeClient.connect(TESTNET.chain_id, TESTNET.node)
+    return await NodeClient.connect(TESTNET.node)
 
 
 @pytest.fixture
@@ -68,6 +69,11 @@ async def noble_client():
 @pytest.fixture
 def test_address():
     return "dydx14zzueazeh0hj67cghhf9jypslcf9sh2n5k6art"
+
+
+@pytest.fixture
+def recipient():
+    return "dydx1slanxj8x9ntk9knwa6cvfv2tzlsq5gk3dshml0"
 
 
 @pytest.fixture
@@ -102,3 +108,26 @@ def test_order(test_order_id):
         subticks=40000000000,
         good_til_block_time=int(time.time() + 60),
     )
+
+
+@pytest.fixture
+def wallet(private_key, account):
+    yield Wallet(private_key, account.account_number, account.sequence)
+
+
+async def retry_on_sequence_mismatch(func, wallet, *args, **kwargs):
+    max_retries = 5
+    for attempt in range(max_retries):
+        try:
+            return await func(wallet, *args, **kwargs)
+        except grpc.RpcError as e:
+            if (
+                e.code() == StatusCode.UNKNOWN
+                and "account sequence mismatch" in e.details()
+            ):
+                # Extract the expected sequence number from the error message
+                expected_sequence = int(e.details().split("expected ")[1].split(",")[0])
+                wallet.sequence = expected_sequence
+                if attempt < max_retries - 1:
+                    continue
+            raise

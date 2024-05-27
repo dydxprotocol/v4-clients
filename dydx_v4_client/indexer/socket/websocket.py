@@ -3,7 +3,6 @@ import ssl
 from dataclasses import dataclass, field
 from typing import Any, Callable, Optional, Self, Union
 
-import rel
 import websocket
 
 from dydx_v4_client.indexer.rest.constants import IndexerConfig

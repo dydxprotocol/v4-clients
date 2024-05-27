@@ -1,12 +1,9 @@
 import hashlib
 from dataclasses import dataclass, field
-from typing import Any, List, Optional, Self
+from math import floor
+from typing import Any, Optional, Self
 
-import ecdsa
-import google
 import grpc
-from ecdsa.util import sigencode_string_canonize
-from google.protobuf.json_format import MessageToJson
 from google.protobuf.message import Message
 from v4_proto.cosmos.auth.v1beta1 import query_pb2_grpc as auth
 from v4_proto.cosmos.auth.v1beta1.auth_pb2 import BaseAccount
@@ -17,27 +14,15 @@ from v4_proto.cosmos.base.tendermint.v1beta1 import query_pb2 as tendermint_quer
 from v4_proto.cosmos.base.tendermint.v1beta1 import (
     query_pb2_grpc as tendermint_query_grpc,
 )
-from v4_proto.cosmos.base.v1beta1.coin_pb2 import Coin
-from v4_proto.cosmos.crypto.secp256k1.keys_pb2 import PubKey
 from v4_proto.cosmos.staking.v1beta1 import query_pb2 as staking_query
 from v4_proto.cosmos.staking.v1beta1 import query_pb2_grpc as staking_query_grpc
-from v4_proto.cosmos.tx.signing.v1beta1.signing_pb2 import SignMode
 from v4_proto.cosmos.tx.v1beta1 import service_pb2_grpc
 from v4_proto.cosmos.tx.v1beta1.service_pb2 import (
     BroadcastMode,
     BroadcastTxRequest,
-    GetTxRequest,
     SimulateRequest,
 )
-from v4_proto.cosmos.tx.v1beta1.tx_pb2 import (
-    AuthInfo,
-    Fee,
-    ModeInfo,
-    SignDoc,
-    SignerInfo,
-    Tx,
-    TxBody,
-)
+from v4_proto.cosmos.tx.v1beta1.tx_pb2 import Tx
 from v4_proto.dydxprotocol.bridge import query_pb2 as bridge_query
 from v4_proto.dydxprotocol.bridge import query_pb2_grpc as bridge_query_grpc
 from v4_proto.dydxprotocol.clob import clob_pair_pb2 as clob_pair_type
@@ -51,7 +36,6 @@ from v4_proto.dydxprotocol.clob.query_pb2 import (
     QueryAllClobPairRequest,
     QueryClobPairAllResponse,
 )
-from v4_proto.dydxprotocol.clob.tx_pb2 import MsgCancelOrder, MsgPlaceOrder
 from v4_proto.dydxprotocol.feetiers import query_pb2 as fee_tier_query
 from v4_proto.dydxprotocol.feetiers import query_pb2_grpc as fee_tier_query_grpc
 from v4_proto.dydxprotocol.perpetuals import query_pb2_grpc as perpetuals_query_grpc
@@ -81,114 +65,25 @@ from v4_proto.dydxprotocol.subaccounts.query_pb2 import (
 )
 from v4_proto.dydxprotocol.subaccounts.subaccount_pb2 import SubaccountId
 
-from dydx_v4_client.network import Network
+from dydx_v4_client.network import NodeConfig
+from dydx_v4_client.node.builder import Builder
+from dydx_v4_client.node.message import (
+    cancel_order,
+    deposit,
+    place_order,
+    send_token,
+    transfer,
+    withdraw,
+)
+from dydx_v4_client.wallet import Wallet
 
-
-def as_any(message: Message):
-    packed = google.protobuf.any_pb2.Any()
-    packed.Pack(message, type_url_prefix="/")
-    return packed
-
-
-def get_signer_info(private_key, sequence):
-    return SignerInfo(
-        public_key=as_any(
-            PubKey(key=private_key.get_verifying_key().to_string("compressed"))
-        ),
-        mode_info=ModeInfo(single=ModeInfo.Single(mode=SignMode.SIGN_MODE_DIRECT)),
-        sequence=sequence,
-    )
-
-
-def get_signature(private_key, body, auth_info, account_number, chain_id):
-    signdoc = SignDoc(
-        body_bytes=body.SerializeToString(),
-        auth_info_bytes=auth_info.SerializeToString(),
-        account_number=account_number,
-        chain_id=chain_id,
-    )
-
-    return private_key.sign(
-        signdoc.SerializeToString(), sigencode=sigencode_string_canonize
-    )
+GAS_MULTIPLIER = 1.4
+DYDX_GAS_PRICE = 25000000000
 
 
 @dataclass
-class TransactionSender:
-    chain_id: str
+class QueryNodeClient:
     channel: grpc.Channel
-
-    def send(self, transaction: Tx):
-        raise NotImplementedError()
-
-    async def place_order(
-        self, key: ecdsa.SigningKey, order: Order, account_number: int, sequence: int
-    ):
-        body = TxBody(
-            messages=[as_any(MsgPlaceOrder(order=order))], memo="Client Example"
-        )
-        auth_info = AuthInfo(
-            signer_infos=[get_signer_info(key, sequence)],
-            fee=Fee(amount=[Coin(amount="0", denom="afet")]),
-        )
-        signature = get_signature(key, body, auth_info, account_number, self.chain_id)
-
-        transaction = Tx(body=body, auth_info=auth_info, signatures=[signature])
-
-        return self.send(transaction)
-
-    async def cancel_order(
-        self,
-        key,
-        account_number,
-        sequence,
-        order_id,
-        good_til_block: int = 0,
-        good_til_block_time: int = 0,
-    ):
-        message = MsgCancelOrder(
-            order_id=order_id,
-            good_til_block=good_til_block,
-            good_til_block_time=good_til_block_time,
-        )
-        body = TxBody(messages=[as_any(message)], memo="Client Example")
-        auth_info = AuthInfo(
-            signer_infos=[get_signer_info(key, sequence)],
-            fee=Fee(amount=[Coin(amount="0", denom="afet")]),
-        )
-        signature = get_signature(key, body, auth_info, account_number, self.chain_id)
-
-        transaction = Tx(body=body, auth_info=auth_info, signatures=[signature])
-
-        return self.send(transaction)
-
-
-@dataclass
-class Broadcast(TransactionSender):
-    mode: BroadcastMode = field(default=BroadcastMode.BROADCAST_MODE_SYNC)
-
-    def send(self, transaction: Tx):
-        request = BroadcastTxRequest(
-            tx_bytes=transaction.SerializeToString(), mode=self.mode
-        )
-
-        return service_pb2_grpc.ServiceStub(self.channel).BroadcastTx(request)
-
-
-@dataclass
-class NodeClient:
-    chain_id: str
-    channel: grpc.Channel
-
-    @staticmethod
-    async def connect(chain_id: str, url: str) -> Self:
-        return NodeClient(
-            chain_id,
-            grpc.secure_channel(url, grpc.ssl_channel_credentials()),
-        )
-
-    def broadcast(self, mode=BroadcastMode.BROADCAST_MODE_SYNC) -> Broadcast:
-        return Broadcast(self.chain_id, self.channel, mode)
 
     async def get_account_balances(
         self, address: str
@@ -321,3 +216,126 @@ class NodeClient:
     async def get_rewards_params(self) -> rewards_query.QueryParamsResponse:
         stub = rewards_query_grpc.QueryStub(self.channel)
         return stub.Params(rewards_query.QueryParamsRequest())
+
+
+@dataclass
+class MutatingNodeClient(QueryNodeClient):
+    builder: Builder
+
+    async def broadcast(self, transaction: Tx, mode=BroadcastMode.BROADCAST_MODE_SYNC):
+        request = BroadcastTxRequest(
+            tx_bytes=transaction.SerializeToString(), mode=mode
+        )
+
+        return service_pb2_grpc.ServiceStub(self.channel).BroadcastTx(request)
+
+    async def simulate(self, transaction: Tx):
+        request = SimulateRequest(tx=transaction)
+
+        return service_pb2_grpc.ServiceStub(self.channel).Simulate(request)
+
+    async def send(
+        self, wallet: Wallet, transaction: Tx, mode=BroadcastMode.BROADCAST_MODE_SYNC
+    ):
+        builder = self.builder
+        simulated = await self.simulate(transaction)
+
+        fee = self.calculate_fee(simulated.gas_info.gas_used)
+
+        transaction = builder.build_transaction(wallet, transaction.body.messages, fee)
+
+        return await self.broadcast(transaction, mode)
+
+    async def send_message(
+        self, wallet: Wallet, message: Message, mode=BroadcastMode.BROADCAST_MODE_SYNC
+    ):
+        return await self.send(wallet, self.builder.build(wallet, message), mode)
+
+    async def broadcast_message(
+        self, wallet: Wallet, message: Message, mode=BroadcastMode.BROADCAST_MODE_SYNC
+    ):
+        return await self.broadcast(self.builder.build(wallet, message), mode)
+
+    def calculate_fee(self, gas_used):
+        gas_limit = floor(gas_used * GAS_MULTIPLIER)
+        return self.builder.fee(
+            gas_limit, self.builder.coin(gas_limit * DYDX_GAS_PRICE)
+        )
+
+
+@dataclass
+class NodeClient(MutatingNodeClient):
+    @staticmethod
+    async def connect(config: NodeConfig) -> Self:
+        return NodeClient(
+            grpc.secure_channel(config.url, grpc.ssl_channel_credentials()),
+            Builder(config.chain_id, config.denomination),
+        )
+
+    async def deposit(
+        self,
+        wallet: Wallet,
+        sender: str,
+        recipient_subaccount: SubaccountId,
+        asset_id: int,
+        quantums: int,
+    ):
+        return await self.send_message(
+            wallet, deposit(sender, recipient_subaccount, asset_id, quantums)
+        )
+
+    async def withdraw(
+        self,
+        wallet: Wallet,
+        sender_subaccount: SubaccountId,
+        recipient: str,
+        asset_id: int,
+        quantums: int,
+    ):
+        return await self.send_message(
+            wallet, withdraw(sender_subaccount, recipient, asset_id, quantums)
+        )
+
+    async def send_token(
+        self,
+        wallet: Wallet,
+        sender: str,
+        recipient: str,
+        quantums: int,
+        denomination: str,
+    ):
+        return await self.send_message(
+            wallet, send_token(sender, recipient, quantums, denomination)
+        )
+
+    async def transfer(
+        self,
+        wallet: Wallet,
+        sender_subaccount: SubaccountId,
+        recipient_subaccount: SubaccountId,
+        asset_id: int,
+        amount: int,
+    ):
+        return await self.send_message(
+            wallet,
+            transfer(
+                sender_subaccount,
+                recipient_subaccount,
+                asset_id,
+                amount,
+            ),
+        )
+
+    async def place_order(self, wallet: Wallet, order: Order):
+        return await self.broadcast_message(wallet, place_order(order))
+
+    async def cancel_order(
+        self,
+        wallet: Wallet,
+        order_id: OrderId,
+        good_til_block: int = 0,
+        good_til_block_time: int = 0,
+    ):
+        return await self.broadcast_message(
+            wallet, cancel_order(order_id, good_til_block, good_til_block_time)
+        )
