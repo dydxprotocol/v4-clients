@@ -5,8 +5,6 @@ from typing import Any, Callable, Optional, Self, Union
 
 import websocket
 
-from dydx_v4_client.indexer.rest.constants import IndexerConfig
-
 
 @dataclass
 class Channel:
@@ -98,7 +96,7 @@ def as_json(on_message):
 class IndexerSocket(websocket.WebSocketApp):
     def __init__(
         self,
-        config: IndexerConfig,
+        url: str,
         header: Union[list, dict, Callable, None] = None,
         on_open: Optional[Callable[[websocket.WebSocket], None]] = None,
         on_message: Optional[Callable[[websocket.WebSocket, Any], None]] = None,
@@ -112,7 +110,7 @@ class IndexerSocket(websocket.WebSocketApp):
         self.subaccounts = Subaccounts(self)
 
         super().__init__(
-            url=config.websocket_endpoint,
+            url=url,
             header=header,
             on_open=on_open,
             on_message=as_json(on_message),

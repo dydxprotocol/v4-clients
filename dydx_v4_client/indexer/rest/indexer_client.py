@@ -1,6 +1,6 @@
 from typing import Optional
 
-from .constants import DEFAULT_API_TIMEOUT, IndexerConfig
+from .constants import DEFAULT_API_TIMEOUT
 from .modules.account import AccountClient
 from .modules.markets import MarketsClient
 from .modules.status import StatusClient
