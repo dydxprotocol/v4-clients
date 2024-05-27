@@ -19,10 +19,6 @@ class IndexerWSHost:
     MAINNET = "wss://indexer.dydx.trade/v4/ws"
 
 
-class FaucetApiHost:
-    TESTNET = "https://faucet.v4testnet.dydx.exchange"
-
-
 class NobleClientHost:
     TESTNET = "https://rpc.testnet.noble.strange.love"
 

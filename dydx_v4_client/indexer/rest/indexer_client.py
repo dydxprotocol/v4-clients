@@ -11,12 +11,11 @@ class IndexerClient:
     Client for Indexer
     """
 
-    def __init__(self, config: IndexerConfig, api_timeout: Optional[float] = None):
-        self.config = config
-        self.api_timeout = api_timeout or DEFAULT_API_TIMEOUT
-        self._markets = MarketsClient(config.rest_endpoint, self.api_timeout)
-        self._account = AccountClient(config.rest_endpoint, self.api_timeout)
-        self._status = StatusClient(config.rest_endpoint, self.api_timeout)
+    def __init__(self, host: str, api_timeout: Optional[float] = None):
+        api_timeout = api_timeout or DEFAULT_API_TIMEOUT
+        self._markets = MarketsClient(host, api_timeout)
+        self._account = AccountClient(host, api_timeout)
+        self._status = StatusClient(host, api_timeout)
 
     @property
     def markets(self) -> MarketsClient:
