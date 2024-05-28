@@ -1,13 +1,9 @@
 import httpx
 import pytest
 
-from dydx_v4_client.indexer.rest.constants import FaucetApiHost
-from dydx_v4_client.indexer.rest.faucet_client import FaucetClient
-
 
 @pytest.mark.asyncio
-async def test_fill(test_address):
-    faucet_client = FaucetClient(faucet_url=FaucetApiHost.TESTNET)
+async def test_fill(test_address, faucet_client):
     try:
         response = await faucet_client.fill(test_address, 0, 2000)
         assert response.status_code == 202
@@ -16,8 +12,7 @@ async def test_fill(test_address):
 
 
 @pytest.mark.asyncio
-async def test_fill_native(test_address):
-    faucet_client = FaucetClient(faucet_url=FaucetApiHost.TESTNET)
+async def test_fill_native(test_address, faucet_client):
     try:
         response = await faucet_client.fill_native(test_address)
         assert response.status_code == 202

@@ -5,20 +5,12 @@ import grpc
 import pytest
 from grpc import StatusCode
 
-from dydx_v4_client import NodeClient
-from dydx_v4_client.indexer.rest.constants import (
-    FaucetApiHost,
-    IndexerApiHost,
-    IndexerConfig,
-    IndexerWSHost,
-    NobleClientHost,
-)
-from dydx_v4_client.indexer.rest.faucet_client import FaucetClient
+from dydx_v4_client import FaucetClient, NodeClient
+from dydx_v4_client.indexer.rest.constants import NobleClientHost
 from dydx_v4_client.indexer.rest.indexer_client import IndexerClient
 from dydx_v4_client.indexer.rest.noble_client import NobleClient
-from dydx_v4_client.indexer.rest.shared.rest import RestClient
 from dydx_v4_client.indexer.socket.websocket import IndexerSocket
-from dydx_v4_client.network import TESTNET
+from dydx_v4_client.network import TESTNET, TESTNET_FAUCET
 from dydx_v4_client.node.message import order, order_id
 from dydx_v4_client.wallet import Wallet, from_mnemonic
 
@@ -31,27 +23,22 @@ DYDX_TEST_MNEMONIC = (
     "mirror actor skill push coach wait confirm orchard lunch mobile athlete gossip awake "
     "miracle matter bus reopen team ladder lazy list timber render wait"
 )
+TEST_ADDRESS = "dydx14zzueazeh0hj67cghhf9jypslcf9sh2n5k6art"
 
 
 @pytest.fixture
-def indexer_config():
-    return IndexerConfig(
-        rest_endpoint=IndexerApiHost.TESTNET, websocket_endpoint=IndexerWSHost.TESTNET
-    )
+def indexer_rest_client():
+    return IndexerClient(TESTNET.rest_indexer)
 
 
 @pytest.fixture
-def indexer_rest_client(indexer_config):
-    return IndexerClient(indexer_config)
+async def indexer_socket_client():
+    return IndexerSocket(TESTNET.websocket_indexer)
 
 
 @pytest.fixture
-async def indexer_socket_client(indexer_config):
-    return IndexerSocket(indexer_config)
-
-
 async def faucet_client():
-    return FaucetClient(faucet_url=FaucetApiHost.TESTNET)
+    return FaucetClient(faucet_url=TESTNET_FAUCET)
 
 
 @pytest.fixture
@@ -68,7 +55,7 @@ async def noble_client():
 
 @pytest.fixture
 def test_address():
-    return "dydx14zzueazeh0hj67cghhf9jypslcf9sh2n5k6art"
+    return TEST_ADDRESS
 
 
 @pytest.fixture

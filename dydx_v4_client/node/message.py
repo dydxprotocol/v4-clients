@@ -11,7 +11,7 @@ from v4_proto.dydxprotocol.subaccounts.subaccount_pb2 import SubaccountId
 
 
 def order(
-    order_id: Order,
+    order_id: OrderId,
     side: Order.Side,
     quantums: int,
     subticks: int,
@@ -39,7 +39,7 @@ def order(
 
 
 def order_id(
-    address,
+    address: str,
     subaccount_number: int,
     client_id: int,
     clob_pair_id: int,
