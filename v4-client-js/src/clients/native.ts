@@ -2,6 +2,7 @@
     Native app can call JS functions with primitives.
 */
 
+import { Secp256k1, sha256 } from '@cosmjs/crypto';
 import { EncodeObject, coin as createCoin } from '@cosmjs/proto-signing';
 import { MsgTransferEncodeObject, accountFromAny } from '@cosmjs/stargate';
 import {
@@ -40,6 +41,11 @@ declare global {
   var faucetClient: FaucetClient | null;
   // eslint-disable-next-line vars-on-top, no-var
   var wallet: LocalWallet;
+  // eslint-disable-next-line vars-on-top, no-var
+  var hdKey: {
+    privateKey: Uint8Array | null;
+    publicKey: Uint8Array | null;
+  }
 
   // eslint-disable-next-line vars-on-top, no-var
   var nobleClient: NobleClient | undefined;
@@ -163,8 +169,11 @@ export async function connect(network: Network, mnemonic: string): Promise<strin
 
 export async function deriveMnemomicFromEthereumSignature(signature: string): Promise<string> {
   try {
-    const { mnemonic } = deriveHDKeyFromEthereumSignature(signature);
+    const { mnemonic, privateKey, publicKey } = deriveHDKeyFromEthereumSignature(signature);
     const wallet = await LocalWallet.fromMnemonic(mnemonic, BECH32_PREFIX);
+    hdKey = {
+      privateKey, publicKey
+    }
     const result = { mnemonic, address: wallet.address! };
     return new Promise((resolve) => {
       resolve(encodeJson(result));
@@ -1199,6 +1208,42 @@ export async function subaccountTransfer(payload: string): Promise<string> {
       parseFloat(amount).toFixed(6),
     );
     return encodeJson(tx);
+  } catch (error) {
+    return wrappedError(error);
+  }
+}
+
+export async function signCompliancePayload(payload: string): Promise<string> {
+  try {
+    const json = JSON.parse(payload);
+    const message = json.message;
+    if (message === undefined) {
+      throw new UserError('message is not set');
+    }
+    const action = json.action;
+    if (action === undefined) {
+      throw new UserError('action is not set');
+    }
+    const currentStatus = json.status;
+    if (currentStatus === undefined) {
+      throw new UserError('status is not set');
+    }
+    if (!hdKey?.privateKey || !hdKey?.publicKey) {
+      throw new Error('Missing hdKey');
+    }
+  
+    const timestampInSeconds = Math.floor(Date.now() / 1000);
+    const messageToSign: string = `${message}:${action}"${currentStatus ?? ''}:${timestampInSeconds}`;
+    const messageHash = sha256(Buffer.from(messageToSign));
+  
+    const signed = await Secp256k1.createSignature(messageHash, hdKey.privateKey);
+    const signedMessage = signed.toFixedLength();
+
+    return encodeJson({
+      signedMessage: Buffer.from(signedMessage).toString('base64'),
+      publicKey: Buffer.from(hdKey.publicKey).toString('base64'),
+      timestamp: timestampInSeconds,
+    });
   } catch (error) {
     return wrappedError(error);
   }
