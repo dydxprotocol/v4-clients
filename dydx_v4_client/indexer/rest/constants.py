@@ -72,15 +72,15 @@ class OrderType:
 
 # Order Side
 class OrderSide:
-    BUY = "BUY"
-    SELL = "SELL"
+    BUY = "SIDE_BUY"
+    SELL = "SIDE_SELL"
 
 
 # Order TimeInForce
 class OrderTimeInForce:
-    GTT = "GTT"
-    IOC = "IOC"
-    FOK = "FOK"
+    GTT = "TIME_IN_FORCE_UNSPECIFIED"
+    IOC = "TIME_IN_FORCE_IOC"
+    FOK = "TIME_IN_FORCE_FILL_OR_KILL"
 
 
 # Order Execution
