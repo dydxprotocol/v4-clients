@@ -1,11 +1,11 @@
 import asyncio
 import random
+import time
 
-from dydx_v4_client import MAX_CLIENT_ID, NodeClient, Order, OrderFlags
+from dydx_v4_client import MAX_CLIENT_ID, NodeClient, Order, OrderFlags, Wallet
 from dydx_v4_client.indexer.rest.indexer_client import IndexerClient
 from dydx_v4_client.network import TESTNET
-from dydx_v4_client.node.market import Market, since_now
-from dydx_v4_client.wallet import Wallet
+from dydx_v4_client.node.market import Market
 from tests.conftest import DYDX_TEST_MNEMONIC, TEST_ADDRESS
 
 MARKET_ID = "ETH-USD"
@@ -21,8 +21,11 @@ async def test():
     )
     wallet = await Wallet.from_mnemonic(node, DYDX_TEST_MNEMONIC, TEST_ADDRESS)
 
+    current_block = await node.latest_block_height()
+    good_til_block = current_block + 1 + 10
+
     order_id = market.order_id(
-        TEST_ADDRESS, 0, random.randint(0, MAX_CLIENT_ID), OrderFlags.LONG_TERM
+        TEST_ADDRESS, 0, random.randint(0, MAX_CLIENT_ID), OrderFlags.SHORT_TERM
     )
 
     place = await node.place_order(
@@ -34,17 +37,16 @@ async def test():
             price=40000,
             time_in_force=Order.TIME_IN_FORCE_UNSPECIFIED,
             reduce_only=False,
-            good_til_block_time=since_now(seconds=60),
+            good_til_block=good_til_block,
         ),
     )
     print(place)
     # FIXME(piwonskp): Remove
     wallet.sequence += 1
+    time.sleep(5)
 
     cancel = await node.cancel_order(
-        wallet,
-        order_id,
-        good_til_block_time=since_now(seconds=120),
+        wallet, order_id, good_til_block=good_til_block + 10
     )
     print(cancel)
 

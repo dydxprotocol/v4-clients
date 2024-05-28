@@ -333,8 +333,8 @@ class NodeClient(MutatingNodeClient):
         self,
         wallet: Wallet,
         order_id: OrderId,
-        good_til_block: int = 0,
-        good_til_block_time: int = 0,
+        good_til_block: int = None,
+        good_til_block_time: int = None,
     ):
         return await self.broadcast_message(
             wallet, cancel_order(order_id, good_til_block, good_til_block_time)

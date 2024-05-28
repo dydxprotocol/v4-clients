@@ -2,12 +2,12 @@ import math
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 
-from v4_proto.dydxprotocol.clob.order_pb2 import Order
+from v4_proto.dydxprotocol.clob.order_pb2 import Order, OrderId
 
 from dydx_v4_client.node.message import order, order_id
 
 
-def since_now(*args, **kwargs):
+def since_now(*args, **kwargs) -> int:
     return int(round((datetime.now() + timedelta(*args, **kwargs)).timestamp()))
 
 
@@ -24,7 +24,7 @@ class Market:
         quantums = round_down(raw_quantums, self.market["stepBaseQuantums"])
 
         result = max(quantums, self.market["stepBaseQuantums"])
-        return int(result)
+        return result
 
     def calculate_subticks(self, price: float) -> int:
         QUOTE_QUANTUMS_ATOMIC_RESOLUTION = -6
@@ -36,11 +36,11 @@ class Market:
         raw_subticks = price * 10**exponent
         subticks = round_down(raw_subticks, self.market["subticksPerTick"])
         result = max(subticks, self.market["subticksPerTick"])
-        return int(result)
+        return result
 
     def order_id(
         self, address: str, subaccount_number: int, client_id: int, order_flags: int
-    ):
+    ) -> OrderId:
         return order_id(
             address,
             subaccount_number,
@@ -57,8 +57,8 @@ class Market:
         price: int,
         time_in_force: Order.TimeInForce,
         reduce_only: bool,
-        good_til_block: int = 0,
-        good_til_block_time: int = 0,
+        good_til_block: int = None,
+        good_til_block_time: int = None,
         client_metadata: int = 0,
         condition_type: Order.ConditionType = Order.ConditionType.CONDITION_TYPE_UNSPECIFIED,
         conditional_order_trigger_subticks: int = 0,
