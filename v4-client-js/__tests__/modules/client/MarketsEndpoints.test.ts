@@ -29,7 +29,12 @@ describe('IndexerClient', () => {
     });
 
     it('BTC Trades Pagination', async () => {
-      const response = await client.markets.getPerpetualMarketTrades(MARKET_BTC_USD, undefined, 1, 1);
+      const response = await client.markets.getPerpetualMarketTrades(
+        MARKET_BTC_USD,
+        undefined,
+        1,
+        1,
+      );
       const trades = response.trades;
       expect(trades).not.toBeUndefined();
 

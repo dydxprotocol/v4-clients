@@ -57,7 +57,14 @@ describe('IndexerClient', () => {
     });
 
     it('Transfers Pagination', async () => {
-      const response = await client.account.getSubaccountTransfers(DYDX_TEST_ADDRESS, 0, 1, undefined, undefined, 1);
+      const response = await client.account.getSubaccountTransfers(
+        DYDX_TEST_ADDRESS,
+        0,
+        1,
+        undefined,
+        undefined,
+        1,
+      );
       expect(response).not.toBeNull();
       const transfers = response.transfers;
 
@@ -96,8 +103,17 @@ describe('IndexerClient', () => {
     });
 
     it('Fills Pagination', async () => {
-      const response = await client.account.getSubaccountFills(DYDX_TEST_ADDRESS, 0, undefined, undefined, 1, undefined, undefined, 1);
-      
+      const response = await client.account.getSubaccountFills(
+        DYDX_TEST_ADDRESS,
+        0,
+        undefined,
+        undefined,
+        1,
+        undefined,
+        undefined,
+        1,
+      );
+
       expect(response).not.toBeNull();
       const fills = response.fills;
       expect(fills).not.toBeNull();
@@ -123,7 +139,14 @@ describe('IndexerClient', () => {
     });
 
     it('Historical PNL Pagination', async () => {
-      const response = await client.account.getSubaccountHistoricalPNLs(DYDX_TEST_ADDRESS, 0, undefined, undefined, 1, 1);
+      const response = await client.account.getSubaccountHistoricalPNLs(
+        DYDX_TEST_ADDRESS,
+        0,
+        undefined,
+        undefined,
+        1,
+        1,
+      );
       expect(response).not.toBeNull();
       const historicalPnl = response.historicalPnl;
       expect(historicalPnl).not.toBeNull();
