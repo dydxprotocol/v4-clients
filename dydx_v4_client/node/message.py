@@ -44,7 +44,7 @@ def order_id(
     client_id: int,
     clob_pair_id: int,
     order_flags: int,
-):
+) -> OrderId:
     return OrderId(
         subaccount_id=subaccount(owner=address, number=subaccount_number),
         client_id=client_id,
@@ -63,8 +63,8 @@ def place_order(order: Order):
 
 def cancel_order(
     order_id,
-    good_til_block: int = 0,
-    good_til_block_time: int = 0,
+    good_til_block: int = None,
+    good_til_block_time: int = None,
 ):
     message = MsgCancelOrder(
         order_id=order_id,

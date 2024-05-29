@@ -1,6 +1,9 @@
 import asyncio
 import logging
+import time
 from decimal import Decimal
+
+from v4_proto.dydxprotocol.clob.order_pb2 import OrderId
 
 from dydx_v4_client.indexer.rest.constants import (
     IndexerApiHost,
@@ -10,10 +13,12 @@ from dydx_v4_client.indexer.rest.constants import (
     OrderTimeInForce,
 )
 from dydx_v4_client.indexer.rest.indexer_client import IndexerClient
-from dydx_v4_client.indexer.socket.websocket import IndexerSocket
+from dydx_v4_client.indexer.socket.websocket import IndexerSocket, as_json
 from dydx_v4_client.network import TESTNET
 from dydx_v4_client.node.client import NodeClient
+from dydx_v4_client.node.market import since_now
 from dydx_v4_client.node.message import order, order_id
+from dydx_v4_client.wallet import Wallet, from_string
 from tests.conftest import DYDX_TEST_PRIVATE_KEY
 
 logging.basicConfig(
@@ -33,25 +38,27 @@ MAX_POSITION = Decimal("1.0")
 
 
 class BasicAdder:
-    def __init__(self, node_client, address, key, subaccount_number):
+    def __init__(
+        self, node_client: NodeClient, address: str, key: str, subaccount_number: int
+    ):
         self.address = address
-        self.key = key
+        self.key = from_string(bytes.fromhex(key))
         self.subaccount_number = subaccount_number
         self.indexer_config = IndexerConfig(
             rest_endpoint=IndexerApiHost.TESTNET,
             websocket_endpoint=IndexerWSHost.TESTNET,
         )
         self.node_client = node_client
-        self.indexer_client = IndexerClient(self.indexer_config)
+        self.indexer_client = IndexerClient(self.indexer_config.rest_endpoint)
         self.indexer_socket = IndexerSocket(
-            self.indexer_config,
+            self.indexer_config.websocket_endpoint,
             on_open=self.on_open,
             on_message=self.on_message,
         )
         self.position = None
         self.provide_state = {
-            "BUY": {"type": "cancelled"},
-            "SELL": {"type": "cancelled"},
+            "SIDE_BUY": {"type": "cancelled"},
+            "SIDE_SELL": {"type": "cancelled"},
         }
 
     def on_open(self, ws):
@@ -73,7 +80,7 @@ class BasicAdder:
             asyncio.run(self.on_order_book_update(message))
 
     async def on_order_book_update(self, message):
-        logging.debug("Order book update", message)
+        logging.info(f"Order book update: {message}")
         data = message["contents"]
         if message["id"] != MARKET:
             return
@@ -99,7 +106,7 @@ class BasicAdder:
                     await self.cancel_order(oid)
                     self.provide_state[side] = {"type": "cancelled"}
             elif provide_state["type"] == "in_flight_order":
-                # Skip if order is still in flight
+                logging.info("Not placing an order because in flight")
                 continue
             elif provide_state["type"] == "cancelled":
                 if self.position is None:
@@ -131,7 +138,7 @@ class BasicAdder:
         )
         logging.info(f"Updated position for {MARKET}: {self.position}")
 
-    async def place_order(self, side, size, px):
+    async def place_order(self, side: OrderSide, size: float, px: Decimal):
         account = await self.node_client.get_account(self.address)
         oid = order_id(
             address=self.address,
@@ -143,42 +150,65 @@ class BasicAdder:
         time_in_force = (
             OrderTimeInForce.GTT if side == OrderSide.BUY else OrderTimeInForce.IOC
         )
+        quantums = int(Decimal(size) * Decimal("1e18"))
+        clob_pair = await self.node_client.get_clob_pair(0)
+        step_base_quantums = clob_pair.step_base_quantums
+
+        current_block = await self.node_client.latest_block_height()
         new_order = order(
             order_id=oid,
             side=side,
-            quantums=int(size * Decimal("1e18")),
+            quantums=(quantums // step_base_quantums) * step_base_quantums,
             subticks=int(Decimal(px) * Decimal("1e5")),
             time_in_force=time_in_force,
             reduce_only=False,
+            good_til_block=current_block + 10,
         )
-        transaction = await self.node_client.broadcast().place_order(
-            key=self.key,
+
+        transaction = await self.node_client.place_order(
+            wallet=Wallet(
+                key=self.key,
+                sequence=account.sequence,
+                account_number=account.account_number,
+            ),
             order=new_order,
-            account_number=account.account_number,
-            sequence=account.sequence,
         )
         logging.info(f"Placed order transaction: {transaction}")
 
-    async def cancel_order(self, oid):
+    async def cancel_order(self, oid: OrderId):
         account = await self.node_client.get_account(self.address)
-        transaction = await self.node_client.broadcast().cancel_order(
-            key=self.key,
-            account_number=account.account_number,
-            sequence=account.sequence,
+        current_block = await self.node_client.latest_block_height()
+        transaction = await self.node_client.cancel_order(
+            wallet=Wallet(
+                key=self.key,
+                sequence=account.sequence,
+                account_number=account.account_number,
+            ),
             order_id=oid,
+            good_til_block=current_block + 10,
         )
         logging.info(f"Cancelled order transaction: {transaction}")
 
 
 async def main():
-    address = "dydx14zzueazeh0hj67cghhf9jypslcf9sh2n5k6art"
-    key = DYDX_TEST_PRIVATE_KEY
-    subaccount_number = 0
+    address: str = "dydx14zzueazeh0hj67cghhf9jypslcf9sh2n5k6art"
+    key: str = DYDX_TEST_PRIVATE_KEY
+    subaccount_number: int = 0
 
-    node = await NodeClient.connect(TESTNET.chain_id, TESTNET.node)
+    node = await NodeClient.connect(TESTNET.node)
 
     adder = BasicAdder(node, address, key, subaccount_number)
     await adder.indexer_socket.connect()
+
+    # await adder.place_order(OrderSide.BUY, 0.1, "4000")
+    # oid = order_id(
+    #     address=address,
+    #     subaccount_number=subaccount_number,
+    #     client_id=0,
+    #     clob_pair_id=0,
+    #     order_flags=0,
+    # )
+    # await adder.cancel_order(oid)
 
 
 if __name__ == "__main__":
