@@ -61,25 +61,27 @@ export const defaultTransfer: Transfer = {
 
 // ------ Onboarding Constants ------ //
 // Base Signature Result
-export const SIGNATURE_RESULT = '0xf2006b4fc0afa08a6048b40d3d67e437ac2e20e6bacf3f947f9b33aa2756d204287f5fb2155bec067d879a25d7ddac791826cf28e2786919065e19848020f1531b';
+export const SIGNATURE_RESULT =
+  '0xf2006b4fc0afa08a6048b40d3d67e437ac2e20e6bacf3f947f9b33aa2756d204287f5fb2155bec067d879a25d7ddac791826cf28e2786919065e19848020f1531b';
 
 // Derived privateKeyBytes from Base Signature Result
 export const ENTROPY_FROM_SIGNATURE_RESULT: Uint8Array = new Uint8Array([
-  247, 183, 226, 106, 76, 125, 241, 35, 149, 75, 103, 180, 165, 243, 80, 128,
-  34, 20, 238, 201, 131, 180, 61, 76, 223, 179, 37, 211, 144, 197, 171, 251,
+  247, 183, 226, 106, 76, 125, 241, 35, 149, 75, 103, 180, 165, 243, 80, 128, 34, 20, 238, 201, 131,
+  180, 61, 76, 223, 179, 37, 211, 144, 197, 171, 251,
 ]);
 
 // Derived HDKey privateKey from Base Signature Result
 export const PRIVATE_KEY_FROM_SIGNATURE_RESULT: Uint8Array = new Uint8Array([
-  14, 92, 178, 198, 64, 65, 27, 153, 11, 45, 118, 194, 71, 194, 10, 140, 145,
-  40, 203, 107, 231, 191, 138, 220, 168, 104, 28, 69, 58, 193, 203, 213,
+  14, 92, 178, 198, 64, 65, 27, 153, 11, 45, 118, 194, 71, 194, 10, 140, 145, 40, 203, 107, 231,
+  191, 138, 220, 168, 104, 28, 69, 58, 193, 203, 213,
 ]);
 
 // Derived HDKey publicKey from Base Signature Result
 export const PUBLIC_KEY_FROM_SIGNATURE_RESULT: Uint8Array = new Uint8Array([
-  2, 204, 94, 45, 7, 83, 196, 55, 195, 107, 10, 35, 169, 32, 24, 37, 193, 196,
-  34, 210, 84, 26, 107, 89, 119, 240, 211, 63, 187, 34, 162, 197, 36,
+  2, 204, 94, 45, 7, 83, 196, 55, 195, 107, 10, 35, 169, 32, 24, 37, 193, 196, 34, 210, 84, 26, 107,
+  89, 119, 240, 211, 63, 187, 34, 162, 197, 36,
 ]);
 
 // Derived HDKey mnemonic from Base Signature Result
-export const MNEMONIC_FROM_SIGNATURE_RESULT = 'waste sample once ocean tenant mushroom festival hollow regret convince stage able candy jazz champion isolate diary group under entry decorate glare quiz job';
+export const MNEMONIC_FROM_SIGNATURE_RESULT =
+  'waste sample once ocean tenant mushroom festival hollow regret convince stage able candy jazz champion isolate diary group under entry decorate glare quiz job';

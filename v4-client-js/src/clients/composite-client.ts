@@ -1,10 +1,14 @@
 import { EncodeObject } from '@cosmjs/proto-signing';
-import {
-  Account, GasPrice, IndexedTx, StdFee,
-} from '@cosmjs/stargate';
+import { Account, GasPrice, IndexedTx, StdFee } from '@cosmjs/stargate';
 import { Method } from '@cosmjs/tendermint-rpc';
-import { BroadcastTxAsyncResponse, BroadcastTxSyncResponse } from '@cosmjs/tendermint-rpc/build/tendermint37';
-import { Order_ConditionType, Order_TimeInForce } from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/clob/order';
+import {
+  BroadcastTxAsyncResponse,
+  BroadcastTxSyncResponse,
+} from '@cosmjs/tendermint-rpc/build/tendermint37';
+import {
+  Order_ConditionType,
+  Order_TimeInForce,
+} from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/clob/order';
 import { parseUnits } from 'ethers';
 import Long from 'long';
 import protobuf from 'protobufjs';
@@ -66,15 +70,9 @@ export class CompositeClient {
     return client;
   }
 
-  private constructor(
-    network: Network,
-    apiTimeout?: number,
-  ) {
+  private constructor(network: Network, apiTimeout?: number) {
     this.network = network;
-    this._indexerClient = new IndexerClient(
-      network.indexerConfig,
-      apiTimeout,
-    );
+    this._indexerClient = new IndexerClient(network.indexerConfig, apiTimeout);
   }
 
   private async initialize(): Promise<void> {
@@ -106,13 +104,13 @@ export class CompositeClient {
   }
 
   /**
-     * @description Sign a list of messages with a wallet.
-     * the calling function is responsible for creating the messages.
-     *
-     * @throws UnexpectedClientError if a malformed response is returned with no GRPC error
-     * at any point.
-     * @returns The Signature.
-     */
+   * @description Sign a list of messages with a wallet.
+   * the calling function is responsible for creating the messages.
+   *
+   * @throws UnexpectedClientError if a malformed response is returned with no GRPC error
+   * at any point.
+   * @returns The Signature.
+   */
   async sign(
     wallet: LocalWallet,
     messaging: () => Promise<EncodeObject[]>,
@@ -121,24 +119,17 @@ export class CompositeClient {
     memo?: string,
     account?: () => Promise<Account>,
   ): Promise<Uint8Array> {
-    return this.validatorClient.post.sign(
-      wallet,
-      messaging,
-      zeroFee,
-      gasPrice,
-      memo,
-      account,
-    );
+    return this.validatorClient.post.sign(wallet, messaging, zeroFee, gasPrice, memo, account);
   }
 
   /**
-     * @description Send a list of messages with a wallet.
-     * the calling function is responsible for creating the messages.
-     *
-     * @throws UnexpectedClientError if a malformed response is returned with no GRPC error
-     * at any point.
-     * @returns The Transaction Hash.
-     */
+   * @description Send a list of messages with a wallet.
+   * the calling function is responsible for creating the messages.
+   *
+   * @throws UnexpectedClientError if a malformed response is returned with no GRPC error
+   * at any point.
+   * @returns The Transaction Hash.
+   */
   async send(
     wallet: LocalWallet,
     messaging: () => Promise<EncodeObject[]>,
@@ -160,14 +151,14 @@ export class CompositeClient {
   }
 
   /**
-     * @description Send a signed transaction.
-     *
-     * @param signedTransaction The signed transaction to send.
-     *
-     * @throws UnexpectedClientError if a malformed response is returned with no GRPC error
-     * at any point.
-     * @returns The Transaction Hash.
-     */
+   * @description Send a signed transaction.
+   *
+   * @param signedTransaction The signed transaction to send.
+   *
+   * @throws UnexpectedClientError if a malformed response is returned with no GRPC error
+   * at any point.
+   * @returns The Transaction Hash.
+   */
   async sendSignedTransaction(
     signedTransaction: Uint8Array,
   ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
@@ -175,18 +166,18 @@ export class CompositeClient {
   }
 
   /**
-     * @description Simulate a list of messages with a wallet.
-     * the calling function is responsible for creating the messages.
-     *
-     * To send multiple messages with gas estimate:
-     * 1. Client is responsible for creating the messages.
-     * 2. Call simulate() to get the gas estimate.
-     * 3. Call send() to send the messages.
-     *
-     * @throws UnexpectedClientError if a malformed response is returned with no GRPC error
-     * at any point.
-     * @returns The gas estimate.
-     */
+   * @description Simulate a list of messages with a wallet.
+   * the calling function is responsible for creating the messages.
+   *
+   * To send multiple messages with gas estimate:
+   * 1. Client is responsible for creating the messages.
+   * 2. Call simulate() to get the gas estimate.
+   * 3. Call send() to send the messages.
+   *
+   * @throws UnexpectedClientError if a malformed response is returned with no GRPC error
+   * at any point.
+   * @returns The gas estimate.
+   */
   async simulate(
     wallet: LocalWallet,
     messaging: () => Promise<EncodeObject[]>,
@@ -194,22 +185,16 @@ export class CompositeClient {
     memo?: string,
     account?: () => Promise<Account>,
   ): Promise<StdFee> {
-    return this.validatorClient.post.simulate(
-      wallet,
-      messaging,
-      gasPrice,
-      memo,
-      account,
-    );
+    return this.validatorClient.post.simulate(wallet, messaging, gasPrice, memo, account);
   }
 
   /**
-     * @description Calculate the goodTilBlock value for a SHORT_TERM order
-     *
-     * @throws UnexpectedClientError if a malformed response is returned with no GRPC error
-     * at any point.
-     * @returns The goodTilBlock value
-     */
+   * @description Calculate the goodTilBlock value for a SHORT_TERM order
+   *
+   * @throws UnexpectedClientError if a malformed response is returned with no GRPC error
+   * at any point.
+   * @returns The goodTilBlock value
+   */
 
   private async calculateGoodTilBlock(
     orderFlags: OrderFlags,
@@ -220,7 +205,7 @@ export class CompositeClient {
       if (goodTilBlock !== undefined && goodTilBlock !== 0) {
         return Promise.resolve(goodTilBlock);
       } else {
-        const height = currentHeight ?? await this.validatorClient.get.latestBlockHeight();
+        const height = currentHeight ?? (await this.validatorClient.get.latestBlockHeight());
         return height + SHORT_BLOCK_FORWARD;
       }
     } else {
@@ -250,15 +235,15 @@ export class CompositeClient {
   }
 
   /**
-     * @description Calculate the goodTilBlockTime value for a LONG_TERM order
-     * the calling function is responsible for creating the messages.
-     *
-     * @param goodTilTimeInSeconds The goodTilTimeInSeconds of the order to place.
-     *
-     * @throws UnexpectedClientError if a malformed response is returned with no GRPC error
-     * at any point.
-     * @returns The goodTilBlockTime value
-     */
+   * @description Calculate the goodTilBlockTime value for a LONG_TERM order
+   * the calling function is responsible for creating the messages.
+   *
+   * @param goodTilTimeInSeconds The goodTilTimeInSeconds of the order to place.
+   *
+   * @throws UnexpectedClientError if a malformed response is returned with no GRPC error
+   * at any point.
+   * @returns The goodTilBlockTime value
+   */
   private calculateGoodTilBlockTime(goodTilTimeInSeconds: number): number {
     const now = new Date();
     const millisecondsPerSecond = 1000;
@@ -312,10 +297,12 @@ export class CompositeClient {
         timeInForce,
         reduceOnly,
       );
-      msg.then((it) => resolve([it])).catch((err) => {
-        console.log(err);
-        reject(err);
-      });
+      msg
+        .then((it) => resolve([it]))
+        .catch((err) => {
+          console.log(err);
+          reject(err);
+        });
     });
     const account: Promise<Account> = this.validatorClient.post.account(
       subaccount.address,
@@ -333,36 +320,36 @@ export class CompositeClient {
   }
 
   /**
-     * @description Place an order with human readable input.
-     *
-     * Only MARKET and LIMIT types are supported right now
-     * Use human readable form of input, including price and size
-     * The quantum and subticks are calculated and submitted
-     *
-     * @param subaccount The subaccount to place the order on.
-     * @param marketId The market to place the order on.
-     * @param type The type of order to place.
-     * @param side The side of the order to place.
-     * @param price The price of the order to place.
-     * @param size The size of the order to place.
-     * @param clientId The client id of the order to place.
-     * @param timeInForce The time in force of the order to place.
-     * @param goodTilTimeInSeconds The goodTilTimeInSeconds of the order to place.
-     * @param execution The execution of the order to place.
-     * @param postOnly The postOnly of the order to place.
-     * @param reduceOnly The reduceOnly of the order to place.
-     * @param triggerPrice The trigger price of conditional orders.
-     * @param marketInfo optional market information for calculating quantums and subticks.
-     *        This can be constructed from Indexer API. If set to null, additional round
-     *        trip to Indexer API will be made.
-     * @param currentHeight Current block height. This can be obtained from ValidatorClient.
-     *        If set to null, additional round trip to ValidatorClient will be made.
-     *
-     *
-     * @throws UnexpectedClientError if a malformed response is returned with no GRPC error
-     * at any point.
-     * @returns The transaction hash.
-     */
+   * @description Place an order with human readable input.
+   *
+   * Only MARKET and LIMIT types are supported right now
+   * Use human readable form of input, including price and size
+   * The quantum and subticks are calculated and submitted
+   *
+   * @param subaccount The subaccount to place the order on.
+   * @param marketId The market to place the order on.
+   * @param type The type of order to place.
+   * @param side The side of the order to place.
+   * @param price The price of the order to place.
+   * @param size The size of the order to place.
+   * @param clientId The client id of the order to place.
+   * @param timeInForce The time in force of the order to place.
+   * @param goodTilTimeInSeconds The goodTilTimeInSeconds of the order to place.
+   * @param execution The execution of the order to place.
+   * @param postOnly The postOnly of the order to place.
+   * @param reduceOnly The reduceOnly of the order to place.
+   * @param triggerPrice The trigger price of conditional orders.
+   * @param marketInfo optional market information for calculating quantums and subticks.
+   *        This can be constructed from Indexer API. If set to null, additional round
+   *        trip to Indexer API will be made.
+   * @param currentHeight Current block height. This can be obtained from ValidatorClient.
+   *        If set to null, additional round trip to ValidatorClient will be made.
+   *
+   *
+   * @throws UnexpectedClientError if a malformed response is returned with no GRPC error
+   * at any point.
+   * @returns The transaction hash.
+   */
   async placeOrder(
     subaccount: SubaccountInfo,
     marketId: string,
@@ -401,9 +388,11 @@ export class CompositeClient {
         currentHeight,
         goodTilBlock,
       );
-      msg.then((it) => resolve([it])).catch((err) => {
-        console.log(err);
-      });
+      msg
+        .then((it) => resolve([it]))
+        .catch((err) => {
+          console.log(err);
+        });
     });
     const orderFlags = calculateOrderFlags(type, timeInForce);
     const account: Promise<Account> = this.validatorClient.post.account(
@@ -422,30 +411,30 @@ export class CompositeClient {
   }
 
   /**
-     * @description Calculate and create the place order message
-     *
-     * Only MARKET and LIMIT types are supported right now
-     * Use human readable form of input, including price and size
-     * The quantum and subticks are calculated and submitted
-     *
-     * @param subaccount The subaccount to place the order under
-     * @param marketId The market to place the order on
-     * @param type The type of order to place
-     * @param side The side of the order to place
-     * @param price The price of the order to place
-     * @param size The size of the order to place
-     * @param clientId The client id of the order to place
-     * @param timeInForce The time in force of the order to place
-     * @param goodTilTimeInSeconds The goodTilTimeInSeconds of the order to place
-     * @param execution The execution of the order to place
-     * @param postOnly The postOnly of the order to place
-     * @param reduceOnly The reduceOnly of the order to place
-     *
-     *
-     * @throws UnexpectedClientError if a malformed response is returned with no GRPC error
-     * at any point.
-     * @returns The message to be passed into the protocol
-     */
+   * @description Calculate and create the place order message
+   *
+   * Only MARKET and LIMIT types are supported right now
+   * Use human readable form of input, including price and size
+   * The quantum and subticks are calculated and submitted
+   *
+   * @param subaccount The subaccount to place the order under
+   * @param marketId The market to place the order on
+   * @param type The type of order to place
+   * @param side The side of the order to place
+   * @param price The price of the order to place
+   * @param size The size of the order to place
+   * @param clientId The client id of the order to place
+   * @param timeInForce The time in force of the order to place
+   * @param goodTilTimeInSeconds The goodTilTimeInSeconds of the order to place
+   * @param execution The execution of the order to place
+   * @param postOnly The postOnly of the order to place
+   * @param reduceOnly The reduceOnly of the order to place
+   *
+   *
+   * @throws UnexpectedClientError if a malformed response is returned with no GRPC error
+   * at any point.
+   * @returns The message to be passed into the protocol
+   */
   private async placeOrderMessage(
     subaccount: SubaccountInfo,
     marketId: string,
@@ -470,8 +459,7 @@ export class CompositeClient {
     const result = await Promise.all([
       this.calculateGoodTilBlock(orderFlags, currentHeight, goodTilBlock),
       this.retrieveMarketInfo(marketId, marketInfo),
-    ],
-    );
+    ]);
     const desiredGoodTilBlock = result[0];
     const clobPairId = result[1].clobPairId;
     const atomicResolution = result[1].atomicResolution;
@@ -479,11 +467,7 @@ export class CompositeClient {
     const quantumConversionExponent = result[1].quantumConversionExponent;
     const subticksPerTick = result[1].subticksPerTick;
     const orderSide = calculateSide(side);
-    const quantums = calculateQuantums(
-      size,
-      atomicResolution,
-      stepBaseQuantums,
-    );
+    const quantums = calculateQuantums(size, atomicResolution, stepBaseQuantums);
     const subticks = calculateSubticks(
       price,
       atomicResolution,
@@ -506,7 +490,8 @@ export class CompositeClient {
       atomicResolution,
       quantumConversionExponent,
       subticksPerTick,
-      triggerPrice);
+      triggerPrice,
+    );
     return this.validatorClient.post.composer.composeMsgPlaceOrder(
       subaccount.address,
       subaccount.subaccountNumber,
@@ -548,26 +533,26 @@ export class CompositeClient {
   }
 
   /**
-     * @description Calculate and create the short term place order message
-     *
-     * Use human readable form of input, including price and size
-     * The quantum and subticks are calculated and submitted
-     *
-     * @param subaccount The subaccount to place the order under
-     * @param marketId The market to place the order on
-     * @param side The side of the order to place
-     * @param price The price of the order to place
-     * @param size The size of the order to place
-     * @param clientId The client id of the order to place
-     * @param timeInForce The time in force of the order to place
-     * @param goodTilBlock The goodTilBlock of the order to place
-     * @param reduceOnly The reduceOnly of the order to place
-     *
-     *
-     * @throws UnexpectedClientError if a malformed response is returned with no GRPC error
-     * at any point.
-     * @returns The message to be passed into the protocol
-     */
+   * @description Calculate and create the short term place order message
+   *
+   * Use human readable form of input, including price and size
+   * The quantum and subticks are calculated and submitted
+   *
+   * @param subaccount The subaccount to place the order under
+   * @param marketId The market to place the order on
+   * @param side The side of the order to place
+   * @param price The price of the order to place
+   * @param size The size of the order to place
+   * @param clientId The client id of the order to place
+   * @param timeInForce The time in force of the order to place
+   * @param goodTilBlock The goodTilBlock of the order to place
+   * @param reduceOnly The reduceOnly of the order to place
+   *
+   *
+   * @throws UnexpectedClientError if a malformed response is returned with no GRPC error
+   * at any point.
+   * @returns The message to be passed into the protocol
+   */
   private async placeShortTermOrderMessage(
     subaccount: SubaccountInfo,
     marketId: string,
@@ -589,11 +574,7 @@ export class CompositeClient {
     const quantumConversionExponent = market.quantumConversionExponent;
     const subticksPerTick = market.subticksPerTick;
     const orderSide = calculateSide(side);
-    const quantums = calculateQuantums(
-      size,
-      atomicResolution,
-      stepBaseQuantums,
-    );
+    const quantums = calculateQuantums(size, atomicResolution, stepBaseQuantums);
     const subticks = calculateSubticks(
       price,
       atomicResolution,
@@ -621,19 +602,19 @@ export class CompositeClient {
   }
 
   /**
-     * @description Cancel an order with order information from web socket or REST.
-     *
-     * @param subaccount The subaccount to cancel the order from
-     * @param clientId The client id of the order to cancel
-     * @param orderFlags The order flags of the order to cancel
-     * @param clobPairId The clob pair id of the order to cancel
-     * @param goodTilBlock The goodTilBlock of the order to cancel
-     * @param goodTilBlockTime The goodTilBlockTime of the order to cancel
-     *
-     * @throws UnexpectedClientError if a malformed response is returned with no GRPC error
-     * at any point.
-     * @returns The transaction hash.
-     */
+   * @description Cancel an order with order information from web socket or REST.
+   *
+   * @param subaccount The subaccount to cancel the order from
+   * @param clientId The client id of the order to cancel
+   * @param orderFlags The order flags of the order to cancel
+   * @param clobPairId The clob pair id of the order to cancel
+   * @param goodTilBlock The goodTilBlock of the order to cancel
+   * @param goodTilBlockTime The goodTilBlockTime of the order to cancel
+   *
+   * @throws UnexpectedClientError if a malformed response is returned with no GRPC error
+   * at any point.
+   * @returns The transaction hash.
+   */
   async cancelRawOrder(
     subaccount: SubaccountInfo,
     clientId: number,
@@ -653,19 +634,19 @@ export class CompositeClient {
   }
 
   /**
-     * @description Cancel an order with human readable input.
-     *
-     * @param subaccount The subaccount to cancel the order from
-     * @param clientId The client id of the order to cancel
-     * @param orderFlags The order flags of the order to cancel
-     * @param marketId The market to cancel the order on
-     * @param goodTilBlock The goodTilBlock of the order to cancel
-     * @param goodTilBlockTime The goodTilBlockTime of the order to cancel
-     *
-     * @throws UnexpectedClientError if a malformed response is returned with no GRPC error
-     * at any point.
-     * @returns The transaction hash.
-     */
+   * @description Cancel an order with human readable input.
+   *
+   * @param subaccount The subaccount to cancel the order from
+   * @param clientId The client id of the order to cancel
+   * @param orderFlags The order flags of the order to cancel
+   * @param marketId The market to cancel the order on
+   * @param goodTilBlock The goodTilBlock of the order to cancel
+   * @param goodTilBlockTime The goodTilBlockTime of the order to cancel
+   *
+   * @throws UnexpectedClientError if a malformed response is returned with no GRPC error
+   * at any point.
+   * @returns The transaction hash.
+   */
   async cancelOrder(
     subaccount: SubaccountInfo,
     clientId: number,
@@ -674,7 +655,6 @@ export class CompositeClient {
     goodTilBlock?: number,
     goodTilTimeInSeconds?: number,
   ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
-
     const marketsResponse = await this.indexerClient.markets.getPerpetualMarkets(marketId);
     const market = marketsResponse.markets[marketId];
     const clobPairId = market.clobPairId;
@@ -691,7 +671,7 @@ export class CompositeClient {
       if (goodTilBlock !== 0) {
         throw new Error(
           'goodTilBlock should be zero since LONG_TERM or CONDITIONAL orders ' +
-          'use goodTilTimeInSeconds instead of goodTilBlock.',
+            'use goodTilTimeInSeconds instead of goodTilBlock.',
         );
       }
       goodTilBlockTime = this.calculateGoodTilBlockTime(goodTilTimeInSeconds);
@@ -700,7 +680,9 @@ export class CompositeClient {
         throw new Error('goodTilBlock must be non-zero for SHORT_TERM orders');
       }
       if (goodTilTimeInSeconds !== undefined && goodTilTimeInSeconds !== 0) {
-        throw new Error('goodTilTimeInSeconds should be zero since SHORT_TERM orders use goodTilBlock instead of goodTilTimeInSeconds.');
+        throw new Error(
+          'goodTilTimeInSeconds should be zero since SHORT_TERM orders use goodTilBlock instead of goodTilTimeInSeconds.',
+        );
       }
     }
 
@@ -715,17 +697,17 @@ export class CompositeClient {
   }
 
   /**
-     * @description Transfer from a subaccount to another subaccount
-     *
-     * @param subaccount The subaccount to transfer from
-     * @param recipientAddress The recipient address
-     * @param recipientSubaccountNumber The recipient subaccount number
-     * @param amount The amount to transfer
-     *
-     * @throws UnexpectedClientError if a malformed response is returned with no GRPC error
-     * at any point.
-     * @returns The transaction hash.
-     */
+   * @description Transfer from a subaccount to another subaccount
+   *
+   * @param subaccount The subaccount to transfer from
+   * @param recipientAddress The recipient address
+   * @param recipientSubaccountNumber The recipient subaccount number
+   * @param amount The amount to transfer
+   *
+   * @throws UnexpectedClientError if a malformed response is returned with no GRPC error
+   * at any point.
+   * @returns The transaction hash.
+   */
   async transferToSubaccount(
     subaccount: SubaccountInfo,
     recipientAddress: string,
@@ -754,18 +736,18 @@ export class CompositeClient {
   }
 
   /**
-     * @description Create message to transfer from a subaccount to another subaccount
-     *
-     * @param subaccount The subaccount to transfer from
-     * @param recipientAddress The recipient address
-     * @param recipientSubaccountNumber The recipient subaccount number
-     * @param amount The amount to transfer
-     *
-     *
-     * @throws UnexpectedClientError if a malformed response is returned with no GRPC error
-     * at any point.
-     * @returns The message
-     */
+   * @description Create message to transfer from a subaccount to another subaccount
+   *
+   * @param subaccount The subaccount to transfer from
+   * @param recipientAddress The recipient address
+   * @param recipientSubaccountNumber The recipient subaccount number
+   * @param amount The amount to transfer
+   *
+   *
+   * @throws UnexpectedClientError if a malformed response is returned with no GRPC error
+   * at any point.
+   * @returns The message
+   */
   transferToSubaccountMessage(
     subaccount: SubaccountInfo,
     recipientAddress: string,
@@ -795,49 +777,38 @@ export class CompositeClient {
   }
 
   /**
-     * @description Deposit from wallet to subaccount
-     *
-     * @param subaccount The subaccount to deposit to
-     * @param amount The amount to deposit
-     *
-     * @throws UnexpectedClientError if a malformed response is returned with no GRPC error
-     * at any point.
-     * @returns The transaction hash.
-     */
+   * @description Deposit from wallet to subaccount
+   *
+   * @param subaccount The subaccount to deposit to
+   * @param amount The amount to deposit
+   *
+   * @throws UnexpectedClientError if a malformed response is returned with no GRPC error
+   * at any point.
+   * @returns The transaction hash.
+   */
   async depositToSubaccount(
     subaccount: SubaccountInfo,
     amount: string,
     memo?: string,
   ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
     const msgs: Promise<EncodeObject[]> = new Promise((resolve) => {
-      const msg = this.depositToSubaccountMessage(
-        subaccount,
-        amount,
-      );
+      const msg = this.depositToSubaccountMessage(subaccount, amount);
       resolve([msg]);
     });
-    return this.validatorClient.post.send(subaccount.wallet,
-      () => msgs,
-      false,
-      undefined,
-      memo,
-    );
+    return this.validatorClient.post.send(subaccount.wallet, () => msgs, false, undefined, memo);
   }
 
   /**
-     * @description Create message to deposit from wallet to subaccount
-     *
-     * @param subaccount The subaccount to deposit to
-     * @param amount The amount to deposit
-     *
-     * @throws UnexpectedClientError if a malformed response is returned with no GRPC error
-     * at any point.
-     * @returns The message
-     */
-  depositToSubaccountMessage(
-    subaccount: SubaccountInfo,
-    amount: string,
-  ): EncodeObject {
+   * @description Create message to deposit from wallet to subaccount
+   *
+   * @param subaccount The subaccount to deposit to
+   * @param amount The amount to deposit
+   *
+   * @throws UnexpectedClientError if a malformed response is returned with no GRPC error
+   * at any point.
+   * @returns The message
+   */
+  depositToSubaccountMessage(subaccount: SubaccountInfo, amount: string): EncodeObject {
     const validatorClient = this._validatorClient;
     if (validatorClient === undefined) {
       throw new Error('validatorClient not set');
@@ -859,16 +830,16 @@ export class CompositeClient {
   }
 
   /**
-     * @description Withdraw from subaccount to wallet
-     *
-     * @param subaccount The subaccount to withdraw from
-     * @param amount The amount to withdraw
-     * @param recipient The recipient address, default to subaccount address
-     *
-     * @throws UnexpectedClientError if a malformed response is returned with no GRPC error
-     * at any point.
-     * @returns The transaction hash
-     */
+   * @description Withdraw from subaccount to wallet
+   *
+   * @param subaccount The subaccount to withdraw from
+   * @param amount The amount to withdraw
+   * @param recipient The recipient address, default to subaccount address
+   *
+   * @throws UnexpectedClientError if a malformed response is returned with no GRPC error
+   * at any point.
+   * @returns The transaction hash
+   */
   async withdrawFromSubaccount(
     subaccount: SubaccountInfo,
     amount: string,
@@ -876,34 +847,24 @@ export class CompositeClient {
     memo?: string,
   ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
     const msgs: Promise<EncodeObject[]> = new Promise((resolve) => {
-      const msg = this.withdrawFromSubaccountMessage(
-        subaccount,
-        amount,
-        recipient,
-      );
+      const msg = this.withdrawFromSubaccountMessage(subaccount, amount, recipient);
       resolve([msg]);
     });
-    return this.send(
-      subaccount.wallet,
-      () => msgs,
-      false,
-      undefined,
-      memo,
-    );
+    return this.send(subaccount.wallet, () => msgs, false, undefined, memo);
   }
 
   /**
-     * @description Create message to withdraw from subaccount to wallet
-     * with human readable input.
-     *
-     * @param subaccount The subaccount to withdraw from
-     * @param amount The amount to withdraw
-     * @param recipient The recipient address
-     *
-     * @throws UnexpectedClientError if a malformed response is returned with no GRPC error
-     * at any point.
-     * @returns The message
-     */
+   * @description Create message to withdraw from subaccount to wallet
+   * with human readable input.
+   *
+   * @param subaccount The subaccount to withdraw from
+   * @param amount The amount to withdraw
+   * @param recipient The recipient address
+   *
+   * @throws UnexpectedClientError if a malformed response is returned with no GRPC error
+   * at any point.
+   * @returns The message
+   */
   withdrawFromSubaccountMessage(
     subaccount: SubaccountInfo,
     amount: string,
@@ -931,30 +892,24 @@ export class CompositeClient {
   }
 
   /**
-     * @description Create message to send chain token from subaccount to wallet
-     * with human readable input.
-     *
-     * @param subaccount The subaccount to withdraw from
-     * @param amount The amount to withdraw
-     * @param recipient The recipient address
-     *
-     * @throws UnexpectedClientError if a malformed response is returned with no GRPC error
-     * at any point.
-     * @returns The message
-     */
-  sendTokenMessage(
-    wallet: LocalWallet,
-    amount: string,
-    recipient: string,
-  ): EncodeObject {
+   * @description Create message to send chain token from subaccount to wallet
+   * with human readable input.
+   *
+   * @param subaccount The subaccount to withdraw from
+   * @param amount The amount to withdraw
+   * @param recipient The recipient address
+   *
+   * @throws UnexpectedClientError if a malformed response is returned with no GRPC error
+   * at any point.
+   * @returns The message
+   */
+  sendTokenMessage(wallet: LocalWallet, amount: string, recipient: string): EncodeObject {
     const address = wallet.address;
     if (address === undefined) {
       throw new UserError('wallet address is not set. Call connectWallet() first');
     }
-    const {
-      CHAINTOKEN_DENOM: chainTokenDenom,
-      CHAINTOKEN_DECIMALS: chainTokenDecimals,
-    } = this._validatorClient?.config.denoms || {};
+    const { CHAINTOKEN_DENOM: chainTokenDenom, CHAINTOKEN_DECIMALS: chainTokenDecimals } =
+      this._validatorClient?.config.denoms || {};
 
     if (chainTokenDenom === undefined || chainTokenDecimals === undefined) {
       throw new Error('Chain token denom not set in validator config');
@@ -1001,15 +956,13 @@ export class CompositeClient {
         postOnly,
         reduceOnly,
       );
-      msg.then((it) => resolve([it])).catch((err) => {
-        console.log(err);
-      });
+      msg
+        .then((it) => resolve([it]))
+        .catch((err) => {
+          console.log(err);
+        });
     });
-    const signature = await this.sign(
-      wallet,
-      () => msgs,
-      true,
-    );
+    const signature = await this.sign(wallet, () => msgs, true);
 
     return Buffer.from(signature).toString('base64');
   }
@@ -1034,11 +987,7 @@ export class CompositeClient {
       );
       resolve([msg]);
     });
-    const signature = await this.sign(
-      subaccount.wallet,
-      () => msgs,
-      true,
-    );
+    const signature = await this.sign(subaccount.wallet, () => msgs, true);
 
     return Buffer.from(signature).toString('base64');
   }
@@ -1136,12 +1085,6 @@ export class CompositeClient {
       resolve([submitProposal]);
     });
 
-    return this.send(
-      wallet,
-      () => msg,
-      false,
-      undefined,
-      memo,
-    );
+    return this.send(wallet, () => msg, false, undefined, memo);
   }
 }

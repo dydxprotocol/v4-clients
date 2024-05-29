@@ -1,15 +1,7 @@
 import { toHex } from '@cosmjs/encoding';
 import { Uint53 } from '@cosmjs/math';
-import {
-  Block,
-  TimeoutError,
-  IndexedTx,
-} from '@cosmjs/stargate';
-import {
-  Method,
-  Tendermint37Client,
-  toRfc3339WithNanoseconds,
-} from '@cosmjs/tendermint-rpc';
+import { Block, TimeoutError, IndexedTx } from '@cosmjs/stargate';
+import { Method, Tendermint37Client, toRfc3339WithNanoseconds } from '@cosmjs/tendermint-rpc';
 import {
   Attribute,
   BlockResponse,
@@ -27,10 +19,7 @@ export class TendermintClient {
   readonly baseClient: Tendermint37Client;
   broadcastOptions: BroadcastOptions;
 
-  constructor(
-    baseClient: Tendermint37Client,
-    broadcastOptions: BroadcastOptions,
-  ) {
+  constructor(baseClient: Tendermint37Client, broadcastOptions: BroadcastOptions) {
     this.baseClient = baseClient;
     this.broadcastOptions = broadcastOptions;
   }
@@ -58,11 +47,11 @@ export class TendermintClient {
   }
 
   /**
-    * @description Broadcast a signed transaction with a specific mode.
-    * @throws BroadcastErrorObject when result code is not zero. TypeError when mode is invalid.
-    * @returns Differs depending on the BroadcastMode used.
-    * See https://docs.cosmos.network/master/run-node/txs.html for more information.
-    */
+   * @description Broadcast a signed transaction with a specific mode.
+   * @throws BroadcastErrorObject when result code is not zero. TypeError when mode is invalid.
+   * @returns Differs depending on the BroadcastMode used.
+   * See https://docs.cosmos.network/master/run-node/txs.html for more information.
+   */
   async broadcastTransaction(
     tx: Uint8Array,
     mode: BroadcastMode,
@@ -83,9 +72,7 @@ export class TendermintClient {
    * @description Broadcast a signed transaction.
    * @returns The transaction hash.
    */
-  broadcastTransactionAsync(
-    tx: Uint8Array,
-  ): Promise<BroadcastTxAsyncResponse> {
+  broadcastTransactionAsync(tx: Uint8Array): Promise<BroadcastTxAsyncResponse> {
     return this.baseClient.broadcastTxAsync({ tx });
   }
 
@@ -94,15 +81,10 @@ export class TendermintClient {
    * @throws BroadcastErrorObject when result code is not zero.
    * @returns The response from the node once the transaction is processed by `CheckTx`.
    */
-  async broadcastTransactionSync(
-    tx: Uint8Array,
-  ): Promise<BroadcastTxSyncResponse> {
+  async broadcastTransactionSync(tx: Uint8Array): Promise<BroadcastTxSyncResponse> {
     const result: BroadcastTxSyncResponse = await this.baseClient.broadcastTxSync({ tx });
     if (result.code !== 0) {
-      throw new BroadcastErrorObject(
-        `Broadcasting transaction failed: ${result.log}`,
-        result,
-      );
+      throw new BroadcastErrorObject(`Broadcasting transaction failed: ${result.log}`, result);
     }
     return result;
   }
@@ -112,9 +94,7 @@ export class TendermintClient {
    * @throws BroadcastErrorObject when result code is not zero.
    * @returns The result of the transaction once included in the blockchain.
    */
-  async broadcastTransactionCommit(
-    tx: Uint8Array,
-  ): Promise<IndexedTx> {
+  async broadcastTransactionCommit(tx: Uint8Array): Promise<IndexedTx> {
     const result: BroadcastTxSyncResponse = await this.broadcastTransactionSync(tx);
     return this.queryHash(result.hash);
   }
@@ -126,10 +106,7 @@ export class TendermintClient {
    * @throws TimeoutError if the transaction is not committed on-chain within the timeout limit.
    * @returns An indexed transaction containing information about the transaction when committed.
    */
-  async queryHash(
-    hash: Uint8Array,
-    time: number = 0,
-  ): Promise<IndexedTx> {
+  async queryHash(hash: Uint8Array, time: number = 0): Promise<IndexedTx> {
     const now: number = Date.now();
     const transactionId: string = toHex(hash).toUpperCase();
 

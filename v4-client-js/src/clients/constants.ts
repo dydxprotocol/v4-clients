@@ -25,7 +25,7 @@ export enum IndexerApiHost {
   TESTNET = 'https://indexer.v4testnet.dydx.exchange/',
   LOCAL = 'http://localhost:3002',
   // For the deployment by DYDX token holders
-  MAINNET = 'https://indexer.dydx.trade'
+  MAINNET = 'https://indexer.dydx.trade',
 }
 
 export enum IndexerWSHost {
@@ -43,7 +43,7 @@ export enum ValidatorApiHost {
   TESTNET = 'https://test-dydx.kingnodes.com',
   LOCAL = 'http://localhost:26657',
   // For the deployment by DYDX token holders
-  MAINNET = 'https://dydx-ops-rpc.kingnodes.com:443'
+  MAINNET = 'https://dydx-ops-rpc.kingnodes.com:443',
 }
 
 // ------------ Network IDs ------------
@@ -51,7 +51,7 @@ export enum ValidatorApiHost {
 export enum NetworkId {
   TESTNET = 'dydx-testnet-4',
   // For the deployment by DYDX token holders
-  MAINNET = 'dydx-mainnet-1'
+  MAINNET = 'dydx-mainnet-1',
 }
 export const NETWORK_ID_TESTNET: string = 'dydxprotocol-testnet';
 // For the deployment by DYDX token holders
@@ -89,8 +89,15 @@ export const TYPE_URL_MSG_CREATE_ORACLE_MARKET = '/dydxprotocol.prices.MsgCreate
 
 // x/sending
 export const TYPE_URL_MSG_CREATE_TRANSFER = '/dydxprotocol.sending.MsgCreateTransfer';
-export const TYPE_URL_MSG_WITHDRAW_FROM_SUBACCOUNT = '/dydxprotocol.sending.MsgWithdrawFromSubaccount';
+export const TYPE_URL_MSG_WITHDRAW_FROM_SUBACCOUNT =
+  '/dydxprotocol.sending.MsgWithdrawFromSubaccount';
 export const TYPE_URL_MSG_DEPOSIT_TO_SUBACCOUNT = '/dydxprotocol.sending.MsgDepositToSubaccount';
+
+// x/staking
+export const TYPE_URL_MSG_DELEGATE = '/cosmos.staking.v1beta1.MsgDelegate';
+export const TYPE_URL_MSG_UNDELEGATE = '/cosmos.staking.v1beta1.MsgUndelegate';
+export const TYPE_URL_MSG_WITHDRAW_DELEGATOR_REWARD =
+  '/cosmos.staking.v1beta1.MsgWithdrawDelegatorReward';
 
 // ------------ Chain Constants ------------
 // The following are same across different networks / deployments.
@@ -150,7 +157,7 @@ export enum OrderStatus {
 }
 
 export enum TickerType {
-  PERPETUAL = 'PERPETUAL',  // Only PERPETUAL is supported right now
+  PERPETUAL = 'PERPETUAL', // Only PERPETUAL is supported right now
 }
 
 export enum PositionStatus {
@@ -188,8 +195,7 @@ export class IndexerConfig {
   public restEndpoint: string;
   public websocketEndpoint: string;
 
-  constructor(restEndpoint: string,
-    websocketEndpoint: string) {
+  constructor(restEndpoint: string, websocketEndpoint: string) {
     this.restEndpoint = restEndpoint;
     this.websocketEndpoint = websocketEndpoint;
   }
@@ -223,54 +229,60 @@ export class Network {
     public env: string,
     public indexerConfig: IndexerConfig,
     public validatorConfig: ValidatorConfig,
-  ) { }
+  ) {}
 
   static testnet(): Network {
-    const indexerConfig = new IndexerConfig(
-      IndexerApiHost.TESTNET,
-      IndexerWSHost.TESTNET,
-    );
-    const validatorConfig = new ValidatorConfig(ValidatorApiHost.TESTNET, TESTNET_CHAIN_ID,
+    const indexerConfig = new IndexerConfig(IndexerApiHost.TESTNET, IndexerWSHost.TESTNET);
+    const validatorConfig = new ValidatorConfig(
+      ValidatorApiHost.TESTNET,
+      TESTNET_CHAIN_ID,
       {
         CHAINTOKEN_DENOM: 'adv4tnt',
         USDC_DENOM: 'ibc/8E27BA2D5493AF5636760E354E46004562C46AB7EC0CC4C1CA14E9E20E2545B5',
         USDC_GAS_DENOM: 'uusdc',
         USDC_DECIMALS: 6,
         CHAINTOKEN_DECIMALS: 18,
-      }, undefined, 'Client Example');
+      },
+      undefined,
+      'Client Example',
+    );
     return new Network('testnet', indexerConfig, validatorConfig);
   }
 
   static local(): Network {
-    const indexerConfig = new IndexerConfig(
-      IndexerApiHost.LOCAL,
-      IndexerWSHost.LOCAL,
-    );
-    const validatorConfig = new ValidatorConfig(ValidatorApiHost.LOCAL, LOCAL_CHAIN_ID,
+    const indexerConfig = new IndexerConfig(IndexerApiHost.LOCAL, IndexerWSHost.LOCAL);
+    const validatorConfig = new ValidatorConfig(
+      ValidatorApiHost.LOCAL,
+      LOCAL_CHAIN_ID,
       {
         CHAINTOKEN_DENOM: 'adv4tnt',
         USDC_DENOM: 'ibc/8E27BA2D5493AF5636760E354E46004562C46AB7EC0CC4C1CA14E9E20E2545B5',
         USDC_GAS_DENOM: 'uusdc',
         USDC_DECIMALS: 6,
         CHAINTOKEN_DECIMALS: 18,
-      }, undefined, 'Client Example');
+      },
+      undefined,
+      'Client Example',
+    );
     return new Network('local', indexerConfig, validatorConfig);
   }
 
   // For the deployment by DYDX token holders.
   static mainnet(): Network {
-    const indexerConfig = new IndexerConfig(
-      IndexerApiHost.MAINNET,
-      IndexerWSHost.MAINNET,
-    );
-    const validatorConfig = new ValidatorConfig(ValidatorApiHost.MAINNET, MAINNET_CHAIN_ID,
+    const indexerConfig = new IndexerConfig(IndexerApiHost.MAINNET, IndexerWSHost.MAINNET);
+    const validatorConfig = new ValidatorConfig(
+      ValidatorApiHost.MAINNET,
+      MAINNET_CHAIN_ID,
       {
         CHAINTOKEN_DENOM: 'adydx',
         USDC_DENOM: 'ibc/8E27BA2D5493AF5636760E354E46004562C46AB7EC0CC4C1CA14E9E20E2545B5',
         USDC_GAS_DENOM: 'uusdc',
         USDC_DECIMALS: 6,
         CHAINTOKEN_DECIMALS: 18,
-      }, undefined, 'Client Example');
+      },
+      undefined,
+      'Client Example',
+    );
     return new Network('mainnet', indexerConfig, validatorConfig);
   }
 

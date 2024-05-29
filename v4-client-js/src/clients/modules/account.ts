@@ -1,6 +1,4 @@
-import {
-  OrderSide, OrderStatus, OrderType, PositionStatus, TickerType,
-} from '../constants';
+import { OrderSide, OrderStatus, OrderType, PositionStatus, TickerType } from '../constants';
 import { Data } from '../types';
 import RestClient from './rest';
 
@@ -8,18 +6,12 @@ import RestClient from './rest';
  * @description REST endpoints for data related to a particular address.
  */
 export default class AccountClient extends RestClient {
-  async getSubaccounts(
-    address: string,
-    limit?: number,
-  ): Promise<Data> {
+  async getSubaccounts(address: string, limit?: number): Promise<Data> {
     const uri = `/v4/addresses/${address}`;
     return this.get(uri, { limit });
   }
 
-  async getSubaccount(
-    address: string,
-    subaccountNumber: number,
-  ): Promise<Data> {
+  async getSubaccount(address: string, subaccountNumber: number): Promise<Data> {
     const uri = `/v4/addresses/${address}/subaccountNumber/${subaccountNumber}`;
     return this.get(uri);
   }
@@ -110,7 +102,7 @@ export default class AccountClient extends RestClient {
     });
   }
 
-  async getOrder(orderId: string) : Promise<Data> {
+  async getOrder(orderId: string): Promise<Data> {
     const uri = `/v4/orders/${orderId}`;
     return this.get(uri);
   }

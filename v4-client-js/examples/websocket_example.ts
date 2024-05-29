@@ -1,5 +1,9 @@
 import { Network } from '../src/clients/constants';
-import { CandlesResolution, IncomingMessageTypes, SocketClient } from '../src/clients/socket-client';
+import {
+  CandlesResolution,
+  IncomingMessageTypes,
+  SocketClient,
+} from '../src/clients/socket-client';
 import { DYDX_TEST_ADDRESS } from './constants';
 
 function test(): void {

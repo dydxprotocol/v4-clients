@@ -1,8 +1,6 @@
 import { BECH32_PREFIX, OrderFlags, Order_TimeInForce } from '../src';
 import { CompositeClient } from '../src/clients/composite-client';
-import {
-  Network, OrderSide,
-} from '../src/clients/constants';
+import { Network, OrderSide } from '../src/clients/constants';
 import LocalWallet from '../src/clients/modules/local-wallet';
 import { SubaccountInfo } from '../src/clients/subaccount';
 import { randomInt, sleep } from '../src/lib/utils';
@@ -43,7 +41,7 @@ async function test(): Promise<void> {
     console.log(error.message);
   }
 
-  await sleep(5000);  // wait for placeOrder to complete
+  await sleep(5000); // wait for placeOrder to complete
 
   try {
     // cancel the short term order
@@ -63,7 +61,8 @@ async function test(): Promise<void> {
   }
 }
 
-test().then(() => {
-}).catch((error) => {
-  console.log(error.message);
-});
+test()
+  .then(() => {})
+  .catch((error) => {
+    console.log(error.message);
+  });

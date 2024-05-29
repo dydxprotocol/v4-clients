@@ -1,9 +1,4 @@
-import {
-  ICancelOrder,
-  IPlaceOrder,
-  OrderFlags,
-  Transfer,
-} from '../../src/types';
+import { ICancelOrder, IPlaceOrder, OrderFlags, Transfer } from '../../src/types';
 import { MAX_SUBACCOUNT_NUMBER, MAX_UINT_32 } from '../../src/lib/constants';
 import { UserError } from '../../src/lib/errors';
 import {
@@ -13,7 +8,10 @@ import {
   validateTransferMessage,
 } from '../../src/lib/validation';
 import {
-  TEST_ADDRESS, defaultCancelOrder, defaultOrder, defaultTransfer,
+  TEST_ADDRESS,
+  defaultCancelOrder,
+  defaultOrder,
+  defaultTransfer,
 } from '../helpers/constants';
 import Long from 'long';
 
@@ -23,11 +21,7 @@ const MAX_SUBACCOUNT_NUMBER_PLUS_1: number = MAX_SUBACCOUNT_NUMBER + 1;
 describe('Validations', () => {
   it.each([
     ['valid', defaultOrder, undefined],
-    [
-      '0 value clientId',
-      { ...defaultOrder, clientId: 0 },
-      undefined,
-    ],
+    ['0 value clientId', { ...defaultOrder, clientId: 0 }, undefined],
     [
       'underflow clientId',
       { ...defaultOrder, clientId: -1 },
@@ -63,18 +57,17 @@ describe('Validations', () => {
       { ...defaultOrder, subticks: Long.NEG_ONE },
       new UserError(`subticks: ${-1} cannot be <= 0`),
     ],
-  ])('Validate order: %s', (_name: string, order: IPlaceOrder, expectedError: UserError | undefined) => {
-    const validationError: UserError | void = validatePlaceOrderMessage(0, order);
-    expect(validationError).toEqual(expectedError);
-  });
+  ])(
+    'Validate order: %s',
+    (_name: string, order: IPlaceOrder, expectedError: UserError | undefined) => {
+      const validationError: UserError | void = validatePlaceOrderMessage(0, order);
+      expect(validationError).toEqual(expectedError);
+    },
+  );
 
   it.each([
     ['valid', defaultCancelOrder, undefined],
-    [
-      '0 value clientId',
-      { ...defaultCancelOrder, clientId: 0 },
-      undefined,
-    ],
+    ['0 value clientId', { ...defaultCancelOrder, clientId: 0 }, undefined],
     [
       'underflow clientId',
       { ...defaultCancelOrder, clientId: -1 },
@@ -149,10 +142,13 @@ describe('Validations', () => {
       },
       new UserError('goodTilBlock is 10, but should not be set for stateful orders'),
     ],
-  ])('Validate cancel order: %s', (_name: string, order: ICancelOrder, expectedError: UserError | undefined) => {
-    const validationError: UserError | void = validateCancelOrderMessage(0, order);
-    expect(validationError).toEqual(expectedError);
-  });
+  ])(
+    'Validate cancel order: %s',
+    (_name: string, order: ICancelOrder, expectedError: UserError | undefined) => {
+      const validationError: UserError | void = validateCancelOrderMessage(0, order);
+      expect(validationError).toEqual(expectedError);
+    },
+  );
 
   it.each([
     ['valid', defaultTransfer, undefined],
@@ -230,7 +226,8 @@ describe('Validations', () => {
     (_name: string, transfer: Transfer, expectedError: UserError | undefined) => {
       const validationError: UserError | void = validateTransferMessage(transfer);
       expect(validationError).toEqual(expectedError);
-    });
+    },
+  );
 
   it.each([
     ['valid', 'dydx17xpfvakm2amg962yls6f84z3kell8c5leqdyt2', true],

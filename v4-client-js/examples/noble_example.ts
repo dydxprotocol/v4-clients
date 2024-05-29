@@ -10,18 +10,10 @@ import { sleep } from '../src/lib/utils';
 import { DYDX_TEST_MNEMONIC } from './constants';
 
 async function test(): Promise<void> {
-  const dydxClient = await ValidatorClient.connect(
-    Network.testnet().validatorConfig,
-  );
+  const dydxClient = await ValidatorClient.connect(Network.testnet().validatorConfig);
 
-  const dydxWallet = await LocalWallet.fromMnemonic(
-    DYDX_TEST_MNEMONIC,
-    BECH32_PREFIX,
-  );
-  const nobleWallet = await LocalWallet.fromMnemonic(
-    DYDX_TEST_MNEMONIC,
-    NOBLE_BECH32_PREFIX,
-  );
+  const dydxWallet = await LocalWallet.fromMnemonic(DYDX_TEST_MNEMONIC, BECH32_PREFIX);
+  const nobleWallet = await LocalWallet.fromMnemonic(DYDX_TEST_MNEMONIC, NOBLE_BECH32_PREFIX);
 
   const client = new NobleClient('https://rpc.testnet.noble.strange.love', 'Noble example');
   await client.connect(nobleWallet);
@@ -38,21 +30,17 @@ async function test(): Promise<void> {
       sourcePort: 'transfer',
       sourceChannel: 'channel-0',
       token: {
-        denom:
-          'ibc/8E27BA2D5493AF5636760E354E46004562C46AB7EC0CC4C1CA14E9E20E2545B5',
+        denom: 'ibc/8E27BA2D5493AF5636760E354E46004562C46AB7EC0CC4C1CA14E9E20E2545B5',
         amount: '1000000',
       },
       sender: dydxWallet.address,
       receiver: nobleWallet.address,
-      timeoutTimestamp: Long.fromNumber(
-        Math.floor(Date.now() / 1000) * 1e9 + 10 * 60 * 1e9,
-      ),
+      timeoutTimestamp: Long.fromNumber(Math.floor(Date.now() / 1000) * 1e9 + 10 * 60 * 1e9),
     },
   };
 
   const msgs = [ibcToNobleMsg];
-  const encodeObjects: Promise<EncodeObject[]> = new Promise((resolve) => resolve(msgs),
-  );
+  const encodeObjects: Promise<EncodeObject[]> = new Promise((resolve) => resolve(msgs));
 
   await dydxClient.post.send(
     dydxWallet,
@@ -84,15 +72,15 @@ async function test(): Promise<void> {
         },
         sender: nobleWallet.address,
         receiver: dydxWallet.address,
-        timeoutTimestamp: Long.fromNumber(
-          Math.floor(Date.now() / 1000) * 1e9 + 10 * 60 * 1e9,
-        ),
+        timeoutTimestamp: Long.fromNumber(Math.floor(Date.now() / 1000) * 1e9 + 10 * 60 * 1e9),
       },
     };
     const fee = await client.simulateTransaction([ibcFromNobleMsg]);
 
-    ibcFromNobleMsg.value.token.amount = (parseInt(ibcFromNobleMsg.value.token.amount, 10) -
-      Math.floor(parseInt(fee.amount[0].amount, 10) * 1.4)).toString();
+    ibcFromNobleMsg.value.token.amount = (
+      parseInt(ibcFromNobleMsg.value.token.amount, 10) -
+      Math.floor(parseInt(fee.amount[0].amount, 10) * 1.4)
+    ).toString();
 
     await client.send([ibcFromNobleMsg]);
   } catch (error) {

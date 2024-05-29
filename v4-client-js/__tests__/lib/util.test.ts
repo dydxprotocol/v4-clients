@@ -1,11 +1,5 @@
-import {
-  MAX_UINT_32,
-} from '../../src/lib/constants';
-import {
-  randomInt,
-  generateRandomClientId,
-  clientIdFromString,
-} from '../../src/lib/utils';
+import { MAX_UINT_32 } from '../../src/lib/constants';
+import { randomInt, generateRandomClientId, clientIdFromString } from '../../src/lib/utils';
 
 describe('lib/util', () => {
   describe('randomInt', () => {

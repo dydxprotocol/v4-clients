@@ -17,18 +17,13 @@ async function test(): Promise<void> {
 
   const subaccount = new SubaccountInfo(wallet, 0);
 
-  const tx = await client.post.transfer(
-    subaccount,
-    subaccount.address,
-    1,
-    0,
-    new Long(10_000_000),
-  );
+  const tx = await client.post.transfer(subaccount, subaccount.address, 1, 0, new Long(10_000_000));
   console.log('**Transfer Tx**');
   console.log(tx);
 }
 
-test().then(() => {
-}).catch((error) => {
-  console.log(error.message);
-});
+test()
+  .then(() => {})
+  .catch((error) => {
+    console.log(error.message);
+  });
