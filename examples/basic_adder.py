@@ -151,15 +151,18 @@ class BasicAdder:
             OrderTimeInForce.GTT if side == OrderSide.BUY else OrderTimeInForce.IOC
         )
         quantums = int(Decimal(size) * Decimal("1e18"))
+        subticks = int(Decimal(px) * Decimal("1e5"))
+
         clob_pair = await self.node_client.get_clob_pair(0)
         step_base_quantums = clob_pair.step_base_quantums
+        subticks_per_tick = clob_pair.subticks_per_tick
 
         current_block = await self.node_client.latest_block_height()
         new_order = order(
             order_id=oid,
             side=side,
             quantums=(quantums // step_base_quantums) * step_base_quantums,
-            subticks=int(Decimal(px) * Decimal("1e5")),
+            subticks=(subticks // subticks_per_tick) * subticks_per_tick,
             time_in_force=time_in_force,
             reduce_only=False,
             good_til_block=current_block + 10,
