@@ -1,7 +1,7 @@
 import hashlib
 from dataclasses import dataclass, field
 from math import floor
-from typing import Any, Optional, Self
+from typing import Any, List, Optional, Self
 
 import grpc
 from google.protobuf.message import Message
@@ -67,6 +67,7 @@ from v4_proto.dydxprotocol.subaccounts.subaccount_pb2 import SubaccountId
 
 from dydx_v4_client.network import NodeConfig
 from dydx_v4_client.node.builder import Builder
+from dydx_v4_client.node.fee import Coin, Fee, calculate_fee
 from dydx_v4_client.node.message import (
     cancel_order,
     deposit,
@@ -76,9 +77,6 @@ from dydx_v4_client.node.message import (
     withdraw,
 )
 from dydx_v4_client.wallet import Wallet
-
-GAS_MULTIPLIER = 1.4
-DYDX_GAS_PRICE = 25000000000
 
 
 @dataclass
@@ -240,7 +238,7 @@ class MutatingNodeClient(QueryNodeClient):
         builder = self.builder
         simulated = await self.simulate(transaction)
 
-        fee = self.calculate_fee(simulated.gas_info.gas_used)
+        fee = self.builder.calculate_fee(simulated.gas_info.gas_used)
 
         transaction = builder.build_transaction(wallet, transaction.body.messages, fee)
 
@@ -256,11 +254,15 @@ class MutatingNodeClient(QueryNodeClient):
     ):
         return await self.broadcast(self.builder.build(wallet, message), mode)
 
-    def calculate_fee(self, gas_used):
-        gas_limit = floor(gas_used * GAS_MULTIPLIER)
-        return self.builder.fee(
-            gas_limit, self.builder.coin(gas_limit * DYDX_GAS_PRICE)
-        )
+    def build_transaction(self, wallet: Wallet, messages: List[Message], fee: Fee):
+        return self.builder.build_transaction(wallet, messages, fee.as_proto())
+
+    def build(self, wallet: Wallet, message: Message, fee: Fee):
+        return self.builder.build(wallet, message, fee.as_proto())
+
+    def calculate_fee(self, gas_used) -> Fee:
+        gas_limit, amount = calculate_fee(gas_used)
+        return Fee(gas_limit, [Coin(amount, self.builder.denomination)])
 
 
 @dataclass
@@ -269,7 +271,7 @@ class NodeClient(MutatingNodeClient):
     async def connect(config: NodeConfig) -> Self:
         return NodeClient(
             grpc.secure_channel(config.url, grpc.ssl_channel_credentials()),
-            Builder(config.chain_id, config.denomination),
+            Builder(config.chain_id, config.usdc_denom),
         )
 
     async def deposit(
