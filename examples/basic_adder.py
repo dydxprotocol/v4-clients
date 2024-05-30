@@ -39,21 +39,29 @@ MAX_POSITION = Decimal("1.0")
 
 class BasicAdder:
     def __init__(
-        self, node_client: NodeClient, address: str, key: str, subaccount_number: int
+            self, node_client: NodeClient, address: str, key: str, subaccount_number: int
     ):
         self.address = address
         self.key = from_string(bytes.fromhex(key))
         self.subaccount_number = subaccount_number
-        self.indexer_config = IndexerConfig(
+        self.testnet_indexer_config = IndexerConfig(
             rest_endpoint=IndexerApiHost.TESTNET,
             websocket_endpoint=IndexerWSHost.TESTNET,
         )
+        self.mainnet_indexer_config = IndexerConfig(
+            rest_endpoint=IndexerApiHost.MAINNET,
+            websocket_endpoint=IndexerWSHost.MAINNET,
+        )
         self.node_client = node_client
-        self.indexer_client = IndexerClient(self.indexer_config.rest_endpoint)
-        self.indexer_socket = IndexerSocket(
-            self.indexer_config.websocket_endpoint,
-            on_open=self.on_open,
-            on_message=self.on_message,
+        self.testnet_indexer_socket = IndexerSocket(
+            self.testnet_indexer_config.websocket_endpoint,
+            on_open=self.on_testnet_open,
+            on_message=self.on_testnet_message,
+        )
+        self.mainnet_indexer_socket = IndexerSocket(
+            self.mainnet_indexer_config.websocket_endpoint,
+            on_open=self.on_mainnet_open,
+            on_message=self.on_mainnet_message,
         )
         self.position = None
         self.provide_state = {
@@ -61,22 +69,24 @@ class BasicAdder:
             "SIDE_SELL": {"type": "cancelled"},
         }
 
-    def on_open(self, ws):
-        self.indexer_socket.subaccounts.subscribe(
+    def on_testnet_open(self, ws):
+        self.testnet_indexer_socket.subaccounts.subscribe(
             address=self.address, subaccount_number=self.subaccount_number
         )
-        self.indexer_socket.markets.subscribe()
-        self.indexer_socket.trades.subscribe(id=MARKET)
-        self.indexer_socket.order_book.subscribe(id=MARKET)
+        logging.info("Testnet WebSocket is subscribed to subaccounts")
 
-        logging.info(
-            "WebSocket is subscribed to markets, trades, order_book, subaccounts"
-        )
+    def on_mainnet_open(self, ws):
+        self.mainnet_indexer_socket.markets.subscribe()
+        self.mainnet_indexer_socket.trades.subscribe(id=MARKET)
+        self.mainnet_indexer_socket.order_book.subscribe(id=MARKET)
+        logging.info("Mainnet WebSocket is subscribed to markets, trades, order_book")
 
-    def on_message(self, ws, message):
+    def on_testnet_message(self, ws, message):
         if message.get("channel") == "v4_subaccounts":
             asyncio.run(self.on_subaccount_update(message))
-        elif message.get("channel") == "v4_orderbook":
+
+    def on_mainnet_message(self, ws, message):
+        if message.get("channel") == "v4_orderbook":
             asyncio.run(self.on_order_book_update(message))
 
     async def on_order_book_update(self, message):
@@ -201,7 +211,9 @@ async def main():
     node = await NodeClient.connect(TESTNET.node)
 
     adder = BasicAdder(node, address, key, subaccount_number)
-    await adder.indexer_socket.connect()
+    await adder.mainnet_indexer_socket.connect()
+    await adder.testnet_indexer_socket.connect()
+
 
     # await adder.place_order(OrderSide.BUY, 0.1, "4000")
     # oid = order_id(
