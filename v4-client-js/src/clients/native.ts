@@ -171,7 +171,7 @@ export async function deriveMnemomicFromEthereumSignature(signature: string): Pr
   try {
     const { mnemonic, privateKey, publicKey } = deriveHDKeyFromEthereumSignature(signature);
     const wallet = await LocalWallet.fromMnemonic(mnemonic, BECH32_PREFIX);
-    hdKey = {
+    globalThis.hdKey = {
       privateKey, publicKey
     }
     const result = { mnemonic, address: wallet.address! };
@@ -1228,7 +1228,7 @@ export async function signCompliancePayload(payload: string): Promise<string> {
     if (currentStatus === undefined) {
       throw new UserError('status is not set');
     }
-    if (!hdKey?.privateKey || !hdKey?.publicKey) {
+    if (!globalThis.hdKey?.privateKey || !globalThis.hdKey?.publicKey) {
       throw new Error('Missing hdKey');
     }
   
@@ -1236,12 +1236,12 @@ export async function signCompliancePayload(payload: string): Promise<string> {
     const messageToSign: string = `${message}:${action}"${currentStatus ?? ''}:${timestampInSeconds}`;
     const messageHash = sha256(Buffer.from(messageToSign));
   
-    const signed = await Secp256k1.createSignature(messageHash, hdKey.privateKey);
+    const signed = await Secp256k1.createSignature(messageHash, globalThis.hdKey.privateKey);
     const signedMessage = signed.toFixedLength();
 
     return encodeJson({
       signedMessage: Buffer.from(signedMessage).toString('base64'),
-      publicKey: Buffer.from(hdKey.publicKey).toString('base64'),
+      publicKey: Buffer.from(globalThis.hdKey.publicKey).toString('base64'),
       timestamp: timestampInSeconds,
     });
   } catch (error) {
