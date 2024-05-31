@@ -39,7 +39,7 @@ MAX_POSITION = Decimal("1.0")
 
 class BasicAdder:
     def __init__(
-            self, node_client: NodeClient, address: str, key: str, subaccount_number: int
+        self, node_client: NodeClient, address: str, key: str, subaccount_number: int
     ):
         self.address = address
         self.key = from_string(bytes.fromhex(key))
@@ -91,53 +91,80 @@ class BasicAdder:
 
     async def on_order_book_update(self, message):
         logging.info(f"Order book update: {message}")
-        data = message["contents"]
         if message["id"] != MARKET:
             return
 
-        for side in [OrderSide.BUY, OrderSide.SELL]:
-            book_price = Decimal(
-                data["bids" if side == OrderSide.BUY else "asks"][0]["price"]
-            )
-            ideal_distance = book_price * DEPTH
-            ideal_price = book_price + (
-                ideal_distance if side == OrderSide.BUY else -ideal_distance
-            )
+        if message["type"] == "subscribed":
+            bids = [
+                (Decimal(item["price"]), Decimal(item["size"]))
+                for item in message["contents"]["bids"]
+            ]
+            asks = [
+                (Decimal(item["price"]), Decimal(item["size"]))
+                for item in message["contents"]["asks"]
+            ]
+        elif message["type"] == "channel_batch_data":
+            bids = []
+            asks = []
+            for item in message["contents"]:
+                if "bids" in item:
+                    bids.append(
+                        (Decimal(item["bids"][0][0]), Decimal(item["bids"][0][1]))
+                    )
+                elif "asks" in item:
+                    asks.append(
+                        (Decimal(item["asks"][0][0]), Decimal(item["asks"][0][1]))
+                    )
+        else:
+            logging.warning(f"Unsupported order book message type: {message['type']}")
+            return
 
-            provide_state = self.provide_state[side]
-            if provide_state["type"] == "resting":
-                distance = abs(ideal_price - Decimal(provide_state["px"]))
-                if distance > ALLOWABLE_DEVIATION * ideal_distance:
-                    oid = provide_state["oid"]
-                    logging.info(
-                        f"Cancelling order due to deviation oid:{oid} side:{side} "
-                        f"ideal_price:{ideal_price} px:{provide_state['px']}"
-                    )
-                    await self.cancel_order(oid)
-                    self.provide_state[side] = {"type": "cancelled"}
-            elif provide_state["type"] == "in_flight_order":
-                logging.info("Not placing an order because in flight")
-                continue
-            elif provide_state["type"] == "cancelled":
-                if self.position is None:
-                    logging.info(
-                        "Not placing an order because waiting for next position refresh"
-                    )
-                    continue
-                size = MAX_POSITION + (
-                    self.position if side == OrderSide.BUY else -self.position
+        for side, book in [(OrderSide.BUY, bids), (OrderSide.SELL, asks)]:
+            if book:
+                book_price, _ = book[0]
+                ideal_distance = book_price * DEPTH
+                ideal_price = book_price + (
+                    ideal_distance if side == OrderSide.BUY else -ideal_distance
                 )
-                if size * ideal_price < Decimal("10"):
-                    logging.info("Not placing an order because at position limit")
+
+                provide_state = self.provide_state[side]
+                if provide_state["type"] == "resting":
+                    distance = abs(ideal_price - Decimal(provide_state["px"]))
+                    if distance > ALLOWABLE_DEVIATION * ideal_distance:
+                        oid = provide_state["oid"]
+                        logging.info(
+                            f"Cancelling order due to deviation oid:{oid} side:{side} "
+                            f"ideal_price:{ideal_price} px:{provide_state['px']}"
+                        )
+                        await self.cancel_order(oid)
+                        self.provide_state[side] = {"type": "cancelled"}
+                elif provide_state["type"] == "in_flight_order":
+                    logging.info("Not placing an order because in flight")
                     continue
-                px = str(ideal_price)
-                logging.info(f"Placing order size:{size} px:{px} side:{side}")
-                self.provide_state[side] = {"type": "in_flight_order"}
-                oid = await self.place_order(side, size, px)
-                if oid:
-                    self.provide_state[side] = {"type": "resting", "px": px, "oid": oid}
-                else:
-                    self.provide_state[side] = {"type": "cancelled"}
+                elif provide_state["type"] == "cancelled":
+                    if self.position is None:
+                        logging.info(
+                            "Not placing an order because waiting for next position refresh"
+                        )
+                        continue
+                    size = MAX_POSITION + (
+                        self.position if side == OrderSide.BUY else -self.position
+                    )
+                    if size * ideal_price < Decimal("10"):
+                        logging.info("Not placing an order because at position limit")
+                        continue
+                    px = str(ideal_price)
+                    logging.info(f"Placing order size:{size} px:{px} side:{side}")
+                    self.provide_state[side] = {"type": "in_flight_order"}
+                    oid = await self.place_order(side, size, px)
+                    if oid:
+                        self.provide_state[side] = {
+                            "type": "resting",
+                            "px": px,
+                            "oid": oid,
+                        }
+                    else:
+                        self.provide_state[side] = {"type": "cancelled"}
 
     async def on_subaccount_update(self, message):
         data = message["contents"]["subaccount"]
@@ -211,19 +238,9 @@ async def main():
     node = await NodeClient.connect(TESTNET.node)
 
     adder = BasicAdder(node, address, key, subaccount_number)
-    await adder.mainnet_indexer_socket.connect()
-    await adder.testnet_indexer_socket.connect()
 
-
-    # await adder.place_order(OrderSide.BUY, 0.1, "4000")
-    # oid = order_id(
-    #     address=address,
-    #     subaccount_number=subaccount_number,
-    #     client_id=0,
-    #     clob_pair_id=0,
-    #     order_flags=0,
-    # )
-    # await adder.cancel_order(oid)
+    asyncio.run(adder.testnet_indexer_socket.connect())
+    asyncio.run(adder.mainnet_indexer_socket.connect())
 
 
 if __name__ == "__main__":
