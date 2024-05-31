@@ -699,10 +699,17 @@ export class Post {
       subaccount.wallet,
       () => Promise.resolve([msg]),
       false,
-      undefined,
+      this.defaultDydxGasPrice,
       undefined,
       broadcastMode,
     );
+  }
+
+  delegateMsg(delegator: string, validator: string, amount: string): EncodeObject {
+    return this.composer.composeMsgDelegate(delegator, validator, {
+      denom: this.denoms.CHAINTOKEN_DENOM,
+      amount,
+    });
   }
 
   async undelegate(
@@ -720,10 +727,17 @@ export class Post {
       subaccount.wallet,
       () => Promise.resolve([msg]),
       false,
-      undefined,
+      this.defaultDydxGasPrice,
       undefined,
       broadcastMode,
     );
+  }
+
+  undelegateMsg(delegator: string, validator: string, amount: string): EncodeObject {
+    return this.composer.composeMsgUndelegate(delegator, validator, {
+      denom: this.denoms.CHAINTOKEN_DENOM,
+      amount,
+    });
   }
 
   async withdrawDelegatorReward(
@@ -741,5 +755,11 @@ export class Post {
       undefined,
       broadcastMode,
     );
+  }
+
+  async withdrawDelegatorRewardMsg(delegator: string, validator: string): Promise<EncodeObject> {
+    const msg = this.composer.composeMsgWithdrawDelegatorReward(delegator, validator);
+
+    return Promise.resolve(msg);
   }
 }
