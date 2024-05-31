@@ -239,8 +239,9 @@ async def main():
 
     adder = BasicAdder(node, address, key, subaccount_number)
 
-    asyncio.run(adder.testnet_indexer_socket.connect())
-    asyncio.run(adder.mainnet_indexer_socket.connect())
+    task_1 = adder.testnet_indexer_socket.connect()
+    task_2 = adder.mainnet_indexer_socket.connect()
+    await asyncio.gather(task_1, task_2)
 
 
 if __name__ == "__main__":
