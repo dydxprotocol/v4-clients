@@ -44,16 +44,24 @@ class BasicAdder:
         self.address = address
         self.key = from_string(bytes.fromhex(key))
         self.subaccount_number = subaccount_number
-        self.indexer_config = IndexerConfig(
+        self.testnet_indexer_config = IndexerConfig(
             rest_endpoint=IndexerApiHost.TESTNET,
             websocket_endpoint=IndexerWSHost.TESTNET,
         )
+        self.mainnet_indexer_config = IndexerConfig(
+            rest_endpoint=IndexerApiHost.MAINNET,
+            websocket_endpoint=IndexerWSHost.MAINNET,
+        )
         self.node_client = node_client
-        self.indexer_client = IndexerClient(self.indexer_config.rest_endpoint)
-        self.indexer_socket = IndexerSocket(
-            self.indexer_config.websocket_endpoint,
-            on_open=self.on_open,
-            on_message=self.on_message,
+        self.testnet_indexer_socket = IndexerSocket(
+            self.testnet_indexer_config.websocket_endpoint,
+            on_open=self.on_testnet_open,
+            on_message=self.on_testnet_message,
+        )
+        self.mainnet_indexer_socket = IndexerSocket(
+            self.mainnet_indexer_config.websocket_endpoint,
+            on_open=self.on_mainnet_open,
+            on_message=self.on_mainnet_message,
         )
         self.position = None
         self.provide_state = {
@@ -61,73 +69,102 @@ class BasicAdder:
             "SIDE_SELL": {"type": "cancelled"},
         }
 
-    def on_open(self, ws):
-        self.indexer_socket.subaccounts.subscribe(
+    def on_testnet_open(self, ws):
+        self.testnet_indexer_socket.subaccounts.subscribe(
             address=self.address, subaccount_number=self.subaccount_number
         )
-        self.indexer_socket.markets.subscribe()
-        self.indexer_socket.trades.subscribe(id=MARKET)
-        self.indexer_socket.order_book.subscribe(id=MARKET)
+        logging.info("Testnet WebSocket is subscribed to subaccounts")
 
-        logging.info(
-            "WebSocket is subscribed to markets, trades, order_book, subaccounts"
-        )
+    def on_mainnet_open(self, ws):
+        self.mainnet_indexer_socket.markets.subscribe()
+        self.mainnet_indexer_socket.trades.subscribe(id=MARKET)
+        self.mainnet_indexer_socket.order_book.subscribe(id=MARKET)
+        logging.info("Mainnet WebSocket is subscribed to markets, trades, order_book")
 
-    def on_message(self, ws, message):
+    def on_testnet_message(self, ws, message):
         if message.get("channel") == "v4_subaccounts":
             asyncio.run(self.on_subaccount_update(message))
-        elif message.get("channel") == "v4_orderbook":
+
+    def on_mainnet_message(self, ws, message):
+        if message.get("channel") == "v4_orderbook":
             asyncio.run(self.on_order_book_update(message))
 
     async def on_order_book_update(self, message):
         logging.info(f"Order book update: {message}")
-        data = message["contents"]
         if message["id"] != MARKET:
             return
 
-        for side in [OrderSide.BUY, OrderSide.SELL]:
-            book_price = Decimal(
-                data["bids" if side == OrderSide.BUY else "asks"][0]["price"]
-            )
-            ideal_distance = book_price * DEPTH
-            ideal_price = book_price + (
-                ideal_distance if side == OrderSide.BUY else -ideal_distance
-            )
+        if message["type"] == "subscribed":
+            bids = [
+                (Decimal(item["price"]), Decimal(item["size"]))
+                for item in message["contents"]["bids"]
+            ]
+            asks = [
+                (Decimal(item["price"]), Decimal(item["size"]))
+                for item in message["contents"]["asks"]
+            ]
+        elif message["type"] == "channel_batch_data":
+            bids = []
+            asks = []
+            for item in message["contents"]:
+                if "bids" in item:
+                    bids.append(
+                        (Decimal(item["bids"][0][0]), Decimal(item["bids"][0][1]))
+                    )
+                elif "asks" in item:
+                    asks.append(
+                        (Decimal(item["asks"][0][0]), Decimal(item["asks"][0][1]))
+                    )
+        else:
+            logging.warning(f"Unsupported order book message type: {message['type']}")
+            return
 
-            provide_state = self.provide_state[side]
-            if provide_state["type"] == "resting":
-                distance = abs(ideal_price - Decimal(provide_state["px"]))
-                if distance > ALLOWABLE_DEVIATION * ideal_distance:
-                    oid = provide_state["oid"]
-                    logging.info(
-                        f"Cancelling order due to deviation oid:{oid} side:{side} "
-                        f"ideal_price:{ideal_price} px:{provide_state['px']}"
-                    )
-                    await self.cancel_order(oid)
-                    self.provide_state[side] = {"type": "cancelled"}
-            elif provide_state["type"] == "in_flight_order":
-                logging.info("Not placing an order because in flight")
-                continue
-            elif provide_state["type"] == "cancelled":
-                if self.position is None:
-                    logging.info(
-                        "Not placing an order because waiting for next position refresh"
-                    )
-                    continue
-                size = MAX_POSITION + (
-                    self.position if side == OrderSide.BUY else -self.position
+        for side, book in [(OrderSide.BUY, bids), (OrderSide.SELL, asks)]:
+            if book:
+                book_price, _ = book[0]
+                ideal_distance = book_price * DEPTH
+                ideal_price = book_price + (
+                    ideal_distance if side == OrderSide.BUY else -ideal_distance
                 )
-                if size * ideal_price < Decimal("10"):
-                    logging.info("Not placing an order because at position limit")
+
+                provide_state = self.provide_state[side]
+                if provide_state["type"] == "resting":
+                    distance = abs(ideal_price - Decimal(provide_state["px"]))
+                    if distance > ALLOWABLE_DEVIATION * ideal_distance:
+                        oid = provide_state["oid"]
+                        logging.info(
+                            f"Cancelling order due to deviation oid:{oid} side:{side} "
+                            f"ideal_price:{ideal_price} px:{provide_state['px']}"
+                        )
+                        await self.cancel_order(oid)
+                        self.provide_state[side] = {"type": "cancelled"}
+                elif provide_state["type"] == "in_flight_order":
+                    logging.info("Not placing an order because in flight")
                     continue
-                px = str(ideal_price)
-                logging.info(f"Placing order size:{size} px:{px} side:{side}")
-                self.provide_state[side] = {"type": "in_flight_order"}
-                oid = await self.place_order(side, size, px)
-                if oid:
-                    self.provide_state[side] = {"type": "resting", "px": px, "oid": oid}
-                else:
-                    self.provide_state[side] = {"type": "cancelled"}
+                elif provide_state["type"] == "cancelled":
+                    if self.position is None:
+                        logging.info(
+                            "Not placing an order because waiting for next position refresh"
+                        )
+                        continue
+                    size = MAX_POSITION + (
+                        self.position if side == OrderSide.BUY else -self.position
+                    )
+                    if size * ideal_price < Decimal("10"):
+                        logging.info("Not placing an order because at position limit")
+                        continue
+                    px = str(ideal_price)
+                    logging.info(f"Placing order size:{size} px:{px} side:{side}")
+                    self.provide_state[side] = {"type": "in_flight_order"}
+                    oid = await self.place_order(side, size, px)
+                    if oid:
+                        self.provide_state[side] = {
+                            "type": "resting",
+                            "px": px,
+                            "oid": oid,
+                        }
+                    else:
+                        self.provide_state[side] = {"type": "cancelled"}
 
     async def on_subaccount_update(self, message):
         data = message["contents"]["subaccount"]
@@ -151,15 +188,18 @@ class BasicAdder:
             OrderTimeInForce.GTT if side == OrderSide.BUY else OrderTimeInForce.IOC
         )
         quantums = int(Decimal(size) * Decimal("1e18"))
+        subticks = int(Decimal(px) * Decimal("1e5"))
+
         clob_pair = await self.node_client.get_clob_pair(0)
         step_base_quantums = clob_pair.step_base_quantums
+        subticks_per_tick = clob_pair.subticks_per_tick
 
         current_block = await self.node_client.latest_block_height()
         new_order = order(
             order_id=oid,
             side=side,
             quantums=(quantums // step_base_quantums) * step_base_quantums,
-            subticks=int(Decimal(px) * Decimal("1e5")),
+            subticks=(subticks // subticks_per_tick) * subticks_per_tick,
             time_in_force=time_in_force,
             reduce_only=False,
             good_til_block=current_block + 10,
@@ -198,17 +238,10 @@ async def main():
     node = await NodeClient.connect(TESTNET.node)
 
     adder = BasicAdder(node, address, key, subaccount_number)
-    await adder.indexer_socket.connect()
 
-    # await adder.place_order(OrderSide.BUY, 0.1, "4000")
-    # oid = order_id(
-    #     address=address,
-    #     subaccount_number=subaccount_number,
-    #     client_id=0,
-    #     clob_pair_id=0,
-    #     order_flags=0,
-    # )
-    # await adder.cancel_order(oid)
+    task_1 = adder.testnet_indexer_socket.connect()
+    task_2 = adder.mainnet_indexer_socket.connect()
+    await asyncio.gather(task_1, task_2)
 
 
 if __name__ == "__main__":
