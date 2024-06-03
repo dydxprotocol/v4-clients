@@ -1,5 +1,4 @@
 import pytest
-import v4_proto
 from v4_proto.cosmos.auth.v1beta1.auth_pb2 import BaseAccount
 from v4_proto.cosmos.bank.v1beta1 import query_pb2 as bank_query
 from v4_proto.cosmos.base.tendermint.v1beta1.query_pb2 import GetLatestBlockResponse
@@ -31,8 +30,6 @@ from v4_proto.dydxprotocol.rewards.query_pb2 import QueryParamsResponse
 from v4_proto.dydxprotocol.stats.query_pb2 import QueryUserStatsResponse
 from v4_proto.dydxprotocol.subaccounts.query_pb2 import QuerySubaccountAllResponse
 from v4_proto.dydxprotocol.subaccounts.subaccount_pb2 import Subaccount
-
-from dydx_v4_client.node.message import subaccount
 
 
 @pytest.mark.order(0)
