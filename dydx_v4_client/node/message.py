@@ -7,6 +7,7 @@ from v4_proto.dydxprotocol.sending.transfer_pb2 import (
     MsgWithdrawFromSubaccount,
     Transfer,
 )
+from v4_proto.dydxprotocol.sending.tx_pb2 import MsgCreateTransfer
 from v4_proto.dydxprotocol.subaccounts.subaccount_pb2 import SubaccountId
 
 
@@ -80,13 +81,15 @@ def transfer(
     asset_id: int,
     amount: int,
 ):
-    message = Transfer(
+
+    msg = Transfer(
         sender=sender_subaccount,
         recipient=recipient_subaccount,
         asset_id=asset_id,
         amount=amount,
     )
-    return message
+
+    return MsgCreateTransfer(transfer=msg)
 
 
 def deposit(

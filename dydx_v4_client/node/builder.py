@@ -73,7 +73,7 @@ class Builder:
         )
 
     def build_transaction(self, wallet: Wallet, messages: List[Message], fee: Fee):
-        body = TxBody(messages=messages, memo=self.memo)
+        body = TxBody(messages=messages, memo="/dydxprotocol.sending.Transfer")
         auth_info = AuthInfo(
             signer_infos=[get_signer_info(wallet.public_key, wallet.sequence)],
             fee=fee,
