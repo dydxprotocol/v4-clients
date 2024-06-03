@@ -1,9 +1,20 @@
 import json
 import ssl
 from dataclasses import dataclass, field
+from enum import Enum
 from typing import Any, Callable, Optional, Self, Union
 
 import websocket
+
+
+class CandlesResolution(Enum):
+    ONE_MINUTE = "1MIN"
+    FIVE_MINUTES = "5MINS"
+    FIFTEEN_MINUTES = "15MINS"
+    THIRTY_MINUTES = "30MINS"
+    ONE_HOUR = "1HOUR"
+    FOUR_HOURS = "4HOURS"
+    ONE_DAY = "1DAY"
 
 
 @dataclass
@@ -67,10 +78,10 @@ class Markets(Channel):
 class Candles(Channel):
     channel = "v4_candles"
 
-    def subscribe(self, id, resolution, batched=True) -> Self:
+    def subscribe(self, id, resolution: CandlesResolution, batched=True) -> Self:
         return super().subscribe(id=f"{id}/{resolution}", batched=batched)
 
-    def unsubscribe(self, id, resolution):
+    def unsubscribe(self, id, resolution: CandlesResolution):
         return super().unsubscribe(id=f"{id}/{resolution}")
 
 
