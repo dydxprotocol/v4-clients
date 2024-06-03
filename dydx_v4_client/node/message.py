@@ -53,7 +53,7 @@ def order_id(
     )
 
 
-def subaccount(owner, number):
+def subaccount(owner: str, number: int):
     return SubaccountId(owner=owner, number=number)
 
 

@@ -24,6 +24,7 @@ DYDX_TEST_MNEMONIC = (
     "miracle matter bus reopen team ladder lazy list timber render wait"
 )
 TEST_ADDRESS = "dydx14zzueazeh0hj67cghhf9jypslcf9sh2n5k6art"
+RECIPIENT = "dydx1slanxj8x9ntk9knwa6cvfv2tzlsq5gk3dshml0"
 
 
 @pytest.fixture
@@ -60,7 +61,7 @@ def test_address():
 
 @pytest.fixture
 def recipient():
-    return "dydx1slanxj8x9ntk9knwa6cvfv2tzlsq5gk3dshml0"
+    return RECIPIENT
 
 
 @pytest.fixture
