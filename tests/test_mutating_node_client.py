@@ -1,3 +1,4 @@
+import grpc
 import pytest
 import v4_proto
 
@@ -76,3 +77,23 @@ async def test_order(node_client, test_order, test_order_id, wallet):
         good_til_block_time=test_order.good_til_block_time,
     )
     assert_successful_broadcast(canceled)
+
+
+@pytest.mark.order(5)
+@pytest.mark.asyncio
+async def test_transfer(node_client, wallet, test_address, recipient):
+    try:
+        response = await retry_on_sequence_mismatch(
+            node_client.transfer,
+            wallet,
+            subaccount(test_address, 0),
+            subaccount(recipient, 1),
+            asset_id=0,
+            amount=1,
+        )
+        assert_successful_broadcast(response)
+    except grpc.RpcError as e:
+        if "StillUndercollateralized" in str(e):
+            pytest.skip("Subaccount is undercollateralized. Skipping the test.")
+        else:
+            raise e
