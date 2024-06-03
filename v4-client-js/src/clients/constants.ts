@@ -22,7 +22,7 @@ export const MAINNET_CHAIN_ID = 'dydx-mainnet-1';
 
 // ------------ API URLs ------------
 export enum IndexerApiHost {
-  TESTNET = 'https://dydx-testnet.imperator.co',
+  TESTNET = 'https://indexer.v4testnet.dydx.exchange/',
   LOCAL = 'http://localhost:3002',
   // For the deployment by DYDX token holders
   MAINNET = 'https://indexer.dydx.trade',
