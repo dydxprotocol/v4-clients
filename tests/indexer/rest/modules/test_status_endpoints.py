@@ -1,7 +1,10 @@
 import pytest
 
+from tests.conftest import retry_on_forbidden
+
 
 @pytest.mark.asyncio
+@retry_on_forbidden(max_retries=3, delay=1)
 async def test_get_time(indexer_rest_client):
     response = await indexer_rest_client.utility.get_time()
     iso = response["iso"]
@@ -9,6 +12,7 @@ async def test_get_time(indexer_rest_client):
 
 
 @pytest.mark.asyncio
+@retry_on_forbidden(max_retries=3, delay=1)
 async def test_get_height(indexer_rest_client):
     response = await indexer_rest_client.utility.get_height()
     height = response["height"]

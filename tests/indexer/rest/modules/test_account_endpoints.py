@@ -1,9 +1,11 @@
 import pytest
 
 from dydx_v4_client.indexer.rest.constants import TradingRewardAggregationPeriod
+from tests.conftest import retry_on_forbidden
 
 
 @pytest.mark.asyncio
+@retry_on_forbidden(max_retries=3, delay=1)
 async def test_subaccounts(indexer_rest_client, test_address):
     response = await indexer_rest_client.account.get_subaccounts(test_address)
     subaccounts = response["subaccounts"]
@@ -15,6 +17,7 @@ async def test_subaccounts(indexer_rest_client, test_address):
 
 
 @pytest.mark.asyncio
+@retry_on_forbidden(max_retries=3, delay=1)
 async def test_subaccount_0(indexer_rest_client, test_address):
     response = await indexer_rest_client.account.get_subaccount(test_address, 0)
     subaccount = response["subaccount"]
@@ -24,6 +27,7 @@ async def test_subaccount_0(indexer_rest_client, test_address):
 
 
 @pytest.mark.asyncio
+@retry_on_forbidden(max_retries=3, delay=1)
 async def test_asset_positions(indexer_rest_client, test_address):
     response = await indexer_rest_client.account.get_subaccount_asset_positions(
         test_address, 0
@@ -37,6 +41,7 @@ async def test_asset_positions(indexer_rest_client, test_address):
 
 
 @pytest.mark.asyncio
+@retry_on_forbidden(max_retries=3, delay=1)
 async def test_perpetual_positions(indexer_rest_client, test_address):
     response = await indexer_rest_client.account.get_subaccount_perpetual_positions(
         test_address, 0
@@ -50,6 +55,7 @@ async def test_perpetual_positions(indexer_rest_client, test_address):
 
 
 @pytest.mark.asyncio
+@retry_on_forbidden(max_retries=3, delay=1)
 async def test_transfers(indexer_rest_client, test_address):
     response = await indexer_rest_client.account.get_subaccount_transfers(
         test_address, 0
@@ -63,6 +69,7 @@ async def test_transfers(indexer_rest_client, test_address):
 
 
 @pytest.mark.asyncio
+@retry_on_forbidden(max_retries=3, delay=1)
 async def test_orders(indexer_rest_client, test_address):
     response = await indexer_rest_client.account.get_subaccount_orders(test_address, 0)
     assert response is not None
@@ -74,6 +81,7 @@ async def test_orders(indexer_rest_client, test_address):
 
 
 @pytest.mark.asyncio
+@retry_on_forbidden(max_retries=3, delay=1)
 async def test_fills(indexer_rest_client, test_address):
     response = await indexer_rest_client.account.get_subaccount_fills(test_address, 0)
     assert response is not None
@@ -85,6 +93,7 @@ async def test_fills(indexer_rest_client, test_address):
 
 
 @pytest.mark.asyncio
+@retry_on_forbidden(max_retries=3, delay=1)
 async def test_historical_pnl(indexer_rest_client, test_address):
     response = await indexer_rest_client.account.get_subaccount_historical_pnls(
         test_address, 0
@@ -98,6 +107,7 @@ async def test_historical_pnl(indexer_rest_client, test_address):
 
 
 @pytest.mark.asyncio
+@retry_on_forbidden(max_retries=3, delay=1)
 async def test_historical_block_trading_rewards(indexer_rest_client, test_address):
     limit = 10
     response = await indexer_rest_client.account.get_historical_block_trading_rewards(
@@ -114,6 +124,7 @@ async def test_historical_block_trading_rewards(indexer_rest_client, test_addres
 
 
 @pytest.mark.asyncio
+@retry_on_forbidden(max_retries=3, delay=1)
 async def test_historical_trading_rewards_aggregated(indexer_rest_client, test_address):
     period = TradingRewardAggregationPeriod.DAILY
     limit = 10

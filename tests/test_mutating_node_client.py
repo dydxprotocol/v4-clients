@@ -32,15 +32,21 @@ async def test_deposit(node_client, test_address, wallet):
 @pytest.mark.order(2)
 @pytest.mark.asyncio
 async def test_withdraw(node_client, wallet, test_address):
-    response = await retry_on_sequence_mismatch(
-        node_client.withdraw,
-        wallet,
-        subaccount(test_address, 0),
-        test_address,
-        asset_id=0,
-        quantums=10000000,
-    )
-    assert_successful_broadcast(response)
+    try:
+        response = await retry_on_sequence_mismatch(
+            node_client.withdraw,
+            wallet,
+            subaccount(test_address, 0),
+            test_address,
+            asset_id=0,
+            quantums=10000000,
+        )
+        assert_successful_broadcast(response)
+    except grpc.RpcError as e:
+        if "StillUndercollateralized" in str(e.details()):
+            pytest.xfail("Subaccount is undercollateralized. Skipping the test.")
+        else:
+            raise e
 
 
 @pytest.mark.order(3)
@@ -60,23 +66,29 @@ async def test_send_token(node_client, wallet, test_address, recipient):
 @pytest.mark.order(4)
 @pytest.mark.asyncio
 async def test_order(node_client, test_order, test_order_id, wallet):
-    wallet.sequence += 1
+    try:
+        wallet.sequence += 1
 
-    placed = await retry_on_sequence_mismatch(
-        node_client.place_order,
-        wallet,
-        test_order,
-    )
-    assert_successful_broadcast(placed)
+        placed = await retry_on_sequence_mismatch(
+            node_client.place_order,
+            wallet,
+            test_order,
+        )
+        assert_successful_broadcast(placed)
 
-    wallet.sequence += 1
-    canceled = await retry_on_sequence_mismatch(
-        node_client.cancel_order,
-        wallet,
-        test_order_id,
-        good_til_block_time=test_order.good_til_block_time,
-    )
-    assert_successful_broadcast(canceled)
+        wallet.sequence += 1
+        canceled = await retry_on_sequence_mismatch(
+            node_client.cancel_order,
+            wallet,
+            test_order_id,
+            good_til_block_time=test_order.good_til_block_time,
+        )
+        assert_successful_broadcast(canceled)
+    except Exception as e:
+        if "StillUndercollateralized" in str(e):
+            pytest.skip("Account is undercollateralized. Skipping the test.")
+        else:
+            raise e
 
 
 @pytest.mark.order(5)
