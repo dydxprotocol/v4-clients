@@ -67,7 +67,11 @@ export class Post {
       `0.025${denoms.USDC_GAS_DENOM !== undefined ? denoms.USDC_GAS_DENOM : denoms.USDC_DENOM}`,
     );
     this.defaultDydxGasPrice = GasPrice.fromString(
-      `25000000000${denoms.CHAINTOKEN_GAS_DENOM !== undefined ? denoms.CHAINTOKEN_GAS_DENOM : denoms.CHAINTOKEN_DENOM}`,
+      `25000000000${
+        denoms.CHAINTOKEN_GAS_DENOM !== undefined
+          ? denoms.CHAINTOKEN_GAS_DENOM
+          : denoms.CHAINTOKEN_DENOM
+      }`,
     );
   }
 
@@ -678,5 +682,84 @@ export class Post {
       const msg = this.composer.composeMsgSendToken(address, recipient, coinDenom, quantums);
       resolve(msg);
     });
+  }
+
+  async delegate(
+    subaccount: SubaccountInfo,
+    delegator: string,
+    validator: string,
+    amount: string,
+    broadcastMode?: BroadcastMode,
+  ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
+    const msg = this.composer.composeMsgDelegate(delegator, validator, {
+      denom: this.denoms.CHAINTOKEN_DENOM,
+      amount,
+    });
+    return this.send(
+      subaccount.wallet,
+      () => Promise.resolve([msg]),
+      false,
+      this.defaultDydxGasPrice,
+      undefined,
+      broadcastMode,
+    );
+  }
+
+  delegateMsg(delegator: string, validator: string, amount: string): EncodeObject {
+    return this.composer.composeMsgDelegate(delegator, validator, {
+      denom: this.denoms.CHAINTOKEN_DENOM,
+      amount,
+    });
+  }
+
+  async undelegate(
+    subaccount: SubaccountInfo,
+    delegator: string,
+    validator: string,
+    amount: string,
+    broadcastMode?: BroadcastMode,
+  ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
+    const msg = this.composer.composeMsgUndelegate(delegator, validator, {
+      denom: this.denoms.CHAINTOKEN_DENOM,
+      amount,
+    });
+    return this.send(
+      subaccount.wallet,
+      () => Promise.resolve([msg]),
+      false,
+      this.defaultDydxGasPrice,
+      undefined,
+      broadcastMode,
+    );
+  }
+
+  undelegateMsg(delegator: string, validator: string, amount: string): EncodeObject {
+    return this.composer.composeMsgUndelegate(delegator, validator, {
+      denom: this.denoms.CHAINTOKEN_DENOM,
+      amount,
+    });
+  }
+
+  async withdrawDelegatorReward(
+    subaccount: SubaccountInfo,
+    delegator: string,
+    validator: string,
+    broadcastMode?: BroadcastMode,
+  ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
+    const msg = this.composer.composeMsgWithdrawDelegatorReward(delegator, validator);
+    return this.send(
+      subaccount.wallet,
+      () => Promise.resolve([msg]),
+      false,
+      undefined,
+      undefined,
+      broadcastMode,
+    );
+  }
+
+  async withdrawDelegatorRewardMsg(delegator: string, validator: string): Promise<EncodeObject> {
+    const msg = this.composer.composeMsgWithdrawDelegatorReward(delegator, validator);
+
+    return Promise.resolve(msg);
   }
 }

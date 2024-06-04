@@ -20,11 +20,13 @@ export default class MarketsClient extends RestClient {
     market: string,
     startingBeforeOrAtHeight?: number | null,
     limit?: number | null,
+    page?: number | null,
   ): Promise<Data> {
     const uri = `/v4/trades/perpetualMarket/${market}`;
     return this.get(uri, {
       createdBeforeOrAtHeight: startingBeforeOrAtHeight,
       limit,
+      page,
     });
   }
 

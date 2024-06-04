@@ -60,6 +60,7 @@ export default class AccountClient extends RestClient {
     limit?: number | null,
     createdBeforeOrAtHeight?: number | null,
     createdBeforeOrAt?: string | null,
+    page?: number | null,
   ): Promise<Data> {
     const uri = '/v4/transfers';
     return this.get(uri, {
@@ -68,6 +69,7 @@ export default class AccountClient extends RestClient {
       limit,
       createdBeforeOrAtHeight,
       createdBeforeOrAt,
+      page,
     });
   }
 
@@ -113,6 +115,7 @@ export default class AccountClient extends RestClient {
     limit?: number | null,
     createdBeforeOrAtHeight?: number | null,
     createdBeforeOrAt?: string | null,
+    page?: number | null,
   ): Promise<Data> {
     const uri = '/v4/fills';
     return this.get(uri, {
@@ -123,6 +126,7 @@ export default class AccountClient extends RestClient {
       limit,
       createdBeforeOrAtHeight,
       createdBeforeOrAt,
+      page,
     });
   }
 
@@ -131,6 +135,8 @@ export default class AccountClient extends RestClient {
     subaccountNumber: number,
     effectiveBeforeOrAt?: string | null,
     effectiveAtOrAfter?: string | null,
+    limit?: number | null,
+    page?: number | null,
   ): Promise<Data> {
     const uri = '/v4/historical-pnl';
     return this.get(uri, {
@@ -138,6 +144,8 @@ export default class AccountClient extends RestClient {
       subaccountNumber,
       effectiveBeforeOrAt,
       effectiveAtOrAfter,
+      limit,
+      page,
     });
   }
 }

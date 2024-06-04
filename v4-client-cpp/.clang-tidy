@@ -1,0 +1,20 @@
+# Generated from CLion Inspection settings
+---
+Checks: '*,
+-android-*,
+-fuchsia-*,
+-linuxkernel-*,
+-llvm-*,
+-llvmlibc-*,
+-objc-*,
+-zircon-*,
+-altera-unroll-loops,
+-cert-err09-cpp,
+-cppcoreguidelines-avoid-const-or-ref-data-members,
+-cppcoreguidelines-non-private-member-variables-in-classes,
+-cppcoreguidelines-avoid-do-while,
+-modernize-use-trailing-return-type,
+-readability-identifier-length,
+-misc-non-private-member-variables-in-classes,
+-cert-dcl50-cpp,
+-google-readability-braces-around-statements'

@@ -27,6 +27,10 @@ pip install v4-client-py
 
 Sample code is located in examples folder
 
+## Trading Setup Guide - Raspberry Pi
+
+For follow this [setup guide](https://docs.dydx.exchange/guides/setting_up_raspberry_pi_for_api_trading) for running the Python Client on a Raspberry Pi.
+
 ## Development Setup - VS Code
 
 Install Microsoft Python extensions

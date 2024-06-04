@@ -56,6 +56,30 @@ describe('IndexerClient', () => {
       }
     });
 
+    it('Transfers Pagination', async () => {
+      const response = await client.account.getSubaccountTransfers(
+        DYDX_TEST_ADDRESS,
+        0,
+        1,
+        undefined,
+        undefined,
+        1,
+      );
+      expect(response).not.toBeNull();
+      const transfers = response.transfers;
+
+      expect(transfers).not.toBeNull();
+      if (transfers.length > 0) {
+        const transfer = transfers[0];
+        expect(transfer).not.toBeNull();
+
+        expect(response.totalResults).toBeGreaterThanOrEqual(1);
+      }
+
+      expect(response.pageSize).toStrictEqual(1);
+      expect(response.offset).toStrictEqual(0);
+    });
+
     it('Orders', async () => {
       const response = await client.account.getSubaccountOrders(DYDX_TEST_ADDRESS, 0);
       expect(response).not.toBeNull();
@@ -78,6 +102,31 @@ describe('IndexerClient', () => {
       }
     });
 
+    it('Fills Pagination', async () => {
+      const response = await client.account.getSubaccountFills(
+        DYDX_TEST_ADDRESS,
+        0,
+        undefined,
+        undefined,
+        1,
+        undefined,
+        undefined,
+        1,
+      );
+
+      expect(response).not.toBeNull();
+      const fills = response.fills;
+      expect(fills).not.toBeNull();
+      if (fills.length > 0) {
+        const fill = fills[0];
+        expect(fill).not.toBeNull();
+        expect(response.totalResults).toBeGreaterThanOrEqual(1);
+      }
+
+      expect(response.pageSize).toStrictEqual(1);
+      expect(response.offset).toStrictEqual(0);
+    });
+
     it('Historical PNL', async () => {
       const response = await client.account.getSubaccountHistoricalPNLs(DYDX_TEST_ADDRESS, 0);
       expect(response).not.toBeNull();
@@ -87,6 +136,28 @@ describe('IndexerClient', () => {
         const historicalPnl0 = historicalPnl[0];
         expect(historicalPnl0).not.toBeNull();
       }
+    });
+
+    it('Historical PNL Pagination', async () => {
+      const response = await client.account.getSubaccountHistoricalPNLs(
+        DYDX_TEST_ADDRESS,
+        0,
+        undefined,
+        undefined,
+        1,
+        1,
+      );
+      expect(response).not.toBeNull();
+      const historicalPnl = response.historicalPnl;
+      expect(historicalPnl).not.toBeNull();
+      if (historicalPnl.length > 0) {
+        const historicalPnl0 = historicalPnl[0];
+        expect(historicalPnl0).not.toBeNull();
+        expect(response.totalResults).toBeGreaterThanOrEqual(1);
+      }
+
+      expect(response.pageSize).toStrictEqual(1);
+      expect(response.offset).toStrictEqual(0);
     });
   });
 });

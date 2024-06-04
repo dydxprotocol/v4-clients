@@ -22,7 +22,7 @@ export const MAINNET_CHAIN_ID = 'dydx-mainnet-1';
 
 // ------------ API URLs ------------
 export enum IndexerApiHost {
-  TESTNET = 'https://dydx-testnet.imperator.co',
+  TESTNET = 'https://indexer.v4testnet.dydx.exchange/',
   LOCAL = 'http://localhost:3002',
   // For the deployment by DYDX token holders
   MAINNET = 'https://indexer.dydx.trade',
@@ -92,6 +92,12 @@ export const TYPE_URL_MSG_CREATE_TRANSFER = '/dydxprotocol.sending.MsgCreateTran
 export const TYPE_URL_MSG_WITHDRAW_FROM_SUBACCOUNT =
   '/dydxprotocol.sending.MsgWithdrawFromSubaccount';
 export const TYPE_URL_MSG_DEPOSIT_TO_SUBACCOUNT = '/dydxprotocol.sending.MsgDepositToSubaccount';
+
+// x/staking
+export const TYPE_URL_MSG_DELEGATE = '/cosmos.staking.v1beta1.MsgDelegate';
+export const TYPE_URL_MSG_UNDELEGATE = '/cosmos.staking.v1beta1.MsgUndelegate';
+export const TYPE_URL_MSG_WITHDRAW_DELEGATOR_REWARD =
+  '/cosmos.staking.v1beta1.MsgWithdrawDelegatorReward';
 
 // ------------ Chain Constants ------------
 // The following are same across different networks / deployments.
