@@ -27,7 +27,7 @@ from v4_proto.cosmos.tx.v1beta1.tx_pb2 import (
     TxBody,
 )
 
-from dydx_v4_client.indexer.rest.constants import GAS_MULTIPLIER
+from dydx_v4_client.config import GAS_MULTIPLIER
 from dydx_v4_client.node.builder import as_any
 from dydx_v4_client.wallet import from_mnemonic
 

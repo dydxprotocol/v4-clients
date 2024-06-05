@@ -38,6 +38,7 @@ TESTNET = Network(
     "wss://indexer.v4testnet.dydx.exchange/v4/ws",
 )
 TESTNET_FAUCET = "https://faucet.v4testnet.dydx.exchange"
+TESTNET_NOBLE = "https://rpc.testnet.noble.strange.love"
 
 LOCAL = Network(
     NodeConfig(

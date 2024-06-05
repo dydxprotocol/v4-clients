@@ -1,0 +1,1 @@
+GAS_MULTIPLIER = 1.4
