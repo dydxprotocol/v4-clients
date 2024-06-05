@@ -1010,6 +1010,8 @@ export class CompositeClient {
     summary: string,
     initialDepositAmount: string,
     memo?: string,
+    metadata?: string,
+    expedited?: boolean,
   ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
     const msg: Promise<EncodeObject[]> = new Promise((resolve) => {
       const composer = this.validatorClient.post.composer;
@@ -1080,6 +1082,8 @@ export class CompositeClient {
         // IMPORTANT: must wrap messages in Any type for gov's submit proposal.
         composer.wrapMessageArrAsAny(registry, msgs),
         wallet.address!, // proposer
+        metadata,
+        expedited,
       );
 
       resolve([submitProposal]);
