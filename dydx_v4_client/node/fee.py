@@ -5,7 +5,8 @@ from typing import List, Tuple
 from v4_proto.cosmos.base.v1beta1.coin_pb2 import Coin as ProtoCoin
 from v4_proto.cosmos.tx.v1beta1.tx_pb2 import Fee as ProtoFee
 
-GAS_MULTIPLIER = 1.4
+from dydx_v4_client.config import GAS_MULTIPLIER
+
 GAS_PRICE = 0.025
 DYDX_GAS_PRICE = 25000000000
 

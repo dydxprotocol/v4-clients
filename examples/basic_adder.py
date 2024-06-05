@@ -1,22 +1,17 @@
 import asyncio
 import logging
-import time
 from decimal import Decimal
 
 from v4_proto.dydxprotocol.clob.order_pb2 import OrderId
 
-from dydx_v4_client.indexer.rest.constants import (
-    IndexerApiHost,
-    IndexerConfig,
-    IndexerWSHost,
-    OrderSide,
-    OrderTimeInForce,
+from dydx_v4_client.indexer.rest.constants import OrderSide, OrderTimeInForce
+from dydx_v4_client.indexer.socket.websocket import (
+    IndexerSocket,
+    OrderBook,
+    Subaccounts,
 )
-from dydx_v4_client.indexer.rest.indexer_client import IndexerClient
-from dydx_v4_client.indexer.socket.websocket import IndexerSocket, as_json
 from dydx_v4_client.network import TESTNET
 from dydx_v4_client.node.client import NodeClient
-from dydx_v4_client.node.market import since_now
 from dydx_v4_client.node.message import order, order_id
 from dydx_v4_client.wallet import Wallet, from_string
 from tests.conftest import DYDX_TEST_PRIVATE_KEY
@@ -44,24 +39,11 @@ class BasicAdder:
         self.address = address
         self.key = from_string(bytes.fromhex(key))
         self.subaccount_number = subaccount_number
-        self.testnet_indexer_config = IndexerConfig(
-            rest_endpoint=IndexerApiHost.TESTNET,
-            websocket_endpoint=IndexerWSHost.TESTNET,
-        )
-        self.mainnet_indexer_config = IndexerConfig(
-            rest_endpoint=IndexerApiHost.MAINNET,
-            websocket_endpoint=IndexerWSHost.MAINNET,
-        )
         self.node_client = node_client
         self.testnet_indexer_socket = IndexerSocket(
-            self.testnet_indexer_config.websocket_endpoint,
-            on_open=self.on_testnet_open,
-            on_message=self.on_testnet_message,
-        )
-        self.mainnet_indexer_socket = IndexerSocket(
-            self.mainnet_indexer_config.websocket_endpoint,
-            on_open=self.on_mainnet_open,
-            on_message=self.on_mainnet_message,
+            TESTNET.websocket_indexer,
+            on_open=self.on_open,
+            on_message=self.on_message,
         )
         self.position = None
         self.provide_state = {
@@ -69,24 +51,21 @@ class BasicAdder:
             "SIDE_SELL": {"type": "cancelled"},
         }
 
-    def on_testnet_open(self, ws):
-        self.testnet_indexer_socket.subaccounts.subscribe(
+    def on_open(self, ws):
+        ws.subaccounts.subscribe(
             address=self.address, subaccount_number=self.subaccount_number
         )
-        logging.info("Testnet WebSocket is subscribed to subaccounts")
+        ws.markets.subscribe()
+        ws.trades.subscribe(id=MARKET)
+        ws.order_book.subscribe(id=MARKET)
+        logging.info(
+            "Testnet WebSocket is subscribed to subaccounts, markets, trades, order_book"
+        )
 
-    def on_mainnet_open(self, ws):
-        self.mainnet_indexer_socket.markets.subscribe()
-        self.mainnet_indexer_socket.trades.subscribe(id=MARKET)
-        self.mainnet_indexer_socket.order_book.subscribe(id=MARKET)
-        logging.info("Mainnet WebSocket is subscribed to markets, trades, order_book")
-
-    def on_testnet_message(self, ws, message):
-        if message.get("channel") == "v4_subaccounts":
+    def on_message(self, ws, message):
+        if message.get("channel") == Subaccounts.channel:
             asyncio.run(self.on_subaccount_update(message))
-
-    def on_mainnet_message(self, ws, message):
-        if message.get("channel") == "v4_orderbook":
+        if message.get("channel") == OrderBook.channel:
             asyncio.run(self.on_order_book_update(message))
 
     async def on_order_book_update(self, message):
@@ -239,9 +218,7 @@ async def main():
 
     adder = BasicAdder(node, address, key, subaccount_number)
 
-    task_1 = adder.testnet_indexer_socket.connect()
-    task_2 = adder.mainnet_indexer_socket.connect()
-    await asyncio.gather(task_1, task_2)
+    await adder.testnet_indexer_socket.connect()
 
 
 if __name__ == "__main__":
