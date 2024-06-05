@@ -1,7 +1,10 @@
+import asyncio
 import random
 import time
+from functools import wraps
 
 import grpc
+import httpx
 import pytest
 from grpc import StatusCode
 
@@ -119,3 +122,27 @@ async def retry_on_sequence_mismatch(func, wallet, *args, **kwargs):
                 if attempt < max_retries - 1:
                     continue
             raise
+
+
+def retry_on_forbidden(max_retries=3, delay=1):
+    def decorator(func):
+        @wraps(func)
+        async def wrapper(*args, **kwargs):
+            for attempt in range(max_retries):
+                try:
+                    return await func(*args, **kwargs)
+                except httpx.HTTPStatusError as e:
+                    if e.response.status_code == 403:
+                        if attempt < max_retries - 1:
+                            await asyncio.sleep(delay)
+                            continue
+                    raise
+            raise httpx.HTTPStatusError(
+                request=e.request,
+                response=e.response,
+                message=f"Failed after {max_retries} retries with 403 Forbidden error.",
+            )
+
+        return wrapper
+
+    return decorator

@@ -20,7 +20,10 @@ SERIALIZED_CANCEL_ORDER = (
 SERIALIZED_DEPOSIT = b"\n+dydx14zzueazeh0hj67cghhf9jypslcf9sh2n5k6art\x12-\n+dydx14zzueazeh0hj67cghhf9jypslcf9sh2n5k6art \x80\xad\xe2\x04"
 SERIALIZED_WITHDRAW = b"\n+dydx14zzueazeh0hj67cghhf9jypslcf9sh2n5k6art\x12-\n+dydx14zzueazeh0hj67cghhf9jypslcf9sh2n5k6art \x80\xad\xe2\x04"
 SERIALIZED_SEND_TOKEN = b"\n+dydx14zzueazeh0hj67cghhf9jypslcf9sh2n5k6art\x12+dydx1slanxj8x9ntk9knwa6cvfv2tzlsq5gk3dshml0\x1a\x13\n\x07adv4tnt\x12\x0810000000"
-SERIALIZED_TRANSFER = b"\n-\n+dydx14zzueazeh0hj67cghhf9jypslcf9sh2n5k6art\x12/\n+dydx1slanxj8x9ntk9knwa6cvfv2tzlsq5gk3dshml0\x10\x01 \x01"
+SERIALIZED_TRANSFER = (
+    b"\nb\n-\n+dydx14zzueazeh0hj67cghhf9jypslcf9sh2n5k6art\x12/\n+dydx1slanxj8x9n"
+    b"tk9knwa6cvfv2tzlsq5gk3dshml0\x10\x01 \x01"
+)
 
 
 def assert_serializes_properly(message: Message, expected: str):
