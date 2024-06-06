@@ -47,8 +47,8 @@ class BasicAdder:
         )
         self.position = None
         self.provide_state = {
-            "SIDE_BUY": {"type": "cancelled"},
-            "SIDE_SELL": {"type": "cancelled"},
+            OrderSide.BUY: {"type": "cancelled"},
+            OrderSide.SELL: {"type": "cancelled"},
         }
 
     def on_open(self, ws):
