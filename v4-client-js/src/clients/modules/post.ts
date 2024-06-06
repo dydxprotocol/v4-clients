@@ -751,7 +751,7 @@ export class Post {
       subaccount.wallet,
       () => Promise.resolve([msg]),
       false,
-      this.defaultDydxGasPrice,
+      this.defaultGasPrice,
       undefined,
       broadcastMode,
     );
