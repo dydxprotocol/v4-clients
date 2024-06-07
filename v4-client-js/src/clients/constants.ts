@@ -96,10 +96,12 @@ export const TYPE_URL_MSG_DEPOSIT_TO_SUBACCOUNT = '/dydxprotocol.sending.MsgDepo
 // x/staking
 export const TYPE_URL_MSG_DELEGATE = '/cosmos.staking.v1beta1.MsgDelegate';
 export const TYPE_URL_MSG_UNDELEGATE = '/cosmos.staking.v1beta1.MsgUndelegate';
-export const TYPE_URL_MSG_WITHDRAW_DELEGATOR_REWARD =
-  '/cosmos.staking.v1beta1.MsgWithdrawDelegatorReward';
 
-// ------------ Chain Constants ------------
+// x/distribution
+export const TYPE_URL_MSG_WITHDRAW_DELEGATOR_REWARD =
+  '/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward';
+
+  // ------------ Chain Constants ------------
 // The following are same across different networks / deployments.
 export const GOV_MODULE_ADDRESS = 'dydx10d07y265gmmuvt4z0w9aw880jnsr700jnmapky';
 export const DELAYMSG_MODULE_ADDRESS = 'dydx1mkkvp26dngu6n8rmalaxyp3gwkjuzztq5zx6tr';
