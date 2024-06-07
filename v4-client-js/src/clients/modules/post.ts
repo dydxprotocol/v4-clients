@@ -751,15 +751,13 @@ export class Post {
       subaccount.wallet,
       () => Promise.resolve([msg]),
       false,
-      undefined,
+      this.defaultGasPrice,
       undefined,
       broadcastMode,
     );
   }
 
-  async withdrawDelegatorRewardMsg(delegator: string, validator: string): Promise<EncodeObject> {
-    const msg = this.composer.composeMsgWithdrawDelegatorReward(delegator, validator);
-
-    return Promise.resolve(msg);
+  withdrawDelegatorRewardMsg(delegator: string, validator: string): EncodeObject {
+    return this.composer.composeMsgWithdrawDelegatorReward(delegator, validator);
   }
 }
