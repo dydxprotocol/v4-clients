@@ -59,8 +59,8 @@ export const NETWORK_ID_MAINNET: string = 'dydx-mainnet-1';
 
 // ------------ Gas Denoms ------------
 export enum SelectedGasDenom {
-  NATIVE,
-  USDC,
+  NATIVE = 'NATIVE',
+  USDC = 'USDC',
 }
 
 // ------------ MsgType URLs ------------
