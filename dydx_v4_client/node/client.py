@@ -86,18 +86,46 @@ class QueryNodeClient:
     async def get_account_balances(
         self, address: str
     ) -> bank_query.QueryAllBalancesResponse:
+        """
+        Retrieves all account balances for a given address.
+
+        Args:
+            address (str): The account address.
+
+        Returns:
+            bank_query.QueryAllBalancesResponse: The response containing all account balances.
+        """
         stub = bank_query_grpc.QueryStub(self.channel)
         return stub.AllBalances(bank_query.QueryAllBalancesRequest(address=address))
 
     async def get_account_balance(
         self, address: str, denom: str
     ) -> bank_query.QueryBalanceResponse:
+        """
+        Retrieves the account balance for a specific denomination.
+
+        Args:
+            address (str): The account address.
+            denom (str): The denomination of the balance.
+
+        Returns:
+            bank_query.QueryBalanceResponse: The response containing the account balance.
+        """
         stub = bank_query_grpc.QueryStub(self.channel)
         return stub.Balance(
             bank_query.QueryBalanceRequest(address=address, denom=denom)
         )
 
     async def get_account(self, address: str) -> BaseAccount:
+        """
+        Retrieves the account information for a given address.
+
+        Args:
+            address (str): The account address.
+
+        Returns:
+            BaseAccount: The base account information.
+        """
         account = BaseAccount()
         response = auth.QueryStub(self.channel).Account(
             QueryAccountRequest(address=address)
@@ -107,27 +135,67 @@ class QueryNodeClient:
         return account
 
     async def latest_block(self) -> tendermint_query.GetLatestBlockResponse:
+        """
+        Retrieves the latest block information.
+
+        Returns:
+            tendermint_query.GetLatestBlockResponse: The response containing the latest block information.
+        """
         return tendermint_query_grpc.ServiceStub(self.channel).GetLatestBlock(
             tendermint_query.GetLatestBlockRequest()
         )
 
     async def latest_block_height(self) -> int:
+        """
+        Retrieves the height of the latest block.
+
+        Returns:
+            int: The height of the latest block.
+        """
         block = await self.latest_block()
         return block.block.header.height
 
     async def get_user_stats(self, address: str) -> stats_query.QueryUserStatsResponse:
+        """
+        Retrieves the user stats for a given address.
+
+        Args:
+            address (str): The user address.
+
+        Returns:
+            stats_query.QueryUserStatsResponse: The response containing the user stats.
+        """
         stub = stats_query_grpc.QueryStub(self.channel)
         return stub.UserStats(stats_query.QueryUserStatsRequest(user=address))
 
     async def get_all_validators(
         self, status: str = ""
     ) -> staking_query.QueryValidatorsResponse:
+        """
+        Retrieves all validators with an optional status filter.
+
+        Args:
+            status (str, optional): The validator status filter. Defaults to an empty string.
+
+        Returns:
+            staking_query.QueryValidatorsResponse: The response containing all validators.
+        """
         stub = staking_query_grpc.QueryStub(self.channel)
         return stub.Validators(staking_query.QueryValidatorsRequest(status=status))
 
     async def get_subaccount(
         self, address: str, account_number: int
     ) -> Optional[subaccount_type.Subaccount]:
+        """
+        Retrieves a subaccount for a given address and account number.
+
+        Args:
+            address (str): The owner address.
+            account_number (int): The subaccount number.
+
+        Returns:
+            Optional[subaccount_type.Subaccount]: The subaccount, if found.
+        """
         stub = subaccounts_query_grpc.QueryStub(self.channel)
         response = stub.Subaccount(
             QueryGetSubaccountRequest(owner=address, number=account_number)
@@ -135,38 +203,95 @@ class QueryNodeClient:
         return response.subaccount
 
     async def get_subaccounts(self) -> QuerySubaccountAllResponse:
+        """
+        Retrieves all subaccounts.
+
+        Returns:
+            QuerySubaccountAllResponse: The response containing all subaccounts.
+        """
         stub = subaccounts_query_grpc.QueryStub(self.channel)
         return stub.SubaccountAll(QueryAllSubaccountRequest())
 
     async def get_clob_pair(self, pair_id: int) -> clob_pair_type.ClobPair:
+        """
+        Retrieves a CLOB pair by its ID.
+
+        Args:
+            pair_id (int): The CLOB pair ID.
+
+        Returns:
+            clob_pair_type.ClobPair: The CLOB pair.
+        """
         stub = clob_query_grpc.QueryStub(self.channel)
         response = stub.ClobPair(clob_query.QueryGetClobPairRequest(id=pair_id))
         return response.clob_pair
 
     async def get_clob_pairs(self) -> QueryClobPairAllResponse:
+        """
+        Retrieves all CLOB pairs.
+
+        Returns:
+            QueryClobPairAllResponse: The response containing all CLOB pairs.
+        """
         stub = clob_query_grpc.QueryStub(self.channel)
         return stub.ClobPairAll(QueryAllClobPairRequest())
 
     async def get_price(self, market_id: int) -> market_price_type.MarketPrice:
+        """
+        Retrieves the market price for a given market ID.
+
+        Args:
+            market_id (int): The market ID.
+
+        Returns:
+            market_price_type.MarketPrice: The market price.
+        """
         stub = prices_query_grpc.QueryStub(self.channel)
         response = stub.MarketPrice(QueryMarketPriceRequest(id=market_id))
         return response.market_price
 
     async def get_prices(self) -> QueryAllMarketPricesResponse:
+        """
+        Retrieves all market prices.
+
+        Returns:
+            QueryAllMarketPricesResponse: The response containing all market prices.
+        """
         stub = prices_query_grpc.QueryStub(self.channel)
         return stub.AllMarketPrices(QueryAllMarketPricesRequest())
 
     async def get_perpetual(self, perpetual_id: int) -> QueryPerpetualResponse:
+        """
+        Retrieves a perpetual by its ID.
+
+        Args:
+            perpetual_id (int): The perpetual ID.
+
+        Returns:
+            QueryPerpetualResponse: The response containing the perpetual.
+        """
         stub = perpetuals_query_grpc.QueryStub(self.channel)
         return stub.Perpetual(QueryPerpetualRequest(id=perpetual_id))
 
     async def get_perpetuals(self) -> QueryAllPerpetualsResponse:
+        """
+        Retrieves all perpetuals.
+
+        Returns:
+            QueryAllPerpetualsResponse: The response containing all perpetuals.
+        """
         stub = perpetuals_query_grpc.QueryStub(self.channel)
         return stub.AllPerpetuals(QueryAllPerpetualsRequest())
 
     async def get_equity_tier_limit_config(
         self,
     ) -> equity_tier_limit_config_type.EquityTierLimitConfiguration:
+        """
+        Retrieves the equity tier limit configuration.
+
+        Returns:
+            equity_tier_limit_config_type.EquityTierLimitConfiguration: The equity tier limit configuration.
+        """
         stub = clob_query_grpc.QueryStub(self.channel)
         response = stub.EquityTierLimitConfiguration(
             clob_query.QueryEquityTierLimitConfigurationRequest()
@@ -176,6 +301,15 @@ class QueryNodeClient:
     async def get_delegator_delegations(
         self, delegator_addr: str
     ) -> staking_query.QueryDelegatorDelegationsResponse:
+        """
+        Retrieves the delegations for a given delegator address.
+
+        Args:
+            delegator_addr (str): The delegator address.
+
+        Returns:
+            staking_query.QueryDelegatorDelegationsResponse: The response containing the delegator delegations.
+        """
         stub = staking_query_grpc.QueryStub(self.channel)
         return stub.DelegatorDelegations(
             staking_query.QueryDelegatorDelegationsRequest(
@@ -186,6 +320,15 @@ class QueryNodeClient:
     async def get_delegator_unbonding_delegations(
         self, delegator_addr: str
     ) -> staking_query.QueryDelegatorUnbondingDelegationsResponse:
+        """
+        Retrieves the unbonding delegations for a given delegator address.
+
+        Args:
+            delegator_addr (str): The delegator address.
+
+        Returns:
+            staking_query.QueryDelegatorUnbondingDelegationsResponse: The response containing the delegator unbonding delegations.
+        """
         stub = staking_query_grpc.QueryStub(self.channel)
         return stub.DelegatorUnbondingDelegations(
             staking_query.QueryDelegatorUnbondingDelegationsRequest(
@@ -196,22 +339,52 @@ class QueryNodeClient:
     async def get_delayed_complete_bridge_messages(
         self, address: str = ""
     ) -> bridge_query.QueryDelayedCompleteBridgeMessagesResponse:
+        """
+        Retrieves the delayed complete bridge messages for a given address.
+
+        Args:
+            address (str, optional): The address. Defaults to an empty string.
+
+        Returns:
+            bridge_query.QueryDelayedCompleteBridgeMessagesResponse: The response containing the delayed complete bridge messages.
+        """
         stub = bridge_query_grpc.QueryStub(self.channel)
         return stub.DelayedCompleteBridgeMessages(
             bridge_query.QueryDelayedCompleteBridgeMessagesRequest(address=address)
         )
 
     async def get_fee_tiers(self) -> fee_tier_query.QueryPerpetualFeeParamsResponse:
+        """
+        Retrieves the perpetual fee parameters.
+
+        Returns:
+            fee_tier_query.QueryPerpetualFeeParamsResponse: The response containing the perpetual fee parameters.
+        """
         stub = fee_tier_query_grpc.QueryStub(self.channel)
         return stub.PerpetualFeeParams(fee_tier_query.QueryPerpetualFeeParamsRequest())
 
     async def get_user_fee_tier(
         self, address: str
     ) -> fee_tier_query.QueryUserFeeTierResponse:
+        """
+        Retrieves the user fee tier for a given address.
+
+        Args:
+            address (str): The user address.
+
+        Returns:
+            fee_tier_query.QueryUserFeeTierResponse: The response containing the user fee tier.
+        """
         stub = fee_tier_query_grpc.QueryStub(self.channel)
         return stub.UserFeeTier(fee_tier_query.QueryUserFeeTierRequest(user=address))
 
     async def get_rewards_params(self) -> rewards_query.QueryParamsResponse:
+        """
+        Retrieves the rewards parameters.
+
+        Returns:
+            rewards_query.QueryParamsResponse: The response containing the rewards parameters.
+        """
         stub = rewards_query_grpc.QueryStub(self.channel)
         return stub.Params(rewards_query.QueryParamsRequest())
 
@@ -221,6 +394,16 @@ class MutatingNodeClient(QueryNodeClient):
     builder: Builder
 
     async def broadcast(self, transaction: Tx, mode=BroadcastMode.BROADCAST_MODE_SYNC):
+        """
+        Broadcasts a transaction.
+
+        Args:
+            transaction (Tx): The transaction to broadcast.
+            mode (BroadcastMode, optional): The broadcast mode. Defaults to BroadcastMode.BROADCAST_MODE_SYNC.
+
+        Returns:
+            The response from the broadcast.
+        """
         request = BroadcastTxRequest(
             tx_bytes=transaction.SerializeToString(), mode=mode
         )
@@ -228,6 +411,15 @@ class MutatingNodeClient(QueryNodeClient):
         return service_pb2_grpc.ServiceStub(self.channel).BroadcastTx(request)
 
     async def simulate(self, transaction: Tx):
+        """
+        Simulates a transaction.
+
+        Args:
+            transaction (Tx): The transaction to simulate.
+
+        Returns:
+            The response from the simulation.
+        """
         request = SimulateRequest(tx=transaction)
 
         return service_pb2_grpc.ServiceStub(self.channel).Simulate(request)
@@ -235,6 +427,17 @@ class MutatingNodeClient(QueryNodeClient):
     async def send(
         self, wallet: Wallet, transaction: Tx, mode=BroadcastMode.BROADCAST_MODE_SYNC
     ):
+        """
+        Sends a transaction.
+
+        Args:
+            wallet (Wallet): The wallet to use for signing the transaction.
+            transaction (Tx): The transaction to send.
+            mode (BroadcastMode, optional): The broadcast mode. Defaults to BroadcastMode.BROADCAST_MODE_SYNC.
+
+        Returns:
+            The response from the broadcast.
+        """
         builder = self.builder
         simulated = await self.simulate(transaction)
 
@@ -247,20 +450,73 @@ class MutatingNodeClient(QueryNodeClient):
     async def send_message(
         self, wallet: Wallet, message: Message, mode=BroadcastMode.BROADCAST_MODE_SYNC
     ):
+        """
+        Sends a message.
+
+        Args:
+            wallet (Wallet): The wallet to use for signing the transaction.
+            message (Message): The message to send.
+            mode (BroadcastMode, optional): The broadcast mode. Defaults to BroadcastMode.BROADCAST_MODE_SYNC.
+
+        Returns:
+            The response from the broadcast.
+        """
         return await self.send(wallet, self.builder.build(wallet, message), mode)
 
     async def broadcast_message(
         self, wallet: Wallet, message: Message, mode=BroadcastMode.BROADCAST_MODE_SYNC
     ):
+        """
+        Broadcasts a message.
+
+        Args:
+            wallet (Wallet): The wallet to use for signing the transaction.
+            message (Message): The message to broadcast.
+            mode (BroadcastMode, optional): The broadcast mode. Defaults to BroadcastMode.BROADCAST_MODE_SYNC.
+
+        Returns:
+            The response from the broadcast.
+        """
         return await self.broadcast(self.builder.build(wallet, message), mode)
 
     def build_transaction(self, wallet: Wallet, messages: List[Message], fee: Fee):
+        """
+        Builds a transaction.
+
+        Args:
+            wallet (Wallet): The wallet to use for signing the transaction.
+            messages (List[Message]): The list of messages to include in the transaction.
+            fee (Fee): The fee to use for the transaction.
+
+        Returns:
+            The built transaction.
+        """
         return self.builder.build_transaction(wallet, messages, fee.as_proto())
 
     def build(self, wallet: Wallet, message: Message, fee: Fee):
+        """
+        Builds a transaction with a single message.
+
+        Args:
+            wallet (Wallet): The wallet to use for signing the transaction.
+            message (Message): The message to include in the transaction.
+            fee (Fee): The fee to use for the transaction.
+
+        Returns:
+            The built transaction.
+        """
         return self.builder.build(wallet, message, fee.as_proto())
 
     def calculate_fee(self, gas_used) -> Fee:
+        """
+        Calculates the fee based on the gas used.
+
+        Args:
+            gas_used: The amount of gas used.
+
+        Returns:
+            Fee: The calculated fee.
+        """
         gas_limit, amount = calculate_fee(gas_used)
         return Fee(gas_limit, [Coin(amount, self.builder.denomination)])
 
@@ -282,6 +538,19 @@ class NodeClient(MutatingNodeClient):
         asset_id: int,
         quantums: int,
     ):
+        """
+        Deposits funds into a subaccount.
+
+        Args:
+            wallet (Wallet): The wallet to use for signing the transaction.
+            sender (str): The sender address.
+            recipient_subaccount (SubaccountId): The recipient subaccount ID.
+            asset_id (int): The asset ID.
+            quantums (int): The amount of quantums to deposit.
+
+        Returns:
+            The response from the transaction broadcast.
+        """
         return await self.send_message(
             wallet, deposit(sender, recipient_subaccount, asset_id, quantums)
         )
@@ -294,6 +563,19 @@ class NodeClient(MutatingNodeClient):
         asset_id: int,
         quantums: int,
     ):
+        """
+        Withdraws funds from a subaccount.
+
+        Args:
+            wallet (Wallet): The wallet to use for signing the transaction.
+            sender_subaccount (SubaccountId): The sender subaccount ID.
+            recipient (str): The recipient address.
+            asset_id (int): The asset ID.
+            quantums (int): The amount of quantums to withdraw.
+
+        Returns:
+            The response from the transaction broadcast.
+        """
         return await self.send_message(
             wallet, withdraw(sender_subaccount, recipient, asset_id, quantums)
         )
@@ -306,6 +588,19 @@ class NodeClient(MutatingNodeClient):
         quantums: int,
         denomination: str,
     ):
+        """
+        Sends tokens from one address to another.
+
+        Args:
+            wallet (Wallet): The wallet to use for signing the transaction.
+            sender (str): The sender address.
+            recipient (str): The recipient address.
+            quantums (int): The amount of quantums to send.
+            denomination (str): The denomination of the token.
+
+        Returns:
+            The response from the transaction broadcast.
+        """
         return await self.send_message(
             wallet, send_token(sender, recipient, quantums, denomination)
         )
@@ -318,6 +613,19 @@ class NodeClient(MutatingNodeClient):
         asset_id: int,
         amount: int,
     ):
+        """
+        Transfers funds between subaccounts.
+
+        Args:
+            wallet (Wallet): The wallet to use for signing the transaction.
+            sender_subaccount (SubaccountId): The sender subaccount ID.
+            recipient_subaccount (SubaccountId): The recipient subaccount ID.
+            asset_id (int): The asset ID.
+            amount (int): The amount to transfer.
+
+        Returns:
+            The response from the transaction broadcast.
+        """
         return await self.send_message(
             wallet,
             transfer(
@@ -329,6 +637,16 @@ class NodeClient(MutatingNodeClient):
         )
 
     async def place_order(self, wallet: Wallet, order: Order):
+        """
+        Places an order.
+
+        Args:
+            wallet (Wallet): The wallet to use for signing the transaction.
+            order (Order): The order to place.
+
+        Returns:
+            The response from the transaction broadcast.
+        """
         return await self.broadcast_message(wallet, place_order(order))
 
     async def cancel_order(
@@ -338,6 +656,18 @@ class NodeClient(MutatingNodeClient):
         good_til_block: int = None,
         good_til_block_time: int = None,
     ):
+        """
+        Cancels an order.
+
+        Args:
+            wallet (Wallet): The wallet to use for signing the transaction.
+            order_id (OrderId): The ID of the order to cancel.
+            good_til_block (int, optional): The block number until which the order is valid. Defaults to None.
+            good_til_block_time (int, optional): The block time until which the order is valid. Defaults to None.
+
+        Returns:
+            The response from the transaction broadcast.
+        """
         return await self.broadcast_message(
             wallet, cancel_order(order_id, good_til_block, good_til_block_time)
         )
