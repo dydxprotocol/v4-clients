@@ -26,6 +26,7 @@ import {
   OrderExecution,
   IndexerConfig,
   ValidatorConfig,
+  SelectedGasDenom,
 } from './constants';
 import { FaucetClient } from './faucet-client';
 import { Response } from './lib/axios';
@@ -1244,6 +1245,19 @@ export async function signCompliancePayload(payload: string): Promise<string> {
       publicKey: Buffer.from(globalThis.hdKey.publicKey).toString('base64'),
       timestamp: timestampInSeconds,
     });
+  } catch (error) {
+    return wrappedError(error);
+  }
+}
+
+export async function setSelectedGasDenom(gasDenom: string): Promise<string> {
+  try {
+    const client = globalThis.client;
+    if (client === undefined) {
+      throw new UserError('client is not connected. Call connectClient() first');
+    }
+    await client.setSelectedGasDenom(gasDenom as SelectedGasDenom);
+    return encodeJson('success');
   } catch (error) {
     return wrappedError(error);
   }
