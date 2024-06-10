@@ -25,7 +25,6 @@ asyncio.run(main())
 ```
 
 ### Node
-
 `NodeClient` allows to send transactions and fetch node state. E.g. you can deposit funds using the `deposit` method:
 
 https://github.com/NethermindEth/dydx-v4-client/blob/f8be7bf9165fb052e831fcafb8086d14e5af13aa/examples/transfer_example_deposit.py#L1-L24
@@ -89,6 +88,61 @@ indexer = IndexerClient("https://indexer.dydx.trade")
 Faucet allows to obtain usdc on testnet. To use it create `FaucetClient`:
 https://github.com/NethermindEth/dydx-v4-client/blob/18eb769dde2a8691fc13445a34f46f0ecb266ec8/examples/faucet_endpoint.py#L1-L15
 
+### Placing order
+To place order first you have to build the order.
+
+To do this you can the direct interface:
+```python
+order(
+    id,
+    side,
+    quantums,
+    subticks,
+    time_in_force,
+    reduce_only,
+    good_til_block,
+    good_til_block_time
+)
+```
+
+Or market based calculator:
+```python
+from dydx_v4_client.node.market import Market
+from dydx_v4_client import MAX_CLIENT_ID, NodeClient, OrderFlags
+
+
+MARKET_ID = "ETH-USD"
+ADDRESS = "dydx14zzueazeh0hj67cghhf9jypslcf9sh2n5k6art"
+
+async def get_order():
+    indexer = IndexerClient(TESTNET.rest_indexer)
+
+    market = Market(
+        (await indexer.markets.get_perpetual_markets(MARKET_ID))["markets"][MARKET_ID]
+    )
+
+    order_id = market.order_id(
+            ADDRESS, 0, random.randint(0, MAX_CLIENT_ID), OrderFlags.SHORT_TERM
+        )
+    return market.order(
+        order_id,
+        side,
+        size,
+        price,
+        time_in_force,
+        reduce_only,
+        good_til_block,
+        good_til_block_time
+    )
+```
+
+The constructed order may then be provided to `NodeClient.place_order`:
+```python
+await node.place_order(
+    wallet,
+    order
+)
+```
 ### Examples
 For more examples see [examples directory](/examples). Some examples may require installation of additional packages in order to work.
 
