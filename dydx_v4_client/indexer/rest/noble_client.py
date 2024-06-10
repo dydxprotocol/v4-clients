@@ -33,7 +33,18 @@ from dydx_v4_client.wallet import from_mnemonic
 
 
 class NobleClient:
+    """
+    A client for interacting with the Noble blockchain.
+    """
+
     def __init__(self, rest_endpoint: str, default_client_memo: Optional[str] = None):
+        """
+        Initializes a new instance of the NobleClient.
+
+        Args:
+            rest_endpoint (str): The REST endpoint URL for the Noble blockchain.
+            default_client_memo (Optional[str]): The default client memo for transactions.
+        """
         self.rest_endpoint = rest_endpoint
         self.default_client_memo = default_client_memo
         self.wallet = None
@@ -41,9 +52,24 @@ class NobleClient:
 
     @property
     def is_connected(self) -> bool:
+        """
+        Checks if the client is connected to the Noble blockchain.
+
+        Returns:
+            bool: True if connected, False otherwise.
+        """
         return self.channel is not None
 
     async def connect(self, mnemonic: str):
+        """
+        Connects the client to the Noble blockchain using the provided mnemonic.
+
+        Args:
+            mnemonic (str): The mnemonic phrase for the wallet.
+
+        Raises:
+            ValueError: If the mnemonic is not provided.
+        """
         if not mnemonic:
             raise ValueError("Mnemonic not provided")
         private_key = from_mnemonic(mnemonic)
@@ -56,6 +82,18 @@ class NobleClient:
     async def get_account_balances(
         self, address: str
     ) -> bank_query.QueryAllBalancesResponse:
+        """
+        Retrieves the account balances for the specified address.
+
+        Args:
+            address (str): The account address.
+
+        Returns:
+            bank_query.QueryAllBalancesResponse: The response containing the account balances.
+
+        Raises:
+            ValueError: If the client channel is not initialized.
+        """
         if self.channel is None:
             raise ValueError("NobleClient channel not initialized")
         stub = bank_query_grpc.QueryStub(self.channel)
@@ -64,6 +102,19 @@ class NobleClient:
     async def get_account_balance(
         self, address: str, denom: str
     ) -> bank_query.QueryBalanceResponse:
+        """
+        Retrieves the account balance for the specified address and denomination.
+
+        Args:
+            address (str): The account address.
+            denom (str): The balance denomination.
+
+        Returns:
+            bank_query.QueryBalanceResponse: The response containing the account balance.
+
+        Raises:
+            ValueError: If the client channel is not initialized.
+        """
         if self.channel is None:
             raise ValueError("NobleClient channel not initialized")
         stub = bank_query_grpc.QueryStub(self.channel)
@@ -72,6 +123,19 @@ class NobleClient:
         )
 
     async def get_account(self, address: str) -> BaseAccount:
+        """
+        Retrieves the account information for the specified address.
+
+        Args:
+            address (str): The account address.
+
+        Returns:
+            BaseAccount: The account information.
+
+        Raises:
+            ValueError: If the client channel is not initialized.
+            Exception: If the account unpacking fails.
+        """
         if self.channel is None:
             raise ValueError("NobleClient channel not initialized")
         account = BaseAccount()
@@ -88,6 +152,20 @@ class NobleClient:
         gas_price: str = "0.025uusdc",
         memo: Optional[str] = None,
     ) -> TxResponse:
+        """
+        Sends a transaction with the specified messages.
+
+        Args:
+            messages (List[dict]): The list of transaction messages.
+            gas_price (str): The gas price for the transaction (default: "0.025uusdc").
+            memo (Optional[str]): The transaction memo.
+
+        Returns:
+            TxResponse: The transaction response.
+
+        Raises:
+            ValueError: If the client channel or wallet is not initialized.
+        """
         if self.channel is None:
             raise ValueError("NobleClient channel not initialized")
         if self.wallet is None:
@@ -134,6 +212,20 @@ class NobleClient:
         gas_price: str = "0.025uusdc",
         memo: Optional[str] = None,
     ) -> Fee:
+        """
+        Simulates a transaction to estimate the gas fee.
+
+        Args:
+            messages (List[dict]): The list of transaction messages.
+            gas_price (str): The gas price for the transaction (default: "0.025uusdc").
+            memo (Optional[str]): The transaction memo.
+
+        Returns:
+            Fee: The estimated gas fee.
+
+        Raises:
+            ValueError: If the client channel or wallet is not initialized.
+        """
         if self.channel is None:
             raise ValueError("NobleClient channel not initialized")
         if self.wallet is None:
