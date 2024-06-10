@@ -2,13 +2,10 @@
     Native app can call JS functions with primitives.
 */
 
-import { Secp256k1, sha256 } from '@cosmjs/crypto';
 import { EncodeObject, coin as createCoin } from '@cosmjs/proto-signing';
 import { MsgTransferEncodeObject, accountFromAny } from '@cosmjs/stargate';
-import {
-  Order_Side,
-  Order_TimeInForce,
-} from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/clob/order';
+import { Method } from '@cosmjs/tendermint-rpc';
+import { Order_Side, Order_TimeInForce } from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/clob/order';
 import * as AuthModule from 'cosmjs-types/cosmos/auth/v1beta1/query';
 import Long from 'long';
 
@@ -19,14 +16,7 @@ import { deriveHDKeyFromEthereumSignature } from '../lib/onboarding';
 import { NetworkOptimizer } from '../network_optimizer';
 import { CompositeClient, MarketInfo } from './composite-client';
 import {
-  Network,
-  OrderType,
-  OrderSide,
-  OrderTimeInForce,
-  OrderExecution,
-  IndexerConfig,
-  ValidatorConfig,
-  SelectedGasDenom,
+  Network, OrderType, OrderSide, OrderTimeInForce, OrderExecution, IndexerConfig, ValidatorConfig,
 } from './constants';
 import { FaucetClient } from './faucet-client';
 import { Response } from './lib/axios';
@@ -42,11 +32,6 @@ declare global {
   var faucetClient: FaucetClient | null;
   // eslint-disable-next-line vars-on-top, no-var
   var wallet: LocalWallet;
-  // eslint-disable-next-line vars-on-top, no-var
-  var hdKey: {
-    privateKey: Uint8Array | null;
-    publicKey: Uint8Array | null;
-  }
 
   // eslint-disable-next-line vars-on-top, no-var
   var nobleClient: NobleClient | undefined;
@@ -54,7 +39,9 @@ declare global {
   var nobleWallet: LocalWallet | undefined;
 }
 
-export async function connectClient(network: Network): Promise<string> {
+export async function connectClient(
+  network: Network,
+): Promise<string> {
   try {
     globalThis.client = await CompositeClient.connect(network);
     return encodeJson(network);
@@ -63,7 +50,9 @@ export async function connectClient(network: Network): Promise<string> {
   }
 }
 
-export async function connectNetwork(paramsJSON: string): Promise<string> {
+export async function connectNetwork(
+  paramsJSON: string,
+): Promise<string> {
   try {
     const params = JSON.parse(paramsJSON);
     const {
@@ -82,20 +71,16 @@ export async function connectNetwork(paramsJSON: string): Promise<string> {
       txnMemo,
     } = params;
 
-    if (
-      indexerUrl === undefined ||
+    if (indexerUrl === undefined ||
       websocketUrl === undefined ||
       validatorUrl === undefined ||
-      chainId === undefined
-    ) {
+      chainId === undefined) {
       throw new UserError('Missing required network params');
     }
-    if (
-      USDC_DENOM === undefined ||
+    if (USDC_DENOM === undefined ||
       USDC_DECIMALS === undefined ||
       CHAINTOKEN_DENOM === undefined ||
-      CHAINTOKEN_DECIMALS === undefined
-    ) {
+      CHAINTOKEN_DECIMALS === undefined) {
       throw new UserError('Missing required token params');
     }
     if (txnMemo === undefined) {
@@ -141,10 +126,15 @@ export async function connectNetwork(paramsJSON: string): Promise<string> {
   }
 }
 
-export async function connectWallet(mnemonic: string): Promise<string> {
+export async function connectWallet(
+  mnemonic: string,
+): Promise<string> {
   try {
     globalThis.wallet = await LocalWallet.fromMnemonic(mnemonic, BECH32_PREFIX);
-    globalThis.nobleWallet = await LocalWallet.fromMnemonic(mnemonic, NOBLE_BECH32_PREFIX);
+    globalThis.nobleWallet = await LocalWallet.fromMnemonic(
+      mnemonic,
+      NOBLE_BECH32_PREFIX,
+    );
 
     try {
       await globalThis.nobleClient?.connect(globalThis.nobleWallet);
@@ -159,7 +149,10 @@ export async function connectWallet(mnemonic: string): Promise<string> {
   }
 }
 
-export async function connect(network: Network, mnemonic: string): Promise<string> {
+export async function connect(
+  network: Network,
+  mnemonic: string,
+): Promise<string> {
   try {
     await connectClient(network);
     return connectWallet(mnemonic);
@@ -170,11 +163,8 @@ export async function connect(network: Network, mnemonic: string): Promise<strin
 
 export async function deriveMnemomicFromEthereumSignature(signature: string): Promise<string> {
   try {
-    const { mnemonic, privateKey, publicKey } = deriveHDKeyFromEthereumSignature(signature);
+    const { mnemonic } = deriveHDKeyFromEthereumSignature(signature);
     const wallet = await LocalWallet.fromMnemonic(mnemonic, BECH32_PREFIX);
-    globalThis.hdKey = {
-      privateKey, publicKey
-    }
     const result = { mnemonic, address: wallet.address! };
     return new Promise((resolve) => {
       resolve(encodeJson(result));
@@ -229,8 +219,8 @@ export async function getEquityTiers(): Promise<string> {
     if (client === undefined) {
       throw new UserError('client is not connected. Call connectClient() first');
     }
-    const equityTiers =
-      await globalThis.client?.validatorClient.get.getEquityTierLimitConfiguration();
+    const equityTiers = await globalThis.client?.validatorClient.get
+      .getEquityTierLimitConfiguration();
     return encodeJson(equityTiers, ByteArrayEncoding.BIGINT);
   } catch (e) {
     return wrappedError(e);
@@ -250,7 +240,9 @@ export async function getPerpetualMarkets(): Promise<string> {
   }
 }
 
-export async function placeOrder(payload: string): Promise<string> {
+export async function placeOrder(
+  payload: string,
+): Promise<string> {
   try {
     const client = globalThis.client;
     if (client === undefined) {
@@ -332,7 +324,9 @@ export function wrappedError(error: Error): string {
   return `{"error": ${text}}`;
 }
 
-export async function cancelOrder(payload: string): Promise<string> {
+export async function cancelOrder(
+  payload: string,
+): Promise<string> {
   try {
     const client = globalThis.client;
     if (client === undefined) {
@@ -378,7 +372,9 @@ export async function cancelOrder(payload: string): Promise<string> {
   }
 }
 
-export async function deposit(payload: string): Promise<string> {
+export async function deposit(
+  payload: string,
+): Promise<string> {
   try {
     const client = globalThis.client;
     if (client === undefined) {
@@ -400,14 +396,19 @@ export async function deposit(payload: string): Promise<string> {
     }
 
     const subaccount = new SubaccountInfo(wallet, subaccountNumber);
-    const tx = await client.depositToSubaccount(subaccount, amount);
+    const tx = await client.depositToSubaccount(
+      subaccount,
+      amount,
+    );
     return encodeJson(tx);
   } catch (error) {
     return wrappedError(error);
   }
 }
 
-export async function withdraw(payload: string): Promise<string> {
+export async function withdraw(
+  payload: string,
+): Promise<string> {
   try {
     const client = globalThis.client;
     if (client === undefined) {
@@ -429,14 +430,20 @@ export async function withdraw(payload: string): Promise<string> {
     }
 
     const subaccount = new SubaccountInfo(wallet, subaccountNumber);
-    const tx = await client.withdrawFromSubaccount(subaccount, amount, json.recipient);
+    const tx = await client.withdrawFromSubaccount(
+      subaccount,
+      amount,
+      json.recipient,
+    );
     return encodeJson(tx);
   } catch (error) {
     return wrappedError(error);
   }
 }
 
-export async function faucet(payload: string): Promise<string> {
+export async function faucet(
+  payload: string,
+): Promise<string> {
   try {
     const faucetClient = globalThis.faucetClient;
     if (!faucetClient) {
@@ -485,7 +492,7 @@ export async function withdrawToIBC(
       throw new UserError('wallet is not set. Call connectWallet() first');
     }
 
-    const decode = (str: string): string => Buffer.from(str, 'base64').toString('binary');
+    const decode = (str: string):string => Buffer.from(str, 'base64').toString('binary');
     const decoded = decode(payload);
 
     const json: SquidIBCPayload = JSON.parse(decoded);
@@ -522,7 +529,9 @@ export async function withdrawToIBC(
   }
 }
 
-export async function transferNativeToken(payload: string): Promise<string> {
+export async function transferNativeToken(
+  payload: string,
+): Promise<string> {
   try {
     const client = globalThis.client;
     if (client === undefined) {
@@ -539,7 +548,11 @@ export async function transferNativeToken(payload: string): Promise<string> {
       throw new UserError('amount is not set');
     }
 
-    const msg: EncodeObject = client.sendTokenMessage(wallet, amount, json.recipient);
+    const msg: EncodeObject = client.sendTokenMessage(
+      wallet,
+      amount,
+      json.recipient,
+    );
     const msgs = [msg];
     const encodeObjects: Promise<EncodeObject[]> = new Promise((resolve) => resolve(msgs));
 
@@ -570,10 +583,8 @@ export async function getAccountBalance(): Promise<String> {
     }
     const address = globalThis.wallet.address!;
 
-    const tx = await client.validatorClient.get.getAccountBalance(
-      address,
-      client.validatorClient.config.denoms.USDC_DENOM,
-    );
+    const tx = await client.validatorClient.get
+      .getAccountBalance(address, client.validatorClient.config.denoms.USDC_DENOM);
     return encodeJson(tx);
   } catch (error) {
     return wrappedError(error);
@@ -599,7 +610,9 @@ export async function getAccountBalances(): Promise<String> {
   }
 }
 
-export async function getUserStats(payload: string): Promise<String> {
+export async function getUserStats(
+  payload: string,
+): Promise<String> {
   try {
     const client = globalThis.client;
     if (client === undefined) {
@@ -618,7 +631,9 @@ export async function getUserStats(payload: string): Promise<String> {
   }
 }
 
-export async function simulateDeposit(payload: string): Promise<string> {
+export async function simulateDeposit(
+  payload: string,
+): Promise<string> {
   try {
     const client = globalThis.client;
     if (client === undefined) {
@@ -639,20 +654,28 @@ export async function simulateDeposit(payload: string): Promise<string> {
     }
 
     const subaccount = new SubaccountInfo(wallet, subaccountNumber);
-    const msg: EncodeObject = client.depositToSubaccountMessage(subaccount, amount);
+    const msg: EncodeObject = client.depositToSubaccountMessage(
+      subaccount,
+      amount,
+    );
     const msgs: EncodeObject[] = [msg];
     const encodeObjects: Promise<EncodeObject[]> = new Promise((resolve) => resolve(msgs));
 
-    const stdFee = await client.simulate(globalThis.wallet, () => {
-      return encodeObjects;
-    });
+    const stdFee = await client.simulate(
+      globalThis.wallet,
+      () => {
+        return encodeObjects;
+      },
+    );
     return JSON.stringify(stdFee);
   } catch (error) {
     return wrappedError(error);
   }
 }
 
-export async function simulateWithdraw(payload: string): Promise<string> {
+export async function simulateWithdraw(
+  payload: string,
+): Promise<string> {
   try {
     const client = globalThis.client;
     if (client === undefined) {
@@ -681,16 +704,21 @@ export async function simulateWithdraw(payload: string): Promise<string> {
     const msgs: EncodeObject[] = [msg];
     const encodeObjects: Promise<EncodeObject[]> = new Promise((resolve) => resolve(msgs));
 
-    const stdFee = await client.simulate(globalThis.wallet, () => {
-      return encodeObjects;
-    });
+    const stdFee = await client.simulate(
+      globalThis.wallet,
+      () => {
+        return encodeObjects;
+      },
+    );
     return encodeJson(stdFee);
   } catch (error) {
     return wrappedError(error);
   }
 }
 
-export async function simulateTransferNativeToken(payload: string): Promise<string> {
+export async function simulateTransferNativeToken(
+  payload: string,
+): Promise<string> {
   try {
     const client = globalThis.client;
     if (client === undefined) {
@@ -710,7 +738,11 @@ export async function simulateTransferNativeToken(payload: string): Promise<stri
       throw new UserError('amount is not set');
     }
 
-    const msg: EncodeObject = client.sendTokenMessage(wallet, amount, json.recipient);
+    const msg: EncodeObject = client.sendTokenMessage(
+      wallet,
+      amount,
+      json.recipient,
+    );
     const msgs: EncodeObject[] = [msg];
     const encodeObjects: Promise<EncodeObject[]> = new Promise((resolve) => resolve(msgs));
 
@@ -769,7 +801,11 @@ export async function signRawPlaceOrder(
       );
       resolve([msg]);
     });
-    const signed = await client.sign(wallet, () => msgs, true);
+    const signed = await client.sign(
+      wallet,
+      () => msgs,
+      true,
+    );
     return Buffer.from(signed).toString('base64');
   } catch (error) {
     return wrappedError(error);
@@ -948,7 +984,9 @@ export async function getRewardsParams(): Promise<string> {
   }
 }
 
-export async function getDelegatorDelegations(payload: string): Promise<string> {
+export async function getDelegatorDelegations(
+  payload: string,
+): Promise<string> {
   try {
     const client = globalThis.client;
     if (client === undefined) {
@@ -959,15 +997,17 @@ export async function getDelegatorDelegations(payload: string): Promise<string> 
     if (address === undefined) {
       throw new UserError('address is not set');
     }
-    const delegations =
-      await globalThis.client?.validatorClient.get.getDelegatorDelegations(address);
+    const delegations = await globalThis
+      .client?.validatorClient.get.getDelegatorDelegations(address);
     return encodeJson(delegations);
   } catch (e) {
     return wrappedError(e);
   }
 }
 
-export async function getDelegatorUnbondingDelegations(payload: string): Promise<string> {
+export async function getDelegatorUnbondingDelegations(
+  payload: string,
+): Promise<string> {
   try {
     const client = globalThis.client;
     if (client === undefined) {
@@ -978,15 +1018,17 @@ export async function getDelegatorUnbondingDelegations(payload: string): Promise
     if (address === undefined) {
       throw new UserError('address is not set');
     }
-    const delegations =
-      await globalThis.client?.validatorClient.get.getDelegatorUnbondingDelegations(address);
+    const delegations = await globalThis
+      .client?.validatorClient.get.getDelegatorUnbondingDelegations(address);
     return encodeJson(delegations);
   } catch (e) {
     return wrappedError(e);
   }
 }
 
-export async function getMarketPrice(payload: string): Promise<string> {
+export async function getMarketPrice(
+  payload: string,
+): Promise<string> {
   try {
     const client = globalThis.client;
     if (client === undefined) {
@@ -1008,7 +1050,9 @@ export async function getNobleBalance(): Promise<String> {
   try {
     const client = globalThis.nobleClient;
     if (client === undefined || !client.isConnected) {
-      throw new UserError('client is not connected.');
+      throw new UserError(
+        'client is not connected.',
+      );
     }
     const coin = await client.getAccountBalance('uusdc');
     return encodeJson(coin);
@@ -1021,7 +1065,9 @@ export async function sendNobleIBC(squidPayload: string): Promise<String> {
   try {
     const client = globalThis.nobleClient;
     if (client === undefined || !client.isConnected) {
-      throw new UserError('client is not connected.');
+      throw new UserError(
+        'client is not connected.',
+      );
     }
 
     const json: SquidIBCPayload = JSON.parse(squidPayload);
@@ -1039,12 +1085,13 @@ export async function sendNobleIBC(squidPayload: string): Promise<String> {
     const fee = await client.simulateTransaction([ibcMsg]);
 
     if (!ibcMsg.value.token) {
-      throw new UserError('Payload missing token field');
+      throw new UserError(
+        'Payload missing token field',
+      );
     }
 
     // take out fee from amount before sweeping
-    const amount =
-      parseInt(ibcMsg.value.token.amount, 10) -
+    const amount = parseInt(ibcMsg.value.token.amount, 10) -
       Math.floor(parseInt(fee.amount[0].amount, 10) * GAS_MULTIPLIER);
 
     if (amount <= 0) {
@@ -1073,7 +1120,7 @@ export async function withdrawToNobleIBC(payload: string): Promise<String> {
 
     const { subaccountNumber, amount, ibcPayload } = json ?? {};
 
-    const decode = (str: string): string => Buffer.from(str, 'base64').toString('binary');
+    const decode = (str: string):string => Buffer.from(str, 'base64').toString('binary');
     const decoded = decode(ibcPayload);
 
     const parsedIbcPayload: SquidIBCPayload = JSON.parse(decoded);
@@ -1093,7 +1140,11 @@ export async function withdrawToNobleIBC(payload: string): Promise<String> {
       },
     };
 
-    const tx = await client.send(wallet, () => Promise.resolve([msg, ibcMsg]), false);
+    const tx = await client.send(
+      wallet,
+      () => Promise.resolve([msg, ibcMsg]),
+      false,
+    );
 
     return encodeJson({
       txHash: `0x${Buffer.from(tx?.hash).toString('hex')}`,
@@ -1107,7 +1158,9 @@ export async function cctpWithdraw(squidPayload: string): Promise<String> {
   try {
     const client = globalThis.nobleClient;
     if (client === undefined || !client.isConnected) {
-      throw new UserError('client is not connected.');
+      throw new UserError(
+        'client is not connected.',
+      );
     }
 
     const json = JSON.parse(squidPayload);
@@ -1119,8 +1172,7 @@ export async function cctpWithdraw(squidPayload: string): Promise<String> {
     const fee = await client.simulateTransaction([ibcMsg]);
 
     // take out fee from amount before sweeping
-    const amount =
-      parseInt(ibcMsg.value.amount, 10) -
+    const amount = parseInt(ibcMsg.value.amount, 10) -
       Math.floor(parseInt(fee.amount[0].amount, 10) * GAS_MULTIPLIER);
 
     if (amount <= 0) {
@@ -1137,7 +1189,9 @@ export async function cctpWithdraw(squidPayload: string): Promise<String> {
   }
 }
 
-export async function getWithdrawalCapacityByDenom(payload: string): Promise<string> {
+export async function getWithdrawalCapacityByDenom(
+  payload: string,
+): Promise<string> {
   try {
     const client = globalThis.client;
     if (client === undefined) {
@@ -1156,7 +1210,8 @@ export async function getWithdrawalCapacityByDenom(payload: string): Promise<str
   }
 }
 
-export async function getWithdrawalAndTransferGatingStatus(): Promise<string> {
+export async function getWithdrawalAndTransferGatingStatus(
+): Promise<string> {
   try {
     const client = globalThis.client;
     if (client === undefined) {
@@ -1170,7 +1225,9 @@ export async function getWithdrawalAndTransferGatingStatus(): Promise<string> {
   }
 }
 
-export async function subaccountTransfer(payload: string): Promise<string> {
+export async function subaccountTransfer(
+  payload: string,
+): Promise<string> {
   try {
     const client = globalThis.client;
     if (client === undefined) {
@@ -1207,57 +1264,9 @@ export async function subaccountTransfer(payload: string): Promise<string> {
       destinationAddress,
       destinationSubaccountNumber,
       parseFloat(amount).toFixed(6),
+      Method.BroadcastTxCommit,
     );
     return encodeJson(tx);
-  } catch (error) {
-    return wrappedError(error);
-  }
-}
-
-export async function signCompliancePayload(payload: string): Promise<string> {
-  try {
-    const json = JSON.parse(payload);
-    const message = json.message;
-    if (message === undefined) {
-      throw new UserError('message is not set');
-    }
-    const action = json.action;
-    if (action === undefined) {
-      throw new UserError('action is not set');
-    }
-    const currentStatus = json.status;
-    if (currentStatus === undefined) {
-      throw new UserError('status is not set');
-    }
-    if (!globalThis.hdKey?.privateKey || !globalThis.hdKey?.publicKey) {
-      throw new Error('Missing hdKey');
-    }
-  
-    const timestampInSeconds = Math.floor(Date.now() / 1000);
-    const messageToSign: string = `${message}:${action}"${currentStatus ?? ''}:${timestampInSeconds}`;
-    const messageHash = sha256(Buffer.from(messageToSign));
-  
-    const signed = await Secp256k1.createSignature(messageHash, globalThis.hdKey.privateKey);
-    const signedMessage = signed.toFixedLength();
-
-    return encodeJson({
-      signedMessage: Buffer.from(signedMessage).toString('base64'),
-      publicKey: Buffer.from(globalThis.hdKey.publicKey).toString('base64'),
-      timestamp: timestampInSeconds,
-    });
-  } catch (error) {
-    return wrappedError(error);
-  }
-}
-
-export async function setSelectedGasDenom(gasDenom: string): Promise<string> {
-  try {
-    const client = globalThis.client;
-    if (client === undefined) {
-      throw new UserError('client is not connected. Call connectClient() first');
-    }
-    await client.setSelectedGasDenom(gasDenom as SelectedGasDenom);
-    return encodeJson('success');
   } catch (error) {
     return wrappedError(error);
   }
