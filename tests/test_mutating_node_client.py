@@ -43,7 +43,7 @@ async def test_withdraw(node_client, wallet, test_address):
         )
         assert_successful_broadcast(response)
     except grpc.RpcError as e:
-        if "StillUndercollateralized" in str(e.details()):
+        if "Undercollateralized" in str(e.details()):
             pytest.xfail("Subaccount is undercollateralized. Skipping the test.")
         else:
             raise e
@@ -85,7 +85,7 @@ async def test_order(node_client, test_order, test_order_id, wallet):
         )
         assert_successful_broadcast(canceled)
     except Exception as e:
-        if "StillUndercollateralized" in str(e):
+        if "Undercollateralized" in str(e):
             pytest.skip("Account is undercollateralized. Skipping the test.")
         else:
             raise e
@@ -105,7 +105,7 @@ async def test_transfer(node_client, wallet, test_address, recipient):
         )
         assert_successful_broadcast(response)
     except grpc.RpcError as e:
-        if "StillUndercollateralized" in str(e):
+        if "Undercollateralized" in str(e):
             pytest.skip("Subaccount is undercollateralized. Skipping the test.")
         else:
             raise e

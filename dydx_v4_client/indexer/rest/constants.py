@@ -22,8 +22,8 @@ class OrderType:
 
 # Order Side
 class OrderSide:
-    BUY = "SIDE_BUY"
-    SELL = "SIDE_SELL"
+    BUY = "BUY"
+    SELL = "SELL"
 
 
 # Order TimeInForce
