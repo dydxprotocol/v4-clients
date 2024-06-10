@@ -5,7 +5,7 @@ from v4_proto.dydxprotocol.clob.order_pb2 import Order
 from dydx_v4_client.faucet_client import FaucetClient
 from dydx_v4_client.indexer.rest.indexer_client import IndexerClient
 from dydx_v4_client.indexer.socket.websocket import IndexerSocket
-from dydx_v4_client.node.client import NodeClient
+from dydx_v4_client.node.client import NodeClient, QueryNodeClient
 from dydx_v4_client.wallet import Wallet
 
 
