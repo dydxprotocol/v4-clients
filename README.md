@@ -57,7 +57,7 @@ async def test_account():
 ### Websocket indexer
 Websocket indexer allows to subscribe to channels to obtain live updates:
 
-https://github.com/NethermindEth/dydx-v4-client/blob/8003032c303cf238097fb3fcb30e2acb50787d03/examples/websocket_example.py
+https://github.com/NethermindEth/dydx-v4-client/blob/18eb769dde2a8691fc13445a34f46f0ecb266ec8/examples/websocket_example.py#L1-L24
 
 ### Networks
 A set of predefined networks may be imported:
@@ -86,8 +86,8 @@ Or provide the URL directly to the client, e.g.:
 indexer = IndexerClient("https://indexer.dydx.trade")
 ```
 ### Faucet
-Faucet allows to obtain usdc on testnet
-https://github.com/NethermindEth/dydx-v4-client/blob/8003032c303cf238097fb3fcb30e2acb50787d03/examples/faucet_endpoint.py
+Faucet allows to obtain usdc on testnet. To use it create `FaucetClient`:
+https://github.com/NethermindEth/dydx-v4-client/blob/18eb769dde2a8691fc13445a34f46f0ecb266ec8/examples/faucet_endpoint.py#L1-L15
 
 ### Examples
 For more examples see [examples directory](/examples). Some examples may require installation of additional packages in order to work.
