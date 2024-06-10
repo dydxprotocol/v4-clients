@@ -5,6 +5,7 @@
 import { Secp256k1, sha256 } from '@cosmjs/crypto';
 import { EncodeObject, coin as createCoin } from '@cosmjs/proto-signing';
 import { MsgTransferEncodeObject, accountFromAny } from '@cosmjs/stargate';
+import { Method } from '@cosmjs/tendermint-rpc';
 import {
   Order_Side,
   Order_TimeInForce,
@@ -1207,6 +1208,7 @@ export async function subaccountTransfer(payload: string): Promise<string> {
       destinationAddress,
       destinationSubaccountNumber,
       parseFloat(amount).toFixed(6),
+      Method.BroadcastTxCommit,
     );
     return encodeJson(tx);
   } catch (error) {
