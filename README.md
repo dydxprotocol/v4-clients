@@ -31,7 +31,7 @@ asyncio.run(main())
 https://github.com/NethermindEth/dydx-v4-client/blob/f8be7bf9165fb052e831fcafb8086d14e5af13aa/examples/transfer_example_deposit.py#L1-L24
 
 **Note:** It's possible to create a read only node client which doesn't allow to send transactions:
-```
+```python
 from dydx_v4_client import QueryNodeClient
 
 
@@ -41,7 +41,7 @@ node = await QueryNodeClient.connect("https://dydx-ops-rpc.kingnodes.com:443")
 ### REST Indexer
 `IndexerClient` allows to fetch data from indexer:
 
-```
+```python
 import asyncio
 
 from dydx_v4_client.indexer.rest import IndexerClient
