@@ -26,9 +26,9 @@ asyncio.run(main())
 
 ### Node
 
-`NodeClient` allows to send transactions and fetch node state:
+`NodeClient` allows to send transactions and fetch node state. E.g. you can deposit funds using the `deposit` method:
 
-https://github.com/NethermindEth/dydx-v4-client/blob/232007961fe81b9d6cd2954aaac2f5ac33d56b87/examples/transfer_example_deposit.py
+https://github.com/NethermindEth/dydx-v4-client/blob/f8be7bf9165fb052e831fcafb8086d14e5af13aa/examples/transfer_example_deposit.py#L1-L24
 
 It's possible to create a read only node client which doesn't allowa to send transactions:
 ```
