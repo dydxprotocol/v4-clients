@@ -6,7 +6,7 @@
 ## Install
 Install from github:
 
-```
+```bash
 pip install git+https://github.com/NethermindEth/dydx-v4-client
 ```
 
