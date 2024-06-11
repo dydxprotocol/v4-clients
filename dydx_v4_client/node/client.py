@@ -1,7 +1,6 @@
-import hashlib
 from dataclasses import dataclass, field
-from math import floor
-from typing import Any, List, Optional, Self
+from functools import partial
+from typing import List, Optional, Self
 
 import grpc
 from google.protobuf.message import Message
@@ -78,10 +77,17 @@ from dydx_v4_client.node.message import (
 )
 from dydx_v4_client.wallet import Wallet
 
+secure_channel = partial(
+    grpc.secure_channel, credentials=grpc.ssl_channel_credentials()
+)
+
 
 @dataclass
 class QueryNodeClient:
-    channel: grpc.Channel
+    channel: grpc.Channel = field()
+
+    async def connect(url: str) -> Self:
+        return QueryNodeClient(secure_channel(url))
 
     async def get_account_balances(
         self, address: str
@@ -526,8 +532,7 @@ class NodeClient(MutatingNodeClient):
     @staticmethod
     async def connect(config: NodeConfig) -> Self:
         return NodeClient(
-            grpc.secure_channel(config.url, grpc.ssl_channel_credentials()),
-            Builder(config.chain_id, config.usdc_denom),
+            secure_channel(config.url), Builder(config.chain_id, config.usdc_denom)
         )
 
     async def deposit(

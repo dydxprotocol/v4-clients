@@ -2,6 +2,159 @@
 
 # Python Client (async) for dYdX (v4 API)
 
+## Quick links
+
+<div align="center">
+
+### 📘 [Documentation](https://docs.dydx.exchange)
+### 📦 [Other implementations](https://github.com/dydxprotocol/v4-clients)
+
+</div>
+
+## Install
+Install from github:
+
+```bash
+pip install git+https://github.com/NethermindEth/dydx-v4-client
+```
+
+## Quickstart
+The package allows asynchronous programming so any script using it has to be run using asyncio.run:
+
+```python
+import asyncio
+
+
+async def main():
+    pass
+
+
+asyncio.run(main())
+```
+
+### Node
+`NodeClient` allows to send transactions and fetch node state. E.g. you can deposit funds using the `deposit` method:
+
+https://github.com/NethermindEth/dydx-v4-client/blob/f8be7bf9165fb052e831fcafb8086d14e5af13aa/examples/transfer_example_deposit.py#L1-L24
+
+**Note:** It's possible to create a read only node client which doesn't allow to send transactions:
+```python
+from dydx_v4_client import QueryNodeClient
+
+
+node = await QueryNodeClient.connect("https://dydx-ops-rpc.kingnodes.com:443")
+```
+
+### REST Indexer
+`IndexerClient` allows to fetch data from indexer:
+
+```python
+import asyncio
+
+from dydx_v4_client.indexer.rest import IndexerClient
+from dydx_v4_client.network import TESTNET
+
+
+async def test_account():
+    indexer = IndexerClient(TESTNET.rest_indexer)
+
+    print(await indexer.account.get_subaccounts("dydx14zzueazeh0hj67cghhf9jypslcf9sh2n5k6art"))
+```
+
+### Websocket indexer
+Websocket indexer allows to subscribe to channels to obtain live updates:
+
+https://github.com/NethermindEth/dydx-v4-client/blob/18eb769dde2a8691fc13445a34f46f0ecb266ec8/examples/websocket_example.py#L1-L24
+
+### Networks
+A set of predefined networks may be imported:
+
+```python
+from dydx_v4_client.network import TESTNET, MAINNET, LOCAL
+```
+
+If you want to use a custom API you can create a network directly:
+```python
+from dydx_v4_client.network import Network
+
+CUSTOM_MAINNET = Network(
+    NodeConfig(
+        "dydx-mainnet-1",
+        "https://dydx-ops-rpc.kingnodes.com:443",
+        "adydx",
+        "ibc/8E27BA2D5493AF5636760E354E46004562C46AB7EC0CC4C1CA14E9E20E2545B5",
+    ),
+    "https://indexer.dydx.trade",
+    "wss://indexer.dydx.trade/v4/ws",
+)
+```
+Or provide the URL directly to the client, e.g.:
+```python
+indexer = IndexerClient("https://indexer.dydx.trade")
+```
+### Faucet
+Faucet allows to obtain usdc on testnet. To use it create `FaucetClient`:
+https://github.com/NethermindEth/dydx-v4-client/blob/18eb769dde2a8691fc13445a34f46f0ecb266ec8/examples/faucet_endpoint.py#L1-L15
+
+### Placing order
+To place order first you have to build the order.
+
+To do this you can the direct interface:
+```python
+order(
+    id,
+    side,
+    quantums,
+    subticks,
+    time_in_force,
+    reduce_only,
+    good_til_block,
+    good_til_block_time
+)
+```
+
+Or market based calculator:
+```python
+from dydx_v4_client.node.market import Market
+from dydx_v4_client import MAX_CLIENT_ID, NodeClient, OrderFlags
+
+
+MARKET_ID = "ETH-USD"
+ADDRESS = "dydx14zzueazeh0hj67cghhf9jypslcf9sh2n5k6art"
+
+async def get_order():
+    indexer = IndexerClient(TESTNET.rest_indexer)
+
+    market = Market(
+        (await indexer.markets.get_perpetual_markets(MARKET_ID))["markets"][MARKET_ID]
+    )
+
+    order_id = market.order_id(
+            ADDRESS, 0, random.randint(0, MAX_CLIENT_ID), OrderFlags.SHORT_TERM
+        )
+    return market.order(
+        order_id,
+        side,
+        size,
+        price,
+        time_in_force,
+        reduce_only,
+        good_til_block,
+        good_til_block_time
+    )
+```
+
+The constructed order may then be provided to `NodeClient.place_order`:
+```python
+await node.place_order(
+    wallet,
+    order
+)
+```
+### Examples
+For more examples see [examples directory](/examples). Some examples may require installation of additional packages in order to work.
+
+## Changes
 [Differences Comparison](./DIFF.md)
 
 The latest version of the Python async client for dYdX offers notable enhancements over previous iterations. These improvements make it a more efficient tool for trading and integration.
@@ -26,21 +179,21 @@ The client is built using pure Python libraries and maintains a thin, transparen
 #### MIT License
 Licensed under the permissive MIT license, the client can be easily integrated into your software projects without restrictive legal hurdles.
 
-### Installation and Usage
+## Development
+The project is divided into three main parts:
+* node - contains the `NodeClient`, transaction builder and other utilities
+* indexer - contains rest api indexer client and websocket indexer client
+* faucet - contains faucet client
 
-#### Installation:
-
-The package will be available on PyPI soon.
-
-#### Getting Started:
-
+### Installing from source
 The project employs [`poetry`](https://python-poetry.org/). To install dependencies, run:
 
 ```bash
 poetry install
 ```
 
-To execute tests:
+### Testing
+To run tests use:
 
 ```bash
 poetry run pytest
