@@ -155,11 +155,40 @@ await node.place_order(
 For more examples see [examples directory](/examples). Some examples may require installation of additional packages in order to work.
 
 ## Changes
-[Differences Comparison](./DIFF.md)
 
-The latest version of the Python async client for dYdX offers notable enhancements over previous iterations. These improvements make it a more efficient tool for trading and integration.
+### Migration
+
+If you are transitioning from a previous version of the Python client, please note the following differences:
+
+#### NodeClient
+
+`ValidatorClient` is renamed to `NodeClient`.
+
+All provided methods are asynchronous.
+
+Methods are available directly, no methods `get` or `post` needed, since the client uses inheritance, and consists of three layers:
+
+- `QueryNodeClient`, the basic layer that send queries to a node
+- `MutatingNodeClient` - the extension on top of the query client, that support transation simulation and sending
+- `NodeClient` the toppest layer that provides methods to control orders
+
+For parameters raw types used.
+
+For construcint order the `Market` builder is provided, that
+helps to calculate quantums and subticks values.
+
+#### IndexerClient
+
+The `IndexerClient` has the similar structure, but provides
+asynchronous methods as well.
+
+#### IndexerSocket
+
+The `SocketClient` is replaced with the `IndexerSocket` that provides separate channels concept and allow to add per-channel processing.
 
 ### Key Improvements
+
+The latest version of the Python async client for dYdX offers notable enhancements over previous iterations. These improvements make it a more efficient tool for trading and integration.
 
 #### Asynchronous Execution
 
