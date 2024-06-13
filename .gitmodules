@@ -1,3 +1,0 @@
-[submodule "v4-client-cpp"]
-	path = v4-client-cpp
-	url = https://github.com/asnefedovv/dydx-v4-client-cpp
