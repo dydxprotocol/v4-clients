@@ -17,11 +17,10 @@
 ## v4-client-js
 The dYdX Chain Client Typescript client is used for placing transactions and querying the dYdX chain.
 
-## v4-client-py
-Python client for dYdX Chain. Huge thanks to [kaloureyes3](https://github.com/kaloureyes3/v4-clients) for helping us
-maintain this!
-
-The library is currently tested against Python versions 3.9, and 3.11.
+## v4-client-py-v2
+Python client for dYdX Chain. Developed and maintained by the Nethermind team.
+- [Saul M.](https://github.com/samtin0x)
+- [Piotr P.](https://github.com/piwonskp)
 
 ## v4-client-cpp (Third Party Client)
 To pull the latest C++ client, run `git submodule update --init --recursive`
