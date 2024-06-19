@@ -523,9 +523,7 @@ class MutatingNodeClient(QueryNodeClient):
 class NodeClient(MutatingNodeClient):
     @staticmethod
     async def connect(config: NodeConfig) -> Self:
-        return NodeClient(
-            config.channel, Builder(config.chain_id, config.usdc_denom)
-        )
+        return NodeClient(config.channel, Builder(config.chain_id, config.usdc_denom))
 
     async def deposit(
         self,
