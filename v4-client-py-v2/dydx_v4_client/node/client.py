@@ -1,5 +1,4 @@
-from dataclasses import dataclass, field
-from functools import partial
+from dataclasses import dataclass
 from typing import List, Optional, Self
 
 import grpc
@@ -77,17 +76,10 @@ from dydx_v4_client.node.message import (
 )
 from dydx_v4_client.wallet import Wallet
 
-secure_channel = partial(
-    grpc.secure_channel, credentials=grpc.ssl_channel_credentials()
-)
-
 
 @dataclass
 class QueryNodeClient:
-    channel: grpc.Channel = field()
-
-    async def connect(url: str) -> Self:
-        return QueryNodeClient(secure_channel(url))
+    channel: grpc.Channel
 
     async def get_account_balances(
         self, address: str
@@ -532,7 +524,7 @@ class NodeClient(MutatingNodeClient):
     @staticmethod
     async def connect(config: NodeConfig) -> Self:
         return NodeClient(
-            secure_channel(config.url), Builder(config.chain_id, config.usdc_denom)
+            config.channel, Builder(config.chain_id, config.usdc_denom)
         )
 
     async def deposit(

@@ -40,9 +40,10 @@ https://github.com/NethermindEth/dydx-v4-client/blob/f8be7bf9165fb052e831fcafb80
 **Note:** It's possible to create a read only node client which doesn't allow to send transactions:
 ```python
 from dydx_v4_client import QueryNodeClient
+from dydx_v4_client.network import secure_channel
 
 
-node = await QueryNodeClient.connect("https://dydx-ops-rpc.kingnodes.com:443")
+node = await QueryNodeClient(secure_channel("https://dydx-ops-rpc.kingnodes.com:443"))
 ```
 
 ### REST Indexer
@@ -67,25 +68,48 @@ Websocket indexer allows to subscribe to channels to obtain live updates:
 https://github.com/NethermindEth/dydx-v4-client/blob/18eb769dde2a8691fc13445a34f46f0ecb266ec8/examples/websocket_example.py#L1-L24
 
 ### Networks
-A set of predefined networks may be imported:
-
+To connect to the mainnet you can use `make_mainnet` function:
 ```python
-from dydx_v4_client.network import TESTNET, MAINNET, LOCAL
+from dydx_v4_client.network import make_mainnet
+
+
+NETWORK = make_mainnet(
+    node_url=NODE_URL, 
+    rest_indexer=REST_URL, 
+    websocket_indexer=WEBSOCKET_URL
+)
 ```
 
-If you want to use a custom API you can create a network directly:
+For local and testnet networks there is a set of predefined networks:
+
 ```python
-from dydx_v4_client.network import Network
+from dydx_v4_client.network import TESTNET, LOCAL
+```
+
+If you want to use a custom API each network has its respective _make_ function:
+```python
+from dydx_v4_client.network import make_testnet, make_local
+```
+
+You can overwrite the default URL when calling the function:
+```python
+NETWORK = make_local(node_url="http://localhost:26657")
+```
+
+To create a custom network you can do it directly:
+```python
+from dydx_v4_client.network import Network, NodeConfig, secure_channel
+
 
 CUSTOM_MAINNET = Network(
+    "https://dydx-testnet.imperator.co",
+    "wss://indexer.v4testnet.dydx.exchange/v4/ws",
     NodeConfig(
-        "dydx-mainnet-1",
-        "https://dydx-ops-rpc.kingnodes.com:443",
-        "adydx",
+        "dydx-testnet-4",
+        secure_channel("test-dydx-grpc.kingnodes.com"),
+        "adv4tnt",
         "ibc/8E27BA2D5493AF5636760E354E46004562C46AB7EC0CC4C1CA14E9E20E2545B5",
     ),
-    "https://indexer.dydx.trade",
-    "wss://indexer.dydx.trade/v4/ws",
 )
 ```
 Or provide the URL directly to the client, e.g.:
