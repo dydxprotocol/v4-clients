@@ -43,7 +43,7 @@ from dydx_v4_client import QueryNodeClient
 from dydx_v4_client.network import secure_channel
 
 
-node = await QueryNodeClient(secure_channel("https://dydx-ops-rpc.kingnodes.com:443"))
+node = await QueryNodeClient(secure_channel("test-dydx-grpc.kingnodes.com"))
 ```
 
 ### REST Indexer
@@ -114,7 +114,7 @@ CUSTOM_MAINNET = Network(
 ```
 Or provide the URL directly to the client, e.g.:
 ```python
-indexer = IndexerClient("https://indexer.dydx.trade")
+indexer = IndexerClient("https://dydx-testnet.imperator.co")
 ```
 ### Faucet
 Faucet allows to obtain usdc on testnet. To use it create `FaucetClient`:
@@ -198,8 +198,7 @@ Methods are available directly, no methods `get` or `post` needed, since the cli
 
 For parameters raw types used.
 
-For construcint order the `Market` builder is provided, that
-helps to calculate quantums and subticks values.
+For construcint order the `Market` builder is provided, that helps to calculate quantums and subticks values.
 
 #### IndexerClient
 
