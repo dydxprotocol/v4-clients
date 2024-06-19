@@ -68,6 +68,9 @@ Websocket indexer allows to subscribe to channels to obtain live updates:
 https://github.com/NethermindEth/dydx-v4-client/blob/18eb769dde2a8691fc13445a34f46f0ecb266ec8/examples/websocket_example.py#L1-L24
 
 ### Networks
+
+> **See [network resources](https://docs.dydx.exchange/infrastructure_providers-network/resources#networks-repositories) to find publicly available endpoints**
+
 To connect to the mainnet you can use `make_mainnet` function:
 ```python
 from dydx_v4_client.network import make_mainnet
