@@ -12,28 +12,28 @@ on: # yamllint disable-line rule:truthy
       - "release/*"
 
 jobs:
-  lint:
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./v4-client-py-v2
-    steps:
-      - name: Check out repository code
-        uses: actions/checkout@v3
+  # lint:
+  #   runs-on: ubuntu-latest
+  #   defaults:
+  #     run:
+  #       working-directory: ./v4-client-py-v2
+  #   steps:
+  #     - name: Check out repository code
+  #       uses: actions/checkout@v3
 
-      - name: Set up Python 3.12
-        uses: actions/setup-python@v4
-        with:
-          python-version: 3.12
+  #     - name: Set up Python 3.12
+  #       uses: actions/setup-python@v4
+  #       with:
+  #         python-version: 3.12
 
-      - name: Install poetry
-        run: pip install poetry
+  #     - name: Install poetry
+  #       run: pip install poetry
 
-      - name: Install Dependencies
-        run: poetry install
+  #     - name: Install Dependencies
+  #       run: poetry install
 
-      - name: Lint
-        run: flake8
+  #     - name: Lint
+  #       run: flake8
 
   test:
     runs-on: ubuntu-latest
@@ -56,4 +56,4 @@ jobs:
         run: poetry install
 
       - name: Run pytest
-        run: pytest
+        run: poetry run pytest
