@@ -73,6 +73,25 @@ export default class AccountClient extends RestClient {
     });
   }
 
+  async getParentSubaccountNumberTransfers(
+    address: string,
+    parentSubaccountNumber: number,
+    limit?: number | null,
+    createdBeforeOrAtHeight?: number | null,
+    createdBeforeOrAt?: string | null,
+    page?: number | null,
+  ): Promise<Data> {
+    const uri = '/v4/transfers/parentSubaccountNumber';
+    return this.get(uri, {
+      address,
+      parentSubaccountNumber,
+      limit,
+      createdBeforeOrAtHeight,
+      createdBeforeOrAt,
+      page,
+    });
+  }
+
   async getSubaccountOrders(
     address: string,
     subaccountNumber: number,
@@ -121,6 +140,29 @@ export default class AccountClient extends RestClient {
     return this.get(uri, {
       address,
       subaccountNumber,
+      ticker,
+      tickerType,
+      limit,
+      createdBeforeOrAtHeight,
+      createdBeforeOrAt,
+      page,
+    });
+  }
+
+  async getParentSubaccountNumberFills(
+    address: string,
+    parentSubaccountNumber: number,
+    ticker?: string | null,
+    tickerType: TickerType = TickerType.PERPETUAL,
+    limit?: number | null,
+    createdBeforeOrAtHeight?: number | null,
+    createdBeforeOrAt?: string | null,
+    page?: number | null,
+  ): Promise<Data> {
+    const uri = '/v4/fills/parentSubaccountNumber';
+    return this.get(uri, {
+      address,
+      parentSubaccountNumber,
       ticker,
       tickerType,
       limit,
