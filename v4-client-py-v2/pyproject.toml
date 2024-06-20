@@ -19,7 +19,7 @@ pre-commit = "^3.7.0"
 pytest = "^8.1.1"
 pytest-asyncio = "^0.23.6"
 python-dotenv = "^1.0.1"
-
+twine = "^4.0.2"
 
 [tool.poetry.group.examples.dependencies]
 nest-asyncio = "^1.6.0"
