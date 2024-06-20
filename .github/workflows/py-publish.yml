@@ -1,9 +1,9 @@
-name: "[v4-client-py] Publish to PyPI"
+name: "[v4-client-py-v2] Publish to PyPI"
 
 on: # yamllint disable-line rule:truthy
   push:
     paths:
-      - 'v4-client-py/**'
+      - 'v4-client-py-v2/**'
     branches:
       - main
 
@@ -13,21 +13,29 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ./v4-client-py
+        working-directory: ./v4-client-py-v2
     steps:
       - name: Check out repository code
         uses: actions/checkout@v3
 
-      - name: Set up Python 3.11
+      - name: Set up Python 3.12
         uses: actions/setup-python@v4
         with:
-          python-version: 3.11
+          python-version: 3.12
+
+      - name: Cache poetry dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pypoetry
+          key: ${{ runner.os }}-poetry-${{ hashFiles('**/poetry.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-poetry-
+
+      - name: Install poetry
+        run: pip install poetry
 
       - name: Install Dependencies
-        run: pip install -r requirements-publish.txt
-
-      - name: Install Poetry dependencies
-        run: poetry install --no-root
+        run: poetry install
 
       - name: Build package
         run: poetry build
@@ -37,4 +45,4 @@ jobs:
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
         run: |
-          twine upload -r pypi dist/*
+          poetry run twine upload -r pypi dist/*

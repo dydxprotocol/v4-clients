@@ -1,4 +1,4 @@
-name: "[v4-client-py] Lint, Test"
+name: "[v4-client-py-v2] Lint, Test"
 
 on: # yamllint disable-line rule:truthy
   pull_request:
@@ -12,28 +12,36 @@ on: # yamllint disable-line rule:truthy
       - "release/*"
 
 jobs:
-  # lint:
-  #   runs-on: ubuntu-latest
-  #   defaults:
-  #     run:
-  #       working-directory: ./v4-client-py-v2
-  #   steps:
-  #     - name: Check out repository code
-  #       uses: actions/checkout@v3
+  lint:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./v4-client-py-v2
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
 
-  #     - name: Set up Python 3.12
-  #       uses: actions/setup-python@v4
-  #       with:
-  #         python-version: 3.12
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.12
 
-  #     - name: Install poetry
-  #       run: pip install poetry
+      - name: Cache poetry dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pypoetry
+          key: ${{ runner.os }}-poetry-${{ hashFiles('**/poetry.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-poetry-
 
-  #     - name: Install Dependencies
-  #       run: poetry install
+      - name: Install poetry
+        run: pip install poetry
 
-  #     - name: Lint
-  #       run: flake8
+      - name: Install Dependencies
+        run: poetry install
+
+      - name: Lint
+        run: poetry run black --check ./dydx_v4_client ./tests ./examples
 
   test:
     runs-on: ubuntu-latest
@@ -48,6 +56,14 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: 3.12
+
+      - name: Cache poetry dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pypoetry
+          key: ${{ runner.os }}-poetry-${{ hashFiles('**/poetry.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-poetry-
 
       - name: Install poetry
         run: pip install poetry
