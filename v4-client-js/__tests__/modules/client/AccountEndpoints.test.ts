@@ -56,8 +56,43 @@ describe('IndexerClient', () => {
       }
     });
 
+    it('Transfers ParentSubaccountNumber', async () => {
+      const response = await client.account.getParentSubaccountNumberTransfers(DYDX_TEST_ADDRESS, 0);
+      expect(response).not.toBeNull();
+      const transfers = response.transfers;
+      expect(transfers).not.toBeNull();
+      if (transfers.length > 0) {
+        const transfer = transfers[0];
+        expect(transfer).not.toBeNull();
+      }
+    });
+
     it('Transfers Pagination', async () => {
       const response = await client.account.getSubaccountTransfers(
+        DYDX_TEST_ADDRESS,
+        0,
+        1,
+        undefined,
+        undefined,
+        1,
+      );
+      expect(response).not.toBeNull();
+      const transfers = response.transfers;
+
+      expect(transfers).not.toBeNull();
+      if (transfers.length > 0) {
+        const transfer = transfers[0];
+        expect(transfer).not.toBeNull();
+
+        expect(response.totalResults).toBeGreaterThanOrEqual(1);
+      }
+
+      expect(response.pageSize).toStrictEqual(1);
+      expect(response.offset).toStrictEqual(0);
+    });
+
+    it('Transfers ParentSubaccountNumber Pagination', async () => {
+      const response = await client.account.getParentSubaccountNumberTransfers(
         DYDX_TEST_ADDRESS,
         0,
         1,
@@ -102,8 +137,44 @@ describe('IndexerClient', () => {
       }
     });
 
+    it('Fills ParentSubaccountNumber', async () => {
+      const response = await client.account.getParentSubaccountNumberFills(DYDX_TEST_ADDRESS, 0);
+      expect(response).not.toBeNull();
+      const fills = response.fills;
+      expect(fills).not.toBeNull();
+      if (fills.length > 0) {
+        const fill = fills[0];
+        expect(fill).not.toBeNull();
+      }
+    });
+
     it('Fills Pagination', async () => {
       const response = await client.account.getSubaccountFills(
+        DYDX_TEST_ADDRESS,
+        0,
+        undefined,
+        undefined,
+        1,
+        undefined,
+        undefined,
+        1,
+      );
+
+      expect(response).not.toBeNull();
+      const fills = response.fills;
+      expect(fills).not.toBeNull();
+      if (fills.length > 0) {
+        const fill = fills[0];
+        expect(fill).not.toBeNull();
+        expect(response.totalResults).toBeGreaterThanOrEqual(1);
+      }
+
+      expect(response.pageSize).toStrictEqual(1);
+      expect(response.offset).toStrictEqual(0);
+    });
+
+    it('Fills ParentSubaccountNumber Pagination', async () => {
+      const response = await client.account.getParentSubaccountNumberFills(
         DYDX_TEST_ADDRESS,
         0,
         undefined,
