@@ -2,8 +2,16 @@ import { PartialTransactionOptions, TransactionOptions } from '../../src';
 import { DEFAULT_SEQUENCE } from '../../src/lib/constants';
 import { convertPartialTransactionOptionsToFull, stripHexPrefix } from '../../src/lib/helpers';
 import { defaultTransactionOptions } from '../helpers/constants';
+import { calculateSubticks } from '../../src/clients/helpers/chain-helpers';
+import Long from 'long';
 
 describe('helpers', () => {
+  describe('calculateSubticks', () => {
+    it('test test', () => {
+      expect(calculateSubticks(8.45, -7, -9, 1000000)).toEqual(new Long(845_000_000));
+    });
+  });
+  
   describe('convertPartialTransactionOptionsToFull', () =>
     it.each([
       [
