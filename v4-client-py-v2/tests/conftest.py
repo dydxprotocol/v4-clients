@@ -29,7 +29,7 @@ RECIPIENT = "dydx1slanxj8x9ntk9knwa6cvfv2tzlsq5gk3dshml0"
 
 @pytest.fixture
 def indexer_rest_client():
-    return IndexerClient(TESTNET.rest_indexer)
+    return IndexerClient("https://indexer.v4testnet.dydx.exchange")
 
 
 @pytest.fixture
@@ -103,7 +103,7 @@ async def wallet(node_client, private_key, test_address):
     return await get_wallet(node_client, private_key, test_address)
 
 
-def retry_on_forbidden(max_retries=3, delay=1):
+def retry_on_forbidden(max_retries=3, delay=1, skip=False):
     def decorator(func):
         @wraps(func)
         async def wrapper(*args, **kwargs):
@@ -115,6 +115,11 @@ def retry_on_forbidden(max_retries=3, delay=1):
                         if attempt < max_retries - 1:
                             await asyncio.sleep(delay)
                             continue
+                        else:
+                            if skip:
+                                pytest.skip("403 Forbidden error. Skipping the test.")
+                            else:
+                                raise
                     raise
             raise httpx.HTTPStatusError(
                 request=e.request,

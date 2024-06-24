@@ -1,8 +1,8 @@
 from dataclasses import dataclass
-from typing import List, Optional, Self
 
 import grpc
 from google.protobuf.message import Message
+from typing_extensions import List, Optional, Self
 from v4_proto.cosmos.auth.v1beta1 import query_pb2_grpc as auth
 from v4_proto.cosmos.auth.v1beta1.auth_pb2 import BaseAccount
 from v4_proto.cosmos.auth.v1beta1.query_pb2 import QueryAccountRequest

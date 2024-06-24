@@ -15,7 +15,7 @@
 Install from github:
 
 ```bash
-pip install git+https://github.com/NethermindEth/dydx-v4-client
+pip install git+https://github.com/dydxprotocol/v4-clients/blob/main/v4-client-py-v2
 ```
 
 ## Quickstart
@@ -35,7 +35,7 @@ asyncio.run(main())
 ### Node
 `NodeClient` allows to send transactions and fetch node state. E.g. you can deposit funds using the `deposit` method:
 
-https://github.com/NethermindEth/dydx-v4-client/blob/f8be7bf9165fb052e831fcafb8086d14e5af13aa/examples/transfer_example_deposit.py#L1-L24
+https://github.com/dydxprotocol/v4-clients/blob/3330f67752d430f9e0a20b419da4dc9daf7f7be0/v4-client-py-v2/examples/transfer_example_deposit.py#L1-L24
 
 **Note:** It's possible to create a read only node client which doesn't allow to send transactions:
 ```python
@@ -65,7 +65,7 @@ async def test_account():
 ### Websocket indexer
 Websocket indexer allows to subscribe to channels to obtain live updates:
 
-https://github.com/NethermindEth/dydx-v4-client/blob/18eb769dde2a8691fc13445a34f46f0ecb266ec8/examples/websocket_example.py#L1-L24
+https://github.com/dydxprotocol/v4-clients/blob/3330f67752d430f9e0a20b419da4dc9daf7f7be0/v4-client-py-v2/examples/websocket_example.py#L1-L24
 
 ### Networks
 
@@ -121,7 +121,7 @@ indexer = IndexerClient("https://dydx-testnet.imperator.co")
 ```
 ### Faucet
 Faucet allows to obtain usdc on testnet. To use it create `FaucetClient`:
-https://github.com/NethermindEth/dydx-v4-client/blob/18eb769dde2a8691fc13445a34f46f0ecb266ec8/examples/faucet_endpoint.py#L1-L15
+https://github.com/dydxprotocol/v4-clients/blob/3330f67752d430f9e0a20b419da4dc9daf7f7be0/v4-client-py-v2/examples/faucet_endpoint.py#L1-L15
 
 ### Placing order
 To place order first you have to build the order.
@@ -247,6 +247,12 @@ The project employs [`poetry`](https://python-poetry.org/). To install dependenc
 poetry install
 ```
 
+### Preparing development environment
+Install git hooks:
+```bash
+pre-commit install
+```
+
 ### Testing
 To run tests use:
 
@@ -255,8 +261,7 @@ poetry run pytest
 ```
 
 ## Acknowledgements
-Developed by:
-- [Saul M.](https://github.com/samtin0x)
-- [Piotr P.](https://github.com/piwonskp)
 
-For more details, check out the [grant](https://www.dydxgrants.com/grants/python-trading-client).
+Built by Nethermind: [@piwonskp](https://github.com/piwonskp), [@samtin0x](https://github.com/samtin0x),  [@therustmonk](https://github.com/therustmonk)
+
+For more details about the grant see [link](https://www.dydxgrants.com/grants/python-trading-client).

@@ -2,9 +2,9 @@ import json
 import ssl
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Callable, Optional, Self, Union
 
 import websocket
+from typing_extensions import Any, Callable, Optional, Self, Union
 
 
 class CandlesResolution(Enum):
