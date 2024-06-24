@@ -1,3 +1,4 @@
+import BigNumber from 'bignumber.js';
 import Long from 'long';
 
 import { OrderType, OrderSide, OrderTimeInForce, OrderExecution } from '../constants';
@@ -28,8 +29,8 @@ export function calculateSubticks(
 ): Long {
   const QUOTE_QUANTUMS_ATOMIC_RESOLUTION = -6;
   const exponent = atomicResolution - quantumConversionExponent - QUOTE_QUANTUMS_ATOMIC_RESOLUTION;
-  const rawSubticks = price * 10 ** exponent;
-  const subticks = round(rawSubticks, subticksPerTick);
+  const rawSubticks = BigNumber(price).times(BigNumber(10).pow(exponent));
+  const subticks = round(rawSubticks.toNumber(), subticksPerTick);
   const result = Math.max(subticks, subticksPerTick);
   return Long.fromNumber(result);
 }
