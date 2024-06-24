@@ -29,7 +29,7 @@ RECIPIENT = "dydx1slanxj8x9ntk9knwa6cvfv2tzlsq5gk3dshml0"
 
 @pytest.fixture
 def indexer_rest_client():
-    return IndexerClient(TESTNET.rest_indexer)
+    return IndexerClient("https://indexer.v4testnet.dydx.exchange")
 
 
 @pytest.fixture
