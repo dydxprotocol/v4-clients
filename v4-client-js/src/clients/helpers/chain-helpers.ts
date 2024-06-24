@@ -29,7 +29,7 @@ export function calculateSubticks(
 ): Long {
   const QUOTE_QUANTUMS_ATOMIC_RESOLUTION = -6;
   const exponent = atomicResolution - quantumConversionExponent - QUOTE_QUANTUMS_ATOMIC_RESOLUTION;
-  const rawSubticks = BigNumber(price).times(BigNumber(10).exponentiatedBy(exponent));
+  const rawSubticks = BigNumber(price).times(BigNumber(10).pow(exponent));
   const subticks = round(rawSubticks.toNumber(), subticksPerTick);
   const result = Math.max(subticks, subticksPerTick);
   return Long.fromNumber(result);
