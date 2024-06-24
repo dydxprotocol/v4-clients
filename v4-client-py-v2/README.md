@@ -247,6 +247,12 @@ The project employs [`poetry`](https://python-poetry.org/). To install dependenc
 poetry install
 ```
 
+### Preparing development environment
+Install git hooks:
+```bash
+pre-commit install
+```
+
 ### Testing
 To run tests use:
 
