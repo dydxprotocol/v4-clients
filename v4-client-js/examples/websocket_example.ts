@@ -34,6 +34,9 @@ function test(): void {
         }
       }
     },
+    (event) => {
+      console.error('Encountered error:', event.message);
+    },
   );
   mySocket.connect();
 }
