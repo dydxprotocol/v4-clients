@@ -7,13 +7,6 @@ from tests.conftest import TEST_ADDRESS
 
 async def test():
     node_client = await NodeClient.connect(TESTNET.node)
-    try:
-        result = await node_client.get_account_balances(TEST_ADDRESS)
-        print("Get Account Balances:")
-        print(result)
-    except Exception as e:
-        print("Error in get_account_balances:")
-        print(f"Error: {e}")
 
     try:
         account = await node_client.get_account(TEST_ADDRESS)
@@ -32,7 +25,7 @@ async def test():
         print(f"Error: {e}")
 
     try:
-        response = await node_client.get_account_balance(TEST_ADDRESS, "usdc")
+        response = await node_client.get_account_balance(TEST_ADDRESS, "adv4tnt")
         print("Get Account Balance:")
         print(response)
     except Exception as e:
