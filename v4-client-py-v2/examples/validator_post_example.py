@@ -4,12 +4,11 @@ import random
 import time
 from pathlib import Path
 
-from dydx_v4_client import MAX_CLIENT_ID, NodeClient, Order, OrderFlags, Wallet
-from dydx_v4_client.indexer.rest.indexer_client import IndexerClient
+from dydx_v4_client import MAX_CLIENT_ID, NodeClient, Wallet
 from dydx_v4_client.network import TESTNET
-from dydx_v4_client.node.market import Market
 from dydx_v4_client.node.message import order, order_id
 from tests.conftest import DYDX_TEST_MNEMONIC, TEST_ADDRESS
+from google.protobuf.json_format import MessageToJson
 
 PERPETUAL_PAIR_BTC_USD = 0
 
@@ -51,7 +50,7 @@ async def test():
             ),
         )
         print("**Order Tx**")
-        print(place)
+        print(MessageToJson(place, always_print_fields_with_no_presence=True))
         # FIXME: Remove
         wallet.sequence += 1
         time.sleep(5)
