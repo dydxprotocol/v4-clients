@@ -1,4 +1,4 @@
-import WebSocket, { MessageEvent } from 'ws';
+import WebSocket, { ErrorEvent, MessageEvent } from 'ws';
 
 import { IndexerConfig } from './constants';
 
@@ -40,6 +40,7 @@ export class SocketClient {
   private onOpenCallback?: () => void;
   private onCloseCallback?: () => void;
   private onMessageCallback?: (event: MessageEvent) => void;
+  private onErrorCallback?: (event: ErrorEvent) => void;
   private lastMessageTime: number = Date.now();
 
   constructor(
@@ -47,11 +48,13 @@ export class SocketClient {
     onOpenCallback: () => void,
     onCloseCallback: () => void,
     onMessageCallback: (event: MessageEvent) => void,
+    onErrorCallback: (event: ErrorEvent) => void,
   ) {
     this.url = config.websocketEndpoint;
     this.onOpenCallback = onOpenCallback;
     this.onCloseCallback = onCloseCallback;
     this.onMessageCallback = onMessageCallback;
+    this.onErrorCallback = onErrorCallback;
   }
 
   connect(): void {
@@ -59,6 +62,7 @@ export class SocketClient {
     this.ws.addEventListener('open', this.handleOpen.bind(this));
     this.ws.addEventListener('close', this.handleClose.bind(this));
     this.ws.addEventListener('message', this.handleMessage.bind(this));
+    this.ws.addEventListener('error', this.handleError.bind(this));
   }
 
   /**
@@ -68,6 +72,34 @@ export class SocketClient {
   close(): void {
     this.ws?.close();
     this.ws = undefined;
+  }
+
+  /**
+   * @description Check is the websocket connection connecting
+   */
+  isConnecting(): boolean {
+    return this.ws?.readyState === WebSocket.CONNECTING;
+  }
+
+  /**
+   * @description Check is the websocket connection open
+   */
+  isOpen(): boolean {
+    return this.ws?.readyState === WebSocket.OPEN;
+  }
+
+  /**
+   * @description Check is the websocket connection closing
+   */
+  isClosing(): boolean {
+    return this.ws?.readyState === WebSocket.CLOSING;
+  }
+
+  /**
+   * @description Check is the websocket connection closed
+   */
+  isClosed(): boolean {
+    return this.ws?.readyState === WebSocket.CLOSED;
   }
 
   /**
@@ -101,6 +133,12 @@ export class SocketClient {
     }
   }
 
+  private handleError(event: ErrorEvent): void {
+    if (this.onErrorCallback) {
+      this.onErrorCallback(event);
+    }
+  }
+
   /**
    * @description Set callback when the socket is opened.
    *
@@ -123,6 +161,13 @@ export class SocketClient {
    */
   set onMessage(callback: (event: MessageEvent) => void) {
     this.onMessageCallback = callback;
+  }
+
+  /**
+   * @description Set callback when the socket encounters an error.
+   */
+  set onError(callback: (event: ErrorEvent) => void) {
+    this.onErrorCallback = callback;
   }
 
   /**
