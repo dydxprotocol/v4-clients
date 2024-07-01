@@ -32,6 +32,7 @@ describe('IndexerClient', () => {
       const response = await client.markets.getPerpetualMarketTrades(
         MARKET_BTC_USD,
         undefined,
+        undefined,
         1,
         1,
       );

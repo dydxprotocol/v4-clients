@@ -19,12 +19,14 @@ export default class MarketsClient extends RestClient {
   async getPerpetualMarketTrades(
     market: string,
     startingBeforeOrAtHeight?: number | null,
+    startingBeforeOrAt?: string | null,
     limit?: number | null,
     page?: number | null,
   ): Promise<Data> {
     const uri = `/v4/trades/perpetualMarket/${market}`;
     return this.get(uri, {
       createdBeforeOrAtHeight: startingBeforeOrAtHeight,
+      createdBeforeOrAt: startingBeforeOrAt,
       limit,
       page,
     });
