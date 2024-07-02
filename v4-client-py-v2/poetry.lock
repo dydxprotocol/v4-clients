@@ -49,6 +49,17 @@ docs = ["furo", "jaraco.packaging (>=9.3)", "rst.linker (>=1.9)", "sphinx (>=3.5
 testing = ["jaraco.test", "pytest (!=8.0.*)", "pytest (>=6,!=8.1.*)", "pytest-checkdocs (>=2.4)", "pytest-cov", "pytest-enabler (>=2.2)"]
 
 [[package]]
+name = "bech32"
+version = "1.2.0"
+description = "Reference implementation for Bech32 and segwit addresses."
+optional = false
+python-versions = ">=3.5"
+files = [
+    {file = "bech32-1.2.0-py3-none-any.whl", hash = "sha256:990dc8e5a5e4feabbdf55207b5315fdd9b73db40be294a19b3752cde9e79d981"},
+    {file = "bech32-1.2.0.tar.gz", hash = "sha256:7d6db8214603bd7871fcfa6c0826ef68b85b0abd90fa21c285a9c5e21d2bd899"},
+]
+
+[[package]]
 name = "bip-utils"
 version = "2.9.3"
 description = "Generation of mnemonics, seeds, private/public keys and addresses for different types of cryptocurrencies"
@@ -1699,4 +1710,4 @@ test = ["big-O", "importlib-resources", "jaraco.functools", "jaraco.itertools", 
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "fe3cbede7248009bc396bd57a2915fb079165466d885da21256a6a3116941128"
+content-hash = "08f167d695bb0327aa94b6bb9bd4ca0671fa89a1e443b6235a1d7f4cfba04f75"
