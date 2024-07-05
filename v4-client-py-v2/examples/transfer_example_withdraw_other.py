@@ -13,11 +13,12 @@ async def test():
 
     wallet = await Wallet.from_mnemonic(node, DYDX_TEST_MNEMONIC, TEST_ADDRESS)
 
-    withdraw_tx = partial(withdraw, subaccount(TEST_ADDRESS, 0), TEST_ADDRESS, 0)
+    message = partial(withdraw, subaccount(TEST_ADDRESS, 0), TEST_ADDRESS, 0)
     amount = 100_000_000
 
-    simulated_txs = node.builder.build(wallet, withdraw_tx(amount))
-    simulation = await node.simulate(simulated_txs)
+    simulated = node.builder.build(wallet, message(amount))
+
+    simulation = await node.simulate(simulated)
     print("**Simulate**")
     print(simulation)
 
@@ -25,9 +26,9 @@ async def test():
     print("**Total Fee**")
     print(fee)
 
-    final_withdraw_tx = withdraw_tx(amount - fee.amount[0].amount)
-    final_txs = node.build(wallet, final_withdraw_tx, fee)
-    response = await node.broadcast(final_txs)
+    response = await node.broadcast(
+        node.build(wallet, message(amount - fee.amount[0].amount), fee)
+    )
     print("**Withdraw and Send**")
     print(response)
 
