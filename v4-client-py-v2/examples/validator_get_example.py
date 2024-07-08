@@ -66,16 +66,18 @@ async def test():
 
     try:
         subaccount = await node_client.get_subaccount(TEST_ADDRESS, 0)
+        decoded = node_client.encode_response(subaccount)
         print("Get Subaccount:")
-        print(subaccount)
+        print(decoded)
     except Exception as e:
         print("Error in get_subaccount:")
         print(f"Error: {e}")
 
     try:
         subaccounts = await node_client.get_subaccounts()
+        decoded = node_client.encode_response(subaccounts)
         print("Get Subaccounts:")
-        print(subaccounts)
+        print(decoded)
     except Exception as e:
         print("Error in get_subaccounts:")
         print(f"Error: {e}")

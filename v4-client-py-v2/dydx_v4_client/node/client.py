@@ -239,7 +239,7 @@ class QueryNodeClient:
         response = stub.Subaccount(
             QueryGetSubaccountRequest(owner=address, number=account_number)
         )
-        return self.encode_response(response)
+        return response.subaccount
 
     async def get_subaccounts(self) -> QuerySubaccountAllResponse:
         """
@@ -249,8 +249,7 @@ class QueryNodeClient:
             QuerySubaccountAllResponse: The response containing all subaccounts.
         """
         stub = subaccounts_query_grpc.QueryStub(self.channel)
-        response = stub.SubaccountAll(QueryAllSubaccountRequest())
-        return self.encode_response(response)
+        return stub.SubaccountAll(QueryAllSubaccountRequest())
 
     async def get_clob_pair(self, pair_id: int) -> clob_pair_type.ClobPair:
         """
