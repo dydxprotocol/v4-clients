@@ -10,7 +10,7 @@ import {
 } from '@cosmjs/stargate';
 
 import { GAS_MULTIPLIER } from './constants';
-import { MsgDepositForBurn } from './lib/cctpProto';
+import { MsgDepositForBurn, MsgDepositForBurnWithCaller } from './lib/cctpProto';
 import LocalWallet from './modules/local-wallet';
 
 export class NobleClient {
@@ -39,6 +39,7 @@ export class NobleClient {
       {
         registry: new Registry([
           ['/circle.cctp.v1.MsgDepositForBurn', MsgDepositForBurn],
+          ['/circle.cctp.v1.MsgDepositForBurnWithCaller', MsgDepositForBurnWithCaller],
           ...defaultRegistryTypes,
         ]),
       },
