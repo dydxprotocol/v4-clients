@@ -108,7 +108,7 @@ class QueryNodeClient:
     channel: grpc.Channel
 
     @staticmethod
-    def encode_response(response: Message) -> Union[Dict[str, Any], List[Any]]:
+    def transcode_response(response: Message) -> Union[Dict[str, Any], List[Any]]:
         """
         Encodes the response using the custom JSON encoder.
 
