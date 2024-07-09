@@ -41,6 +41,9 @@ export class TransactionSigner {
       throw new UserError('fee cannot be undefined');
     }
 
+    console.log('** SIGN TRANSACTION **')
+    console.log(messages);
+
     // Sign, encode and return the transaction.
     const rawTx: TxRaw = await this.stargateSigningClient.sign(this.address, messages, fee, memo, {
       accountNumber: transactionOptions.accountNumber,

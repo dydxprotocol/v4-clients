@@ -14,6 +14,7 @@ import {
   MsgDepositToSubaccount,
 } from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/sending/transfer';
 import { MsgCreateTransfer } from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/sending/tx';
+import { MsgSubmitProposal } from '@dydxprotocol/v4-proto/src/codegen/cosmos/gov/v1beta1/tx';
 
 import {
   TYPE_URL_MSG_PLACE_ORDER,
@@ -26,6 +27,7 @@ import {
   TYPE_URL_MSG_CREATE_TRANSFER,
   TYPE_URL_MSG_WITHDRAW_FROM_SUBACCOUNT,
   TYPE_URL_MSG_DEPOSIT_TO_SUBACCOUNT,
+  TYPE_URL_MSG_SUBMIT_PROPOSAL,
 } from '../constants';
 
 export const registry: ReadonlyArray<[string, GeneratedType]> = [];
@@ -53,5 +55,6 @@ export function generateRegistry(): Registry {
 
     // default types
     ...defaultRegistryTypes,
+    [TYPE_URL_MSG_SUBMIT_PROPOSAL, MsgSubmitProposal as GeneratedType]
   ]);
 }

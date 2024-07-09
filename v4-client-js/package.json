@@ -17,7 +17,8 @@
     "test:watch": "npm test -- --watch",
     "test-integration": "NODE_ENV=test jest",
     "webpack": "webpack",
-    "update-cctp-protos": "sh scripts/generate-cctp-protos.sh"
+    "update-cctp-protos": "sh scripts/generate-cctp-protos.sh",
+    "propose": "npm run build && node build/examples/gov_add_new_market.js"
   },
   "repository": {
     "type": "git",

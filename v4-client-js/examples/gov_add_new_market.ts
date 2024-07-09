@@ -60,7 +60,7 @@ async function test(): Promise<void> {
   const wallet = await LocalWallet.fromMnemonic(DYDX_LOCAL_MNEMONIC, BECH32_PREFIX);
   console.log(wallet);
 
-  const network = Network.local();
+  const network = Network.staging();
   const client = await CompositeClient.connect(network);
   console.log('**Client**');
   console.log(client);
@@ -71,6 +71,9 @@ async function test(): Promise<void> {
     getGovAddNewMarketTitle(MOCK_DATA.ticker),
     getGovAddNewMarketSummary(MOCK_DATA.ticker, MOCK_DATA.delayBlocks),
     BigInt(INITIAL_DEPOSIT_AMOUNT).toString(),
+    undefined,
+    undefined,
+    true, // expedited
   );
   console.log('**Tx**');
   console.log(tx);

@@ -260,6 +260,7 @@ export class Post {
     memo?: string,
     broadcastMode?: BroadcastMode,
   ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
+    console.log("*** SIGNING ***")
     const signedTransaction = await this.signTransaction(
       wallet,
       messages,

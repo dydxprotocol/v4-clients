@@ -269,6 +269,24 @@ export class Network {
     return new Network('local', indexerConfig, validatorConfig);
   }
 
+  static staging(): Network {
+    const indexerConfig = new IndexerConfig('https://indexer.v4staging.dydx.exchange', 'wss://indexer.v4staging.dydx.exchange/v4/ws');
+    const validatorConfig = new ValidatorConfig(
+      'https://validator.v4staging.dydx.exchange:443',
+      'dydxprotocol-testnet',
+      {
+        CHAINTOKEN_DENOM: 'adv4tnt',
+        USDC_DENOM: 'ibc/8E27BA2D5493AF5636760E354E46004562C46AB7EC0CC4C1CA14E9E20E2545B5',
+        USDC_GAS_DENOM: 'uusdc',
+        USDC_DECIMALS: 6,
+        CHAINTOKEN_DECIMALS: 18,
+      },
+      undefined,
+      'Client Example',
+    );
+    return new Network('staging', indexerConfig, validatorConfig);
+  }
+
   // For the deployment by DYDX token holders.
   static mainnet(): Network {
     const indexerConfig = new IndexerConfig(IndexerApiHost.MAINNET, IndexerWSHost.MAINNET);

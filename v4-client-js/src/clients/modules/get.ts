@@ -493,7 +493,9 @@ export class Get {
 
   async getWithdrawalAndTransferGatingStatus(): Promise<SubaccountsModule.QueryGetWithdrawalAndTransfersBlockedInfoResponse> {
     const requestData = Uint8Array.from(
-      SubaccountsModule.QueryGetWithdrawalAndTransfersBlockedInfoRequest.encode({}).finish(),
+      SubaccountsModule.QueryGetWithdrawalAndTransfersBlockedInfoRequest.encode({
+        perpetualId: 0,
+      }).finish(),
     );
 
     const data = await this.sendQuery(
