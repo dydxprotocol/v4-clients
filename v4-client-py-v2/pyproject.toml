@@ -13,6 +13,8 @@ websocket-client = "^1.7.0"
 bip-utils = "^2.9.3"
 ecdsa = "^0.19.0"
 typing-extensions = "^4.12.2"
+bech32 = "^1.2.0"
+pycryptodome = "^3.20.0"
 
 
 [tool.poetry.group.dev.dependencies]

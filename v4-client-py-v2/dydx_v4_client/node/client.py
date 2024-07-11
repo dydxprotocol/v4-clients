@@ -387,9 +387,24 @@ class QueryNodeClient:
         return stub.Params(rewards_query.QueryParamsRequest())
 
 
+class SequenceManager:
+    def __init__(self, query_node_client: QueryNodeClient):
+        self.query_node_client = query_node_client
+
+    async def before_send(self, wallet: Wallet):
+        if self.query_node_client:
+            account = await self.query_node_client.get_account(wallet.address)
+            wallet.sequence = account.sequence
+
+    async def after_send(self, wallet: Wallet):
+        if not self.query_node_client:
+            wallet.sequence += 1
+
+
 @dataclass
 class MutatingNodeClient(QueryNodeClient):
     builder: Builder
+    sequence_manager: SequenceManager = None
 
     async def broadcast(self, transaction: Tx, mode=BroadcastMode.BROADCAST_MODE_SYNC):
         """
@@ -459,7 +474,15 @@ class MutatingNodeClient(QueryNodeClient):
         Returns:
             The response from the broadcast.
         """
-        return await self.send(wallet, self.builder.build(wallet, message), mode)
+        if self.sequence_manager:
+            await self.sequence_manager.before_send(wallet)
+
+        response = await self.send(wallet, self.builder.build(wallet, message), mode)
+
+        if self.sequence_manager:
+            await self.sequence_manager.after_send(wallet)
+
+        return response
 
     async def broadcast_message(
         self, wallet: Wallet, message: Message, mode=BroadcastMode.BROADCAST_MODE_SYNC
@@ -475,7 +498,15 @@ class MutatingNodeClient(QueryNodeClient):
         Returns:
             The response from the broadcast.
         """
-        return await self.broadcast(self.builder.build(wallet, message), mode)
+        if self.sequence_manager:
+            await self.sequence_manager.before_send(wallet)
+
+        response = await self.broadcast(self.builder.build(wallet, message), mode)
+
+        if self.sequence_manager:
+            await self.sequence_manager.after_send(wallet)
+
+        return response
 
     def build_transaction(self, wallet: Wallet, messages: List[Message], fee: Fee):
         """
@@ -521,9 +552,14 @@ class MutatingNodeClient(QueryNodeClient):
 
 @dataclass
 class NodeClient(MutatingNodeClient):
+    manage_sequence: bool = True
+
     @staticmethod
     async def connect(config: NodeConfig) -> Self:
-        return NodeClient(config.channel, Builder(config.chain_id, config.usdc_denom))
+        client = NodeClient(config.channel, Builder(config.chain_id, config.usdc_denom))
+        if client.manage_sequence:
+            client.sequence_manager = SequenceManager(QueryNodeClient(client.channel))
+        return client
 
     async def deposit(
         self,
