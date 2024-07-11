@@ -1,7 +1,11 @@
+import base64
+import json
 from dataclasses import dataclass
+from typing import Union, Dict, Any
 
 import grpc
-from google.protobuf.message import Message
+from google._upb._message import Message
+from google.protobuf.json_format import MessageToDict, MessageToJson
 from typing_extensions import List, Optional, Self
 from v4_proto.cosmos.auth.v1beta1 import query_pb2_grpc as auth
 from v4_proto.cosmos.auth.v1beta1.auth_pb2 import BaseAccount
@@ -77,9 +81,46 @@ from dydx_v4_client.node.message import (
 from dydx_v4_client.wallet import Wallet
 
 
+class CustomJSONDecoder:
+    def __init__(self):
+        self.decoder = json.JSONDecoder(object_hook=self.decode_dict)
+
+    def decode(self, json_string):
+        return self.decoder.decode(json_string)
+
+    @staticmethod
+    def decode_base64(value):
+        if isinstance(value, str):
+            try:
+                return list(base64.b64decode(value))
+            except (base64.binascii.Error, ValueError):
+                return value
+        return value
+
+    def decode_dict(self, data):
+        if isinstance(data, dict):
+            return {k: self.decode_base64(v) for k, v in data.items()}
+        return data
+
+
 @dataclass
 class QueryNodeClient:
     channel: grpc.Channel
+
+    @staticmethod
+    def transcode_response(response: Message) -> Union[Dict[str, Any], List[Any]]:
+        """
+        Encodes the response using the custom JSON encoder.
+
+        Args:
+            response (Message): The response message to encode.
+
+        Returns:
+            Union[Dict[str, Any], List[Any]]: The encoded response.
+        """
+        response_dict = MessageToDict(response)
+        json_string = json.dumps(response_dict)
+        return CustomJSONDecoder().decode(json_string)
 
     async def get_account_balances(
         self, address: str
