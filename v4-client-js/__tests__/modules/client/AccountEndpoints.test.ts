@@ -215,6 +215,8 @@ describe('IndexerClient', () => {
         0,
         undefined,
         undefined,
+        undefined,
+        undefined,
         1,
         1,
       );
