@@ -67,7 +67,7 @@ export class NobleClient {
 
   async send(
     messages: EncodeObject[],
-    gasPrice: GasPrice = GasPrice.fromString('0.025uusdc'),
+    gasPrice: GasPrice = GasPrice.fromString('0.1uusdc'),
     memo?: string,
   ): Promise<DeliverTxResponse> {
     if (!this.stargateClient) {
@@ -90,7 +90,7 @@ export class NobleClient {
 
   async simulateTransaction(
     messages: readonly EncodeObject[],
-    gasPrice: GasPrice = GasPrice.fromString('0.025uusdc'),
+    gasPrice: GasPrice = GasPrice.fromString('0.1uusdc'),
     memo?: string,
   ): Promise<StdFee> {
     if (!this.stargateClient) {
