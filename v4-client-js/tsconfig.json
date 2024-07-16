@@ -11,6 +11,7 @@
   ],
   "compilerOptions": {
     "outDir": "build",
-    "noFallthroughCasesInSwitch": false
+    "noFallthroughCasesInSwitch": false,
+    "skipLibCheck": true
   }
 }
