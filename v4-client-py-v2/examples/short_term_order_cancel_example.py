@@ -3,6 +3,7 @@ import random
 import time
 
 from dydx_v4_client import MAX_CLIENT_ID, NodeClient, Order, OrderFlags, Wallet
+from dydx_v4_client.indexer.rest.constants import OrderType
 from dydx_v4_client.indexer.rest.indexer_client import IndexerClient
 from dydx_v4_client.network import TESTNET
 from dydx_v4_client.node.market import Market
@@ -32,10 +33,11 @@ async def test():
         wallet,
         market.order(
             order_id,
+            OrderType.LIMIT,
             Order.Side.SIDE_SELL,
             size=0.01,
             price=40000,
-            time_in_force=Order.TIME_IN_FORCE_UNSPECIFIED,
+            time_in_force=Order.TimeInForce.TIME_IN_FORCE_UNSPECIFIED,
             reduce_only=False,
             good_til_block=good_til_block,
         ),

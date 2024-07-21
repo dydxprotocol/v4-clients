@@ -17,16 +17,10 @@ class OrderHelper:
         if order_type == OrderType.MARKET:
             return Order.TimeInForce.TIME_IN_FORCE_IOC
         elif order_type == OrderType.LIMIT:
-            if time_in_force == Order.TimeInForce.GTT:
-                return (
-                    Order.TimeInForce.TIME_IN_FORCE_POST_ONLY
-                    if post_only
-                    else Order.TimeInForce.TIME_IN_FORCE_UNSPECIFIED
-                )
-            elif time_in_force == Order.TimeInForce.FOK:
-                return Order.TimeInForce.TIME_IN_FORCE_FILL_OR_KILL
-            elif time_in_force == Order.TimeInForce.IOC:
-                return Order.TimeInForce.TIME_IN_FORCE_IOC
+            if post_only:
+                return Order.TimeInForce.TIME_IN_FORCE_POST_ONLY
+            else:
+                return time_in_force
         elif order_type in [OrderType.STOP_LIMIT, OrderType.TAKE_PROFIT_LIMIT]:
             if execution == OrderExecution.DEFAULT:
                 return Order.TimeInForce.TIME_IN_FORCE_UNSPECIFIED
