@@ -63,7 +63,7 @@ def place_order(order: Order):
 
 
 def cancel_order(
-    order_id,
+    order_id: OrderId,
     good_til_block: int = None,
     good_til_block_time: int = None,
 ):

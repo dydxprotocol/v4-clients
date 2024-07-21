@@ -3,11 +3,10 @@ GOV_MODULE_ADDRESS = "dydx10d07y265gmmuvt4z0w9aw880jnsr700jnmapky"
 DELAYMSG_MODULE_ADDRESS = "dydx1mkkvp26dngu6n8rmalaxyp3gwkjuzztq5zx6tr"
 
 
-# Market Statistic Day Types
-class MarketStatisticDay:
-    ONE = "1"
-    SEVEN = "7"
-    THIRTY = "30"
+# Order Side
+class OrderSide:
+    BUY = "BUY"
+    SELL = "SELL"
 
 
 # Order Types
@@ -20,12 +19,6 @@ class OrderType:
     TAKE_PROFIT_MARKET = "TAKE_PROFIT_MARKET"
 
 
-# Order Side
-class OrderSide:
-    BUY = "BUY"
-    SELL = "SELL"
-
-
 # Order TimeInForce
 class OrderTimeInForce:
     GTT = "TIME_IN_FORCE_UNSPECIFIED"
@@ -33,7 +26,6 @@ class OrderTimeInForce:
     FOK = "TIME_IN_FORCE_FILL_OR_KILL"
 
 
-# Order Execution
 class OrderExecution:
     DEFAULT = "DEFAULT"
     IOC = "IOC"
