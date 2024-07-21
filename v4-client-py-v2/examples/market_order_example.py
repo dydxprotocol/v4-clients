@@ -4,6 +4,7 @@ import random
 from dydx_v4_client import MAX_CLIENT_ID, NodeClient, OrderFlags, Wallet
 from v4_proto.dydxprotocol.clob.order_pb2 import Order
 
+from dydx_v4_client.indexer.rest.constants import OrderType
 from dydx_v4_client.indexer.rest.indexer_client import IndexerClient
 from dydx_v4_client.network import TESTNET
 from dydx_v4_client.node.market import Market
@@ -29,10 +30,11 @@ async def place_market_order(size: float):
 
     new_order = market.order(
         order_id=order_id,
+        order_type=OrderType.MARKET,
         side=Order.Side.SIDE_SELL,
         size=size,
         price=0,  # Set to 0 for market orders
-        time_in_force=Order.TimeInForce.TIME_IN_FORCE_FILL_OR_KILL,  # Use IOC for market orders
+        time_in_force=Order.TimeInForce.TIME_IN_FORCE_UNSPECIFIED,
         reduce_only=False,
         good_til_block=current_block + 10,
     )
