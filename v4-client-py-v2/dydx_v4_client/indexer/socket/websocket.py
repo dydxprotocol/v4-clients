@@ -79,10 +79,10 @@ class Candles(Channel):
     channel = "v4_candles"
 
     def subscribe(self, id, resolution: CandlesResolution, batched=True) -> Self:
-        return super().subscribe(id=f"{id}/{resolution}", batched=batched)
+        return super().subscribe(id=f"{id}/{resolution.value}", batched=batched)
 
     def unsubscribe(self, id, resolution: CandlesResolution):
-        return super().unsubscribe(id=f"{id}/{resolution}")
+        return super().unsubscribe(id=f"{id}/{resolution.value}")
 
 
 class Subaccounts(Channel):
