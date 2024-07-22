@@ -87,7 +87,7 @@ async def test_order(
         # codespace: "sdk"\n  code: 32\n  raw_log: "account sequence mismatch, expected 1460, got 1459: incorrect account sequence"
         # If the time is too long the result is:
         # codespace: "clob"\n  code:...hj67cghhf9jypslcf9sh2n5k6art Number:0} ClientId:13850897 OrderFlags:64 ClobPairId:0}: Stateful order does not exist"
-        time.sleep(2)
+        time.sleep(1.5)
 
         wallet = await get_wallet(node_client, private_key, test_address)
 
