@@ -1139,9 +1139,10 @@ export async function cctpWithdraw(squidPayload: string): Promise<String> {
 }
 
 
-export async function cctpMultiMsgWithdraw(messages: { typeUrl: string; value: any }[]): Promise<string> {
+export async function cctpMultiMsgWithdraw(cosmosPayload: string): Promise<string> {
   try {
     const client = globalThis.nobleClient;
+    const messages: { typeUrl:string, value: { amount: string } }[] = JSON.parse(cosmosPayload)
     if (client === undefined || !client.isConnected) {
       throw new UserError('client is not connected.');
     }
