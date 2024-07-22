@@ -2,7 +2,7 @@ import asyncio
 import logging
 from decimal import Decimal
 
-from v4_proto.dydxprotocol.clob.order_pb2 import OrderId
+from v4_proto.dydxprotocol.clob.order_pb2 import OrderId, Order
 
 from dydx_v4_client.indexer.rest.constants import OrderSide, OrderTimeInForce
 from dydx_v4_client.indexer.socket.websocket import (
@@ -176,7 +176,7 @@ class BasicAdder:
         current_block = await self.node_client.latest_block_height()
         new_order = order(
             order_id=oid,
-            side=side,
+            side=Order.SIDE_BUY if side == OrderSide.BUY else Order.SIDE_SELL,
             quantums=(quantums // step_base_quantums) * step_base_quantums,
             subticks=(subticks // subticks_per_tick) * subticks_per_tick,
             time_in_force=time_in_force,
