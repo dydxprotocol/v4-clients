@@ -1138,6 +1138,40 @@ export async function cctpWithdraw(squidPayload: string): Promise<String> {
   }
 }
 
+
+export async function cctpMultiMsgWithdraw(cosmosPayload: string): Promise<string> {
+  try {
+    const client = globalThis.nobleClient;
+    const messages: { typeUrl:string, value: { amount: string } }[] = JSON.parse(cosmosPayload)
+    if (client === undefined || !client.isConnected) {
+      throw new UserError('client is not connected.');
+    }
+    const ibcMsgs = messages.map(({ typeUrl, value }) => ({
+      typeUrl, // '/circle.cctp.v1.MsgDepositForBurnWithCaller', '/cosmos.bank.v1beta1.MsgSend'
+      value,
+    }));
+
+    const fee = await client.simulateTransaction(ibcMsgs);
+
+    // take out fee from amount before sweeping
+    const amount =
+      parseInt(ibcMsgs[0].value.amount, 10) -
+      Math.floor(parseInt(fee.amount[0].amount, 10) * GAS_MULTIPLIER);
+
+    if (amount <= 0) {
+      throw new Error('noble balance does not cover fees');
+    }
+
+    ibcMsgs[0].value.amount = amount.toString();
+
+    const tx = await client.send(ibcMsgs);
+
+    return encodeJson(tx);
+  } catch (error) {
+    return wrappedError(error)
+  }
+}
+
 export async function getWithdrawalCapacityByDenom(payload: string): Promise<string> {
   try {
     const client = globalThis.client;
