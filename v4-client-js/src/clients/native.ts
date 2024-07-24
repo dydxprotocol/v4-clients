@@ -968,7 +968,7 @@ export async function getDelegatorDelegations(payload: string): Promise<string> 
   }
 }
 
-export async function getDelegatorUnbondingDelegations(payload: string): Promise<string> {
+export async function getCurrentUnstaking(payload: string): Promise<string> {
   try {
     const client = globalThis.client;
     if (client === undefined) {
