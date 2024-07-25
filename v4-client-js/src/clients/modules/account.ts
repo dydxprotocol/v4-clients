@@ -175,8 +175,10 @@ export default class AccountClient extends RestClient {
   async getSubaccountHistoricalPNLs(
     address: string,
     subaccountNumber: number,
-    effectiveBeforeOrAt?: string | null,
-    effectiveAtOrAfter?: string | null,
+    createdBeforeOrAtHeight?: number | null,
+    createdBeforeOrAt?: string | null,
+    createdOnOrAfterHeight?: number | null,
+    createdOnOrAfter?: string | null,
     limit?: number | null,
     page?: number | null,
   ): Promise<Data> {
@@ -184,8 +186,10 @@ export default class AccountClient extends RestClient {
     return this.get(uri, {
       address,
       subaccountNumber,
-      effectiveBeforeOrAt,
-      effectiveAtOrAfter,
+      createdBeforeOrAtHeight,
+      createdBeforeOrAt,
+      createdOnOrAfterHeight,
+      createdOnOrAfter,
       limit,
       page,
     });
