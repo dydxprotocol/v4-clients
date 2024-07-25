@@ -12,7 +12,7 @@ def handle_message(ws: IndexerSocket, message: dict):
         ws.markets.subscribe()
         ws.order_book.subscribe(ETH_USD)
         ws.trades.subscribe(ETH_USD)
-        ws.candles.subscribe(ETH_USD, CandlesResolution.FIFTEEN_MINUTES)
+        ws.candles.subscribe(ETH_USD, CandlesResolution.FIFTEEN_MINUTES.value)
         ws.subaccounts.subscribe(TEST_ADDRESS, 0)
     print(message)
 
