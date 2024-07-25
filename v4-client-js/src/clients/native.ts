@@ -968,6 +968,25 @@ export async function getDelegatorDelegations(payload: string): Promise<string> 
   }
 }
 
+export async function getStakingRewards(payload: string): Promise<string> {
+  try {
+    const client = globalThis.client;
+    if (client === undefined) {
+      throw new UserError('client is not connected. Call connectClient() first');
+    }
+    const json = JSON.parse(payload);
+    const address = json.address;
+    if (address === undefined) {
+      throw new UserError('address is not set');
+    }
+    const delegations =
+      await globalThis.client?.validatorClient.get.getDelegationTotalRewards(address);
+    return encodeJson(delegations);
+  } catch (e) {
+    return wrappedError(e);
+  }
+}
+
 export async function getCurrentUnstaking(payload: string): Promise<string> {
   try {
     const client = globalThis.client;
