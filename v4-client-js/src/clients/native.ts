@@ -47,7 +47,7 @@ declare global {
   var hdKey: {
     privateKey: Uint8Array | null;
     publicKey: Uint8Array | null;
-  }
+  };
 
   // eslint-disable-next-line vars-on-top, no-var
   var nobleClient: NobleClient | undefined;
@@ -174,8 +174,9 @@ export async function deriveMnemomicFromEthereumSignature(signature: string): Pr
     const { mnemonic, privateKey, publicKey } = deriveHDKeyFromEthereumSignature(signature);
     const wallet = await LocalWallet.fromMnemonic(mnemonic, BECH32_PREFIX);
     globalThis.hdKey = {
-      privateKey, publicKey
-    }
+      privateKey,
+      publicKey,
+    };
     const result = { mnemonic, address: wallet.address! };
     return new Promise((resolve) => {
       resolve(encodeJson(result));
@@ -293,15 +294,15 @@ export async function placeOrder(payload: string): Promise<string> {
       throw new UserError('clientId is not set');
     }
     const timeInForce = json.timeInForce;
-    const goodTilTimeInSeconds = json.goodTilTimeInSeconds;
-    const goodTilBlock = json.goodTilBlock;
+    const goodTilTimeInSeconds = json.goodTilTimeInSeconds ?? 0;
+    const goodTilBlock = json.goodTilBlock ?? undefined;
     const execution = json.execution;
     const postOnly = json.postOnly ?? false;
     const reduceOnly = json.reduceOnly ?? false;
-    const triggerPrice = json.triggerPrice;
+    const triggerPrice = json.triggerPrice ?? undefined;
 
-    const marketInfo = json.marketInfo as MarketInfo;
-    const currentHeight = json.currentHeight as number;
+    const marketInfo = (json.marketInfo as MarketInfo) ?? undefined;
+    const currentHeight = (json.currentHeight as number) ?? undefined;
 
     const subaccount = new SubaccountInfo(wallet, subaccountNumber);
     const tx = await client.placeOrder(
@@ -1287,11 +1288,11 @@ export async function signCompliancePayload(payload: string): Promise<string> {
     if (!globalThis.hdKey?.privateKey || !globalThis.hdKey?.publicKey) {
       throw new Error('Missing hdKey');
     }
-  
+
     const timestampInSeconds = Math.floor(Date.now() / 1000);
     const messageToSign: string = `${message}:${action}"${currentStatus ?? ''}:${timestampInSeconds}`;
     const messageHash = sha256(Buffer.from(messageToSign));
-  
+
     const signed = await Secp256k1.createSignature(messageHash, globalThis.hdKey.privateKey);
     const signedMessage = signed.toFixedLength();
 

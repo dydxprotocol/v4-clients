@@ -202,7 +202,7 @@ export class CompositeClient {
     goodTilBlock?: number,
   ): Promise<number> {
     if (orderFlags === OrderFlags.SHORT_TERM) {
-      if (goodTilBlock !== undefined && goodTilBlock !== 0) {
+      if (goodTilBlock !== undefined && goodTilBlock !== 0 && goodTilBlock !== null) {
         return Promise.resolve(goodTilBlock);
       } else {
         const height = currentHeight ?? (await this.validatorClient.get.latestBlockHeight());
