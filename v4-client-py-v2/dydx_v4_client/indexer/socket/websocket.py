@@ -71,10 +71,10 @@ class Markets(Channel):
 class Candles(Channel):
     channel = "v4_candles"
 
-    def subscribe(self, id, resolution: CandlesResolution, batched=True) -> Self:
+    def subscribe(self, id: str, resolution: CandlesResolution, batched=True) -> Self:
         return super().subscribe(id=f"{id}/{resolution.value}", batched=batched)
 
-    def unsubscribe(self, id, resolution: CandlesResolution):
+    def unsubscribe(self, id: str, resolution: CandlesResolution):
         return super().unsubscribe(id=f"{id}/{resolution.value}")
 
 
