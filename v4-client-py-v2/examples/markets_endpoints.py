@@ -1,5 +1,6 @@
 import asyncio
 
+from dydx_v4_client.indexer.candles_resolution import CandlesResolution
 from dydx_v4_client.indexer.rest.indexer_client import IndexerClient
 from dydx_v4_client.network import TESTNET
 
@@ -82,7 +83,7 @@ async def test():
     # Get perp market candles
     try:
         response = await client.markets.get_perpetual_market_candles(
-            market=MARKET_BTC_USD, resolution="1MIN"
+            market=MARKET_BTC_USD, resolution=CandlesResolution.ONE_MINUTE
         )
         print(response)
         print("candles")
