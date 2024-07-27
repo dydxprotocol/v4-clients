@@ -15,13 +15,15 @@ class Channel:
 
     def subscribe(self, **kwargs) -> Self:
         self.app.send(
-            json.dumps({"type": "subscribe", "channel": self.channel, **kwargs})
+            json.dumps(
+                {"type": "subscribe", "channel": self.channel, **kwargs})
         )
         return self
 
     def unsubscribe(self, **kwargs):
         self.app.send(
-            json.dumps({"type": "unsubscribe", "channel": self.channel, **kwargs})
+            json.dumps(
+                {"type": "unsubscribe", "channel": self.channel, **kwargs})
         )
 
     def process(self, message):
@@ -101,7 +103,8 @@ class IndexerSocket(websocket.WebSocketApp):
         url: str,
         header: Union[list, dict, Callable, None] = None,
         on_open: Optional[Callable[[websocket.WebSocket], None]] = None,
-        on_message: Optional[Callable[[websocket.WebSocket, Any], None]] = None,
+        on_message: Optional[Callable[[
+            websocket.WebSocket, Any], None]] = None,
         *args,
         **kwargs,
     ):
