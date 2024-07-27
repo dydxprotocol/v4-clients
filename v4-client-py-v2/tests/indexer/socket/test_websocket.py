@@ -95,8 +95,7 @@ async def test_candles(indexer_socket_client):
     def on_message(ws, message):
         message_dict = json.loads(message)
         if message_dict["type"] == "connected":
-            ws.candles.subscribe(
-                id="BTC-USD", resolution=CandlesResolution.ONE_MINUTE)
+            ws.candles.subscribe(id="BTC-USD", resolution=CandlesResolution.ONE_MINUTE)
         elif message_dict["type"] == "subscribed":
             assert message_dict["channel"] == candles_channel_name
             if os.getenv("CI") == "true":
@@ -132,8 +131,7 @@ async def test_subaccounts(indexer_socket_client, test_address):
         elif message_dict["type"] == "subscribed":
             assert message_dict["channel"] == subaccounts_channel_name
             assert "subaccount" in message_dict["contents"]
-            ws.subaccounts.unsubscribe(
-                address=test_address, subaccount_number=0)
+            ws.subaccounts.unsubscribe(address=test_address, subaccount_number=0)
             ws.close()
         else:
             ws.close()
