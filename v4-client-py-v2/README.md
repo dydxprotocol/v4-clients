@@ -18,168 +18,33 @@ Install from github:
 pip install git+https://github.com/dydxprotocol/v4-clients/blob/main/v4-client-py-v2
 ```
 
-## Quickstart
-The package allows asynchronous programming so any script using it has to be run using asyncio.run:
+## Getting Started Guide
 
-```python
-import asyncio
+**dYdX Python SDK Trading Documentation**: go-to resource for starting trades on dYdX using the Python SDK. Follow this guide to learn the basics and begin trading.
 
+### Table of Contents
 
-async def main():
-    pass
+1. [Introduction](./documentation/intro.md)
+2. [Network Setup](./documentation/network_setup.md)
+3. [Using the Testnet Faucet](./documentation/using_testnet_faucet.md)
+4. [Account Details](./documentation/account_details.md)
+5. [Getting Price Quotes](./documentation/getting_price_quotes.md)
+6. [Placing Orders](./documentation/placing_orders.md)
+7. [Placing Native Orders](./documentation/placing_native_orders.md)
+8. [Using WebSockets](./documentation/using_websockets.md)
 
+### Quick Start
 
-asyncio.run(main())
-```
+To place an order, you first need to build the order. Here's a basic overview of the process:
 
-### Node
-`NodeClient` allows to send transactions and fetch node state. E.g. you can deposit funds using the `deposit` method:
+1. Set up your network connection (see [Network Setup](./documentation/network_setup.md))
+2. If using testnet, obtain funds from the faucet (see [Using the Testnet Faucet](./documentation/using_testnet_faucet.md))
+3. Check your account details (see [Account Details](./documentation/account_details.md))
+4. Get current market prices (see [Getting Price Quotes](./documentation/getting_price_quotes.md))
+5. Build and place your order (see [Placing Orders](./placing_orders.md) or [Placing Native Orders](./documentation/placing_native_orders.md))
+6. Optionally, set up WebSocket connections for real-time updates (see [Using WebSockets](./documentation/using_websockets.md))
 
-https://github.com/dydxprotocol/v4-clients/blob/3330f67752d430f9e0a20b419da4dc9daf7f7be0/v4-client-py-v2/examples/transfer_example_deposit.py#L1-L24
-
-**Note:** It's possible to create a read only node client which doesn't allow to send transactions:
-```python
-from dydx_v4_client import QueryNodeClient
-from dydx_v4_client.network import secure_channel
-
-
-node = await QueryNodeClient(secure_channel("test-dydx-grpc.kingnodes.com"))
-```
-
-### REST Indexer
-`IndexerClient` allows to fetch data from indexer:
-
-```python
-import asyncio
-
-from dydx_v4_client.indexer.rest import IndexerClient
-from dydx_v4_client.network import TESTNET
-
-
-async def test_account():
-    indexer = IndexerClient(TESTNET.rest_indexer)
-
-    print(await indexer.account.get_subaccounts("dydx14zzueazeh0hj67cghhf9jypslcf9sh2n5k6art"))
-```
-
-### Websocket indexer
-Websocket indexer allows to subscribe to channels to obtain live updates:
-
-https://github.com/dydxprotocol/v4-clients/blob/3330f67752d430f9e0a20b419da4dc9daf7f7be0/v4-client-py-v2/examples/websocket_example.py#L1-L24
-
-### Networks
-
-> **See [network resources](https://docs.dydx.exchange/infrastructure_providers-network/resources#networks-repositories) to find publicly available endpoints**
-
-To connect to the mainnet you can use `make_mainnet` function:
-```python
-from dydx_v4_client.network import make_mainnet
-
-
-NETWORK = make_mainnet(
-    node_url=NODE_URL, 
-    rest_indexer=REST_URL, 
-    websocket_indexer=WEBSOCKET_URL
-)
-```
-
-For local and testnet networks there is a set of predefined networks:
-
-```python
-from dydx_v4_client.network import TESTNET, LOCAL
-```
-
-If you want to use a custom API each network has its respective _make_ function:
-```python
-from dydx_v4_client.network import make_testnet, make_local
-```
-
-You can overwrite the default URL when calling the function:
-```python
-NETWORK = make_local(node_url="http://localhost:26657")
-```
-
-To create a custom network you can do it directly:
-```python
-from dydx_v4_client.network import Network, NodeConfig, secure_channel
-
-
-CUSTOM_MAINNET = Network(
-    "https://dydx-testnet.imperator.co",
-    "wss://indexer.v4testnet.dydx.exchange/v4/ws",
-    NodeConfig(
-        "dydx-testnet-4",
-        secure_channel("test-dydx-grpc.kingnodes.com"),
-        "adv4tnt",
-        "ibc/8E27BA2D5493AF5636760E354E46004562C46AB7EC0CC4C1CA14E9E20E2545B5",
-    ),
-)
-```
-Or provide the URL directly to the client, e.g.:
-```python
-indexer = IndexerClient("https://dydx-testnet.imperator.co")
-```
-### Faucet
-Faucet allows to obtain usdc on testnet. To use it create `FaucetClient`:
-https://github.com/dydxprotocol/v4-clients/blob/3330f67752d430f9e0a20b419da4dc9daf7f7be0/v4-client-py-v2/examples/faucet_endpoint.py#L1-L15
-
-### Placing order
-To place order first you have to build the order.
-
-To do this you can the direct interface:
-```python
-order(
-    id,
-    side,
-    quantums,
-    subticks,
-    time_in_force,
-    reduce_only,
-    good_til_block,
-    good_til_block_time
-)
-```
-
-Or market based calculator:
-```python
-from dydx_v4_client.node.market import Market
-from dydx_v4_client import MAX_CLIENT_ID, NodeClient, OrderFlags
-
-
-MARKET_ID = "ETH-USD"
-ADDRESS = "dydx14zzueazeh0hj67cghhf9jypslcf9sh2n5k6art"
-
-async def get_order():
-    indexer = IndexerClient(TESTNET.rest_indexer)
-
-    market = Market(
-        (await indexer.markets.get_perpetual_markets(MARKET_ID))["markets"][MARKET_ID]
-    )
-
-    order_id = market.order_id(
-            ADDRESS, 0, random.randint(0, MAX_CLIENT_ID), OrderFlags.SHORT_TERM
-        )
-    return market.order(
-        order_id,
-        side,
-        size,
-        price,
-        time_in_force,
-        reduce_only,
-        good_til_block,
-        good_til_block_time
-    )
-```
-
-The constructed order may then be provided to `NodeClient.place_order`:
-```python
-await node.place_order(
-    wallet,
-    order
-)
-```
-### Examples
-For more examples see [examples directory](/examples). Some examples may require installation of additional packages in order to work.
+For more detailed examples, see the [examples directory](/examples). Note that some examples may require installation of additional packages to work.
 
 ## Changes
 
