@@ -98,7 +98,7 @@ async def test_order(
         )
         assert_successful_broadcast(canceled)
     except Exception as e:
-        if "StillUndercollateralized" in str(e):
+        if "StillUndercollateralized" in str(e) or "NewlyUndercollateralized" in str(e):
             pytest.skip("Account is undercollateralized. Skipping the test.")
         else:
             raise e
