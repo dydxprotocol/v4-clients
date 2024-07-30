@@ -6,8 +6,8 @@
   <a href='https://www.npmjs.com/package/@dydxprotocol/v4-client-js'>
     <img src='https://img.shields.io/npm/v/@dydxprotocol/v4-client-js.svg' alt='npm'/>
   </a>
-    <a href='https://pypi.org/project/v4-client-py'>
-    <img src='https://img.shields.io/pypi/v/v4-client-py.svg' alt='PyPI'/>
+    <a href='https://pypi.org/project/dydx-v4-client'>
+    <img src='https://img.shields.io/pypi/v/dydx-v4-client.svg' alt='PyPI'/>
   </a>
   <a href='https://github.com/dydxprotocol/v4-clients/blob/main/LICENSE'>
     <img src='https://img.shields.io/badge/License-AGPL_v3-blue.svg' alt='License' />

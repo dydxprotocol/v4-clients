@@ -1,6 +1,14 @@
 <img src="https://dydx.exchange/icon.svg" height="64px" align="right" />
 
 # Python Client (async) for dYdX (v4 API)
+<div align="center">
+    <a href='https://pypi.org/project/dydx-v4-client'>
+    <img src='https://img.shields.io/pypi/v/dydx-v4-client.svg' alt='PyPI'/>
+  </a>
+  <a href='https://github.com/dydxprotocol/v4-clients/blob/main/LICENSE'>
+    <img src='https://img.shields.io/badge/License-AGPL_v3-blue.svg' alt='License' />
+  </a>
+</div>
 
 ## Quick links
 
@@ -12,6 +20,12 @@
 </div>
 
 ## Install
+Install from PyPI:
+
+```bash
+pip install dydx-v4-client
+```
+
 Install from github:
 
 ```bash
