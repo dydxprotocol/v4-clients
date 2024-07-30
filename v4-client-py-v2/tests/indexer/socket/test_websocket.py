@@ -4,7 +4,7 @@ import os
 import pytest
 from dotenv import load_dotenv
 
-from dydx_v4_client.indexer.socket.websocket import CandlesResolution
+from dydx_v4_client.indexer.candles_resolution import CandlesResolution
 
 load_dotenv()
 

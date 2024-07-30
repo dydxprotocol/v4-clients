@@ -1,20 +1,11 @@
 import json
 import ssl
 from dataclasses import dataclass, field
-from enum import Enum
 
 import websocket
 from typing_extensions import Any, Callable, Optional, Self, Union
 
-
-class CandlesResolution(Enum):
-    ONE_MINUTE = "1MIN"
-    FIVE_MINUTES = "5MINS"
-    FIFTEEN_MINUTES = "15MINS"
-    THIRTY_MINUTES = "30MINS"
-    ONE_HOUR = "1HOUR"
-    FOUR_HOURS = "4HOURS"
-    ONE_DAY = "1DAY"
+from dydx_v4_client.indexer.candles_resolution import CandlesResolution
 
 
 @dataclass
@@ -78,10 +69,10 @@ class Markets(Channel):
 class Candles(Channel):
     channel = "v4_candles"
 
-    def subscribe(self, id, resolution: CandlesResolution, batched=True) -> Self:
+    def subscribe(self, id: str, resolution: CandlesResolution, batched=True) -> Self:
         return super().subscribe(id=f"{id}/{resolution.value}", batched=batched)
 
-    def unsubscribe(self, id, resolution: CandlesResolution):
+    def unsubscribe(self, id: str, resolution: CandlesResolution):
         return super().unsubscribe(id=f"{id}/{resolution.value}")
 
 
