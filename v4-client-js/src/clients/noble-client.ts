@@ -1,3 +1,4 @@
+import { toBase64 } from '@cosmjs/encoding';
 import { EncodeObject, Registry, Coin } from '@cosmjs/proto-signing';
 import {
   calculateFee,
@@ -8,18 +9,23 @@ import {
   SigningStargateClient,
   MsgTransferEncodeObject,
 } from '@cosmjs/stargate';
+import { TxRaw } from 'cosmjs-types/cosmos/tx/v1beta1/tx';
 
 import { GAS_MULTIPLIER } from './constants';
+import { Response } from './lib/axios';
 import { MsgDepositForBurn, MsgDepositForBurnWithCaller } from './lib/cctpProto';
 import LocalWallet from './modules/local-wallet';
+import RestClient from './modules/rest';
 
-export class NobleClient {
+export class NobleClient extends RestClient{
   private wallet?: LocalWallet;
   private restEndpoint: string;
   private stargateClient?: SigningStargateClient;
   private defaultClientMemo?: string;
+  private defaultGasPrice: GasPrice = GasPrice.fromString('0.1uusdc');
 
-  constructor(restEndpoint: string, defaultClientMemo?: string) {
+  constructor(restEndpoint: string, defaultClientMemo?: string, skipUrl: string = 'https://api.skip.money') {
+    super(skipUrl)
     this.restEndpoint = restEndpoint;
     this.defaultClientMemo = defaultClientMemo;
   }
@@ -65,9 +71,53 @@ export class NobleClient {
     return tx;
   }
 
+
+  async submitToSkipApi(
+    messages: EncodeObject[],
+    chainId: string,
+    gasPrice: GasPrice = this.defaultGasPrice,
+    memo: string = '',
+  ): Promise<Response> {
+    if (!this.stargateClient) {
+      throw new Error('NobleClient stargateClient not initialized');
+    }
+
+    if (this.wallet?.address === undefined) {
+      throw new Error('NobleClient wallet not initialized');
+    }
+    // Simulate to get the gas estimate
+    const fee = await this.simulateTransaction(messages, gasPrice, memo ?? this.defaultClientMemo);
+
+    // Sign and broadcast the transaction
+    const txHashObj = await this.stargateClient.sign(
+      this.wallet.address,
+      messages,
+      fee,
+      memo ?? this.defaultClientMemo,
+    );
+    
+    const serializedTx = TxRaw.encode(txHashObj).finish()
+    const base64Tx = toBase64(serializedTx)
+    const skipSubmitResponse = await this.post(
+      `/v2/tx/submit`,
+      {},
+      JSON.stringify({
+        tx: base64Tx,
+        chain_id: chainId
+      })
+    )
+    const { data: { tx_hash: txHash }} = skipSubmitResponse;
+    const formattedResponse = {
+      transactionHash: txHash,
+      code: 0,
+      ...skipSubmitResponse.data
+    }
+    return formattedResponse
+  }
+
   async send(
     messages: EncodeObject[],
-    gasPrice: GasPrice = GasPrice.fromString('0.1uusdc'),
+    gasPrice: GasPrice = this.defaultGasPrice,
     memo?: string,
   ): Promise<DeliverTxResponse> {
     if (!this.stargateClient) {
@@ -90,7 +140,7 @@ export class NobleClient {
 
   async simulateTransaction(
     messages: readonly EncodeObject[],
-    gasPrice: GasPrice = GasPrice.fromString('0.1uusdc'),
+    gasPrice: GasPrice = this.defaultGasPrice,
     memo?: string,
   ): Promise<StdFee> {
     if (!this.stargateClient) {
