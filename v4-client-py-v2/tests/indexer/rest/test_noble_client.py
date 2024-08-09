@@ -14,7 +14,7 @@ async def test_get_address(noble_client):
 
     assert isinstance(address, str)
     assert len(address) == 43
-    assert address.startswith('dydx')
+    assert address.startswith("dydx")
 
 
 @pytest.mark.asyncio
@@ -26,7 +26,7 @@ async def test_get_account_balances(noble_client):
     assert all(isinstance(coin, Coin) for coin in balances)
 
     # Check if there's a balance for the native token (uusdc)
-    uusdc_balance = next((coin for coin in balances if coin.denom == 'uusdc'), None)
+    uusdc_balance = next((coin for coin in balances if coin.denom == "uusdc"), None)
     assert uusdc_balance is not None
     assert int(uusdc_balance.amount) > 0
 
@@ -42,7 +42,6 @@ async def test_simulate_transfer_native_token(noble_client, test_address):
     assert len(fee.amount) > 0
     assert fee.gas_limit > 0
 
-    # Check if the fee is reasonable (e.g., less than 1% of the transfer amount)
     fee_amount = sum(int(coin.amount) for coin in fee.amount)
     assert fee_amount < int(amount) * 0.01
 
@@ -55,5 +54,4 @@ async def test_transfer_native_token(noble_client):
     tx_hash = await noble_client.transfer_native(amount, recipient)
 
     assert isinstance(tx_hash, str)
-    assert len(tx_hash) == 64  # Typical length of a transaction hash
-
+    assert len(tx_hash) == 64
