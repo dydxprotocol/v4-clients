@@ -80,6 +80,7 @@ class MarketsClient(RestClient):
             dict: The candle data.
         """
         uri = f"/v4/candles/perpetualMarkets/{market}"
+
         return await self.get(
             uri,
             params={
