@@ -8,7 +8,11 @@ from v4_proto.cosmos.bank.v1beta1 import tx_pb2 as bank_tx
 from v4_proto.cosmos.bank.v1beta1 import query_pb2_grpc as bank_query_grpc
 from v4_proto.cosmos.base.v1beta1.coin_pb2 import Coin
 from v4_proto.cosmos.tx.v1beta1 import service_pb2_grpc
-from v4_proto.cosmos.tx.v1beta1.service_pb2 import SimulateRequest, BroadcastTxRequest, BroadcastMode
+from v4_proto.cosmos.tx.v1beta1.service_pb2 import (
+    SimulateRequest,
+    BroadcastTxRequest,
+    BroadcastMode,
+)
 from v4_proto.cosmos.tx.v1beta1.tx_pb2 import Tx, TxBody, AuthInfo, Fee
 from dydx_v4_client.wallet import from_mnemonic, Wallet
 
@@ -100,7 +104,7 @@ class NobleClient:
         msg_send = bank_tx.MsgSend(
             from_address=self.wallet.address,
             to_address=recipient,
-            amount=[Coin(amount=amount, denom="uusdc")]
+            amount=[Coin(amount=amount, denom="uusdc")],
         )
         any_msg = Any()
         any_msg.Pack(msg_send)
@@ -113,8 +117,10 @@ class NobleClient:
         simulate_request = SimulateRequest(tx=tx)
         simulate_response = stub.Simulate(simulate_request)
 
-        return Fee(amount=simulate_response.gas_info.fee.amount, gas_limit=simulate_response.gas_info.gas_used)
-
+        return Fee(
+            amount=simulate_response.gas_info.fee.amount,
+            gas_limit=simulate_response.gas_info.gas_used,
+        )
 
     async def transfer_native(self, amount: str, recipient: str) -> str:
         """
@@ -137,11 +143,10 @@ class NobleClient:
         msg_send = bank_tx.MsgSend(
             from_address=self.wallet.address,
             to_address=recipient,
-            amount=[Coin(amount=amount, denom="uusdc")]
+            amount=[Coin(amount=amount, denom="uusdc")],
         )
         any_msg = Any()
         any_msg.Pack(msg_send)
-
 
         tx_body = TxBody(messages=[any_msg], memo=self.default_client_memo)
         fee = await self.simulate_transfer_native_token(amount, recipient)
@@ -151,7 +156,10 @@ class NobleClient:
         signed_tx = self.wallet.sign_tx(tx)
 
         stub = service_pb2_grpc.ServiceStub(self.channel)
-        broadcast_request = BroadcastTxRequest(tx_bytes=signed_tx.SerializeToString(), mode=BroadcastMode.BROADCAST_MODE_BLOCK)
+        broadcast_request = BroadcastTxRequest(
+            tx_bytes=signed_tx.SerializeToString(),
+            mode=BroadcastMode.BROADCAST_MODE_BLOCK,
+        )
         broadcast_response = stub.BroadcastTx(broadcast_request)
 
         return broadcast_response.tx_response.txhash
