@@ -66,6 +66,7 @@ from v4_proto.dydxprotocol.subaccounts.query_pb2 import (
     QuerySubaccountAllResponse,
 )
 from v4_proto.dydxprotocol.subaccounts.subaccount_pb2 import SubaccountId
+from v4_proto.dydxprotocol.clob.order_pb2 import OrderBatch
 
 from dydx_v4_client.network import NodeConfig
 from dydx_v4_client.node.builder import Builder
@@ -76,7 +77,7 @@ from dydx_v4_client.node.message import (
     place_order,
     send_token,
     transfer,
-    withdraw,
+    withdraw, batch_cancel,
 )
 from dydx_v4_client.wallet import Wallet
 
@@ -743,3 +744,29 @@ class NodeClient(MutatingNodeClient):
         return await self.broadcast_message(
             wallet, cancel_order(order_id, good_til_block, good_til_block_time)
         )
+
+    async def batch_cancel_orders(
+            self,
+            wallet: Wallet,
+            subaccount_id: SubaccountId,
+            short_term_cancels: List[OrderBatch],
+            good_til_block: int
+    ):
+        """
+        Batch cancels orders for a subaccount.
+
+        Args:
+            wallet (Wallet): The wallet to use for signing the transaction.
+            subaccount_id (SubaccountId): The subaccount ID for which to cancel orders.
+            short_term_cancels (List[OrderBatch]): List of OrderBatch objects containing the orders to cancel.
+            good_til_block (int): The last block the short term order cancellations can be executed at.
+
+        Returns:
+            The response from the transaction broadcast.
+        """
+        batch_cancel_msg = batch_cancel(
+            subaccount_id=subaccount_id,
+            short_term_cancels=short_term_cancels,
+            good_til_block=good_til_block
+        )
+        return await self.broadcast_message(wallet, batch_cancel_msg)
