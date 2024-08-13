@@ -5,7 +5,7 @@ from typing import Union, Dict, Any
 
 import grpc
 from google._upb._message import Message
-from google.protobuf.json_format import MessageToDict, MessageToJson
+from google.protobuf.json_format import MessageToDict
 from typing_extensions import List, Optional, Self
 from v4_proto.cosmos.auth.v1beta1 import query_pb2_grpc as auth
 from v4_proto.cosmos.auth.v1beta1.auth_pb2 import BaseAccount
@@ -66,7 +66,7 @@ from v4_proto.dydxprotocol.subaccounts.query_pb2 import (
     QuerySubaccountAllResponse,
 )
 from v4_proto.dydxprotocol.subaccounts.subaccount_pb2 import SubaccountId
-from v4_proto.dydxprotocol.clob.order_pb2 import OrderBatch
+from v4_proto.dydxprotocol.clob.tx_pb2 import OrderBatch
 
 from dydx_v4_client.network import NodeConfig
 from dydx_v4_client.node.builder import Builder
@@ -77,7 +77,8 @@ from dydx_v4_client.node.message import (
     place_order,
     send_token,
     transfer,
-    withdraw, batch_cancel,
+    withdraw,
+    batch_cancel,
 )
 from dydx_v4_client.wallet import Wallet
 
@@ -746,11 +747,11 @@ class NodeClient(MutatingNodeClient):
         )
 
     async def batch_cancel_orders(
-            self,
-            wallet: Wallet,
-            subaccount_id: SubaccountId,
-            short_term_cancels: List[OrderBatch],
-            good_til_block: int
+        self,
+        wallet: Wallet,
+        subaccount_id: SubaccountId,
+        short_term_cancels: List[OrderBatch],
+        good_til_block: int,
     ):
         """
         Batch cancels orders for a subaccount.
@@ -767,6 +768,6 @@ class NodeClient(MutatingNodeClient):
         batch_cancel_msg = batch_cancel(
             subaccount_id=subaccount_id,
             short_term_cancels=short_term_cancels,
-            good_til_block=good_til_block
+            good_til_block=good_til_block,
         )
         return await self.broadcast_message(wallet, batch_cancel_msg)

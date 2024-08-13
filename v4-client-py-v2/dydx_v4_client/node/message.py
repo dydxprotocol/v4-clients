@@ -11,8 +11,7 @@ from v4_proto.dydxprotocol.sending.transfer_pb2 import (
 )
 from v4_proto.dydxprotocol.sending.tx_pb2 import MsgCreateTransfer
 from v4_proto.dydxprotocol.subaccounts.subaccount_pb2 import SubaccountId
-from v4_proto.dydxprotocol.clob.tx_pb2 import MsgBatchCancel
-from v4_proto.dydxprotocol.clob.order_pb2 import OrderBatch
+from v4_proto.dydxprotocol.clob.tx_pb2 import MsgBatchCancel, OrderBatch
 
 
 def order(
@@ -82,12 +81,12 @@ def cancel_order(
 def batch_cancel(
     subaccount_id: SubaccountId,
     short_term_cancels: List[OrderBatch],
-    good_til_block: int
+    good_til_block: int,
 ):
     message = MsgBatchCancel(
         subaccount_id=subaccount_id,
         short_term_cancels=short_term_cancels,
-        good_til_block=good_til_block
+        good_til_block=good_til_block,
     )
     return message
 
