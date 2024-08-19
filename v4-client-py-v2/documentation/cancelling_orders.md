@@ -33,6 +33,11 @@ pythonCopyfrom dydx_v4_client.node.message import batch_cancel
 from v4_proto.dydxprotocol.clob.order_pb2 import OrderBatch
 
 ```python
+PERPETUAL_PAIR_BTC_USD = 0
+
+client_ids = [tx_client_id1, tx_client_id2]
+short_term_cancels = [OrderBatch(clob_pair_id=PERPETUAL_PAIR_BTC_USD, client_ids=client_ids)]
+
 batch_cancel_msg = batch_cancel(
     subaccount_id,
     short_term_cancels,
