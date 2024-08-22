@@ -1,7 +1,6 @@
 from dydx_v4_client.indexer.rest.constants import (
     OrderType,
     OrderExecution,
-    OrderTimeInForce,
 )
 from v4_proto.dydxprotocol.clob.order_pb2 import Order
 

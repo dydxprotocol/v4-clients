@@ -6,11 +6,12 @@ from functools import wraps
 import httpx
 import pytest
 
-from dydx_v4_client import FaucetClient, NodeClient
+from dydx_v4_client.faucet_client import FaucetClient
 from dydx_v4_client.indexer.rest.indexer_client import IndexerClient
 from dydx_v4_client.indexer.rest.noble_client import NobleClient
 from dydx_v4_client.indexer.socket.websocket import IndexerSocket
 from dydx_v4_client.network import TESTNET, TESTNET_FAUCET, TESTNET_NOBLE
+from dydx_v4_client.node.client import NodeClient
 from dydx_v4_client.node.message import order, order_id
 from dydx_v4_client.wallet import Wallet, from_mnemonic
 

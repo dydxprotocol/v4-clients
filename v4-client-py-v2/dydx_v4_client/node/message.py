@@ -1,3 +1,5 @@
+from typing import List
+
 from v4_proto.cosmos.bank.v1beta1.tx_pb2 import MsgSend
 from v4_proto.cosmos.base.v1beta1.coin_pb2 import Coin
 from v4_proto.dydxprotocol.clob.order_pb2 import Order, OrderId
@@ -9,6 +11,7 @@ from v4_proto.dydxprotocol.sending.transfer_pb2 import (
 )
 from v4_proto.dydxprotocol.sending.tx_pb2 import MsgCreateTransfer
 from v4_proto.dydxprotocol.subaccounts.subaccount_pb2 import SubaccountId
+from v4_proto.dydxprotocol.clob.tx_pb2 import MsgBatchCancel, OrderBatch
 
 
 def order(
@@ -71,6 +74,19 @@ def cancel_order(
         order_id=order_id,
         good_til_block=good_til_block,
         good_til_block_time=good_til_block_time,
+    )
+    return message
+
+
+def batch_cancel(
+    subaccount_id: SubaccountId,
+    short_term_cancels: List[OrderBatch],
+    good_til_block: int,
+):
+    message = MsgBatchCancel(
+        subaccount_id=subaccount_id,
+        short_term_cancels=short_term_cancels,
+        good_til_block=good_til_block,
     )
     return message
 
