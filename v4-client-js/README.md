@@ -15,7 +15,8 @@ The v4-Client Typescript client is used for placing transactions and querying th
 
 ## Development
 
-`v4-client-js` uses node `v18` for development. You can use `nvm` to manage different versions of node.
+`v4-client-js` uses node `v18` for development, see the .nvmrc file [here](https://github.com/dydxprotocol/v4-clients/blob/main/v4-client-js/.nvmrc).
+You can use `nvm` to manage different versions of node.
 
 ```
 nvm install
@@ -29,6 +30,40 @@ You can run the following commands to ensure that you are running the correct `n
 node -v # expected: v18.x.x (should match .nvmrc)
 npm -v  # expected: 8.x.x
 ```
+
+### 1. Clone or fork the V4 clients repo
+
+```bash
+git clone git@github.com:dydxprotocol/v4-clients.git
+```
+
+### 2. Go to one of the examples
+
+- Go to `v4-client-js/examples`
+
+```bash
+cd v4-client-js/examples
+```
+
+These examples by default use a test account with `DYDX_TEST_MNEMONIC` from the TS client library under `v4-client-js/examples/constants`.
+
+### 3. Run the scripts with node
+
+```bash
+npm install
+npm run build
+```
+
+You should now see a `/build/examples` dir generated with JS files. We will use node to run these scripts
+
+- Open a terminal to run an example, e.g. account_endpoints.
+
+```bash
+node ../build/examples/composite_example.js
+
+```
+
+Everytime you change the TS code, you need to run `npm run build` again, before you execute using node.
 
 ## Single-JS for mobile apps
 
