@@ -1,8 +1,16 @@
-import { ICancelOrder, IPlaceOrder, OrderFlags, Transfer } from '../../src/types';
+import {
+  ClobPairId,
+  IBatchCancelOrder,
+  ICancelOrder,
+  IPlaceOrder,
+  OrderFlags,
+  Transfer,
+} from '../../src/types';
 import { MAX_SUBACCOUNT_NUMBER, MAX_UINT_32 } from '../../src/lib/constants';
 import { UserError } from '../../src/lib/errors';
 import {
   isValidAddress,
+  validateBatchCancelOrderMessage,
   validateCancelOrderMessage,
   validatePlaceOrderMessage,
   validateTransferMessage,
@@ -10,6 +18,7 @@ import {
 import {
   TEST_ADDRESS,
   defaultCancelOrder,
+  defaultBatchCancelOrder,
   defaultOrder,
   defaultTransfer,
 } from '../helpers/constants';
@@ -146,6 +155,45 @@ describe('Validations', () => {
     'Validate cancel order: %s',
     (_name: string, order: ICancelOrder, expectedError: UserError | undefined) => {
       const validationError: UserError | void = validateCancelOrderMessage(0, order);
+      expect(validationError).toEqual(expectedError);
+    },
+  );
+
+  it.each([
+    ['valid', defaultBatchCancelOrder, undefined],
+    [
+      'overflow clientId',
+      {
+        ...defaultBatchCancelOrder,
+        shortTermOrders: [
+          ...defaultBatchCancelOrder.shortTermOrders,
+          {
+            clobPairId: ClobPairId.PERPETUAL_PAIR_ETH_USD,
+            clientIds: [MAX_UINT_32_PLUS_1],
+          },
+        ],
+      },
+      new UserError(`clientId: ${MAX_UINT_32_PLUS_1} is not a valid uint32`),
+    ],
+    [
+      'underflow goodTilBlock',
+      { ...defaultBatchCancelOrder, goodTilBlock: -1 },
+      new UserError(`goodTilBlock: ${-1} is not a valid uint32 or is 0`),
+    ],
+    [
+      'overflow goodTilBlock',
+      { ...defaultBatchCancelOrder, goodTilBlock: MAX_UINT_32_PLUS_1 },
+      new UserError(`goodTilBlock: ${MAX_UINT_32_PLUS_1} is not a valid uint32 or is 0`),
+    ],
+    [
+      '0 goodTilBlock',
+      { ...defaultBatchCancelOrder, goodTilBlock: 0 },
+      new UserError(`goodTilBlock: ${0} is not a valid uint32 or is 0`),
+    ],
+  ])(
+    'Validate batch cancel orders: %s',
+    (_name: string, orders: IBatchCancelOrder, expectedError: UserError | undefined) => {
+      const validationError: UserError | void = validateBatchCancelOrderMessage(0, orders);
       expect(validationError).toEqual(expectedError);
     },
   );

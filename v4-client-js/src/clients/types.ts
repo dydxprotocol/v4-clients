@@ -59,6 +59,11 @@ export interface IPlaceOrder extends IBasicOrder {
 
 export interface ICancelOrder extends IBasicOrder {}
 
+export interface IBatchCancelOrder {
+  shortTermOrders: { clobPairId: number; clientIds: number[] }[];
+  goodTilBlock: number;
+}
+
 // How long to wait and how often to check when calling Broadcast with
 // Method.BroadcastTxCommit
 export interface BroadcastOptions {
