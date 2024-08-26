@@ -40,7 +40,7 @@ import { UserError } from './lib/errors';
 import { generateRegistry } from './lib/registry';
 import LocalWallet from './modules/local-wallet';
 import { SubaccountInfo } from './subaccount';
-import { BroadcastMode } from './types';
+import { BroadcastMode, OrderBatch } from './types';
 import { ValidatorClient } from './validator-client';
 
 // Required for encoding and decoding queries that are of type Long.
@@ -56,6 +56,12 @@ export interface MarketInfo {
   stepBaseQuantums: number;
   quantumConversionExponent: number;
   subticksPerTick: number;
+}
+
+export interface OrderBatchWithMarketId {
+  marketId: string;
+  clobPairId?: number;
+  clientIds: number[];
 }
 
 export class CompositeClient {
@@ -693,6 +699,55 @@ export class CompositeClient {
       clobPairId,
       goodTilBlock,
       goodTilBlockTime,
+    );
+  }
+
+  /**
+ * @description Batch cancel short term orders using marketId to clobPairId translation.
+ *
+ * @param subaccount The subaccount to cancel the order from
+ * @param shortTermOrders The list of short term order batches to cancel with marketId
+ * @param goodTilBlock The goodTilBlock of the order to cancel
+ * @returns The transaction hash.
+ */
+async batchCancelShortTermOrdersWithMarketId(
+  subaccount: SubaccountInfo,
+  shortTermOrders: OrderBatchWithMarketId[],
+  goodTilBlock: number,
+): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
+  const orderBatches = await Promise.all(
+    shortTermOrders.map(async ({ marketId, clobPairId, clientIds }) => ({
+      clobPairId: (
+        clobPairId ??
+        (await this.indexerClient.markets.getPerpetualMarkets(marketId)).markets[marketId]
+      ).clobPairId, 
+      clientIds }))
+  );
+
+  return this.validatorClient.post.batchCancelShortTermOrders(
+    subaccount,
+    orderBatches,
+    goodTilBlock,
+  );
+}
+
+  /**
+   * @description Batch cancel short term orders using clobPairId.
+   *
+   * @param subaccount The subaccount to cancel the order from
+   * @param shortTermOrders The list of short term order batches to cancel with clobPairId
+   * @param goodTilBlock The goodTilBlock of the order to cancel
+   * @returns The transaction hash.
+   */
+  async batchCancelShortTermOrdersWithClobPairId(
+    subaccount: SubaccountInfo,
+    shortTermOrders: OrderBatch[],
+    goodTilBlock: number,
+  ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
+    return this.validatorClient.post.batchCancelShortTermOrders(
+      subaccount,
+      shortTermOrders,
+      goodTilBlock,
     );
   }
 

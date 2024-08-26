@@ -5,6 +5,7 @@ import {
   MsgCancelOrder,
   MsgCreateClobPair,
   MsgUpdateClobPair,
+  MsgBatchCancel,
 } from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/clob/tx';
 import { MsgDelayMessage } from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/delaymsg/tx';
 import { MsgCreatePerpetual } from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/perpetuals/tx';
@@ -26,6 +27,7 @@ import {
   TYPE_URL_MSG_CREATE_TRANSFER,
   TYPE_URL_MSG_WITHDRAW_FROM_SUBACCOUNT,
   TYPE_URL_MSG_DEPOSIT_TO_SUBACCOUNT,
+  TYPE_URL_BATCH_CANCEL,
 } from '../constants';
 
 export const registry: ReadonlyArray<[string, GeneratedType]> = [];
@@ -34,6 +36,7 @@ export function generateRegistry(): Registry {
     // clob
     [TYPE_URL_MSG_PLACE_ORDER, MsgPlaceOrder as GeneratedType],
     [TYPE_URL_MSG_CANCEL_ORDER, MsgCancelOrder as GeneratedType],
+    [TYPE_URL_BATCH_CANCEL, MsgBatchCancel as GeneratedType],
     [TYPE_URL_MSG_CREATE_CLOB_PAIR, MsgCreateClobPair as GeneratedType],
     [TYPE_URL_MSG_UPDATE_CLOB_PAIR, MsgUpdateClobPair as GeneratedType],
 

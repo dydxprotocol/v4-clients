@@ -33,6 +33,7 @@ import {
   MsgPlaceOrder,
   MsgCancelOrder,
   Order_ConditionType,
+  OrderBatch,
 } from './proto-includes';
 
 // Required for encoding and decoding queries that are of type Long.
@@ -518,6 +519,45 @@ export class Post {
       cancelOrder.goodTilBlockTime,
       broadcastMode,
     );
+  }
+
+  async batchCancelShortTermOrders(
+    subaccount: SubaccountInfo,
+    shortTermOrders: OrderBatch[],
+    goodTilBlock: number,
+    broadcastMode?: BroadcastMode,
+  ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
+    const msg = await this.batchCancelShortTermOrdersMsg(
+      subaccount.address,
+      subaccount.subaccountNumber,
+      shortTermOrders,
+      goodTilBlock,
+    );
+    return this.send(
+      subaccount.wallet,
+      () => Promise.resolve([msg]),
+      true,
+      undefined,
+      undefined,
+      broadcastMode,
+    );
+  }
+
+  async batchCancelShortTermOrdersMsg(
+    address: string,
+    subaccountNumber: number,
+    shortTermOrders: OrderBatch[],
+    goodTilBlock: number,
+  ): Promise<EncodeObject> {
+    return new Promise((resolve) => {
+      const msg = this.composer.composeMsgBatchCancelShortTermOrders(
+        address,
+        subaccountNumber,
+        shortTermOrders,
+        goodTilBlock,
+      );
+      resolve(msg);
+    });
   }
 
   async transfer(
