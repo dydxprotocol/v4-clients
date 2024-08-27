@@ -75,6 +75,7 @@ export const TYPE_URL_MSG_SUBMIT_PROPOSAL = '/cosmos.gov.v1.MsgSubmitProposal';
 // x/clob
 export const TYPE_URL_MSG_PLACE_ORDER = '/dydxprotocol.clob.MsgPlaceOrder';
 export const TYPE_URL_MSG_CANCEL_ORDER = '/dydxprotocol.clob.MsgCancelOrder';
+export const TYPE_URL_BATCH_CANCEL = '/dydxprotocol.clob.MsgBatchCancel';
 export const TYPE_URL_MSG_CREATE_CLOB_PAIR = '/dydxprotocol.clob.MsgCreateClobPair';
 export const TYPE_URL_MSG_UPDATE_CLOB_PAIR = '/dydxprotocol.clob.MsgUpdateClobPair';
 
@@ -101,7 +102,7 @@ export const TYPE_URL_MSG_UNDELEGATE = '/cosmos.staking.v1beta1.MsgUndelegate';
 export const TYPE_URL_MSG_WITHDRAW_DELEGATOR_REWARD =
   '/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward';
 
-  // ------------ Chain Constants ------------
+// ------------ Chain Constants ------------
 // The following are same across different networks / deployments.
 export const GOV_MODULE_ADDRESS = 'dydx10d07y265gmmuvt4z0w9aw880jnsr700jnmapky';
 export const DELAYMSG_MODULE_ADDRESS = 'dydx1mkkvp26dngu6n8rmalaxyp3gwkjuzztq5zx6tr';

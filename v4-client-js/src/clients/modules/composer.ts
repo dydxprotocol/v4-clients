@@ -9,8 +9,10 @@ import {
 } from '@dydxprotocol/v4-proto/src/codegen/cosmos/staking/v1beta1/tx';
 import { ClobPair_Status } from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/clob/clob_pair';
 import {
+  MsgBatchCancel,
   MsgCreateClobPair,
   MsgUpdateClobPair,
+  OrderBatch,
 } from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/clob/tx';
 import { MsgDelayMessage } from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/delaymsg/tx';
 import { PerpetualMarketType } from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/perpetuals/perpetual';
@@ -40,6 +42,7 @@ import {
   TYPE_URL_MSG_DELEGATE,
   TYPE_URL_MSG_UNDELEGATE,
   TYPE_URL_MSG_WITHDRAW_DELEGATOR_REWARD,
+  TYPE_URL_BATCH_CANCEL,
 } from '../constants';
 import { DenomConfig } from '../types';
 import {
@@ -145,6 +148,29 @@ export class Composer {
 
     return {
       typeUrl: TYPE_URL_MSG_CANCEL_ORDER,
+      value: msg,
+    };
+  }
+
+  public composeMsgBatchCancelShortTermOrders(
+    address: string,
+    subaccountNumber: number,
+    shortTermCancels: OrderBatch[],
+    goodTilBlock: number,
+  ): EncodeObject {
+    const subaccountId: SubaccountId = {
+      owner: address,
+      number: subaccountNumber,
+    };
+
+    const msg: MsgBatchCancel = {
+      subaccountId,
+      shortTermCancels,
+      goodTilBlock,
+    };
+
+    return {
+      typeUrl: TYPE_URL_BATCH_CANCEL,
       value: msg,
     };
   }
