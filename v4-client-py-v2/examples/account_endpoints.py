@@ -1,7 +1,7 @@
 import asyncio
 
-from dydx_v4_client.indexer.rest import IndexerClient
 from dydx_v4_client.indexer.rest.constants import TradingRewardAggregationPeriod
+from dydx_v4_client.indexer.rest.indexer_client import IndexerClient
 from dydx_v4_client.network import TESTNET
 from tests.conftest import TEST_ADDRESS
 

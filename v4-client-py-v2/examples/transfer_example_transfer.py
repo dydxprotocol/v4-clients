@@ -1,7 +1,7 @@
 import asyncio
 
-from dydx_v4_client import NodeClient
 from dydx_v4_client.network import TESTNET
+from dydx_v4_client.node.client import NodeClient
 from dydx_v4_client.node.message import subaccount
 from dydx_v4_client.wallet import Wallet
 from tests.conftest import DYDX_TEST_MNEMONIC, TEST_ADDRESS

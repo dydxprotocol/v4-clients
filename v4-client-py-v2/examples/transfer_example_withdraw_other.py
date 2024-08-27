@@ -1,8 +1,8 @@
 import asyncio
 from functools import partial
 
-from dydx_v4_client import NodeClient
 from dydx_v4_client.network import TESTNET
+from dydx_v4_client.node.client import NodeClient
 from dydx_v4_client.node.message import subaccount, withdraw
 from dydx_v4_client.wallet import Wallet
 from tests.conftest import DYDX_TEST_MNEMONIC, TEST_ADDRESS
