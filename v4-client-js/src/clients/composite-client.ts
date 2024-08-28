@@ -714,6 +714,7 @@ async batchCancelShortTermOrdersWithMarketId(
   subaccount: SubaccountInfo,
   shortTermOrders: OrderBatchWithMarketId[],
   goodTilBlock: number,
+  broadcastMode?: BroadcastMode,
 ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
   const orderBatches = await Promise.all(
     shortTermOrders.map(async ({ marketId, clobPairId, clientIds }) => ({
@@ -728,6 +729,7 @@ async batchCancelShortTermOrdersWithMarketId(
     subaccount,
     orderBatches,
     goodTilBlock,
+    broadcastMode
   );
 }
 
@@ -743,11 +745,13 @@ async batchCancelShortTermOrdersWithMarketId(
     subaccount: SubaccountInfo,
     shortTermOrders: OrderBatch[],
     goodTilBlock: number,
+    broadcastMode?: BroadcastMode,
   ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
     return this.validatorClient.post.batchCancelShortTermOrders(
       subaccount,
       shortTermOrders,
       goodTilBlock,
+      broadcastMode,
     );
   }
 
