@@ -7,7 +7,6 @@ import {
   TxExtension,
   QueryAbciResponse,
   createProtobufRpcClient,
-  QueryClient,
 } from '@cosmjs/stargate';
 import * as AuthModule from 'cosmjs-types/cosmos/auth/v1beta1/query';
 import * as BankModule from 'cosmjs-types/cosmos/bank/v1beta1/query';
@@ -15,6 +14,8 @@ import { Any } from 'cosmjs-types/google/protobuf/any';
 import Long from 'long';
 import protobuf from 'protobufjs';
 
+import { slinky } from '../../codegen';
+import { MarketMapResponse } from '../../codegen/slinky/marketmap/v1/query';
 import { PAGE_REQUEST } from '../constants';
 import { UnexpectedClientError } from '../lib/errors';
 import {
@@ -33,8 +34,6 @@ import {
   SubaccountsModule,
 } from './proto-includes';
 import { TendermintClient } from './tendermintClient';
-import { slinky } from '../../codegen';
-import { MarketMapResponse } from '../../codegen/slinky/marketmap/v1/query';
 
 // Required for encoding and decoding queries that are of type Long.
 // Must be done once but since the individal modules should be usable without
