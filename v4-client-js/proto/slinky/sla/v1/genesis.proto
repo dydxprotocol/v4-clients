@@ -1,0 +1,87 @@
+syntax = "proto3";
+package slinky.sla.v1;
+
+option go_package = "github.com/skip-mev/connect/v2/x/sla/types";
+
+import "gogoproto/gogo.proto";
+import "cosmos_proto/cosmos.proto";
+import "slinky/oracle/v1/genesis.proto";
+import "slinky/types/v1/currency_pair.proto";
+
+// GenesisState defines the sla module's genesis state.
+message GenesisState {
+  // SLAs are the SLAs that are currently active.
+  repeated PriceFeedSLA slas = 1
+      [ (gogoproto.nullable) = false, (gogoproto.customname) = "SLAs" ];
+
+  // PrceFeeds are the price feeds that are currently active.
+  repeated PriceFeed price_feeds = 2 [ (gogoproto.nullable) = false ];
+
+  // Params are the parameters for the sla module.
+  Params params = 3 [ (gogoproto.nullable) = false ];
+}
+
+// Params defines the parameters for the sla module.
+message Params {
+  // Enabled is a flag to enable or disable the sla module.
+  bool enabled = 1;
+}
+
+// PriceFeedSLA defines the the desired SLA for a given set of price feeds. A
+// price feed is defined to be a set of price prices for the same (currency
+// pair, validator).
+message PriceFeedSLA {
+  // MaximumViableWindow is the maximum time window that we are interested
+  // for the SLA. This is used to determine the moving window of blocks that
+  // we are interested in.
+  uint64 maximum_viable_window = 1;
+
+  // ExpectedUptime is the expected uptime for the given validator and price
+  // feed.
+  string expected_uptime = 2 [
+    (cosmos_proto.scalar) = "cosmos.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+
+  // SlashConstant is the constant by which we will multiply the deviation from
+  // the expected uptime.
+  string slash_constant = 3 [
+    (cosmos_proto.scalar) = "cosmos.Dec",
+    (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
+    (gogoproto.nullable) = false
+  ];
+
+  // MinimumBlockUpdates is the minimum number of blocks that the
+  // validator had to have voted on in the maximum viable window
+  // in order to be considered for the SLA.
+  uint64 minimum_block_updates = 4;
+
+  // Frequency is the frequency at which we will check the SLA.
+  uint64 frequency = 5;
+
+  // ID is the unique identifier for the SLA.
+  string id = 6 [ (gogoproto.customname) = "ID" ];
+}
+
+// PriceFeed defines the object type that will be utilized to monitor how
+// frequently validators are voting with price updates across the network.
+message PriceFeed {
+  // UpdateMap represents the relevant moving window of price feed updates.
+  bytes update_map = 1;
+  // InclusionMap represents the relevant moving window of blocks that the
+  // validator has voted on.
+  bytes inclusion_map = 2;
+  // Index corresponds to the current index into the bitmap.
+  uint64 index = 3;
+  // Validator represents the validator that this SLA corresponds to.
+  bytes validator = 4;
+  // CurrencyPair represents the currency pair that this SLA corresponds to.
+  slinky.types.v1.CurrencyPair currency_pair = 5
+      [ (gogoproto.nullable) = false ];
+  // MaximumViableWindow represents the maximum number of blocks that can be
+  // represented by the bit map.
+  uint64 maximum_viable_window = 6;
+  // ID corresponds to the SLA ID that this price feed corresponds to.
+  string id = 7 [ (gogoproto.customname) = "ID" ];
+}

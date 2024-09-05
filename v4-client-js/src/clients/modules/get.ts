@@ -6,6 +6,8 @@ import {
   QueryClient as StargateQueryClient,
   TxExtension,
   QueryAbciResponse,
+  createProtobufRpcClient,
+  QueryClient,
 } from '@cosmjs/stargate';
 import * as AuthModule from 'cosmjs-types/cosmos/auth/v1beta1/query';
 import * as BankModule from 'cosmjs-types/cosmos/bank/v1beta1/query';
@@ -31,6 +33,8 @@ import {
   SubaccountsModule,
 } from './proto-includes';
 import { TendermintClient } from './tendermintClient';
+import { slinky } from '../../codegen';
+import { MarketMapResponse } from '../../codegen/slinky/marketmap/v1/query';
 
 // Required for encoding and decoding queries that are of type Long.
 // Must be done once but since the individal modules should be usable without
@@ -491,9 +495,22 @@ export class Get {
     return GovV1Module.QueryProposalsResponse.decode(data);
   }
 
+  /**
+   * @description Get Slinky Market Map entries
+   * 
+   * @returns all market map entries
+   */
+    async getMarketMap(): Promise<MarketMapResponse> {
+      const QueryClientImpl = slinky.marketmap.v1.QueryClientImpl;
+      const rpc = createProtobufRpcClient(this.stargateQueryClient);
+      const queryService = new QueryClientImpl(rpc);
+  
+      return queryService.marketMap({});
+    }
+
   async getWithdrawalAndTransferGatingStatus(): Promise<SubaccountsModule.QueryGetWithdrawalAndTransfersBlockedInfoResponse> {
     const requestData = Uint8Array.from(
-      SubaccountsModule.QueryGetWithdrawalAndTransfersBlockedInfoRequest.encode({}).finish(),
+      SubaccountsModule.QueryGetWithdrawalAndTransfersBlockedInfoRequest.encode({ perpetualId: 0 }).finish(),
     );
 
     const data = await this.sendQuery(

@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package slinky.alerts.module.v1;
+
+import "cosmos/app/v1alpha1/module.proto";
+import "cosmos_proto/cosmos.proto";
+
+// Module is the config object of the alerts module.
+message Module {
+  option (cosmos.app.v1alpha1.module) = {
+    go_import : "github.com/skip-mev/connect/v2/x/alerts"
+  };
+
+  // Authority defines the custom module authority. The authority will default
+  // to the governance module account if not set. If the authority is set, the
+  // address provided must be a valid bech-32 address
+  string authority = 1 [ (cosmos_proto.scalar) = "cosmos.AddressString" ];
+}

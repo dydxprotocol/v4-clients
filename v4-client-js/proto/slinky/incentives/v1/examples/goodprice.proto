@@ -1,0 +1,22 @@
+syntax = "proto3";
+package slinky.incentives.v1;
+
+import "amino/amino.proto";
+import "cosmos_proto/cosmos.proto";
+
+option go_package = "github.com/skip-mev/connect/v2/x/incentives/types/examples/goodprice";
+
+// GoodPriceIncentive is a message that contains the information about a good
+// price that was submitted by a validator.
+//
+// NOTE: This is an example of a good price incentive. It is not used in
+// production.
+message GoodPriceIncentive {
+  option (cosmos_proto.implements_interface) = "slinky.incentives.v1.Incentive";
+  option (amino.name) = "slinky/oracle/BadPriceIncentive";
+
+  // Validator is the address of the validator that submitted the good price.
+  string validator = 1;
+  // Amount is the amount to reward.
+  string amount = 2;
+}
