@@ -4,9 +4,11 @@ import random
 import time
 from pathlib import Path
 
-from dydx_v4_client import MAX_CLIENT_ID, NodeClient, Wallet
+from dydx_v4_client import MAX_CLIENT_ID
 from dydx_v4_client.network import TESTNET
+from dydx_v4_client.node.client import NodeClient
 from dydx_v4_client.node.message import order, order_id
+from dydx_v4_client.wallet import Wallet
 from tests.conftest import DYDX_TEST_MNEMONIC, TEST_ADDRESS
 from google.protobuf.json_format import MessageToJson
 
