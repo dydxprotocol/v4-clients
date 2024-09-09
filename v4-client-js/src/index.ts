@@ -1,7 +1,9 @@
 // Types.
 export * from './types';
+export * from './codegen';
 
 // Utility functions.
+export * as helpers from './lib/helpers';
 export * as utils from './lib/utils';
 export * as validation from './lib/validation';
 export * as onboarding from './lib/onboarding';

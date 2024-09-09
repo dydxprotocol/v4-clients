@@ -6,7 +6,6 @@ import {
   QueryClient as StargateQueryClient,
   TxExtension,
   QueryAbciResponse,
-  createProtobufRpcClient,
 } from '@cosmjs/stargate';
 import * as AuthModule from 'cosmjs-types/cosmos/auth/v1beta1/query';
 import * as BankModule from 'cosmjs-types/cosmos/bank/v1beta1/query';
@@ -14,8 +13,6 @@ import { Any } from 'cosmjs-types/google/protobuf/any';
 import Long from 'long';
 import protobuf from 'protobufjs';
 
-import { slinky } from '../../codegen';
-import { MarketMapResponse } from '../../codegen/slinky/marketmap/v1/query';
 import { PAGE_REQUEST } from '../constants';
 import { UnexpectedClientError } from '../lib/errors';
 import {
@@ -494,22 +491,9 @@ export class Get {
     return GovV1Module.QueryProposalsResponse.decode(data);
   }
 
-  /**
-   * @description Get Slinky Market Map entries
-   * 
-   * @returns all market map entries
-   */
-    async getMarketMap(): Promise<MarketMapResponse> {
-      const QueryClientImpl = slinky.marketmap.v1.QueryClientImpl;
-      const rpc = createProtobufRpcClient(this.stargateQueryClient);
-      const queryService = new QueryClientImpl(rpc);
-  
-      return queryService.marketMap({});
-    }
-
-  async getWithdrawalAndTransferGatingStatus(): Promise<SubaccountsModule.QueryGetWithdrawalAndTransfersBlockedInfoResponse> {
+  async getWithdrawalAndTransferGatingStatus(perpetualId: number): Promise<SubaccountsModule.QueryGetWithdrawalAndTransfersBlockedInfoResponse> {
     const requestData = Uint8Array.from(
-      SubaccountsModule.QueryGetWithdrawalAndTransfersBlockedInfoRequest.encode({ perpetualId: 0 }).finish(),
+      SubaccountsModule.QueryGetWithdrawalAndTransfersBlockedInfoRequest.encode({ perpetualId }).finish(),
     );
 
     const data = await this.sendQuery(
