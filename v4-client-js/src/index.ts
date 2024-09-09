@@ -1,6 +1,5 @@
 // Types.
 export * from './types';
-export * from './codegen';
 
 // Utility functions.
 export * as helpers from './lib/helpers';
