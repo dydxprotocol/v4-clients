@@ -1,12 +1,12 @@
 [submodule "v4-client-cpp"]
 	path = v4-client-cpp
 	url = https://github.com/asnefedovv/dydx-v4-client-cpp
-[submodule "dydxprotocol"]
+[submodule "dydxjs/packages/dydxjs/proto/dydxprotocol"]
 	path = dydxjs/packages/dydxjs/proto/dydxprotocol-src
 	url = git@github.com:dydxprotocol/v4-chain.git
-[submodule "noble-cctp"]
+[submodule "dydxjs/packages/dydxjs/proto/noble-cctp"]
 	path = dydxjs/packages/dydxjs/proto/noble-cctp-src
 	url = git@github.com:circlefin/noble-cctp.git
-[submodule "slinky"]
+[submodule "dydxjs/packages/dydxjs/proto/slinky-src"]
 	path = dydxjs/packages/dydxjs/proto/slinky-src
 	url = git@github.com:skip-mev/slinky.git
