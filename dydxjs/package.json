@@ -24,7 +24,7 @@
     "postinstall": "yarn symlink",
     "client": "yarn workspace ts-client",
     "dydxjs": "yarn workspace dydxjs",
-    "precodegen": "./scripts/export_protos.sh"
+    "precodegen": "./packages/dydxjs/scripts/export_protos.sh"
   },
   "devDependencies": {
     "@types/jest": "^29.5.11",
