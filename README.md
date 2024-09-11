@@ -14,6 +14,9 @@
   </a>
 </div>
 
+## dYdXjs
+dYdXjs is a developer-friendly Typescript library for interacting with dYdX and other Cosmos blockchains. It makes it easy to compose and broadcast dYdX and Cosmos messages, with all of the proto and amino encoding handled for you.
+
 ## v4-client-js
 The dYdX Chain Client Typescript client is used for placing transactions and querying the dYdX chain.
 

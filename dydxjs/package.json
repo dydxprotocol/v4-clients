@@ -1,13 +1,16 @@
 {
   "name": "dydxjs",
   "version": "0.0.1",
-  "author": "jared vu <jared@dydx.exchange>",
+  "author": "dYdX Trading Inc.",
   "private": true,
   "repository": {
     "type": "git",
-    "url": "https://github.com/dydxprotocol/v4-clients"
+    "url": "git+https://github.com/dydxprotocol/v4-clients.git"
   },
   "license": "SEE LICENSE IN LICENSE",
+  "bugs": {
+    "url": "https://github.com/dydxprotocol/v4-clients/issues"
+  },
   "publishConfig": {
     "access": "restricted"
   },
