@@ -30,6 +30,10 @@ unaffiliated and independent third-party from dYdX Trading Inc.
 
 The original client can be found [here](https://github.com/asnefedovv/dydx-v4-client-cpp).
 
+## dydxjs
+<b>dydxjs</b> is a Typescript library for interacting with dYdX chain and other Cosmos blockchains. It makes it easy to compose and broadcast dYdX and Cosmos messages, with all of the proto and amino encoding handled for you.<br/>
+<i>Note: This library provides the low-level interfaces to compose and send transactions. It is recommended to install `v4-client-js` for a simpler developer experience.</i>
+
 # Third-party Clients
 
 By clicking the above links to third-party clients, you will leave the dYdX Trading Inc. (“dYdX”) GitHub repository and join repositories made available by third parties, which are independent from and unaffiliated with dYdX. dYdX is not responsible for any action taken or content on third-party repositories.

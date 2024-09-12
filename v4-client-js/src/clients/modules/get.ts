@@ -491,9 +491,9 @@ export class Get {
     return GovV1Module.QueryProposalsResponse.decode(data);
   }
 
-  async getWithdrawalAndTransferGatingStatus(): Promise<SubaccountsModule.QueryGetWithdrawalAndTransfersBlockedInfoResponse> {
+  async getWithdrawalAndTransferGatingStatus(perpetualId: number): Promise<SubaccountsModule.QueryGetWithdrawalAndTransfersBlockedInfoResponse> {
     const requestData = Uint8Array.from(
-      SubaccountsModule.QueryGetWithdrawalAndTransfersBlockedInfoRequest.encode({}).finish(),
+      SubaccountsModule.QueryGetWithdrawalAndTransfersBlockedInfoRequest.encode({ perpetualId }).finish(),
     );
 
     const data = await this.sendQuery(

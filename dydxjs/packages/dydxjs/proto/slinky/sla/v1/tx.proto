@@ -1,0 +1,68 @@
+syntax = "proto3";
+package slinky.sla.v1;
+
+import "slinky/sla/v1/genesis.proto";
+import "cosmos_proto/cosmos.proto";
+import "cosmos/msg/v1/msg.proto";
+import "gogoproto/gogo.proto";
+
+option go_package = "github.com/skip-mev/connect/v2/x/sla/types";
+
+// Msg is the message service for the x/sla module.
+service Msg {
+  option (cosmos.msg.v1.service) = true;
+
+  // AddSLA defines a method for adding a new SLAs to the store. Note, this will
+  // overwrite any existing SLA with the same ID.
+  rpc AddSLAs(MsgAddSLAs) returns (MsgAddSLAsResponse);
+
+  // RemoveSLA defines a method for removing existing SLAs from the store. Note,
+  // this will not panic if the SLA does not exist.
+  rpc RemoveSLAs(MsgRemoveSLAs) returns (MsgRemoveSLAsResponse);
+
+  // Params defines a method for updating the SLA module parameters.
+  rpc Params(MsgParams) returns (MsgParamsResponse);
+}
+
+// MsgAddSLAs defines the Msg/AddSLAs request type. It contains the
+// SLAs to be added to the store.
+message MsgAddSLAs {
+  option (cosmos.msg.v1.signer) = "from_address";
+
+  // SLAs defines the SLAs to be added to the store.
+  repeated PriceFeedSLA slas = 1
+      [ (gogoproto.nullable) = false, (gogoproto.customname) = "SLAs" ];
+  // Authority defines the authority that is adding the SLAs.
+  string authority = 2 [ (cosmos_proto.scalar) = "cosmos.AddressString" ];
+}
+
+// MsgAddSLAsResponse defines the Msg/AddSLAs response type.
+message MsgAddSLAsResponse {}
+
+// MsgRemoveSLAs defines the Msg/RemoveSLAs request type. It contains the
+// IDs of the SLAs to be removed from the store.
+message MsgRemoveSLAs {
+  option (cosmos.msg.v1.signer) = "from_address";
+
+  // IDs defines the IDs of the SLAs to be removed from the store.
+  repeated string ids = 1 [ (gogoproto.customname) = "IDs" ];
+  // Authority defines the authority that is removing the SLAs.
+  string authority = 2 [ (cosmos_proto.scalar) = "cosmos.AddressString" ];
+}
+
+// MsgRemoveSLAsResponse defines the Msg/RemoveSLAs response type.
+message MsgRemoveSLAsResponse {}
+
+// MsgParams defines the Msg/Params request type. It contains the
+// new parameters for the SLA module.
+message MsgParams {
+  option (cosmos.msg.v1.signer) = "from_address";
+
+  // Params defines the new parameters for the SLA module.
+  Params params = 1 [ (gogoproto.nullable) = false ];
+  // Authority defines the authority that is updating the SLA module parameters.
+  string authority = 2 [ (cosmos_proto.scalar) = "cosmos.AddressString" ];
+}
+
+// MsgParamsResponse defines the Msg/Params response type.
+message MsgParamsResponse {}
