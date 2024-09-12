@@ -75,6 +75,7 @@
     "stream-http": "^3.2.0",
     "ts-loader": "^9.4.2",
     "ts-proto": "^1.165.1",
+    "util": "^0.12.5",
     "webpack": "^5.77.0",
     "webpack-cli": "^5.0.1"
   }
