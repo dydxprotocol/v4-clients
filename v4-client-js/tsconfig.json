@@ -6,7 +6,6 @@
     "examples",
     "scripts",
     "src",
-    "codegen.js",
     "node_modules/@dydxprotocol/v4-proto/**/**.ts"
   ],
   "compilerOptions": {

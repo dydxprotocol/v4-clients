@@ -1211,14 +1211,14 @@ export async function getWithdrawalCapacityByDenom(payload: string): Promise<str
   }
 }
 
-export async function getWithdrawalAndTransferGatingStatus(): Promise<string> {
+export async function getWithdrawalAndTransferGatingStatus(perpetualId: number): Promise<string> {
   try {
     const client = globalThis.client;
     if (client === undefined) {
       throw new UserError('client is not connected. Call connectClient() first');
     }
 
-    const response = await client.validatorClient.get.getWithdrawalAndTransferGatingStatus();
+    const response = await client.validatorClient.get.getWithdrawalAndTransferGatingStatus(perpetualId);
     return encodeJson(response);
   } catch (error) {
     return wrappedError(error);
