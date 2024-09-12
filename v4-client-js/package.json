@@ -37,6 +37,7 @@
     "@cosmjs/tendermint-rpc": "^0.32.1",
     "@cosmjs/utils": "^0.32.1",
     "@dydxprotocol/v4-proto": "6.0.1",
+    "@osmonauts/lcd": "^0.6.0",
     "@scure/bip32": "^1.1.5",
     "@scure/bip39": "^1.1.1",
     "axios": "1.1.3",
