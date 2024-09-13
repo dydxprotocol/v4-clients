@@ -27,19 +27,11 @@ export const exportMnemonicAndPrivateKey = (
   publicKey: Uint8Array | null;
 } => {
   const mnemonic = entropyToMnemonic(entropy, wordlist);
-  const seed = mnemonicToSeedSync(mnemonic);
-
-  const hdkey = HDKey.fromMasterSeed(seed);
-  const derivedHdkey = hdkey.derive(path);
-
-  if (!hdkey.privateKey) {
-    throw new Error('null hd key');
-  }
-
+  const { privateKey, publicKey } = deriveHDKeyFromMnemonic(mnemonic, path);
   return {
     mnemonic,
-    privateKey: derivedHdkey.privateKey,
-    publicKey: derivedHdkey.publicKey,
+    privateKey,
+    publicKey,
   };
 };
 
