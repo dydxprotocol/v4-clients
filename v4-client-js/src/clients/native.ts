@@ -1319,19 +1319,19 @@ export async function signPushNotificationTokenRegistrationPayload(payload: stri
     if (message === undefined) {
       throw new UserError('message is not set');
     }
-    const token = json.token;
-    if (token === undefined) {
-      throw new UserError('token is not set');
-    }
     if (!globalThis.hdKey?.privateKey || !globalThis.hdKey?.publicKey) {
       throw new Error('Missing hdKey');
     }
 
     const timestampInSeconds = Math.floor(Date.now() / 1000);
-    const messageToSign: string = `${message}:${token}"${''}:${timestampInSeconds}`;
+    const messageToSign: string = `${message}:REGISTER_TOKEN"${''}:${timestampInSeconds}`;
     const messageHash = sha256(Buffer.from(messageToSign));
 
     const signed = await Secp256k1.createSignature(messageHash, globalThis.hdKey.privateKey);
+    const verfied = await Secp256k1.verifySignature(signed, messageHash, globalThis.hdKey.publicKey);
+    if (!verfied) {
+      throw new Error('Signature verification failed');
+    }
     const signedMessage = signed.toFixedLength();
 
     return encodeJson({
