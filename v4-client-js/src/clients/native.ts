@@ -1328,10 +1328,6 @@ export async function signPushNotificationTokenRegistrationPayload(payload: stri
     const messageHash = sha256(Buffer.from(messageToSign));
 
     const signed = await Secp256k1.createSignature(messageHash, globalThis.hdKey.privateKey);
-    const verfied = await Secp256k1.verifySignature(signed, messageHash, globalThis.hdKey.publicKey);
-    if (!verfied) {
-      throw new Error('Signature verification failed');
-    }
     const signedMessage = signed.toFixedLength();
 
     return encodeJson({
