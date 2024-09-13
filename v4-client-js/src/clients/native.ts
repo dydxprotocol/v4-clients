@@ -16,7 +16,7 @@ import Long from 'long';
 import { BECH32_PREFIX, GAS_MULTIPLIER, NOBLE_BECH32_PREFIX } from '../lib/constants';
 import { UserError } from '../lib/errors';
 import { ByteArrayEncoding, encodeJson } from '../lib/helpers';
-import { deriveHDKeyFromEthereumSignature } from '../lib/onboarding';
+import { deriveHDKeyFromEthereumSignature, deriveHDKeyFromMnemonic } from '../lib/onboarding';
 import { NetworkOptimizer } from '../network_optimizer';
 import { CompositeClient, MarketInfo } from './composite-client';
 import {
@@ -146,6 +146,12 @@ export async function connectWallet(mnemonic: string): Promise<string> {
   try {
     globalThis.wallet = await LocalWallet.fromMnemonic(mnemonic, BECH32_PREFIX);
     globalThis.nobleWallet = await LocalWallet.fromMnemonic(mnemonic, NOBLE_BECH32_PREFIX);
+
+    const { privateKey, publicKey } = deriveHDKeyFromMnemonic(mnemonic);
+    globalThis.hdKey = {
+      privateKey,
+      publicKey,
+    };
 
     try {
       await globalThis.nobleClient?.connect(globalThis.nobleWallet);
@@ -1291,6 +1297,34 @@ export async function signCompliancePayload(payload: string): Promise<string> {
 
     const timestampInSeconds = Math.floor(Date.now() / 1000);
     const messageToSign: string = `${message}:${action}"${currentStatus ?? ''}:${timestampInSeconds}`;
+    const messageHash = sha256(Buffer.from(messageToSign));
+
+    const signed = await Secp256k1.createSignature(messageHash, globalThis.hdKey.privateKey);
+    const signedMessage = signed.toFixedLength();
+
+    return encodeJson({
+      signedMessage: Buffer.from(signedMessage).toString('base64'),
+      publicKey: Buffer.from(globalThis.hdKey.publicKey).toString('base64'),
+      timestamp: timestampInSeconds,
+    });
+  } catch (error) {
+    return wrappedError(error);
+  }
+}
+
+export async function signPushNotificationTokenRegistrationPayload(payload: string): Promise<string> {
+  try {
+    const json = JSON.parse(payload);
+    const message = json.message;
+    if (message === undefined) {
+      throw new UserError('message is not set');
+    }
+    if (!globalThis.hdKey?.privateKey || !globalThis.hdKey?.publicKey) {
+      throw new Error('Missing hdKey');
+    }
+
+    const timestampInSeconds = Math.floor(Date.now() / 1000);
+    const messageToSign: string = `${message}:REGISTER_TOKEN"${''}:${timestampInSeconds}`;
     const messageHash = sha256(Buffer.from(messageToSign));
 
     const signed = await Secp256k1.createSignature(messageHash, globalThis.hdKey.privateKey);
