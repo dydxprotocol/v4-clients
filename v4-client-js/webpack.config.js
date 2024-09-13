@@ -31,6 +31,7 @@ module.exports = {
       http: require.resolve('stream-http'),
       path: require.resolve('path-browserify'),
       crypto: require.resolve('crypto-browserify'),
+      util: require.resolve('util'),
     },
   },
   plugins: [
