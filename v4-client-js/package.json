@@ -36,7 +36,6 @@
     "@cosmjs/stargate": "^0.32.1",
     "@cosmjs/tendermint-rpc": "^0.32.1",
     "@cosmjs/utils": "^0.32.1",
-    "@dydxprotocol/v4-proto": "6.0.1",
     "@osmonauts/lcd": "^0.6.0",
     "@scure/bip32": "^1.1.5",
     "@scure/bip39": "^1.1.1",
@@ -78,5 +77,8 @@
     "util": "^0.12.5",
     "webpack": "^5.77.0",
     "webpack-cli": "^5.0.1"
+  },
+  "peerDependencies": {
+    "@dydxprotocol/v4-proto": "6.0.1"
   }
 }
