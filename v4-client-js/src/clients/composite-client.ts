@@ -397,7 +397,7 @@ export class CompositeClient {
       msg
         .then((it) => resolve([it]))
         .catch((err) => {
-          console.log(err);
+          throw err;
         });
     });
     const orderFlags = calculateOrderFlags(type, timeInForce);
