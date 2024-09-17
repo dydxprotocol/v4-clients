@@ -77,11 +77,11 @@ CUSTOM_NETWORK = Network(
     "https://your-custom-rest-url.com",
     "wss://your-custom-websocket-url.com/ws",
     NodeConfig(
-        "your-chain-id",
-        secure_channel("your-node-url.com:443"),
-        "your-address-prefix",
-        "your-denom",
-    ),
+     "dydx-testnet-4",
+     secure_channel("test-dydx-grpc.kingnodes.com"),
+     "adv4tnt",
+     "ibc/8E27BA2D5493AF5636760E354E46004562C46AB7EC0CC4C1CA14E9E20E2545B5",
+     ),
 )
 ```
 
