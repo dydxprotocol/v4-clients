@@ -1176,9 +1176,7 @@ export async function cctpMultiMsgWithdraw(cosmosPayload: string): Promise<strin
       typeUrl, // '/circle.cctp.v1.MsgDepositForBurnWithCaller', '/cosmos.bank.v1beta1.MsgSend'
       value,
     }));
-
     const fee = await client.simulateTransaction(ibcMsgs);
-
     // take out fee from amount before sweeping
     const amount =
       parseInt(ibcMsgs[0].value.amount, 10) -
@@ -1189,8 +1187,9 @@ export async function cctpMultiMsgWithdraw(cosmosPayload: string): Promise<strin
     }
 
     ibcMsgs[0].value.amount = amount.toString();
-
-    const tx = await client.send(ibcMsgs);
+    
+    // TODO: maybe make chainID a function input?
+    const tx = await client.submitToSkipApi(ibcMsgs, 'noble-1');
 
     return encodeJson(tx);
   } catch (error) {

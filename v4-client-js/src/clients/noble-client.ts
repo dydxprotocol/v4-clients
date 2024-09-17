@@ -71,7 +71,12 @@ export class NobleClient extends RestClient{
     return tx;
   }
 
-
+/**
+ * This method is a PoC for converting from custom blockchain broadcasting to utilizing skip API
+ * The Skip API carries benefits of built-in tenacity and transaction tracking
+ * 
+ * If we decide this pattern is superior, we can explore moving this function to a SkipClient
+ */
   async submitToSkipApi(
     messages: EncodeObject[],
     chainId: string,
@@ -95,7 +100,6 @@ export class NobleClient extends RestClient{
       fee,
       memo ?? this.defaultClientMemo,
     );
-    
     const serializedTx = TxRaw.encode(txHashObj).finish()
     const base64Tx = toBase64(serializedTx)
     const skipSubmitResponse = await this.post(
