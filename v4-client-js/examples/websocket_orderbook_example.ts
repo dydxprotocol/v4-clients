@@ -23,20 +23,22 @@ function test(): void {
           } else {
             const orderBookDataList = data.contents;
 
+            // Common Orderbook Data
             if (orderBookDataList instanceof Array) {
               orderBookDataList.forEach((entry) => {
                 if (entry.bids !== null && entry.bids !== undefined) {
                   const entryBidPrice = Number(entry.bids.flat()[0]);
                   const entryBidSize = Number(entry.bids.flat()[1]);
 
+                  // remove prices with zero Qty
                   if (entryBidSize === 0) {
-                    // 제거 로직
                     orderBookBidList.forEach((item, index) => {
                       if (item[0] === entryBidPrice) {
                         orderBookBidList.splice(index, 1);
                       }
                     });
                   } else {
+                    // The price that already exists in the order book is modified only Qty
                     if (orderBookBidList.some((innerArray) => innerArray[0] === entryBidPrice)) {
                       orderBookBidList = orderBookBidList.map((item, index) => {
                         if (item[0] === entryBidPrice) {
@@ -47,6 +49,7 @@ function test(): void {
                         }
                       });
                     } else {
+                      // Add new data to order book
                       orderBookBidList.push([entryBidPrice, entryBidSize]);
                     }
                   }
@@ -56,13 +59,14 @@ function test(): void {
                   const entryAskSize = Number(entry.asks.flat()[1]);
 
                   if (entryAskSize === 0) {
-                    // 제거 로직
+                    // remove prices with zero Qty
                     orderBookAskList.forEach((item, index) => {
                       if (item[0] === entryAskPrice) {
                         orderBookAskList.splice(index, 1);
                       }
                     });
                   } else {
+                    // The price that already exists in the order book is modified only Qty
                     if (orderBookAskList.some((innerArray) => innerArray[0] === entryAskPrice)) {
                       orderBookAskList = orderBookAskList.map((item, index) => {
                         if (item[0] === entryAskPrice) {
@@ -73,17 +77,18 @@ function test(): void {
                         }
                       });
                     } else {
+                      // Add new data to order book
                       orderBookAskList.push([entryAskPrice, entryAskSize]);
                     }
                   }
                 }
               });
 
-              // 정렬
+              // sort
               orderBookBidList = sortByNthElementDesc(orderBookBidList, 0);
               orderBookAskList = sortByNthElementAsc(orderBookAskList, 0);
 
-              // Cross 됐는지 확인하고 해소할 때까지 반복
+              // Resolving Crossed Orderbook Data
               while (orderBookBidList[0][0] >= orderBookAskList[0][0]) {
                 if (orderBookBidList[0][1] > orderBookAskList[0][1]) {
                   orderBookBidList[0][1] -= orderBookAskList[0][1];
@@ -97,6 +102,7 @@ function test(): void {
                 }
               }
 
+              // print
               console.log(`OrderBook for ETH-USD:`);
               console.log(`Price     Qty`);
               for (let i = 4; i > -1; i--) {
