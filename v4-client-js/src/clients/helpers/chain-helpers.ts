@@ -6,7 +6,7 @@ import { Order_ConditionType, Order_Side, Order_TimeInForce } from '../modules/p
 import { OrderFlags } from '../types';
 
 export function round(input: number, base: number): number {
-  return Math.floor(input / base) * base;
+  return BigNumber(input).div(BigNumber(base)).integerValue(BigNumber.ROUND_FLOOR).times(BigNumber(base)).toNumber();
 }
 
 export function calculateQuantums(
@@ -14,8 +14,8 @@ export function calculateQuantums(
   atomicResolution: number,
   stepBaseQuantums: number,
 ): Long {
-  const rawQuantums = size * 10 ** (-1 * atomicResolution);
-  const quantums = round(rawQuantums, stepBaseQuantums);
+  const rawQuantums = BigNumber(size).times(BigNumber(10).pow(BigNumber(atomicResolution).negated()));
+  const quantums = round(rawQuantums.toNumber(), stepBaseQuantums);
   // stepBaseQuantums functions as minimum order size
   const result = Math.max(quantums, stepBaseQuantums);
   return Long.fromNumber(result);

@@ -27,8 +27,8 @@ nvm alias default $(nvm version) # optional
 You can run the following commands to ensure that you are running the correct `node` and `npm` versions.
 
 ```
-node -v # expected: v18.x.x (should match .nvmrc)
-npm -v  # expected: 8.x.x
+node -v # expected: v20.x.x (should match .nvmrc)
+npm -v  # expected: 10.x.x
 ```
 
 ### 1. Clone or fork the V4 clients repo
