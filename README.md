@@ -37,3 +37,34 @@ The original client can be found [here](https://github.com/asnefedovv/dydx-v4-cl
 # Third-party Clients
 
 By clicking the above links to third-party clients, you will leave the dYdX Trading Inc. (“dYdX”) GitHub repository and join repositories made available by third parties, which are independent from and unaffiliated with dYdX. dYdX is not responsible for any action taken or content on third-party repositories.
+
+# Contributing
+
+## We use [Conventional Commits](https://github.com/conventional-changelog/commitlint)
+We use a commit-msg hook to check if your commit messages meet the conventional commit format.
+
+In general the pattern looks like this:
+
+`type(scope?): subject`  #scope is optional; multiple scopes are supported (current delimiter options: "/", "\" and ",")
+
+### Real world examples can look like this:
+`chore: run tests on travis ci`
+`fix(server): send cors headers`
+`feat(blog): add comment section`
+
+Common types according to commitlint-config-conventional can be:
+
+build
+chore
+ci
+docs
+feat
+fix
+perf
+refactor
+revert
+style
+test
+
+## Any contributions you make will be under the same License
+When you submit code changes, your submissions are understood to be under the same [License](https://github.com/dydxprotocol/v4-web/blob/master/LICENSE) that covers the project.
