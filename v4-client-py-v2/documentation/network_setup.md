@@ -1,52 +1,99 @@
 ### Networks
 
-> **See [network resources](https://docs.dydx.exchange/infrastructure_providers-network/resources#networks-repositories) to find publicly available endpoints**
+This guide explains how to connect to different dYdX networks using the Python SDK.
 
-To connect to the mainnet you can use `make_mainnet` function:
+#### Finding Network Endpoints
+
+> **Important:** For the most up-to-date list of publicly available endpoints, refer to our [network resources documentation](https://docs.dydx.exchange/infrastructure_providers-network/resources#networks-repositories).
+
+#### Connecting to Mainnet
+
+To connect to the mainnet, use the `make_mainnet` function:
+
 ```python
 from dydx_v4_client.network import make_mainnet
 
-
 NETWORK = make_mainnet(
-    node_url=NODE_URL, 
-    rest_indexer=REST_URL, 
-    websocket_indexer=WEBSOCKET_URL
+    node_url="dydx-ops-grpc.kingnodes.com:443",  # No 'https://' prefix
+    rest_indexer="https://indexer.v4.dydx.exchange",
+    websocket_indexer="wss://indexer.v4.dydx.exchange/v4/ws"
 )
 ```
 
-For local and testnet networks there is a set of predefined networks:
+Note the above are just an example of the mainnet endpoints. Always use the most recent endpoints from our [network resources documentation](https://docs.dydx.exchange/infrastructure_providers-network/resources#networks-repositories).
+
+⚠️ **Important:** When specifying `node_url`, do not include the `https://` prefix. This is a common mistake that can cause connection issues.
+
+#### Connecting to Testnet
+
+For testnet, you can use the predefined `TESTNET` network:
 
 ```python
-from dydx_v4_client.network import TESTNET, LOCAL
+from dydx_v4_client.network import TESTNET
+
+# Use TESTNET directly in your client initialization
 ```
 
-If you want to use a custom API each network has its respective _make_ function:
+To customize the testnet connection:
+
 ```python
-from dydx_v4_client.network import make_testnet, make_local
+from dydx_v4_client.network import make_testnet
+
+CUSTOM_TESTNET = make_testnet(
+    node_url="your-custom-testnet-node-url",
+    rest_indexer="your-custom-testnet-rest-url",
+    websocket_indexer="your-custom-testnet-websocket-url"
+)
 ```
 
-You can overwrite the default URL when calling the function:
+> Find the latest testnet endpoints in our [network resources documentation](https://docs.dydx.exchange/infrastructure_providers-network/resources#networks-repositories).
+
+#### Local Development
+
+For local development, use the predefined `LOCAL` network:
+
 ```python
-NETWORK = make_local(node_url="http://localhost:26657")
+from dydx_v4_client.network import LOCAL
+
+# Use LOCAL directly in your client initialization
 ```
 
-To create a custom network you can do it directly:
+To customize the local network:
+
+```python
+from dydx_v4_client.network import make_local
+
+CUSTOM_LOCAL = make_local(node_url="http://localhost:26657")
+```
+
+#### Creating a Custom Network
+
+For advanced users who need to define a completely custom network:
+
 ```python
 from dydx_v4_client.network import Network, NodeConfig, secure_channel
 
-
-CUSTOM_MAINNET = Network(
-    "https://dydx-testnet.imperator.co",
-    "wss://indexer.v4testnet.dydx.exchange/v4/ws",
+CUSTOM_NETWORK = Network(
+    "https://your-custom-rest-url.com",
+    "wss://your-custom-websocket-url.com/ws",
     NodeConfig(
-        "dydx-testnet-4",
-        secure_channel("test-dydx-grpc.kingnodes.com"),
-        "adv4tnt",
-        "ibc/8E27BA2D5493AF5636760E354E46004562C46AB7EC0CC4C1CA14E9E20E2545B5",
+        "your-chain-id",
+        secure_channel("your-node-url.com:443"),
+        "your-address-prefix",
+        "your-denom",
     ),
 )
 ```
-Or provide the URL directly to the client, e.g.:
+
+#### Direct URL Usage
+
+You can also provide URLs directly to specific clients:
+
 ```python
-indexer = IndexerClient("https://dydx-testnet.imperator.co")
+from dydx_v4_client import IndexerClient
+
+indexer = IndexerClient("https://your-indexer-url.com")
 ```
+
+Remember to always use the most recent endpoints from our [network resources documentation](https://docs.dydx.exchange/infrastructure_providers-network/resources#networks-repositories) when connecting to dYdX networks.
+
