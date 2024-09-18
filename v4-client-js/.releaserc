@@ -1,6 +1,6 @@
 {
-  "branches": ["main", "test-release"],
-  "tagFormat": "v4-client-js@${version}-sr",
+  "branches": ["main"],
+  "tagFormat": "v4-client-js@${version}",
   "plugins": [
     "@semantic-release/commit-analyzer",
     "@semantic-release/release-notes-generator",
