@@ -40,11 +40,11 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN_READ }}
 
     # Run semantic-release to automatically bump the version based on PR title
-      - name: Run semantic-release
-        run: npm run release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN_WRITE }}
+      # - name: Run semantic-release
+      #   run: npm run release
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #     NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN_WRITE }}
 
       - name: Publish
         run: ./scripts/publish-if-not-exists.sh
