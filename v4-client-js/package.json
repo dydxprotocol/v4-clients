@@ -55,6 +55,7 @@
     "@commitlint/cli": "^19.5.0",
     "@commitlint/config-conventional": "^19.5.0",
     "@dydxprotocol/node-service-base-dev": "^0.2.6",
+    "@dydxprotocol/v4-proto": "6.0.1",
     "@protobufs/cosmos": "^0.0.11",
     "@protobufs/gogoproto": "^0.0.10",
     "@semantic-release/changelog": "^6.0.3",
