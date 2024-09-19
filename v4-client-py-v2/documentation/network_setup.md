@@ -14,13 +14,13 @@ To connect to the mainnet, use the `make_mainnet` function:
 from dydx_v4_client.network import make_mainnet
 
 NETWORK = make_mainnet(
-    node_url="dydx-ops-grpc.kingnodes.com:443",  # No 'https://' prefix
-    rest_indexer="https://indexer.v4.dydx.exchange",
-    websocket_indexer="wss://indexer.v4.dydx.exchange/v4/ws"
+    node_url="NODE_URL",  # No 'https://' prefix
+    rest_indexer="REST_INDEXER",
+    websocket_indexer="WEBSOCKET_INDEXER"
 )
 ```
 
-Note the above are just an example of the mainnet endpoints. Always use the most recent endpoints from our [network resources documentation](https://docs.dydx.exchange/infrastructure_providers-network/resources#networks-repositories).
+> Note the above are just an example of the mainnet endpoints. Always use the most recent endpoints from our [network resources documentation](https://docs.dydx.exchange/infrastructure_providers-network/resources#indexer-endpoints).
 
 ⚠️ **Important:** When specifying `node_url`, do not include the `https://` prefix. This is a common mistake that can cause connection issues.
 
