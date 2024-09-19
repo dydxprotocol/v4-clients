@@ -25,6 +25,8 @@ Python client for dYdX Chain. Developed and maintained by the Nethermind team.
 ## v4-client-cpp (Third Party Client)
 To pull the latest C++ client, run `git submodule update --init --recursive`
 
+Please note the C++ client only works on Linux.
+
 This client was originally developed and open-sourced through a grant by the dYdX Grants Trust — an
 unaffiliated and independent third-party from dYdX Trading Inc.
 
