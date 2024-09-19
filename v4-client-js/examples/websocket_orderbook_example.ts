@@ -1,5 +1,5 @@
 import { Network } from '../src/clients/constants';
-import { IncomingMessageTypes, SocketClient } from '../src/clients/socket-client';
+import { SocketClient } from '../src/clients/socket-client';
 
 function test(): void {
   let orderBookBidList: [number, number][] = [];
@@ -9,127 +9,44 @@ function test(): void {
     Network.mainnet().indexerConfig,
     () => {
       console.log('socket opened');
+
+      mySocket.subscribeToOrderbook('ETH-USD');
     },
     () => {
       console.log('socket closed');
     },
     (message) => {
-      if (typeof message.data === 'string') {
-        const jsonString = message.data as string;
-        try {
-          const data = JSON.parse(jsonString);
-          if (data.type === IncomingMessageTypes.CONNECTED) {
-            mySocket.subscribeToOrderbook('ETH-USD');
-          } else {
-            const orderBookDataList = data.contents;
+      try {
+        if (typeof message.data === 'string') {
+          const jsonString = message.data as string;
+          const orderBookDataList = JSON.parse(jsonString).contents;
 
-            // Common Orderbook Data
-            if (orderBookDataList instanceof Array) {
-              orderBookDataList.forEach((entry) => {
-                if (entry.bids !== null && entry.bids !== undefined) {
-                  const entryBidPrice = Number(entry.bids.flat()[0]);
-                  const entryBidSize = Number(entry.bids.flat()[1]);
+          if (orderBookDataList instanceof Array) {
+            // common orderBook data;
+            [orderBookBidList, orderBookAskList] = updateOrderBook(
+              orderBookDataList,
+              orderBookBidList,
+              orderBookAskList,
+            );
 
-                  // remove prices with zero Qty
-                  if (entryBidSize === 0) {
-                    orderBookBidList.forEach((item, index) => {
-                      if (item[0] === entryBidPrice) {
-                        orderBookBidList.splice(index, 1);
-                      }
-                    });
-                  } else {
-                    // The price that already exists in the order book is modified only Qty
-                    if (orderBookBidList.some((innerArray) => innerArray[0] === entryBidPrice)) {
-                      orderBookBidList = orderBookBidList.map((item, index) => {
-                        if (item[0] === entryBidPrice) {
-                          orderBookBidList[index][1] = entryBidSize;
-                          return item;
-                        } else {
-                          return item;
-                        }
-                      });
-                    } else {
-                      // Add new data to order book
-                      orderBookBidList.push([entryBidPrice, entryBidSize]);
-                    }
-                  }
-                }
-                if (entry.asks !== null && entry.asks !== undefined) {
-                  const entryAskPrice = Number(entry.asks.flat()[0]);
-                  const entryAskSize = Number(entry.asks.flat()[1]);
+            // sort
+            orderBookBidList = sortByNthElementDesc(orderBookBidList, 0);
+            orderBookAskList = sortByNthElementAsc(orderBookAskList, 0);
 
-                  if (entryAskSize === 0) {
-                    // remove prices with zero Qty
-                    orderBookAskList.forEach((item, index) => {
-                      if (item[0] === entryAskPrice) {
-                        orderBookAskList.splice(index, 1);
-                      }
-                    });
-                  } else {
-                    // The price that already exists in the order book is modified only Qty
-                    if (orderBookAskList.some((innerArray) => innerArray[0] === entryAskPrice)) {
-                      orderBookAskList = orderBookAskList.map((item, index) => {
-                        if (item[0] === entryAskPrice) {
-                          orderBookAskList[index][1] = entryAskSize;
-                          return item;
-                        } else {
-                          return item;
-                        }
-                      });
-                    } else {
-                      // Add new data to order book
-                      orderBookAskList.push([entryAskPrice, entryAskSize]);
-                    }
-                  }
-                }
-              });
+            // resolving crossed orderBook
+            [orderBookBidList, orderBookAskList] = resolveCrossedOrderBook(
+              orderBookBidList,
+              orderBookAskList,
+            );
 
-              // sort
-              orderBookBidList = sortByNthElementDesc(orderBookBidList, 0);
-              orderBookAskList = sortByNthElementAsc(orderBookAskList, 0);
-
-              // Resolving Crossed Orderbook Data
-              while (orderBookBidList[0][0] >= orderBookAskList[0][0]) {
-                if (orderBookBidList[0][1] > orderBookAskList[0][1]) {
-                  orderBookBidList[0][1] -= orderBookAskList[0][1];
-                  orderBookAskList.shift();
-                } else if (orderBookBidList[0][1] < orderBookAskList[0][1]) {
-                  orderBookAskList[0][1] -= orderBookBidList[0][1];
-                  orderBookBidList.shift();
-                } else {
-                  orderBookAskList.shift();
-                  orderBookBidList.shift();
-                }
-              }
-
-              // print
-              console.log(`OrderBook for ETH-USD:`);
-              console.log(`Price     Qty`);
-              for (let i = 4; i > -1; i--) {
-                console.log(
-                  `${String(orderBookAskList[i][0]).padEnd(10, ' ')}${orderBookAskList[i][1]}`,
-                );
-              }
-              console.log('---------------------');
-              for (let i = 0; i < 5; i++) {
-                console.log(
-                  `${String(orderBookBidList[i][0]).padEnd(10, ' ')}${orderBookBidList[i][1]}`,
-                );
-              }
-              console.log('');
-            } else if (orderBookDataList !== null && orderBookDataList !== undefined) {
-              orderBookDataList.bids.forEach((item: { price: string; size: string }) => {
-                orderBookBidList.push([Number(item.price), Number(item.size)]);
-              });
-
-              orderBookDataList.asks.forEach((item: { price: string; size: string }) => {
-                orderBookAskList.push([Number(item.price), Number(item.size)]);
-              });
-            }
+            printOrderBook(orderBookBidList, orderBookAskList);
+          } else if (orderBookDataList !== null && orderBookDataList !== undefined) {
+            // initial OrderBook data
+            setInitialOrderBook(orderBookDataList, orderBookBidList, orderBookAskList);
           }
-        } catch (e) {
-          console.error('Error parsing JSON message:', e);
         }
+      } catch (e) {
+        console.error('Error parsing JSON message:', e);
       }
     },
     (event) => {
@@ -152,6 +69,130 @@ const sortByNthElementDesc = (arr: [number, number][], n: number): [number, numb
     if (a[n] < b[n]) return 1;
     return 0;
   });
+};
+
+const printOrderBook = (
+  orderBookBidList: [number, number][],
+  orderBookAskList: [number, number][],
+): void => {
+  // print
+  console.log(`OrderBook for ETH-USD:`);
+  console.log(`Price     Qty`);
+  for (let i = 4; i > -1; i--) {
+    console.log(`${String(orderBookAskList[i][0]).padEnd(10, ' ')}${orderBookAskList[i][1]}`);
+  }
+  console.log('---------------------');
+  for (let i = 0; i < 5; i++) {
+    console.log(`${String(orderBookBidList[i][0]).padEnd(10, ' ')}${orderBookBidList[i][1]}`);
+  }
+  console.log('');
+};
+
+const resolveCrossedOrderBook = (
+  orderBookBidList: [number, number][],
+  orderBookAskList: [number, number][],
+): [[number, number][], [number, number][]] => {
+  const bidList = [...orderBookBidList];
+  const askList = [...orderBookAskList];
+
+  while (bidList[0][0] >= askList[0][0]) {
+    if (bidList[0][1] > askList[0][1]) {
+      bidList[0][1] -= askList[0][1];
+      askList.shift();
+    } else if (bidList[0][1] < askList[0][1]) {
+      askList[0][1] -= bidList[0][1];
+      bidList.shift();
+    } else {
+      askList.shift();
+      bidList.shift();
+    }
+  }
+
+  return [bidList, askList];
+};
+
+const setInitialOrderBook = (
+  orderBookDataList: { bids: []; asks: [] },
+  orderBookBidList: [number, number][],
+  orderBookAskList: [number, number][],
+): void => {
+  orderBookDataList.bids.forEach((item: { price: string; size: string }) => {
+    orderBookBidList.push([Number(item.price), Number(item.size)]);
+  });
+
+  orderBookDataList.asks.forEach((item: { price: string; size: string }) => {
+    orderBookAskList.push([Number(item.price), Number(item.size)]);
+  });
+};
+
+const updateOrderBook = (
+  orderBookDataList: { bids: [[]]; asks: [[]] }[],
+  orderBookBidList: [number, number][],
+  orderBookAskList: [number, number][],
+): [[number, number][], [number, number][]] => {
+  let bidList = [...orderBookBidList];
+  let askList = [...orderBookAskList];
+
+  orderBookDataList.forEach((entry: { bids: [[]]; asks: [[]] }) => {
+    if (entry.bids !== null && entry.bids !== undefined) {
+      const entryBidPrice = Number(entry.bids.flat()[0]);
+      const entryBidSize = Number(entry.bids.flat()[1]);
+
+      // remove prices with zero Qty
+      if (entryBidSize === 0) {
+        bidList.forEach((item, index) => {
+          if (item[0] === entryBidPrice) {
+            bidList.splice(index, 1);
+          }
+        });
+      } else {
+        // The price that already exists in the order book is modified only Qty
+        if (bidList.some((innerArray) => innerArray[0] === entryBidPrice)) {
+          bidList = bidList.map((item, index) => {
+            if (item[0] === entryBidPrice) {
+              bidList[index][1] = entryBidSize;
+              return item;
+            } else {
+              return item;
+            }
+          });
+        } else {
+          // Add new data to order book
+          bidList.push([entryBidPrice, entryBidSize]);
+        }
+      }
+    }
+    if (entry.asks !== null && entry.asks !== undefined) {
+      const entryAskPrice = Number(entry.asks.flat()[0]);
+      const entryAskSize = Number(entry.asks.flat()[1]);
+
+      if (entryAskSize === 0) {
+        // remove prices with zero Qty
+        askList.forEach((item, index) => {
+          if (item[0] === entryAskPrice) {
+            askList.splice(index, 1);
+          }
+        });
+      } else {
+        // The price that already exists in the order book is modified only Qty
+        if (askList.some((innerArray) => innerArray[0] === entryAskPrice)) {
+          askList = askList.map((item, index) => {
+            if (item[0] === entryAskPrice) {
+              askList[index][1] = entryAskSize;
+              return item;
+            } else {
+              return item;
+            }
+          });
+        } else {
+          // Add new data to order book
+          askList.push([entryAskPrice, entryAskSize]);
+        }
+      }
+    }
+  });
+
+  return [orderBookBidList, orderBookAskList];
 };
 
 test();
