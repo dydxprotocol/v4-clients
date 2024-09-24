@@ -176,6 +176,11 @@ export enum TimePeriod {
   SEVEN_DAYS = 'SEVEN_DAYS',
 }
 
+export enum PnlTickInterval {
+  HOUR = "hour",
+  day = "day",
+}
+
 // ------------ API Defaults ------------
 export const DEFAULT_API_TIMEOUT: number = 3_000;
 
