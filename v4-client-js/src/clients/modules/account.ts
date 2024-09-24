@@ -194,4 +194,23 @@ export default class AccountClient extends RestClient {
       page,
     });
   }
+
+  async getTransfersBetween(
+    sourceAddress: string,
+    sourceSubaccountNumber: string,
+    recipientAddress: string,
+    recipientSubaccountNumber: string,
+    createdBeforeOrAtHeight?: number | null,
+    createdBeforeOrAt?: string | null
+  ): Promise<Data>  {
+    const uri = '/v4/transfers/between';
+    return this.get(uri, {
+      sourceAddress,
+      sourceSubaccountNumber,
+      recipientAddress,
+      recipientSubaccountNumber,
+      createdBeforeOrAtHeight,
+      createdBeforeOrAt,
+    });
+  }
 }

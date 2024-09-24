@@ -2,6 +2,7 @@ import { IndexerConfig, DEFAULT_API_TIMEOUT } from './constants';
 import AccountClient from './modules/account';
 import MarketsClient from './modules/markets';
 import UtilityClient from './modules/utility';
+import VaultClient from './modules/vault';
 
 /**
  * @description Client for Indexer
@@ -12,6 +13,7 @@ export class IndexerClient {
   readonly _markets: MarketsClient;
   readonly _account: AccountClient;
   readonly _utility: UtilityClient;
+  readonly _vault: VaultClient;
 
   constructor(config: IndexerConfig, apiTimeout?: number) {
     this.config = config;
@@ -20,6 +22,7 @@ export class IndexerClient {
     this._markets = new MarketsClient(config.restEndpoint);
     this._account = new AccountClient(config.restEndpoint);
     this._utility = new UtilityClient(config.restEndpoint);
+    this._vault = new VaultClient(config.restEndpoint);
   }
 
   /**
@@ -45,5 +48,14 @@ export class IndexerClient {
    */
   get utility(): UtilityClient {
     return this._utility;
+  }
+
+  /**
+   * @description Get the vault module, used for interacting with vault endpoints.
+   *
+   * @returns The vault module
+   */
+  get vault(): VaultClient {
+    return this._vault;
   }
 }
