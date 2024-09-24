@@ -97,6 +97,7 @@ export class ValidatorClient {
       this.config.chainId,
       this.config.denoms,
       this.config.defaultClientMemo,
+      this.config.useTimestampNonce,
     );
   }
 }
