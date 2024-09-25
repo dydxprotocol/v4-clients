@@ -43,6 +43,7 @@ import {
   TYPE_URL_MSG_UNDELEGATE,
   TYPE_URL_MSG_WITHDRAW_DELEGATOR_REWARD,
   TYPE_URL_BATCH_CANCEL,
+  TYPE_URL_MSG_REGISTER_AFFILIATE,
 } from '../constants';
 import { DenomConfig } from '../types';
 import {
@@ -59,6 +60,7 @@ import {
   MsgDepositToSubaccount,
   MsgWithdrawFromSubaccount,
 } from './proto-includes';
+import { MsgRegisterAffiliate } from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/affiliates/tx';
 
 protobuf.util.Long = Long;
 protobuf.configure();
@@ -481,6 +483,19 @@ export class Composer {
 
     return {
       typeUrl: TYPE_URL_MSG_WITHDRAW_DELEGATOR_REWARD,
+      value: msg,
+    };
+  }
+
+  // ------------ x/affiliates ------------
+  public composeMsgRegisterAffiliate(referee: string, affiliate: string): EncodeObject {
+    const msg: MsgRegisterAffiliate = {
+      referee,
+      affiliate,
+    };
+
+    return {
+      typeUrl: TYPE_URL_MSG_REGISTER_AFFILIATE,
       value: msg,
     };
   }

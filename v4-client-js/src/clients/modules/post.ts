@@ -800,4 +800,20 @@ export class Post {
   withdrawDelegatorRewardMsg(delegator: string, validator: string): EncodeObject {
     return this.composer.composeMsgWithdrawDelegatorReward(delegator, validator);
   }
+
+  async registerAffiliate(
+    subaccount: SubaccountInfo,
+    referee: string,
+    broadcastMode?: BroadcastMode,
+  ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
+    const msg = this.composer.composeMsgRegisterAffiliate(subaccount.address, referee);
+    return this.send(
+      subaccount.wallet,
+      () => Promise.resolve([msg]),
+      false,
+      this.defaultGasPrice,
+      undefined,
+      broadcastMode,
+    );
+  }
 }
