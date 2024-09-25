@@ -35,6 +35,7 @@ import {
   calculateClientMetadata,
   calculateConditionType,
   calculateConditionalOrderTriggerSubticks,
+  calculateVaultQuantums,
 } from './helpers/chain-helpers';
 import { IndexerClient } from './indexer-client';
 import { UserError } from './lib/errors';
@@ -1059,52 +1060,51 @@ export class CompositeClient {
   }
 
   // vaults
-  // for v0 we are just exposing the exact same api as validatorClient.post since we don't need any extra functionality
 
   async depositToMegavault(
     subaccount: SubaccountInfo,
-    quoteQuantums: bigint,
+    amountUsdc: number,
     broadcastMode?: BroadcastMode,
   ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
     return this.validatorClient.post.depositToMegavault(
       subaccount,
-      bigIntToBytes(quoteQuantums),
+      bigIntToBytes(calculateVaultQuantums(amountUsdc)),
       broadcastMode,
     );
   }
 
-  depositToMegavaultMessage(subaccount: SubaccountInfo, quoteQuantums: bigint): EncodeObject {
+  depositToMegavaultMessage(subaccount: SubaccountInfo, amountUsdc: number): EncodeObject {
     return this.validatorClient.post.depositToMegavaultMsg(
       subaccount.address,
       subaccount.subaccountNumber,
-      bigIntToBytes(quoteQuantums),
+      bigIntToBytes(calculateVaultQuantums(amountUsdc)),
     );
   }
 
   async withdrawFromMegavault(
     subaccount: SubaccountInfo,
-    shares: bigint,
-    minQuoteQuantums: bigint,
+    shares: number,
+    minAmount: number,
     broadcastMode?: BroadcastMode,
   ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
     return this.validatorClient.post.withdrawFromMegavault(
       subaccount,
-      bigIntToBytes(shares),
-      bigIntToBytes(minQuoteQuantums),
+      bigIntToBytes(BigInt(Math.floor(shares))),
+      bigIntToBytes(calculateVaultQuantums(minAmount)),
       broadcastMode,
     );
   }
 
   withdrawFromMegavaultMessage(
     subaccount: SubaccountInfo,
-    shares: bigint,
-    minQuoteQuantums: bigint,
+    shares: number,
+    minAmount: number,
   ): EncodeObject {
     return this.validatorClient.post.withdrawFromMegavaultMsg(
       subaccount.address,
       subaccount.subaccountNumber,
-      bigIntToBytes(shares),
-      bigIntToBytes(minQuoteQuantums),
+      bigIntToBytes(BigInt(Math.floor(shares))),
+      bigIntToBytes(calculateVaultQuantums(minAmount)),
     );
   }
 
