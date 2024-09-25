@@ -76,6 +76,18 @@ export class Post {
     );
   }
 
+  /**
+   * @description Retrieves the account number for the given wallet address and populates the accountNumberCache.
+   * The account number is required for txOptions when signing a transaction.
+   * Pre-populating the cache avoids a round-trip request during the first transaction creation in the session, preventing it from being a performance blocker.
+   */
+  public async populateAccountNumberCache(address: string): Promise<void> {
+    if (this.accountNumberCache.has(address)) return;
+
+    const account = await this.get.getAccount(address);
+    this.accountNumberCache.set(address, account);
+  }
+
   setSelectedGasDenom(selectedGasDenom: SelectedGasDenom): void {
     this.selectedGasDenom = selectedGasDenom;
   }
