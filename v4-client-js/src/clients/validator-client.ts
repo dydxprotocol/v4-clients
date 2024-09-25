@@ -73,10 +73,9 @@ export class ValidatorClient {
   /**
    * @description populate account number cache in the Post module for performance.
    */
-  populateAccountNumberCache(address: string): Promise<void> {
+  async populateAccountNumberCache(address: string): Promise<void> {
     if (!this._post) throw new Error('Post module not initialized');
-
-    return this._post.populateAccountNumberCache(address);
+    await this._post.populateAccountNumberCache(address);
   }
 
   private async initialize(): Promise<void> {

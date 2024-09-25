@@ -109,9 +109,9 @@ export class CompositeClient {
     this._validatorClient.setSelectedGasDenom(gasDenom);
   }
 
-  populateAccountNumberCache(address: string): Promise<void> {
+  async populateAccountNumberCache(address: string): Promise<void> {
     if (!this._validatorClient) throw new Error('Validator client not initialized');
-    return this._validatorClient.populateAccountNumberCache(address);
+    await this._validatorClient.populateAccountNumberCache(address);
   }
 
   /**
