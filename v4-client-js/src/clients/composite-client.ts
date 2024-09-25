@@ -43,6 +43,7 @@ import { Post } from './modules/post';
 import { SubaccountInfo } from './subaccount';
 import { BroadcastMode, OrderBatch } from './types';
 import { ValidatorClient } from './validator-client';
+import { bigIntToBytes } from '../lib/helpers';
 
 // Required for encoding and decoding queries that are of type Long.
 // Must be done once but since the individal modules should be usable
@@ -1062,25 +1063,50 @@ export class CompositeClient {
   // for v0 we are just exposing the exact same api as validatorClient.post since we don't need any extra functionality
 
   async depositToMegavault(
-    ...args: Parameters<Post['depositToMegavault']>
+    subaccount: SubaccountInfo,
+    quoteQuantums: bigint,
+    broadcastMode?: BroadcastMode,
   ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
-    return this.validatorClient.post.depositToMegavault(...args);
+    return this.validatorClient.post.depositToMegavault(
+      subaccount,
+      bigIntToBytes(quoteQuantums),
+      broadcastMode,
+    );
   }
 
-  depositToMegavaultMessage(...args: Parameters<Post['depositToMegavaultMsg']>): EncodeObject {
-    return this.validatorClient.post.depositToMegavaultMsg(...args);
+  depositToMegavaultMessage(subaccount: SubaccountInfo, quoteQuantums: bigint): EncodeObject {
+    return this.validatorClient.post.depositToMegavaultMsg(
+      subaccount.address,
+      subaccount.subaccountNumber,
+      bigIntToBytes(quoteQuantums),
+    );
   }
 
   async withdrawFromMegavault(
-    ...args: Parameters<Post['withdrawFromMegavault']>
+    subaccount: SubaccountInfo,
+    shares: bigint,
+    minQuoteQuantums: bigint,
+    broadcastMode?: BroadcastMode,
   ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
-    return this.validatorClient.post.withdrawFromMegavault(...args);
+    return this.validatorClient.post.withdrawFromMegavault(
+      subaccount,
+      bigIntToBytes(shares),
+      bigIntToBytes(minQuoteQuantums),
+      broadcastMode,
+    );
   }
 
   withdrawFromMegavaultMessage(
-    ...args: Parameters<Post['withdrawFromMegavaultMsg']>
+    subaccount: SubaccountInfo,
+    shares: bigint,
+    minQuoteQuantums: bigint,
   ): EncodeObject {
-    return this.validatorClient.post.withdrawFromMegavaultMsg(...args);
+    return this.validatorClient.post.withdrawFromMegavaultMsg(
+      subaccount.address,
+      subaccount.subaccountNumber,
+      bigIntToBytes(shares),
+      bigIntToBytes(minQuoteQuantums),
+    );
   }
 
   /**
