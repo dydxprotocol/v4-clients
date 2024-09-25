@@ -1,8 +1,11 @@
 [tool.poetry]
 name = "dydx-v4-client"
-version = "1.0.1"
+version = "1.1.0"
 description = ""
-authors = ["Piotr Piwoński <piwonskp@gmail.com>"]
+authors = [
+    "Saul Martin <saulmartin1@pm.me>",
+    "Piotr Piwoński <piwonskp@gmail.com>",
+]
 readme = "README.md"
 
 [tool.poetry.dependencies]
