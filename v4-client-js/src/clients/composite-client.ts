@@ -39,6 +39,7 @@ import { IndexerClient } from './indexer-client';
 import { UserError } from './lib/errors';
 import { generateRegistry } from './lib/registry';
 import LocalWallet from './modules/local-wallet';
+import { Post } from './modules/post';
 import { SubaccountInfo } from './subaccount';
 import { BroadcastMode, OrderBatch } from './types';
 import { ValidatorClient } from './validator-client';
@@ -703,35 +704,36 @@ export class CompositeClient {
   }
 
   /**
- * @description Batch cancel short term orders using marketId to clobPairId translation.
- *
- * @param subaccount The subaccount to cancel the order from
- * @param shortTermOrders The list of short term order batches to cancel with marketId
- * @param goodTilBlock The goodTilBlock of the order to cancel
- * @returns The transaction hash.
- */
-async batchCancelShortTermOrdersWithMarketId(
-  subaccount: SubaccountInfo,
-  shortTermOrders: OrderBatchWithMarketId[],
-  goodTilBlock: number,
-  broadcastMode?: BroadcastMode,
-): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
-  const orderBatches = await Promise.all(
-    shortTermOrders.map(async ({ marketId, clobPairId, clientIds }) => ({
-      clobPairId: (
-        clobPairId ??
-        (await this.indexerClient.markets.getPerpetualMarkets(marketId)).markets[marketId]
-      ).clobPairId, 
-      clientIds }))
-  );
+   * @description Batch cancel short term orders using marketId to clobPairId translation.
+   *
+   * @param subaccount The subaccount to cancel the order from
+   * @param shortTermOrders The list of short term order batches to cancel with marketId
+   * @param goodTilBlock The goodTilBlock of the order to cancel
+   * @returns The transaction hash.
+   */
+  async batchCancelShortTermOrdersWithMarketId(
+    subaccount: SubaccountInfo,
+    shortTermOrders: OrderBatchWithMarketId[],
+    goodTilBlock: number,
+    broadcastMode?: BroadcastMode,
+  ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
+    const orderBatches = await Promise.all(
+      shortTermOrders.map(async ({ marketId, clobPairId, clientIds }) => ({
+        clobPairId: (
+          clobPairId ??
+          (await this.indexerClient.markets.getPerpetualMarkets(marketId)).markets[marketId]
+        ).clobPairId,
+        clientIds,
+      })),
+    );
 
-  return this.validatorClient.post.batchCancelShortTermOrders(
-    subaccount,
-    orderBatches,
-    goodTilBlock,
-    broadcastMode
-  );
-}
+    return this.validatorClient.post.batchCancelShortTermOrders(
+      subaccount,
+      orderBatches,
+      goodTilBlock,
+      broadcastMode,
+    );
+  }
 
   /**
    * @description Batch cancel short term orders using clobPairId.
@@ -1049,6 +1051,31 @@ async batchCancelShortTermOrdersWithMarketId(
     const signature = await this.sign(subaccount.wallet, () => msgs, true);
 
     return Buffer.from(signature).toString('base64');
+  }
+
+  // vaults
+  // for v0 we are just exposing the exact same api as validatorClient.post since we don't need any extra functionality
+
+  async depositToMegavault(
+    ...args: Parameters<Post['depositToMegavault']>
+  ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
+    return this.validatorClient.post.depositToMegavault(...args);
+  }
+
+  depositToMegavaultMessage(...args: Parameters<Post['depositToMegavaultMsg']>): EncodeObject {
+    return this.validatorClient.post.depositToMegavaultMsg(...args);
+  }
+
+  async withdrawFromMegavault(
+    ...args: Parameters<Post['withdrawFromMegavault']>
+  ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
+    return this.validatorClient.post.withdrawFromMegavault(...args);
+  }
+
+  withdrawFromMegavaultMessage(
+    ...args: Parameters<Post['withdrawFromMegavaultMsg']>
+  ): EncodeObject {
+    return this.validatorClient.post.withdrawFromMegavaultMsg(...args);
   }
 
   /**
