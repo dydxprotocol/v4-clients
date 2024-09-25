@@ -69,6 +69,16 @@ export class ValidatorClient {
     this._post.setSelectedGasDenom(gasDenom);
   }
 
+
+  /**
+   * @description populate account number cache in the Post module for performance.
+   */
+  populateAccountNumberCache(address: string): Promise<void> {
+    if (!this._post) throw new Error('Post module not initialized');
+
+    return this._post.populateAccountNumberCache(address);
+  }
+
   private async initialize(): Promise<void> {
     const tendermint37Client: Tendermint37Client = await Tendermint37Client.connect(
       this.config.restEndpoint,
