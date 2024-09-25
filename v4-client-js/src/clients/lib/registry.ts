@@ -15,6 +15,10 @@ import {
   MsgDepositToSubaccount,
 } from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/sending/transfer';
 import { MsgCreateTransfer } from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/sending/tx';
+import {
+  MsgDepositToMegavault,
+  MsgWithdrawFromMegavault,
+} from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/vault/tx';
 
 import {
   TYPE_URL_MSG_PLACE_ORDER,
@@ -28,6 +32,8 @@ import {
   TYPE_URL_MSG_WITHDRAW_FROM_SUBACCOUNT,
   TYPE_URL_MSG_DEPOSIT_TO_SUBACCOUNT,
   TYPE_URL_BATCH_CANCEL,
+  TYPE_URL_MSG_DEPOSIT_TO_MEGAVAULT,
+  TYPE_URL_MSG_WITHDRAW_FROM_MEGAVAULT,
 } from '../constants';
 
 export const registry: ReadonlyArray<[string, GeneratedType]> = [];
@@ -49,6 +55,9 @@ export function generateRegistry(): Registry {
     // prices
     [TYPE_URL_MSG_CREATE_ORACLE_MARKET, MsgCreateOracleMarket as GeneratedType],
 
+    // vaults
+    [TYPE_URL_MSG_DEPOSIT_TO_MEGAVAULT, MsgDepositToMegavault as GeneratedType],
+    [TYPE_URL_MSG_WITHDRAW_FROM_MEGAVAULT, MsgWithdrawFromMegavault as GeneratedType],
     // sending
     [TYPE_URL_MSG_CREATE_TRANSFER, MsgCreateTransfer as GeneratedType],
     [TYPE_URL_MSG_WITHDRAW_FROM_SUBACCOUNT, MsgWithdrawFromSubaccount as GeneratedType],

@@ -94,6 +94,10 @@ export const TYPE_URL_MSG_WITHDRAW_FROM_SUBACCOUNT =
   '/dydxprotocol.sending.MsgWithdrawFromSubaccount';
 export const TYPE_URL_MSG_DEPOSIT_TO_SUBACCOUNT = '/dydxprotocol.sending.MsgDepositToSubaccount';
 
+// x/vault
+export const TYPE_URL_MSG_DEPOSIT_TO_MEGAVAULT = '/dydxprotocol.vault.MsgDepositToMegavault';
+export const TYPE_URL_MSG_WITHDRAW_FROM_MEGAVAULT = '/dydxprotocol.vault.MsgWithdrawFromMegavault';
+
 // x/staking
 export const TYPE_URL_MSG_DELEGATE = '/cosmos.staking.v1beta1.MsgDelegate';
 export const TYPE_URL_MSG_UNDELEGATE = '/cosmos.staking.v1beta1.MsgUndelegate';
@@ -106,6 +110,7 @@ export const TYPE_URL_MSG_WITHDRAW_DELEGATOR_REWARD =
 // The following are same across different networks / deployments.
 export const GOV_MODULE_ADDRESS = 'dydx10d07y265gmmuvt4z0w9aw880jnsr700jnmapky';
 export const DELAYMSG_MODULE_ADDRESS = 'dydx1mkkvp26dngu6n8rmalaxyp3gwkjuzztq5zx6tr';
+export const MEGAVAULT_MODULE_ADDRESS = 'dydx18tkxrnrkqc2t0lr3zxr5g6a4hdvqksylxqje4r';
 
 // ------------ Market Statistic Day Types ------------
 export enum MarketStatisticDay {
@@ -177,8 +182,8 @@ export enum TimePeriod {
 }
 
 export enum PnlTickInterval {
-  HOUR = "hour",
-  day = "day",
+  HOUR = 'hour',
+  day = 'day',
 }
 
 // ------------ API Defaults ------------

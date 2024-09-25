@@ -812,4 +812,59 @@ export class Post {
   withdrawDelegatorRewardMsg(delegator: string, validator: string): EncodeObject {
     return this.composer.composeMsgWithdrawDelegatorReward(delegator, validator);
   }
+
+  // vaults
+  async depositToMegavault(
+    subaccount: SubaccountInfo,
+    quoteQuantums: Uint8Array,
+    broadcastMode?: BroadcastMode,
+  ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
+    const msg = await this.depositToMegavaultMsg(
+      subaccount.address,
+      subaccount.subaccountNumber,
+      quoteQuantums,
+    );
+    return this.send(
+      subaccount.wallet,
+      () => Promise.resolve([msg]),
+      false,
+      undefined,
+      undefined,
+      broadcastMode,
+    );
+  }
+
+  depositToMegavaultMsg(
+    ...args: Parameters<Composer['composeMsgDepositToMegavault']>
+  ): EncodeObject {
+    return this.composer.composeMsgDepositToMegavault(...args);
+  }
+
+  async withdrawFromMegavault(
+    subaccount: SubaccountInfo,
+    shares: Uint8Array,
+    minQuoteQuantums: Uint8Array,
+    broadcastMode?: BroadcastMode,
+  ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
+    const msg = await this.withdrawFromMegavaultMsg(
+      subaccount.address,
+      subaccount.subaccountNumber,
+      shares,
+      minQuoteQuantums,
+    );
+    return this.send(
+      subaccount.wallet,
+      () => Promise.resolve([msg]),
+      false,
+      undefined,
+      undefined,
+      broadcastMode,
+    );
+  }
+
+  withdrawFromMegavaultMsg(
+    ...args: Parameters<Composer['composeMsgWithdrawFromMegavault']>
+  ): EncodeObject {
+    return this.composer.composeMsgWithdrawFromMegavault(...args);
+  }
 }
