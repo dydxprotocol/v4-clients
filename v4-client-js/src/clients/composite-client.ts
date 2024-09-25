@@ -13,6 +13,7 @@ import { parseUnits } from 'ethers';
 import Long from 'long';
 import protobuf from 'protobufjs';
 
+import { bigIntToBytes } from '../lib/helpers';
 import { isStatefulOrder, verifyOrderFlags } from '../lib/validation';
 import { GovAddNewMarketParams, OrderFlags } from '../types';
 import {
@@ -39,11 +40,9 @@ import { IndexerClient } from './indexer-client';
 import { UserError } from './lib/errors';
 import { generateRegistry } from './lib/registry';
 import LocalWallet from './modules/local-wallet';
-import { Post } from './modules/post';
 import { SubaccountInfo } from './subaccount';
 import { BroadcastMode, OrderBatch } from './types';
 import { ValidatorClient } from './validator-client';
-import { bigIntToBytes } from '../lib/helpers';
 
 // Required for encoding and decoding queries that are of type Long.
 // Must be done once but since the individal modules should be usable
