@@ -109,6 +109,11 @@ export class CompositeClient {
     this._validatorClient.setSelectedGasDenom(gasDenom);
   }
 
+  async populateAccountNumberCache(address: string): Promise<void> {
+    if (!this._validatorClient) throw new Error('Validator client not initialized');
+    await this._validatorClient.populateAccountNumberCache(address);
+  }
+
   /**
    * @description Sign a list of messages with a wallet.
    * the calling function is responsible for creating the messages.
