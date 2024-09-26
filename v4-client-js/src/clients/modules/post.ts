@@ -870,10 +870,10 @@ export class Post {
 
   async registerAffiliate(
     subaccount: SubaccountInfo,
-    referee: string,
+    affiliate: string,
     broadcastMode?: BroadcastMode,
   ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
-    const msg = this.composer.composeMsgRegisterAffiliate(subaccount.address, referee);
+    const msg = this.composer.composeMsgRegisterAffiliate(subaccount.address, affiliate);
     return this.send(
       subaccount.wallet,
       () => Promise.resolve([msg]),
