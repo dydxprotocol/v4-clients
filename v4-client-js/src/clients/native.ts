@@ -1352,3 +1352,41 @@ export async function setSelectedGasDenom(gasDenom: string): Promise<string> {
     return wrappedError(error);
   }
 }
+
+export async function getMegavaultOwnerShares(payload: string): Promise<string> {
+  try {
+    const client = globalThis.client;
+    if (client === undefined) {
+      throw new UserError('client is not connected. Call connectClient() first');
+    }
+    const json = JSON.parse(payload);
+    const address = json.address;
+    if (address === undefined) {
+      throw new UserError('address is not set');
+    }
+    const response =
+      await globalThis.client?.validatorClient.get.getMegavaultOwnerShares(address);
+    return encodeJson(response);
+  } catch (e) {
+    return wrappedError(e);
+  }
+}
+
+export async function getMegavaultWithdrawalInfo(payload: string): Promise<string> {
+  try {
+    const client = globalThis.client;
+    if (client === undefined) {
+      throw new UserError('client is not connected. Call connectClient() first');
+    }
+    const json = JSON.parse(payload);
+    const address = json.address;
+    if (address === undefined) {
+      throw new UserError('address is not set');
+    }
+    const response =
+      await globalThis.client?.validatorClient.get.getMegavaultWithdrawalInfo(address);
+    return encodeJson(response);
+  } catch (e) {
+    return wrappedError(e);
+  }
+}
