@@ -223,6 +223,7 @@ export class ValidatorConfig {
   public denoms: DenomConfig;
   public broadcastOptions?: BroadcastOptions;
   public defaultClientMemo?: string;
+  public useTimestampNonce?: boolean;
 
   constructor(
     restEndpoint: string,
@@ -230,6 +231,7 @@ export class ValidatorConfig {
     denoms: DenomConfig,
     broadcastOptions?: BroadcastOptions,
     defaultClientMemo?: string,
+    useTimestampNonce?: boolean,
   ) {
     this.restEndpoint = restEndpoint?.endsWith('/') ? restEndpoint.slice(0, -1) : restEndpoint;
     this.chainId = chainId;
@@ -237,6 +239,7 @@ export class ValidatorConfig {
     this.denoms = denoms;
     this.broadcastOptions = broadcastOptions;
     this.defaultClientMemo = defaultClientMemo;
+    this.useTimestampNonce = useTimestampNonce;
   }
 }
 
