@@ -572,7 +572,7 @@ export class Get {
     return AffiliateModule.AffiliateInfoResponse.decode(data);
   }
 
-  async getReferredBy(address: string): Promise<AffiliateModule.ReferredByRequest> {
+  async getReferredBy(address: string): Promise<AffiliateModule.ReferredByResponse> {
     const requestData = Uint8Array.from(
       AffiliateModule.ReferredByRequest.encode({
         address,
@@ -581,7 +581,7 @@ export class Get {
 
     const data = await this.sendQuery('/dydxprotocol.affiliates.Query/ReferredBy', requestData);
 
-    return AffiliateModule.ReferredByRequest.decode(data);
+    return AffiliateModule.ReferredByResponse.decode(data);
   }
 
   async getAllAffiliateTiers(): Promise<AffiliateModule.AllAffiliateTiersResponse> {
