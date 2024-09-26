@@ -7,6 +7,7 @@ import {
   MsgDelegate,
   MsgUndelegate,
 } from '@dydxprotocol/v4-proto/src/codegen/cosmos/staking/v1beta1/tx';
+import { MsgRegisterAffiliate } from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/affiliates/tx';
 import { ClobPair_Status } from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/clob/clob_pair';
 import {
   MsgBatchCancel,
@@ -66,7 +67,6 @@ import {
   MsgDepositToSubaccount,
   MsgWithdrawFromSubaccount,
 } from './proto-includes';
-import { MsgRegisterAffiliate } from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/affiliates/tx';
 
 protobuf.util.Long = Long;
 protobuf.configure();
