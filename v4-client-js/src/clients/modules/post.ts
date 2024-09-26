@@ -116,6 +116,7 @@ export class Post {
     account?: () => Promise<Account>,
   ): Promise<StdFee> {
     let msgs: EncodeObject[];
+    // protocol expects timestamp nonce in UTC milliseconds, which is the unit returned by Date.now()
     let sequence = Date.now();
 
     if (this.useTimestampNonce) {
@@ -235,6 +236,7 @@ export class Post {
     gasPrice: GasPrice = this.getGasPrice(),
     memo?: string,
   ): Promise<Uint8Array> {
+    // protocol expects timestamp nonce in UTC milliseconds, which is the unit returned by Date.now()
     const sequence = this.useTimestampNonce ? Date.now() : account.sequence;
     // Simulate transaction if no fee is specified.
     const fee: StdFee = zeroFee
@@ -262,7 +264,7 @@ export class Post {
   public async account(address: string, orderFlags?: OrderFlags): Promise<Account> {
     if (orderFlags === OrderFlags.SHORT_TERM || this.useTimestampNonce) {
       if (this.accountNumberCache.has(address)) {
-        // For SHORT_TERM orders and when timestamp nonce is enabled, the sequence doesn't matter
+        // If order is SHORT_TERM or if timestamp nonce is enabled, the sequence doesn't matter
         return this.accountNumberCache.get(address)!;
       }
     }
