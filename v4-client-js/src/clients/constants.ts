@@ -23,6 +23,7 @@ export const MAINNET_CHAIN_ID = 'dydx-mainnet-1';
 // ------------ API URLs ------------
 export enum IndexerApiHost {
   TESTNET = 'https://indexer.v4testnet.dydx.exchange/',
+  STAGING = 'https://indexer.v4staging.dydx.exchange/',
   LOCAL = 'http://localhost:3002',
   // For the deployment by DYDX token holders
   MAINNET = 'https://indexer.dydx.trade',
@@ -30,6 +31,7 @@ export enum IndexerApiHost {
 
 export enum IndexerWSHost {
   TESTNET = 'wss://dydx-testnet.imperator.co/v4/ws',
+  STAGING = 'wss://indexer.v4staging.dydx.exchange/v4/ws',
   LOCAL = 'ws://localhost:3003',
   // For the deployment by DYDX token holders
   MAINNET = 'wss://indexer.dydx.trade/v4/ws',
@@ -41,6 +43,7 @@ export enum FaucetApiHost {
 
 export enum ValidatorApiHost {
   TESTNET = 'https://test-dydx.kingnodes.com',
+  STAGING = 'https://validator.v4staging.dydx.exchange',
   LOCAL = 'http://localhost:26657',
   // For the deployment by DYDX token holders
   MAINNET = 'https://dydx-ops-rpc.kingnodes.com:443',
@@ -260,6 +263,24 @@ export class Network {
       'Client Example',
     );
     return new Network('testnet', indexerConfig, validatorConfig);
+  }
+
+  static staging(): Network {
+    const indexerConfig = new IndexerConfig(IndexerApiHost.STAGING, IndexerWSHost.STAGING);
+    const validatorConfig = new ValidatorConfig(
+      ValidatorApiHost.STAGING,
+      TESTNET_CHAIN_ID,
+      {
+        CHAINTOKEN_DENOM: 'adv4tnt',
+        USDC_DENOM: 'ibc/8E27BA2D5493AF5636760E354E46004562C46AB7EC0CC4C1CA14E9E20E2545B5',
+        USDC_GAS_DENOM: 'uusdc',
+        USDC_DECIMALS: 6,
+        CHAINTOKEN_DECIMALS: 18,
+      },
+      undefined,
+      'Client Example',
+    );
+    return new Network('staging', indexerConfig, validatorConfig);
   }
 
   static local(): Network {
