@@ -48,6 +48,7 @@ import {
   TYPE_URL_MSG_WITHDRAW_DELEGATOR_REWARD,
   TYPE_URL_BATCH_CANCEL,
   TYPE_URL_MSG_DEPOSIT_TO_MEGAVAULT,
+  TYPE_URL_MSG_WITHDRAW_FROM_MEGAVAULT,
 } from '../constants';
 import { DenomConfig } from '../types';
 import {
@@ -490,7 +491,7 @@ export class Composer {
     };
 
     return {
-      typeUrl: TYPE_URL_MSG_DEPOSIT_TO_MEGAVAULT,
+      typeUrl: TYPE_URL_MSG_WITHDRAW_FROM_MEGAVAULT,
       value: msg,
     };
   }
