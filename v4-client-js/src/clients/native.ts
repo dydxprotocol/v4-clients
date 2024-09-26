@@ -1352,3 +1352,92 @@ export async function setSelectedGasDenom(gasDenom: string): Promise<string> {
     return wrappedError(error);
   }
 }
+
+export async function getMegavaultOwnerShares(payload: string): Promise<string> {
+  try {
+    const client = globalThis.client;
+    if (client === undefined) {
+      throw new UserError('client is not connected. Call connectClient() first');
+    }
+    const json = JSON.parse(payload);
+    const address = json.address;
+    if (address === undefined) {
+      throw new UserError('address is not set');
+    }
+    const response =
+      await globalThis.client?.validatorClient.get.getMegavaultOwnerShares(address);
+    return encodeJson(response);
+  } catch (e) {
+    return wrappedError(e);
+  }
+}
+
+export async function getMegavaultWithdrawalInfo(
+  sharesToWithdraw: bigint
+): Promise<string> {
+  try {
+    const client = globalThis.client;
+    if (client === undefined) {
+      throw new UserError('client is not connected. Call connectClient() first');
+    }
+    const response =
+      await globalThis.client?.validatorClient.get.getMegavaultWithdrawalInfo(sharesToWithdraw);
+    return encodeJson(response);
+  } catch (e) {
+    return wrappedError(e);
+  }
+}
+
+export async function depositToMegavault(
+  subaccountNumber: number,
+  amountUsdc: number
+): Promise<string> {
+  try {
+    const client = globalThis.client;
+    if (client === undefined) {
+      throw new UserError('client is not connected. Call connectNetwork() first');
+    }
+    const wallet = globalThis.wallet;
+    if (wallet === undefined) {
+      throw new UserError('wallet is not set. Call connectWallet() first');
+    }
+    const subaccount = new SubaccountInfo(wallet, subaccountNumber);
+    const tx = await client.depositToMegavault(
+      subaccount,
+      amountUsdc,
+      Method.BroadcastTxCommit,
+    );
+    return encodeJson(tx);
+  } catch (error) {
+    return wrappedError(error);
+  }
+}
+
+export async function withdrawFromMegavault(
+  subaccountNumber: number,
+  shares: number,
+  minAmount: number,
+): Promise<string> {
+  try {
+    const client = globalThis.client;
+    if (client === undefined) {
+      throw new UserError('client is not connected. Call connectNetwork() first');
+    }
+    const wallet = globalThis.wallet;
+    if (wallet === undefined) {
+      throw new UserError('wallet is not set. Call connectWallet() first');
+    }
+    const subaccount = new SubaccountInfo(wallet, subaccountNumber);
+    const tx = await client.withdrawFromMegavault(
+      subaccount,
+      shares,
+      minAmount,
+      Method.BroadcastTxCommit,
+    );
+    return encodeJson(tx);
+  } catch (error) {
+    return wrappedError(error);
+  }
+}
+
+
