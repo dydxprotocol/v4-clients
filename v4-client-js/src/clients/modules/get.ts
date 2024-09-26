@@ -13,6 +13,7 @@ import { Any } from 'cosmjs-types/google/protobuf/any';
 import Long from 'long';
 import protobuf from 'protobufjs';
 
+import { bigIntToBytes } from '../../lib/helpers';
 import { PAGE_REQUEST } from '../constants';
 import { UnexpectedClientError } from '../lib/errors';
 import {
@@ -30,6 +31,7 @@ import {
   StakingModule,
   StatsModule,
   SubaccountsModule,
+  VaultModule,
 } from './proto-includes';
 import { TendermintClient } from './tendermintClient';
 
@@ -520,6 +522,42 @@ export class Get {
     const data = await this.sendQuery('/dydxprotocol.ratelimit.Query/CapacityByDenom', requestData);
 
     return RateLimitModule.QueryCapacityByDenomResponse.decode(data);
+  }
+
+  async getMegavaultOwnerShares(
+    address: string,
+  ): Promise<VaultModule.QueryMegavaultOwnerSharesResponse> {
+    const requestData: Uint8Array = Uint8Array.from(
+      VaultModule.QueryMegavaultOwnerSharesRequest.encode({
+        address,
+      }).finish(),
+    );
+
+    const data: Uint8Array = await this.sendQuery(
+      '/dydxprotocol.vault.Query/MegavaultOwnerShares',
+      requestData,
+    );
+
+    return VaultModule.QueryMegavaultOwnerSharesResponse.decode(data);
+  }
+
+  async getMegavaultWithdrawalInfo(
+    sharesToWithdraw: bigint,
+  ): Promise<VaultModule.QueryMegavaultWithdrawalInfoResponse> {
+    const requestData: Uint8Array = Uint8Array.from(
+      VaultModule.QueryMegavaultWithdrawalInfoRequest.encode({
+        sharesToWithdraw: {
+          numShares: bigIntToBytes(sharesToWithdraw),
+        },
+      }).finish(),
+    );
+
+    const data: Uint8Array = await this.sendQuery(
+      '/dydxprotocol.vault.Query/MegavaultWithdrawalInfo',
+      requestData,
+    );
+
+    return VaultModule.QueryMegavaultWithdrawalInfoResponse.decode(data);
   }
 
   async getAffiliateInfo(address: string): Promise<AffiliateModule.AffiliateInfoResponse> {

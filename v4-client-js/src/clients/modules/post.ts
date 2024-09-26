@@ -76,6 +76,18 @@ export class Post {
     );
   }
 
+  /**
+   * @description Retrieves the account number for the given wallet address and populates the accountNumberCache.
+   * The account number is required for txOptions when signing a transaction.
+   * Pre-populating the cache avoids a round-trip request during the first transaction creation in the session, preventing it from being a performance blocker.
+   */
+  public async populateAccountNumberCache(address: string): Promise<void> {
+    if (this.accountNumberCache.has(address)) return;
+
+    const account = await this.get.getAccount(address);
+    this.accountNumberCache.set(address, account);
+  }
+
   setSelectedGasDenom(selectedGasDenom: SelectedGasDenom): void {
     this.selectedGasDenom = selectedGasDenom;
   }
@@ -799,6 +811,61 @@ export class Post {
 
   withdrawDelegatorRewardMsg(delegator: string, validator: string): EncodeObject {
     return this.composer.composeMsgWithdrawDelegatorReward(delegator, validator);
+  }
+
+  // vaults
+  async depositToMegavault(
+    subaccount: SubaccountInfo,
+    quoteQuantums: Uint8Array,
+    broadcastMode?: BroadcastMode,
+  ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
+    const msg = await this.depositToMegavaultMsg(
+      subaccount.address,
+      subaccount.subaccountNumber,
+      quoteQuantums,
+    );
+    return this.send(
+      subaccount.wallet,
+      () => Promise.resolve([msg]),
+      false,
+      undefined,
+      undefined,
+      broadcastMode,
+    );
+  }
+
+  depositToMegavaultMsg(
+    ...args: Parameters<Composer['composeMsgDepositToMegavault']>
+  ): EncodeObject {
+    return this.composer.composeMsgDepositToMegavault(...args);
+  }
+
+  async withdrawFromMegavault(
+    subaccount: SubaccountInfo,
+    shares: Uint8Array,
+    minQuoteQuantums: Uint8Array,
+    broadcastMode?: BroadcastMode,
+  ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
+    const msg = await this.withdrawFromMegavaultMsg(
+      subaccount.address,
+      subaccount.subaccountNumber,
+      shares,
+      minQuoteQuantums,
+    );
+    return this.send(
+      subaccount.wallet,
+      () => Promise.resolve([msg]),
+      false,
+      undefined,
+      undefined,
+      broadcastMode,
+    );
+  }
+
+  withdrawFromMegavaultMsg(
+    ...args: Parameters<Composer['composeMsgWithdrawFromMegavault']>
+  ): EncodeObject {
+    return this.composer.composeMsgWithdrawFromMegavault(...args);
   }
 
   async registerAffiliate(
