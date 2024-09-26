@@ -56,8 +56,8 @@ async function test(): Promise<void> {
     const vaultOwnerShares = await getMegavaultOwnerShares(payload);
     console.log(vaultOwnerShares);
     
-    // const depositResult = await depositToMegavault(0, 2);
-    // console.log(depositResult);
+    const depositResult = await depositToMegavault(0, 2);
+    console.log(depositResult);
 
     const withdrawResult = await withdrawFromMegavault(0, 1, 0);
     console.log(withdrawResult);
