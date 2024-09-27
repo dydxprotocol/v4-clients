@@ -35,6 +35,7 @@ import LocalWallet from './modules/local-wallet';
 import { NobleClient } from './noble-client';
 import { SubaccountInfo } from './subaccount';
 import { OrderFlags, SquidIBCPayload } from './types';
+import { parseToPrimitives } from './helpers/request-helpers';
 
 declare global {
   // eslint-disable-next-line vars-on-top, no-var
@@ -1366,7 +1367,7 @@ export async function getMegavaultOwnerShares(payload: string): Promise<string> 
     }
     const response =
       await globalThis.client?.validatorClient.get.getMegavaultOwnerShares(address);
-    return encodeJson(response);
+    return encodeJson(parseToPrimitives(response));
   } catch (e) {
     return wrappedError(e);
   }
@@ -1382,7 +1383,7 @@ export async function getMegavaultWithdrawalInfo(
     }
     const response =
       await globalThis.client?.validatorClient.get.getMegavaultWithdrawalInfo(sharesToWithdraw);
-    return encodeJson(response);
+      return encodeJson(parseToPrimitives(response));
   } catch (e) {
     return wrappedError(e);
   }
@@ -1407,7 +1408,7 @@ export async function depositToMegavault(
       amountUsdc,
       Method.BroadcastTxCommit,
     );
-    return encodeJson(tx);
+    return encodeJson(parseToPrimitives(tx));
   } catch (error) {
     return wrappedError(error);
   }
@@ -1434,10 +1435,8 @@ export async function withdrawFromMegavault(
       minAmount,
       Method.BroadcastTxCommit,
     );
-    return encodeJson(tx);
+    return encodeJson(parseToPrimitives(tx));
   } catch (error) {
     return wrappedError(error);
   }
 }
-
-
