@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /*
     Native app can call JS functions with primitives.
 */
@@ -30,12 +31,12 @@ import {
   SelectedGasDenom,
 } from './constants';
 import { FaucetClient } from './faucet-client';
+import { parseToPrimitives } from './helpers/request-helpers';
 import { Response } from './lib/axios';
 import LocalWallet from './modules/local-wallet';
 import { NobleClient } from './noble-client';
 import { SubaccountInfo } from './subaccount';
 import { OrderFlags, SquidIBCPayload } from './types';
-import { parseToPrimitives } from './helpers/request-helpers';
 
 declare global {
   // eslint-disable-next-line vars-on-top, no-var
