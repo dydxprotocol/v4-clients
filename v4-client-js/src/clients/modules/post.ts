@@ -873,14 +873,18 @@ export class Post {
     affiliate: string,
     broadcastMode?: BroadcastMode,
   ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
-    const msg = this.composer.composeMsgRegisterAffiliate(subaccount.address, affiliate);
+    const msg = this.registerAffiliateMsg(subaccount.address, affiliate);
     return this.send(
       subaccount.wallet,
       () => Promise.resolve([msg]),
       false,
-      this.defaultGasPrice,
+      undefined,
       undefined,
       broadcastMode,
     );
+  }
+
+  registerAffiliateMsg(...args: Parameters<Composer['composeMsgRegisterAffiliate']>): EncodeObject {
+    return this.composer.composeMsgRegisterAffiliate(...args);
   }
 }
