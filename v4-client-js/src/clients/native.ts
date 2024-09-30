@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /*
     Native app can call JS functions with primitives.
 */
@@ -30,6 +31,7 @@ import {
   SelectedGasDenom,
 } from './constants';
 import { FaucetClient } from './faucet-client';
+import { parseToPrimitives } from './helpers/request-helpers';
 import { Response } from './lib/axios';
 import LocalWallet from './modules/local-wallet';
 import { NobleClient } from './noble-client';
@@ -1348,6 +1350,93 @@ export async function setSelectedGasDenom(gasDenom: string): Promise<string> {
     }
     await client.setSelectedGasDenom(gasDenom as SelectedGasDenom);
     return encodeJson('success');
+  } catch (error) {
+    return wrappedError(error);
+  }
+}
+
+export async function getMegavaultOwnerShares(payload: string): Promise<string> {
+  try {
+    const client = globalThis.client;
+    if (client === undefined) {
+      throw new UserError('client is not connected. Call connectClient() first');
+    }
+    const json = JSON.parse(payload);
+    const address = json.address;
+    if (address === undefined) {
+      throw new UserError('address is not set');
+    }
+    const response =
+      await globalThis.client?.validatorClient.get.getMegavaultOwnerShares(address);
+    return encodeJson(parseToPrimitives(response));
+  } catch (e) {
+    return wrappedError(e);
+  }
+}
+
+export async function getMegavaultWithdrawalInfo(
+  sharesToWithdraw: bigint
+): Promise<string> {
+  try {
+    const client = globalThis.client;
+    if (client === undefined) {
+      throw new UserError('client is not connected. Call connectClient() first');
+    }
+    const response =
+      await globalThis.client?.validatorClient.get.getMegavaultWithdrawalInfo(sharesToWithdraw);
+      return encodeJson(parseToPrimitives(response));
+  } catch (e) {
+    return wrappedError(e);
+  }
+}
+
+export async function depositToMegavault(
+  subaccountNumber: number,
+  amountUsdc: number
+): Promise<string> {
+  try {
+    const client = globalThis.client;
+    if (client === undefined) {
+      throw new UserError('client is not connected. Call connectNetwork() first');
+    }
+    const wallet = globalThis.wallet;
+    if (wallet === undefined) {
+      throw new UserError('wallet is not set. Call connectWallet() first');
+    }
+    const subaccount = new SubaccountInfo(wallet, subaccountNumber);
+    const tx = await client.depositToMegavault(
+      subaccount,
+      amountUsdc,
+      Method.BroadcastTxCommit,
+    );
+    return encodeJson(parseToPrimitives(tx));
+  } catch (error) {
+    return wrappedError(error);
+  }
+}
+
+export async function withdrawFromMegavault(
+  subaccountNumber: number,
+  shares: number,
+  minAmount: number,
+): Promise<string> {
+  try {
+    const client = globalThis.client;
+    if (client === undefined) {
+      throw new UserError('client is not connected. Call connectNetwork() first');
+    }
+    const wallet = globalThis.wallet;
+    if (wallet === undefined) {
+      throw new UserError('wallet is not set. Call connectWallet() first');
+    }
+    const subaccount = new SubaccountInfo(wallet, subaccountNumber);
+    const tx = await client.withdrawFromMegavault(
+      subaccount,
+      shares,
+      minAmount,
+      Method.BroadcastTxCommit,
+    );
+    return encodeJson(parseToPrimitives(tx));
   } catch (error) {
     return wrappedError(error);
   }
