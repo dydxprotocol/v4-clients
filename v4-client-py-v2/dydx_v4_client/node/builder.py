@@ -16,7 +16,7 @@ from v4_proto.cosmos.tx.v1beta1.tx_pb2 import (
     TxBody,
 )
 
-from dydx_v4_client.node.fee import calculate_fee
+from dydx_v4_client.node.fee import calculate_fee, Denom
 from dydx_v4_client.wallet import Wallet
 
 
@@ -60,7 +60,7 @@ class Builder:
     memo: str = "Client Example"
 
     def calculate_fee(self, gas_used) -> Fee:
-        gas_limit, amount = calculate_fee(gas_used)
+        gas_limit, amount = calculate_fee(gas_used, Denom(self.denomination))
         return self.fee(gas_limit, self.coin(amount))
 
     def coin(self, amount: int) -> Coin:

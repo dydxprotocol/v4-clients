@@ -70,7 +70,7 @@ from v4_proto.dydxprotocol.clob.tx_pb2 import OrderBatch
 
 from dydx_v4_client.network import NodeConfig
 from dydx_v4_client.node.builder import Builder
-from dydx_v4_client.node.fee import Coin, Fee, calculate_fee
+from dydx_v4_client.node.fee import Coin, Fee, calculate_fee, Denom
 from dydx_v4_client.node.message import (
     cancel_order,
     deposit,
@@ -589,7 +589,7 @@ class MutatingNodeClient(QueryNodeClient):
         Returns:
             Fee: The calculated fee.
         """
-        gas_limit, amount = calculate_fee(gas_used)
+        gas_limit, amount = calculate_fee(gas_used, Denom(self.builder.denomination))
         return Fee(gas_limit, [Coin(amount, self.builder.denomination)])
 
 
