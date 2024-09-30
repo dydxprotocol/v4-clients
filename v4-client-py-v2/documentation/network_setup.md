@@ -15,8 +15,8 @@ from dydx_v4_client.network import make_mainnet
 
 NETWORK = make_mainnet(
     node_url="NODE_URL",  # No 'https://' prefix
-    rest_indexer="REST_INDEXER",
-    websocket_indexer="WEBSOCKET_INDEXER"
+    rest_indexer="REST_INDEXER_URL",
+    websocket_indexer="WEBSOCKET_INDEXER_URL"
 )
 ```
 
