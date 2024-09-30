@@ -1,5 +1,6 @@
 const path = require('path');
 
+const NodePolyfillPlugin = require('node-polyfill-webpack-plugin');
 const webpack = require('webpack');
 
 module.exports = {
@@ -45,5 +46,6 @@ module.exports = {
         },
       },
     }),
+    new NodePolyfillPlugin(),
   ],
 };
