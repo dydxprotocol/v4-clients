@@ -12,7 +12,7 @@ export const BROADCAST_TIMEOUT_MS: number = 8_000;
 export const API_TIMEOUT_DEFAULT_MS: number = 5_000;
 
 // Gas
-export const GAS_MULTIPLIER: number = 1.8;
+export const GAS_MULTIPLIER: number = 1.4;
 
 export const ZERO_FEE: StdFee = {
   amount: [],
