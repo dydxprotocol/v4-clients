@@ -15,6 +15,9 @@ import {
   withdraw,
   withdrawToIBC,
   wrappedError,
+  getMegavaultOwnerShares,
+  depositToMegavault,
+  withdrawFromMegavault,
 } from '../src/clients/native';
 import { DYDX_TEST_ADDRESS, DYDX_TEST_MNEMONIC } from './constants';
 
@@ -46,6 +49,19 @@ async function test(): Promise<void> {
     const payload = `{ "address": "${DYDX_TEST_ADDRESS}" }`;
     const userStats = await getUserStats(payload);
     console.log(userStats);
+
+    const balances1 = await getAccountBalances();
+    console.log(balances1);
+
+    const vaultOwnerShares = await getMegavaultOwnerShares(payload);
+    console.log(vaultOwnerShares);
+    
+    const depositResult = await depositToMegavault(0, 2);
+    console.log(depositResult);
+
+    const withdrawResult = await withdrawFromMegavault(0, 1, 0);
+    console.log(withdrawResult);
+
 
     const sendTokenPayload = {
       subaccountNumber: 0,

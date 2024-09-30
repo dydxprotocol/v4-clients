@@ -13,6 +13,7 @@ import { Any } from 'cosmjs-types/google/protobuf/any';
 import Long from 'long';
 import protobuf from 'protobufjs';
 
+import { bigIntToBytes } from '../../lib/helpers';
 import { PAGE_REQUEST } from '../constants';
 import { UnexpectedClientError } from '../lib/errors';
 import {
@@ -29,6 +30,7 @@ import {
   StakingModule,
   StatsModule,
   SubaccountsModule,
+  VaultModule,
 } from './proto-includes';
 import { TendermintClient } from './tendermintClient';
 
@@ -415,8 +417,7 @@ export class Get {
     const requestData = Uint8Array.from(
       DistributionModule.QueryDelegationTotalRewardsRequest.encode({
         delegatorAddress,
-      })
-        .finish(),
+      }).finish(),
     );
 
     const data: Uint8Array = await this.sendQuery(
@@ -491,9 +492,13 @@ export class Get {
     return GovV1Module.QueryProposalsResponse.decode(data);
   }
 
-  async getWithdrawalAndTransferGatingStatus(perpetualId: number): Promise<SubaccountsModule.QueryGetWithdrawalAndTransfersBlockedInfoResponse> {
+  async getWithdrawalAndTransferGatingStatus(
+    perpetualId: number,
+  ): Promise<SubaccountsModule.QueryGetWithdrawalAndTransfersBlockedInfoResponse> {
     const requestData = Uint8Array.from(
-      SubaccountsModule.QueryGetWithdrawalAndTransfersBlockedInfoRequest.encode({ perpetualId }).finish(),
+      SubaccountsModule.QueryGetWithdrawalAndTransfersBlockedInfoRequest.encode({
+        perpetualId,
+      }).finish(),
     );
 
     const data = await this.sendQuery(
@@ -516,6 +521,42 @@ export class Get {
     const data = await this.sendQuery('/dydxprotocol.ratelimit.Query/CapacityByDenom', requestData);
 
     return RateLimitModule.QueryCapacityByDenomResponse.decode(data);
+  }
+
+  async getMegavaultOwnerShares(
+    address: string,
+  ): Promise<VaultModule.QueryMegavaultOwnerSharesResponse> {
+    const requestData: Uint8Array = Uint8Array.from(
+      VaultModule.QueryMegavaultOwnerSharesRequest.encode({
+        address,
+      }).finish(),
+    );
+
+    const data: Uint8Array = await this.sendQuery(
+      '/dydxprotocol.vault.Query/MegavaultOwnerShares',
+      requestData,
+    );
+
+    return VaultModule.QueryMegavaultOwnerSharesResponse.decode(data);
+  }
+
+  async getMegavaultWithdrawalInfo(
+    sharesToWithdraw: bigint,
+  ): Promise<VaultModule.QueryMegavaultWithdrawalInfoResponse> {
+    const requestData: Uint8Array = Uint8Array.from(
+      VaultModule.QueryMegavaultWithdrawalInfoRequest.encode({
+        sharesToWithdraw: {
+          numShares: bigIntToBytes(sharesToWithdraw),
+        },
+      }).finish(),
+    );
+
+    const data: Uint8Array = await this.sendQuery(
+      '/dydxprotocol.vault.Query/MegavaultWithdrawalInfo',
+      requestData,
+    );
+
+    return VaultModule.QueryMegavaultWithdrawalInfoResponse.decode(data);
   }
 
   private async sendQuery(requestUrl: string, requestData: Uint8Array): Promise<Uint8Array> {

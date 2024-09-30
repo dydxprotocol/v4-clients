@@ -11,6 +11,7 @@ export * as RewardsModule from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/
 export * as StakingModule from '@dydxprotocol/v4-proto/src/codegen/cosmos/staking/v1beta1/query';
 export * as BridgeModule from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/bridge/query';
 export * as DistributionModule from '@dydxprotocol/v4-proto/src/codegen/cosmos/distribution/v1beta1/query';
+export * as VaultModule from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/vault/query';
 
 export * from '@dydxprotocol/v4-proto/src/codegen/cosmos/base/abci/v1beta1/abci';
 export * from '@dydxprotocol/v4-proto/src/codegen/cosmos/gov/v1/gov';

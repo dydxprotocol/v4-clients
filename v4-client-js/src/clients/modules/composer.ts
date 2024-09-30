@@ -18,6 +18,10 @@ import { MsgDelayMessage } from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol
 import { PerpetualMarketType } from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/perpetuals/perpetual';
 import { MsgCreatePerpetual } from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/perpetuals/tx';
 import { MsgCreateOracleMarket } from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/prices/tx';
+import {
+  MsgDepositToMegavault,
+  MsgWithdrawFromMegavault,
+} from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/vault/tx';
 import { MsgSend } from 'cosmjs-types/cosmos/bank/v1beta1/tx';
 import { Coin } from 'cosmjs-types/cosmos/base/v1beta1/coin';
 import { Any } from 'cosmjs-types/google/protobuf/any';
@@ -43,6 +47,8 @@ import {
   TYPE_URL_MSG_UNDELEGATE,
   TYPE_URL_MSG_WITHDRAW_DELEGATOR_REWARD,
   TYPE_URL_BATCH_CANCEL,
+  TYPE_URL_MSG_DEPOSIT_TO_MEGAVAULT,
+  TYPE_URL_MSG_WITHDRAW_FROM_MEGAVAULT,
 } from '../constants';
 import { DenomConfig } from '../types';
 import {
@@ -441,6 +447,51 @@ export class Composer {
 
     return {
       typeUrl: TYPE_URL_MSG_SUBMIT_PROPOSAL,
+      value: msg,
+    };
+  }
+
+  // ------------ x/vault ------------
+  public composeMsgDepositToMegavault(
+    address: string,
+    subaccountNumber: number,
+    quoteQuantums: Uint8Array,
+  ): EncodeObject {
+    const subaccountId: SubaccountId = {
+      owner: address,
+      number: subaccountNumber,
+    };
+
+    const msg: MsgDepositToMegavault = {
+      quoteQuantums,
+      subaccountId,
+    };
+
+    return {
+      typeUrl: TYPE_URL_MSG_DEPOSIT_TO_MEGAVAULT,
+      value: msg,
+    };
+  }
+
+  public composeMsgWithdrawFromMegavault(
+    address: string,
+    subaccountNumber: number,
+    shares: Uint8Array,
+    minQuoteQuantums: Uint8Array,
+  ): EncodeObject {
+    const subaccountId: SubaccountId = {
+      owner: address,
+      number: subaccountNumber,
+    };
+
+    const msg: MsgWithdrawFromMegavault = {
+      minQuoteQuantums,
+      shares: { numShares: shares },
+      subaccountId,
+    };
+
+    return {
+      typeUrl: TYPE_URL_MSG_WITHDRAW_FROM_MEGAVAULT,
       value: msg,
     };
   }

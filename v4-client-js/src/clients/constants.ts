@@ -23,6 +23,7 @@ export const MAINNET_CHAIN_ID = 'dydx-mainnet-1';
 // ------------ API URLs ------------
 export enum IndexerApiHost {
   TESTNET = 'https://indexer.v4testnet.dydx.exchange/',
+  STAGING = 'https://indexer.v4staging.dydx.exchange/',
   LOCAL = 'http://localhost:3002',
   // For the deployment by DYDX token holders
   MAINNET = 'https://indexer.dydx.trade',
@@ -30,6 +31,7 @@ export enum IndexerApiHost {
 
 export enum IndexerWSHost {
   TESTNET = 'wss://dydx-testnet.imperator.co/v4/ws',
+  STAGING = 'wss://indexer.v4staging.dydx.exchange/v4/ws',
   LOCAL = 'ws://localhost:3003',
   // For the deployment by DYDX token holders
   MAINNET = 'wss://indexer.dydx.trade/v4/ws',
@@ -41,6 +43,7 @@ export enum FaucetApiHost {
 
 export enum ValidatorApiHost {
   TESTNET = 'https://test-dydx.kingnodes.com',
+  STAGING = 'https://validator.v4staging.dydx.exchange',
   LOCAL = 'http://localhost:26657',
   // For the deployment by DYDX token holders
   MAINNET = 'https://dydx-ops-rpc.kingnodes.com:443',
@@ -94,6 +97,10 @@ export const TYPE_URL_MSG_WITHDRAW_FROM_SUBACCOUNT =
   '/dydxprotocol.sending.MsgWithdrawFromSubaccount';
 export const TYPE_URL_MSG_DEPOSIT_TO_SUBACCOUNT = '/dydxprotocol.sending.MsgDepositToSubaccount';
 
+// x/vault
+export const TYPE_URL_MSG_DEPOSIT_TO_MEGAVAULT = '/dydxprotocol.vault.MsgDepositToMegavault';
+export const TYPE_URL_MSG_WITHDRAW_FROM_MEGAVAULT = '/dydxprotocol.vault.MsgWithdrawFromMegavault';
+
 // x/staking
 export const TYPE_URL_MSG_DELEGATE = '/cosmos.staking.v1beta1.MsgDelegate';
 export const TYPE_URL_MSG_UNDELEGATE = '/cosmos.staking.v1beta1.MsgUndelegate';
@@ -106,6 +113,7 @@ export const TYPE_URL_MSG_WITHDRAW_DELEGATOR_REWARD =
 // The following are same across different networks / deployments.
 export const GOV_MODULE_ADDRESS = 'dydx10d07y265gmmuvt4z0w9aw880jnsr700jnmapky';
 export const DELAYMSG_MODULE_ADDRESS = 'dydx1mkkvp26dngu6n8rmalaxyp3gwkjuzztq5zx6tr';
+export const MEGAVAULT_MODULE_ADDRESS = 'dydx18tkxrnrkqc2t0lr3zxr5g6a4hdvqksylxqje4r';
 
 // ------------ Market Statistic Day Types ------------
 export enum MarketStatisticDay {
@@ -176,6 +184,11 @@ export enum TimePeriod {
   SEVEN_DAYS = 'SEVEN_DAYS',
 }
 
+export enum PnlTickInterval {
+  HOUR = 'hour',
+  day = 'day',
+}
+
 // ------------ API Defaults ------------
 export const DEFAULT_API_TIMEOUT: number = 3_000;
 
@@ -210,6 +223,7 @@ export class ValidatorConfig {
   public denoms: DenomConfig;
   public broadcastOptions?: BroadcastOptions;
   public defaultClientMemo?: string;
+  public useTimestampNonce?: boolean;
 
   constructor(
     restEndpoint: string,
@@ -217,6 +231,7 @@ export class ValidatorConfig {
     denoms: DenomConfig,
     broadcastOptions?: BroadcastOptions,
     defaultClientMemo?: string,
+    useTimestampNonce?: boolean,
   ) {
     this.restEndpoint = restEndpoint?.endsWith('/') ? restEndpoint.slice(0, -1) : restEndpoint;
     this.chainId = chainId;
@@ -224,6 +239,7 @@ export class ValidatorConfig {
     this.denoms = denoms;
     this.broadcastOptions = broadcastOptions;
     this.defaultClientMemo = defaultClientMemo;
+    this.useTimestampNonce = useTimestampNonce;
   }
 }
 
@@ -250,6 +266,24 @@ export class Network {
       'Client Example',
     );
     return new Network('testnet', indexerConfig, validatorConfig);
+  }
+
+  static staging(): Network {
+    const indexerConfig = new IndexerConfig(IndexerApiHost.STAGING, IndexerWSHost.STAGING);
+    const validatorConfig = new ValidatorConfig(
+      ValidatorApiHost.STAGING,
+      TESTNET_CHAIN_ID,
+      {
+        CHAINTOKEN_DENOM: 'adv4tnt',
+        USDC_DENOM: 'ibc/8E27BA2D5493AF5636760E354E46004562C46AB7EC0CC4C1CA14E9E20E2545B5',
+        USDC_GAS_DENOM: 'uusdc',
+        USDC_DECIMALS: 6,
+        CHAINTOKEN_DECIMALS: 18,
+      },
+      undefined,
+      'Client Example',
+    );
+    return new Network('staging', indexerConfig, validatorConfig);
   }
 
   static local(): Network {
