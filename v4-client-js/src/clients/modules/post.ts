@@ -58,7 +58,13 @@ export class Post {
   public useTimestampNonce: boolean = false;
   private accountNumberCache: Map<string, Account> = new Map();
 
-  constructor(get: Get, chainId: string, denoms: DenomConfig, defaultClientMemo?: string, useTimestampNonce?: boolean) {
+  constructor(
+    get: Get,
+    chainId: string,
+    denoms: DenomConfig,
+    defaultClientMemo?: string,
+    useTimestampNonce?: boolean,
+  ) {
     this.get = get;
     this.chainId = chainId;
     this.registry = generateRegistry();
@@ -129,13 +135,7 @@ export class Post {
       sequence = msgsAndAccount[1].sequence;
     }
 
-    return this.simulateTransaction(
-      wallet.pubKey!,
-      sequence,
-      msgs,
-      gasPrice,
-      memo,
-    );
+    return this.simulateTransaction(wallet.pubKey!, sequence, msgs, gasPrice, memo);
   }
 
   /**
@@ -177,6 +177,7 @@ export class Post {
     memo?: string,
     broadcastMode?: BroadcastMode,
     account?: () => Promise<Account>,
+    gasAdjustment: number = GAS_MULTIPLIER,
   ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
     const msgsPromise = messaging();
     const accountPromise = account ? await account() : this.account(wallet.address!);
@@ -191,6 +192,7 @@ export class Post {
       gasPrice,
       memo ?? this.defaultClientMemo,
       broadcastMode ?? this.defaultBroadcastMode(msgs),
+      gasAdjustment,
     );
   }
 
@@ -235,6 +237,7 @@ export class Post {
     zeroFee: boolean,
     gasPrice: GasPrice = this.getGasPrice(),
     memo?: string,
+    gasAdjustment: number = GAS_MULTIPLIER,
   ): Promise<Uint8Array> {
     // protocol expects timestamp nonce in UTC milliseconds, which is the unit returned by Date.now()
     const sequence = this.useTimestampNonce ? Date.now() : account.sequence;
@@ -244,7 +247,14 @@ export class Post {
           amount: [],
           gas: '1000000',
         }
-      : await this.simulateTransaction(wallet.pubKey!, sequence, messages, gasPrice, memo);
+      : await this.simulateTransaction(
+          wallet.pubKey!,
+          sequence,
+          messages,
+          gasPrice,
+          memo,
+          gasAdjustment,
+        );
 
     const txOptions: TransactionOptions = {
       sequence,
@@ -286,6 +296,7 @@ export class Post {
     gasPrice: GasPrice = this.getGasPrice(),
     memo?: string,
     broadcastMode?: BroadcastMode,
+    gasAdjustment: number = GAS_MULTIPLIER,
   ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
     const signedTransaction = await this.signTransaction(
       wallet,
@@ -294,6 +305,7 @@ export class Post {
       zeroFee,
       gasPrice,
       memo,
+      gasAdjustment,
     );
     return this.sendSignedTransaction(signedTransaction, broadcastMode);
   }
@@ -326,6 +338,7 @@ export class Post {
     messages: readonly EncodeObject[],
     gasPrice: GasPrice = this.getGasPrice(),
     memo?: string,
+    gasAdjustment: number = GAS_MULTIPLIER,
   ): Promise<StdFee> {
     // Get simulated response.
     const encodedMessages: Any[] = messages.map((message: EncodeObject) =>
@@ -347,7 +360,7 @@ export class Post {
     const gasEstimate: number = Uint53.fromString(
       simulationResponse.gasInfo.gasUsed.toString(),
     ).toNumber();
-    const fee = calculateFee(Math.floor(gasEstimate * GAS_MULTIPLIER), gasPrice);
+    const fee = calculateFee(Math.floor(gasEstimate * gasAdjustment), gasPrice);
 
     // TODO(TRCL-2550): Temporary workaround before IBC denom is supported in '@cosmjs/stargate'.
     // The '@cosmjs/stargate' does not support denom with '/', so currently GAS_PRICE is
@@ -880,5 +893,28 @@ export class Post {
     ...args: Parameters<Composer['composeMsgWithdrawFromMegavault']>
   ): EncodeObject {
     return this.composer.composeMsgWithdrawFromMegavault(...args);
+  }
+
+  async registerAffiliate(
+    subaccount: SubaccountInfo,
+    affiliate: string,
+    broadcastMode?: BroadcastMode,
+  ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
+    const msg = this.registerAffiliateMsg(subaccount.address, affiliate);
+    const gasAdjustment = 1.8;
+    return this.send(
+      subaccount.wallet,
+      () => Promise.resolve([msg]),
+      false,
+      undefined,
+      undefined,
+      broadcastMode,
+      undefined,
+      gasAdjustment,
+    );
+  }
+
+  registerAffiliateMsg(...args: Parameters<Composer['composeMsgRegisterAffiliate']>): EncodeObject {
+    return this.composer.composeMsgRegisterAffiliate(...args);
   }
 }

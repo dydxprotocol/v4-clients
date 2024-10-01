@@ -7,6 +7,7 @@ import {
   MsgDelegate,
   MsgUndelegate,
 } from '@dydxprotocol/v4-proto/src/codegen/cosmos/staking/v1beta1/tx';
+import { MsgRegisterAffiliate } from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/affiliates/tx';
 import { ClobPair_Status } from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/clob/clob_pair';
 import {
   MsgBatchCancel,
@@ -47,6 +48,7 @@ import {
   TYPE_URL_MSG_UNDELEGATE,
   TYPE_URL_MSG_WITHDRAW_DELEGATOR_REWARD,
   TYPE_URL_BATCH_CANCEL,
+  TYPE_URL_MSG_REGISTER_AFFILIATE,
   TYPE_URL_MSG_DEPOSIT_TO_MEGAVAULT,
   TYPE_URL_MSG_WITHDRAW_FROM_MEGAVAULT,
 } from '../constants';
@@ -532,6 +534,19 @@ export class Composer {
 
     return {
       typeUrl: TYPE_URL_MSG_WITHDRAW_DELEGATOR_REWARD,
+      value: msg,
+    };
+  }
+
+  // ------------ x/affiliates ------------
+  public composeMsgRegisterAffiliate(referee: string, affiliate: string): EncodeObject {
+    const msg: MsgRegisterAffiliate = {
+      referee,
+      affiliate,
+    };
+
+    return {
+      typeUrl: TYPE_URL_MSG_REGISTER_AFFILIATE,
       value: msg,
     };
   }
