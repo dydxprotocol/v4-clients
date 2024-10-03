@@ -50,3 +50,38 @@ Or provide the URL directly to the client, e.g.:
 ```python
 indexer = IndexerClient("https://dydx-testnet.imperator.co")
 ```
+
+#### Using Non-SSL Connections
+The SDK supports both secure (SSL) and insecure (non-SSL) connections. By default, secure connections are used. However, for scenarios where you need to use a non-SSL node (e.g., local development), you can use the make_insecure function:
+
+###### Create a secure version of the testnet configuration
+```
+from functools import partial
+
+make_testnet_secure = partial(
+    make_secure,
+    testnet_node,
+    rest_indexer="SECURE_REST_INDEXER_URL",
+    websocket_indexer="SECURE_WEBSOCKET_INDEXER_URL",
+    node_url="SECURE_NODE_URL",
+)
+TESTNET_SECURE = make_testnet_secure()
+```
+
+###### Create an insecure version of the testnet configuration
+```
+from functools import partial
+
+make_testnet_insecure = partial(
+    make_insecure,
+    testnet_node,
+    rest_indexer="INSECURE_REST_INDEXER_URL",
+    websocket_indexer="INSECURE_WEBSOCKET_INDEXER_URL",
+    node_url="INSECURE_NODE_URL",
+)
+TESTNET_INSECURE = make_testnet_insecure()
+```
+The difference between `make_secure` and `make_insecure` lies in the type of gRPC channel they use:
+
+- `make_secure`: This function uses `secure_channel`, which creates an SSL-encrypted connection. It's suitable for production environments and when connecting to nodes over public networks.
+- `make_insecure`: This function uses `insecure_channel`, which creates a non-SSL connection. It's typically used for local development or in trusted network environments where encryption isn't necessary.
