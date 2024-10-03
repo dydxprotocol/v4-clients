@@ -35,7 +35,7 @@ async def place_market_order(size: float):
         order_type=OrderType.MARKET,
         side=Order.Side.SIDE_SELL,
         size=size,
-        price=0,  # Recommend Set to oracle price - 5% or lower for SELL, oracle price + 5% for BUY
+        price=0,  # Recommend set to oracle price - 5% or lower for SELL, oracle price + 5% for BUY
         time_in_force=Order.TimeInForce.TIME_IN_FORCE_UNSPECIFIED,
         reduce_only=False,
         good_til_block=current_block + 10,
