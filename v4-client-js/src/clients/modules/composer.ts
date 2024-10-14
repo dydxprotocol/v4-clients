@@ -51,6 +51,7 @@ import {
   TYPE_URL_MSG_REGISTER_AFFILIATE,
   TYPE_URL_MSG_DEPOSIT_TO_MEGAVAULT,
   TYPE_URL_MSG_WITHDRAW_FROM_MEGAVAULT,
+  TYPE_URL_MSG_CREATE_MARKET_PERMISSIONLESS,
 } from '../constants';
 import { DenomConfig } from '../types';
 import {
@@ -62,6 +63,7 @@ import {
   MsgPlaceOrder,
   MsgCancelOrder,
   SubaccountId,
+  MsgCreateMarketPermissionless,
   MsgCreateTransfer,
   Transfer,
   MsgDepositToSubaccount,
@@ -549,6 +551,28 @@ export class Composer {
       typeUrl: TYPE_URL_MSG_REGISTER_AFFILIATE,
       value: msg,
     };
+  }
+
+  // ------------ x/listing ------------
+  public composeMsgCreateMarketPermissionless(
+    address: string,
+    ticker: string,
+    subaccountNumber: number,
+  ): EncodeObject {
+    const subaccountId: SubaccountId = {
+      owner: address,
+      number: subaccountNumber,
+    };
+
+    const msg: MsgCreateMarketPermissionless = {
+      ticker,
+      subaccountId
+    };
+
+    return {
+      typeUrl: TYPE_URL_MSG_CREATE_MARKET_PERMISSIONLESS,
+      value: msg,
+    }
   }
 
   // ------------ util ------------

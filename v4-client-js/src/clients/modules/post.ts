@@ -917,4 +917,23 @@ export class Post {
   registerAffiliateMsg(...args: Parameters<Composer['composeMsgRegisterAffiliate']>): EncodeObject {
     return this.composer.composeMsgRegisterAffiliate(...args);
   }
+
+  launchMarketMsg(...args: Parameters<Composer['composeMsgCreateMarketPermissionless']>): EncodeObject {
+    return this.composer.composeMsgCreateMarketPermissionless(...args);
+  }
+
+  async createMarketPermissionless(ticker: string, subaccount: SubaccountInfo, broadcastMode?: BroadcastMode, gasAdjustment?: number, memo?: string): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
+    const msg = this.launchMarketMsg(subaccount.address, ticker, subaccount.subaccountNumber);
+  
+    return this.send(
+      subaccount.wallet,
+      () => Promise.resolve([msg]),
+      false,
+      undefined,
+      memo,
+      broadcastMode,
+      undefined,
+      gasAdjustment,
+    );
+  }
 }
