@@ -1207,4 +1207,14 @@ export class CompositeClient {
 
     return this.send(wallet, () => msg, false, undefined, memo);
   }
+
+  async createMarketPermissionless(
+    subaccount: SubaccountInfo,
+    ticker: string,
+    broadcastMode?: BroadcastMode,
+    gasAdjustment?: number,
+    memo?: string,
+  ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
+    return this.validatorClient.post.createMarketPermissionless(ticker, subaccount, broadcastMode, gasAdjustment, memo);
+  }
 }
