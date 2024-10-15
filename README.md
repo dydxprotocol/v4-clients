@@ -22,6 +22,12 @@ Python client for dYdX Chain. Developed and maintained by the Nethermind team.
 - [Saul M.](https://github.com/samtin0x)
 - [Piotr P.](https://github.com/piwonskp)
 
+## v4-client-rs
+Rust client for dYdX Chain. Developed and maintained by the Nethermind team.
+- [Emanuel V.](https://github.com/v0-e)
+- [Denis K.](https://github.com/therustmonk)
+- [Maksim R.](https://github.com/maksimryndin)
+
 ## v4-client-cpp (Third Party Client)
 To pull the latest C++ client, run `git submodule update --init --recursive`
 

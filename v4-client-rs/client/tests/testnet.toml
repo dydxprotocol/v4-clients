@@ -1,0 +1,17 @@
+[node]
+# You can select other gRPC endpoints from [the list](https://docs.dydx.exchange/infrastructure_providers-network/resources#full-node-endpoints).
+endpoint = "https://test-dydx-grpc.kingnodes.com"
+chain_id = "dydx-testnet-4"
+fee_denom = "ibc/8E27BA2D5493AF5636760E354E46004562C46AB7EC0CC4C1CA14E9E20E2545B5"
+
+[indexer]
+http.endpoint = "https://indexer.v4testnet.dydx.exchange"
+ws.endpoint = "wss://indexer.v4testnet.dydx.exchange/v4/ws"
+
+[faucet] # optional
+endpoint = "https://faucet.v4testnet.dydx.exchange"
+
+[noble] # optional
+endpoint = "http://noble-testnet-grpc.polkachu.com:21590"
+chain_id = "grand-1"
+fee_denom = "uusdc"
