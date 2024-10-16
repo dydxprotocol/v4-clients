@@ -9,6 +9,7 @@ import {
   MsgBatchCancel,
 } from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/clob/tx';
 import { MsgDelayMessage } from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/delaymsg/tx';
+import { MsgCreateMarketPermissionless } from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/listing/tx';
 import { MsgCreatePerpetual } from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/perpetuals/tx';
 import { MsgCreateOracleMarket } from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/prices/tx';
 import {
@@ -38,7 +39,6 @@ import {
   TYPE_URL_MSG_REGISTER_AFFILIATE,
   TYPE_URL_MSG_CREATE_MARKET_PERMISSIONLESS,
 } from '../constants';
-import { MsgCreateMarketPermissionless } from '../types';
 
 export const registry: ReadonlyArray<[string, GeneratedType]> = [];
 export function generateRegistry(): Registry {
