@@ -31,6 +31,10 @@ confidence-threshold = 0.8
 allow = ["AGPL-3.0"]
 name = "v4-proto-rs"
 version = "*"
+[[licenses.exceptions]]
+allow = ["AGPL-3.0"]
+name = "dydx-v4-rust"
+version = "*"
 
 [[licenses.clarify]]
 name = "ring"

@@ -13,20 +13,16 @@ on:
 
 jobs:
   test:
-
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./v4-client-rs
 
     steps:
       - name: Checkout source code
         uses: actions/checkout@v4
         with:
           fetch-depth: 1
-
-      - name: Install Rust
-        uses: actions-rs/toolchain@v1
-        with:
-            toolchain: stable
-            components: rustfmt, clippy
 
       - name: Install protoc # for dev dependencies only
         run: sudo apt install -y protobuf-compiler
@@ -39,18 +35,15 @@ jobs:
 
       - name: Linter
         shell: bash
-        run: |
-          cargo clippy -- -D warnings
+        run: cargo clippy -- -D warnings
 
       - name: Install audit
         shell: bash
-        run: |
-          cargo install cargo-deny
+        run: cargo install cargo-deny
 
       - name: Security audit, licenses
         shell: bash
-        run: |
-          cargo deny check licenses advisories sources
+        run: cargo deny check licenses advisories sources
 
       - name: Test
         run: cargo test
