@@ -108,7 +108,7 @@ mod tests {
 
     #[test]
     fn token_denom_parse() {
-        // Test if hardcoded denomination is parsed correctly
+        // Test if hardcoded denominations are parsed correctly
         let _usdc = Token::Usdc(0.into()).denom();
         let _dydx = Token::Dydx(0.into()).denom();
         let _dydx_tnt = Token::DydxTnt(0.into()).denom();
