@@ -36,7 +36,9 @@ import {
   TYPE_URL_MSG_DEPOSIT_TO_MEGAVAULT,
   TYPE_URL_MSG_WITHDRAW_FROM_MEGAVAULT,
   TYPE_URL_MSG_REGISTER_AFFILIATE,
+  TYPE_URL_MSG_CREATE_MARKET_PERMISSIONLESS,
 } from '../constants';
+import { MsgCreateMarketPermissionless } from '../types';
 
 export const registry: ReadonlyArray<[string, GeneratedType]> = [];
 export function generateRegistry(): Registry {
@@ -50,6 +52,9 @@ export function generateRegistry(): Registry {
 
     // delaymsg
     [TYPE_URL_MSG_DELAY_MESSAGE, MsgDelayMessage as GeneratedType],
+
+    // listing
+    [TYPE_URL_MSG_CREATE_MARKET_PERMISSIONLESS, MsgCreateMarketPermissionless as GeneratedType],
 
     // perpetuals
     [TYPE_URL_MSG_CREATE_PERPETUAL, MsgCreatePerpetual as GeneratedType],
