@@ -80,7 +80,6 @@ async def test_order(
         placed = await node_client.place_order(
             wallet,
             test_order,
-
         )
         assert_successful_broadcast(placed)
 
