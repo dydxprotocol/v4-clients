@@ -13,7 +13,7 @@ from dydx_v4_client.node.message import (
 )
 from tests.conftest import TEST_ADDRESS
 
-SERIALIZED_PLACE_ORDER = b"\nF\n1\n-\n+dydx14zzueazeh0hj67cghhf9jypslcf9sh2n5k6art\x18@\x10\x01\x18\x80\xad\xe2\x04 \x80\xa0\xbe\x81\x95\x015\t\x9cYf"
+SERIALIZED_PLACE_ORDER = b"\nH\n1\n-\n+dydx14zzueazeh0hj67cghhf9jypslcf9sh2n5k6art\x18@\x10\x01\x18\x80\xad\xe2\x04 \x80\xa0\xbe\x81\x95\x015\t\x9cYfH\x02"
 SERIALIZED_CANCEL_ORDER = (
     b"\n1\n-\n+dydx14zzueazeh0hj67cghhf9jypslcf9sh2n5k6art\x18@\x1d\t\x9cYf"
 )

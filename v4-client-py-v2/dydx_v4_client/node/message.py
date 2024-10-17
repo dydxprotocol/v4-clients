@@ -15,6 +15,7 @@ from v4_proto.dydxprotocol.clob.tx_pb2 import MsgBatchCancel, OrderBatch
 
 PY_V2_CLIENT_ID = 2
 
+
 def order(
     order_id: OrderId,
     side: Order.Side,
