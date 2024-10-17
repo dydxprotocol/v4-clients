@@ -13,6 +13,7 @@ from v4_proto.dydxprotocol.sending.tx_pb2 import MsgCreateTransfer
 from v4_proto.dydxprotocol.subaccounts.subaccount_pb2 import SubaccountId
 from v4_proto.dydxprotocol.clob.tx_pb2 import MsgBatchCancel, OrderBatch
 
+PY_V2_CLIENT_ID = 2
 
 def order(
     order_id: OrderId,
@@ -36,7 +37,7 @@ def order(
         good_til_block_time=good_til_block_time,
         time_in_force=time_in_force,
         reduce_only=reduce_only,
-        client_metadata=client_metadata,
+        client_metadata=PY_V2_CLIENT_ID,
         condition_type=condition_type,
         conditional_order_trigger_subticks=conditional_order_trigger_subticks,
     )
