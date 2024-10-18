@@ -62,7 +62,7 @@ make_testnet = partial(
 )
 TESTNET = make_testnet()
 TESTNET_FAUCET = "https://faucet.v4testnet.dydx.exchange"
-TESTNET_NOBLE = "https://rpc.testnet.noble.strange.love"
+TESTNET_NOBLE = "https://noble-testnet-rpc.polkachu.com"
 
 
 local_node = partial(
