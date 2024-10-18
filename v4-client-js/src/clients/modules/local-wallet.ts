@@ -42,7 +42,7 @@ export default class LocalWallet {
       registry: generateRegistry(),
     });
     const accountData = await signer.getAccounts();
-    const firstAccount = accountData[0];
+    const firstAccount = accountData[0]!;
     this.accounts = [...accountData];
     this.address = firstAccount.address;
     this.pubKey = encodeSecp256k1Pubkey(firstAccount.pubkey);
