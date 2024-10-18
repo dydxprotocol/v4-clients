@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /*
     Native app can call JS functions with primitives.
 */
@@ -30,6 +31,7 @@ import {
   SelectedGasDenom,
 } from './constants';
 import { FaucetClient } from './faucet-client';
+import { parseToPrimitives } from './helpers/request-helpers';
 import { Response } from './lib/axios';
 import LocalWallet from './modules/local-wallet';
 import { NobleClient } from './noble-client';
@@ -1366,7 +1368,7 @@ export async function getMegavaultOwnerShares(payload: string): Promise<string> 
     }
     const response =
       await globalThis.client?.validatorClient.get.getMegavaultOwnerShares(address);
-    return encodeJson(response);
+    return encodeJson(parseToPrimitives(response));
   } catch (e) {
     return wrappedError(e);
   }
@@ -1382,7 +1384,7 @@ export async function getMegavaultWithdrawalInfo(
     }
     const response =
       await globalThis.client?.validatorClient.get.getMegavaultWithdrawalInfo(sharesToWithdraw);
-    return encodeJson(response);
+      return encodeJson(parseToPrimitives(response));
   } catch (e) {
     return wrappedError(e);
   }
@@ -1407,7 +1409,7 @@ export async function depositToMegavault(
       amountUsdc,
       Method.BroadcastTxCommit,
     );
-    return encodeJson(tx);
+    return encodeJson(parseToPrimitives(tx));
   } catch (error) {
     return wrappedError(error);
   }
@@ -1434,10 +1436,8 @@ export async function withdrawFromMegavault(
       minAmount,
       Method.BroadcastTxCommit,
     );
-    return encodeJson(tx);
+    return encodeJson(parseToPrimitives(tx));
   } catch (error) {
     return wrappedError(error);
   }
 }
-
-

@@ -11,6 +11,7 @@ from dydx_v4_client.network import TESTNET
 from dydx_v4_client.node.client import NodeClient
 from dydx_v4_client.node.market import Market, since_now
 from dydx_v4_client.wallet import Wallet
+from dydx_v4_client.indexer.rest.constants import OrderType
 from tests.conftest import DYDX_TEST_MNEMONIC, TEST_ADDRESS
 
 MARKET_ID = "ETH-USD"
@@ -44,8 +45,9 @@ async def test():
         ),
     )
     print(place)
-    # FIXME(piwonskp): Remove
+
     wallet.sequence += 1
+    time.sleep(5)
 
     time.sleep(5)
 

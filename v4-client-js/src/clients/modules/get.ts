@@ -17,6 +17,7 @@ import { bigIntToBytes } from '../../lib/helpers';
 import { PAGE_REQUEST } from '../constants';
 import { UnexpectedClientError } from '../lib/errors';
 import {
+  AffiliateModule,
   BridgeModule,
   ClobModule,
   DistributionModule,
@@ -557,6 +558,56 @@ export class Get {
     );
 
     return VaultModule.QueryMegavaultWithdrawalInfoResponse.decode(data);
+  }
+
+  async getAffiliateInfo(address: string): Promise<AffiliateModule.AffiliateInfoResponse> {
+    const requestData = Uint8Array.from(
+      AffiliateModule.AffiliateInfoRequest.encode({
+        address,
+      }).finish(),
+    );
+
+    const data = await this.sendQuery('/dydxprotocol.affiliates.Query/AffiliateInfo', requestData);
+
+    return AffiliateModule.AffiliateInfoResponse.decode(data);
+  }
+
+  async getReferredBy(address: string): Promise<AffiliateModule.ReferredByResponse> {
+    const requestData = Uint8Array.from(
+      AffiliateModule.ReferredByRequest.encode({
+        address,
+      }).finish(),
+    );
+
+    const data = await this.sendQuery('/dydxprotocol.affiliates.Query/ReferredBy', requestData);
+
+    return AffiliateModule.ReferredByResponse.decode(data);
+  }
+
+  async getAllAffiliateTiers(): Promise<AffiliateModule.AllAffiliateTiersResponse> {
+    const requestData = Uint8Array.from(
+      AffiliateModule.AllAffiliateTiersRequest.encode({}).finish(),
+    );
+
+    const data = await this.sendQuery(
+      '/dydxprotocol.affiliates.Query/AllAffiliateTiers',
+      requestData,
+    );
+
+    return AffiliateModule.AllAffiliateTiersResponse.decode(data);
+  }
+
+  async getAffiliateWhitelist(): Promise<AffiliateModule.AffiliateWhitelistResponse> {
+    const requestData = Uint8Array.from(
+      AffiliateModule.AffiliateWhitelistRequest.encode({}).finish(),
+    );
+
+    const data = await this.sendQuery(
+      '/dydxprotocol.affiliates.Query/AffiliateWhitelist',
+      requestData,
+    );
+
+    return AffiliateModule.AffiliateWhitelistResponse.decode(data);
   }
 
   private async sendQuery(requestUrl: string, requestData: Uint8Array): Promise<Uint8Array> {

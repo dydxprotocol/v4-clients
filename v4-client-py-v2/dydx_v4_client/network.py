@@ -65,7 +65,7 @@ testnet_node = partial(
 make_testnet = partial(
     make_secure,
     testnet_node,
-    rest_indexer="https://dydx-testnet.imperator.co",
+    rest_indexer="https://indexer.v4testnet.dydx.exchange",
     websocket_indexer="wss://indexer.v4testnet.dydx.exchange/v4/ws",
     node_url="test-dydx-grpc.kingnodes.com",
 )

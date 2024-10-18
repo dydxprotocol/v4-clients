@@ -1,5 +1,6 @@
 import { GeneratedType, Registry } from '@cosmjs/proto-signing';
 import { defaultRegistryTypes } from '@cosmjs/stargate';
+import { MsgRegisterAffiliate } from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/affiliates/tx';
 import {
   MsgPlaceOrder,
   MsgCancelOrder,
@@ -8,6 +9,7 @@ import {
   MsgBatchCancel,
 } from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/clob/tx';
 import { MsgDelayMessage } from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/delaymsg/tx';
+import { MsgCreateMarketPermissionless } from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/listing/tx';
 import { MsgCreatePerpetual } from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/perpetuals/tx';
 import { MsgCreateOracleMarket } from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/prices/tx';
 import {
@@ -34,6 +36,8 @@ import {
   TYPE_URL_BATCH_CANCEL,
   TYPE_URL_MSG_DEPOSIT_TO_MEGAVAULT,
   TYPE_URL_MSG_WITHDRAW_FROM_MEGAVAULT,
+  TYPE_URL_MSG_REGISTER_AFFILIATE,
+  TYPE_URL_MSG_CREATE_MARKET_PERMISSIONLESS,
 } from '../constants';
 
 export const registry: ReadonlyArray<[string, GeneratedType]> = [];
@@ -49,6 +53,9 @@ export function generateRegistry(): Registry {
     // delaymsg
     [TYPE_URL_MSG_DELAY_MESSAGE, MsgDelayMessage as GeneratedType],
 
+    // listing
+    [TYPE_URL_MSG_CREATE_MARKET_PERMISSIONLESS, MsgCreateMarketPermissionless as GeneratedType],
+
     // perpetuals
     [TYPE_URL_MSG_CREATE_PERPETUAL, MsgCreatePerpetual as GeneratedType],
 
@@ -58,10 +65,14 @@ export function generateRegistry(): Registry {
     // vaults
     [TYPE_URL_MSG_DEPOSIT_TO_MEGAVAULT, MsgDepositToMegavault as GeneratedType],
     [TYPE_URL_MSG_WITHDRAW_FROM_MEGAVAULT, MsgWithdrawFromMegavault as GeneratedType],
+
     // sending
     [TYPE_URL_MSG_CREATE_TRANSFER, MsgCreateTransfer as GeneratedType],
     [TYPE_URL_MSG_WITHDRAW_FROM_SUBACCOUNT, MsgWithdrawFromSubaccount as GeneratedType],
     [TYPE_URL_MSG_DEPOSIT_TO_SUBACCOUNT, MsgDepositToSubaccount as GeneratedType],
+
+    // affiliates
+    [TYPE_URL_MSG_REGISTER_AFFILIATE, MsgRegisterAffiliate as GeneratedType],
 
     // default types
     ...defaultRegistryTypes,

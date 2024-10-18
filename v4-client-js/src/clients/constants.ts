@@ -85,6 +85,9 @@ export const TYPE_URL_MSG_UPDATE_CLOB_PAIR = '/dydxprotocol.clob.MsgUpdateClobPa
 // x/delaymsg
 export const TYPE_URL_MSG_DELAY_MESSAGE = '/dydxprotocol.delaymsg.MsgDelayMessage';
 
+// x/listing
+export const TYPE_URL_MSG_CREATE_MARKET_PERMISSIONLESS = '/dydxprotocol.listing.MsgCreateMarketPermissionless';
+
 // x/perpetuals
 export const TYPE_URL_MSG_CREATE_PERPETUAL = '/dydxprotocol.perpetuals.MsgCreatePerpetual';
 
@@ -96,6 +99,9 @@ export const TYPE_URL_MSG_CREATE_TRANSFER = '/dydxprotocol.sending.MsgCreateTran
 export const TYPE_URL_MSG_WITHDRAW_FROM_SUBACCOUNT =
   '/dydxprotocol.sending.MsgWithdrawFromSubaccount';
 export const TYPE_URL_MSG_DEPOSIT_TO_SUBACCOUNT = '/dydxprotocol.sending.MsgDepositToSubaccount';
+
+// x/affiliates
+export const TYPE_URL_MSG_REGISTER_AFFILIATE = '/dydxprotocol.affiliates.MsgRegisterAffiliate';
 
 // x/vault
 export const TYPE_URL_MSG_DEPOSIT_TO_MEGAVAULT = '/dydxprotocol.vault.MsgDepositToMegavault';

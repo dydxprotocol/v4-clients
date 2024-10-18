@@ -2,7 +2,8 @@ name: "[v4-client-js] Conventional PR Title"
 on:
   pull_request:
     types: ['opened', 'edited', 'reopened', 'synchronize']
-
+    paths:
+      - 'v4-client-js/**'
 jobs:
   conventional-pr-title:
     runs-on: ubuntu-latest
