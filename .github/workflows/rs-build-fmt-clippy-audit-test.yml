@@ -1,0 +1,49 @@
+name: "[v4-client-rs] Build, Fmt, Clippy, Audit, & Test"
+
+on:
+  pull_request:
+    paths:
+      - 'v4-client-rs/**'
+  push:
+    paths:
+      - 'v4-client-rs/**'
+    branches:
+      - main
+      - "release/*"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./v4-client-rs
+
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Install protoc # for dev dependencies only
+        run: sudo apt install -y protobuf-compiler
+
+      - name: Build
+        run: cargo build
+
+      - name: Check formatting
+        run: cargo fmt -- --check
+
+      - name: Linter
+        shell: bash
+        run: cargo clippy -- -D warnings
+
+      - name: Install audit
+        shell: bash
+        run: cargo install cargo-deny
+
+      - name: Security audit, licenses
+        shell: bash
+        run: cargo deny check licenses advisories sources
+
+      - name: Test
+        run: cargo test

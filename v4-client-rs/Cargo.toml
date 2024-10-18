@@ -1,0 +1,20 @@
+[workspace]
+resolver = "2"
+members = [
+    "client",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+license = "AGPL-3.0"
+
+[workspace.dependencies]
+anyhow = "1"
+async-trait = "0.1"
+bigdecimal = { version = "0.4", features = ["serde"] }
+derive_more = { version = "1", features = ["full"] }
+log = "0.4"
+thiserror = "1"
+tokio = { version = "1.39", features = ["full"] }
+v4-proto-rs = { git = "https://github.com/therustmonk/v4-chain", rev = "a6265bbf4cd9812382a89d32c9304c08551f7bae" }
