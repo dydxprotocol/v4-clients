@@ -15,6 +15,9 @@ from ...chain.aerial.client import LedgerClient, NetworkConfig
 from ...chain.aerial.client.utils import prepare_and_broadcast_basic_transaction
 
 
+PY_V1_CLIENT_ID = 1
+
+
 class Post:
     def __init__(
         self,
@@ -134,7 +137,7 @@ class Post:
             subticks=subticks,
             time_in_force=time_in_force,
             reduce_only=reduce_only,
-            client_metadata=client_metadata,
+            client_metadata=PY_V1_CLIENT_ID,
             condition_type=condition_type,
             conditional_order_trigger_subticks=conditional_order_trigger_subticks,
         )
