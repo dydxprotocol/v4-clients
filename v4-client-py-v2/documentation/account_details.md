@@ -1,6 +1,26 @@
-# Getting Account Order Information
+# Getting Account and Subaccount Information
 
-This guide demonstrates how to retrieve information about your account's orders using the dYdX Python SDK.
+This guide demonstrates how to retrieve information about your account, subaccounts, and orders using the dYdX Python SDK.
+
+## Understanding Accounts and Subaccounts
+
+**Accounts**
+- Your primary identity on dYdX, linked to your blockchain wallet address.
+- Acts as a container for all your trading activities and subaccounts.
+
+**Subaccounts**
+- Separate trading entities within your main account.
+- Each has its own balance, positions, orders, and trading history.
+- Every account starts with subaccount 0; additional subaccounts can be created.
+
+**Key Points**
+- Subaccounts allow segregation of trading strategies and risk management.
+- Losses in one subaccount don't affect others.
+- Useful for separating personal trading, algorithms, or different fund allocations.
+
+**API Usage**
+- Most operations require both the account address and subaccount number.
+- Example: `get_subaccount_orders(address, subaccount_number)`
 
 ## Setting Up
 
@@ -23,7 +43,7 @@ To retrieve all open orders for an account:
 async def get_open_orders(address):
     orders = await client.account.get_subaccount_orders(
         address,
-        0,
+        0, # Subaccount ID
         status="OPEN"
     )
     print("Open orders:", orders)
