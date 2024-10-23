@@ -17,4 +17,4 @@ derive_more = { version = "1", features = ["full"] }
 log = "0.4"
 thiserror = "1"
 tokio = { version = "1.39", features = ["full"] }
-v4-proto-rs = { git = "https://github.com/therustmonk/v4-chain", rev = "a6265bbf4cd9812382a89d32c9304c08551f7bae" }
+v4-proto-rs = { git = "https://github.com/dydxprotocol/v4-chain", rev = "b9fcc408037a3bbe9d5b980a0d453ab49c0eec0f" }
