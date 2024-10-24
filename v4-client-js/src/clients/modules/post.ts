@@ -899,9 +899,9 @@ export class Post {
     subaccount: SubaccountInfo,
     affiliate: string,
     broadcastMode?: BroadcastMode,
+    gasAdjustment?: number,
   ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
     const msg = this.registerAffiliateMsg(subaccount.address, affiliate);
-    const gasAdjustment = 1.8;
     return this.send(
       subaccount.wallet,
       () => Promise.resolve([msg]),
@@ -910,7 +910,7 @@ export class Post {
       undefined,
       broadcastMode,
       undefined,
-      gasAdjustment,
+      gasAdjustment ?? 2,
     );
   }
 
@@ -918,13 +918,21 @@ export class Post {
     return this.composer.composeMsgRegisterAffiliate(...args);
   }
 
-  launchMarketMsg(...args: Parameters<Composer['composeMsgCreateMarketPermissionless']>): EncodeObject {
+  launchMarketMsg(
+    ...args: Parameters<Composer['composeMsgCreateMarketPermissionless']>
+  ): EncodeObject {
     return this.composer.composeMsgCreateMarketPermissionless(...args);
   }
 
-  async createMarketPermissionless(ticker: string, subaccount: SubaccountInfo, broadcastMode?: BroadcastMode, gasAdjustment?: number, memo?: string): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
+  async createMarketPermissionless(
+    ticker: string,
+    subaccount: SubaccountInfo,
+    broadcastMode?: BroadcastMode,
+    gasAdjustment?: number,
+    memo?: string,
+  ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
     const msg = this.launchMarketMsg(subaccount.address, ticker, subaccount.subaccountNumber);
-  
+
     return this.send(
       subaccount.wallet,
       () => Promise.resolve([msg]),
