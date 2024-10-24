@@ -899,7 +899,7 @@ export class Post {
     subaccount: SubaccountInfo,
     affiliate: string,
     broadcastMode?: BroadcastMode,
-    gasAdjustment?: number,
+    gasAdjustment: number = 2,
   ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
     const msg = this.registerAffiliateMsg(subaccount.address, affiliate);
     return this.send(
@@ -910,7 +910,7 @@ export class Post {
       undefined,
       broadcastMode,
       undefined,
-      gasAdjustment ?? 2,
+      gasAdjustment,
     );
   }
 
