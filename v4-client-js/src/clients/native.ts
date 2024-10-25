@@ -439,7 +439,7 @@ export async function withdraw(payload: string): Promise<string> {
     }
 
     const subaccount = new SubaccountInfo(wallet, subaccountNumber);
-    const tx = await client.withdrawFromSubaccount(subaccount, amount, json.recipient);
+    const tx = await client.withdrawFromSubaccount(subaccount, amount, json.recipient, json.memo);
     return encodeJson(tx);
   } catch (error) {
     return wrappedError(error);
@@ -560,7 +560,7 @@ export async function transferNativeToken(payload: string): Promise<string> {
       },
       false,
       client.validatorClient.post.defaultDydxGasPrice,
-      undefined,
+      json.memo,
     );
     return encodeJson(tx);
   } catch (error) {
