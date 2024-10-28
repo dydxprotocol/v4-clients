@@ -5,10 +5,10 @@ use anyhow::Result;
 mod faucet_endpoint_example {
     use super::support::constants::TEST_MNEMONIC;
     use anyhow::{anyhow as err, Error, Result};
-    use dydx_v4_rust::config::ClientConfig;
-    use dydx_v4_rust::faucet::FaucetClient;
-    use dydx_v4_rust::indexer::Usdc;
-    use dydx_v4_rust::node::Wallet;
+    use dydx::config::ClientConfig;
+    use dydx::faucet::FaucetClient;
+    use dydx::indexer::Usdc;
+    use dydx::node::Wallet;
     pub struct FaucetRequester {
         faucet: FaucetClient,
         wallet: Wallet,

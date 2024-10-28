@@ -4,15 +4,15 @@ use async_trait::async_trait;
 use chrono::{DateTime, Utc};
 
 use super::Address;
-use std::collections::HashMap;
-use tonic::{transport::Channel, Request};
-use tower::timeout::Timeout;
-use v4_proto_rs::cosmos_sdk_proto::{
+use dydx_proto::cosmos_sdk_proto::{
     cosmos::auth::v1beta1::{
         query_client::QueryClient as QueryGrpcClient, BaseAccount, QueryAccountRequest,
     },
     traits::Message,
 };
+use std::collections::HashMap;
+use tonic::{transport::Channel, Request};
+use tower::timeout::Timeout;
 
 /// Transaction sequence number validation value used to enable protection against replay attacks.
 #[derive(Clone, Debug)]

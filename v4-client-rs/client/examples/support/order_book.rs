@@ -1,6 +1,6 @@
 use bigdecimal::Zero;
 use derive_more::{Deref, DerefMut};
-use dydx_v4_rust::indexer::{
+use dydx::indexer::{
     Feed, OrderBookResponseObject, OrderbookResponsePriceLevel, OrdersMessage, Price, Quantity,
 };
 use std::collections::BTreeMap;

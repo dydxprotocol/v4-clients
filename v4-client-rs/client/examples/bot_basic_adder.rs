@@ -2,12 +2,12 @@ mod support;
 
 use anyhow::{anyhow as err, Error, Result};
 use bigdecimal::{BigDecimal, One, Signed};
-use dydx_v4_rust::config::ClientConfig;
-use dydx_v4_rust::indexer::{
+use dydx::config::ClientConfig;
+use dydx::indexer::{
     AnyId, Feed, IndexerClient, ListPerpetualMarketsOpts, PerpetualMarket, Price, Quantity,
     SubaccountsMessage, Ticker, TradesMessage,
 };
-use dydx_v4_rust::node::{Account, NodeClient, OrderBuilder, OrderId, OrderSide, Wallet};
+use dydx::node::{Account, NodeClient, OrderBuilder, OrderId, OrderSide, Wallet};
 use std::str::FromStr;
 use support::constants::TEST_MNEMONIC;
 use support::order_book::LiveOrderBook;

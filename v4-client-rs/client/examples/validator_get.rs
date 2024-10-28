@@ -1,7 +1,7 @@
 mod support;
 use anyhow::{Error, Result};
-use dydx_v4_rust::config::ClientConfig;
-use dydx_v4_rust::node::{NodeClient, Wallet};
+use dydx::config::ClientConfig;
+use dydx::node::{NodeClient, Wallet};
 use support::constants::TEST_MNEMONIC;
 
 const ETH_USD_PAIR_ID: u32 = 1;

@@ -6,7 +6,7 @@ mod faucet_tests {
     use env::TestEnv;
 
     use anyhow::Error;
-    use dydx_v4_rust::indexer::Usdc;
+    use dydx::indexer::Usdc;
 
     const FILL_AMOUNT: u64 = 1_000_000;
 

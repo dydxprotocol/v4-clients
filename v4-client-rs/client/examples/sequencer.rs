@@ -3,16 +3,14 @@ use anyhow::{Error, Result};
 use async_trait::async_trait;
 use bigdecimal::BigDecimal;
 use chrono::{TimeDelta, Utc};
-use dydx_v4_rust::config::ClientConfig;
-use dydx_v4_rust::indexer::{
-    Address, ClientId, IndexerClient, PerpetualMarket, Subaccount, Ticker,
-};
-use dydx_v4_rust::node::{sequencer::*, Account, NodeClient, OrderBuilder, OrderSide, Wallet};
+use dydx::config::ClientConfig;
+use dydx::indexer::{Address, ClientId, IndexerClient, PerpetualMarket, Subaccount, Ticker};
+use dydx::node::{sequencer::*, Account, NodeClient, OrderBuilder, OrderSide, Wallet};
+use dydx_proto::dydxprotocol::clob::order::TimeInForce;
 use std::sync::Arc;
 use support::constants::TEST_MNEMONIC;
 use tokio::sync::Mutex;
 use tokio::time::{sleep, Duration};
-use v4_proto_rs::dydxprotocol::clob::order::TimeInForce;
 
 const ETH_USD_TICKER: &str = "ETH-USD";
 

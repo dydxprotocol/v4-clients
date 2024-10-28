@@ -15,20 +15,7 @@ use bigdecimal::{
 use chrono::{TimeDelta, Utc};
 use cosmrs::tx::{self, Tx};
 use derive_more::{Deref, DerefMut};
-pub use error::*;
-#[cfg(feature = "noble")]
-use ibc_proto::{
-    cosmos::base::v1beta1::Coin as IbcProtoCoin,
-    ibc::applications::transfer::v1::MsgTransfer as IbcMsgTransfer,
-};
-use std::iter;
-use tokio::time::{sleep, Duration};
-use tonic::{
-    transport::{Channel, ClientTlsConfig},
-    Code,
-};
-use tower::timeout::Timeout;
-use v4_proto_rs::{
+use dydx_proto::{
     cosmos_sdk_proto::cosmos::{
         auth::v1beta1::query_client::QueryClient as AuthClient,
         bank::v1beta1::{query_client::QueryClient as BankClient, MsgSend},
@@ -58,6 +45,19 @@ use v4_proto_rs::{
     },
     ToAny,
 };
+pub use error::*;
+#[cfg(feature = "noble")]
+use ibc_proto::{
+    cosmos::base::v1beta1::Coin as IbcProtoCoin,
+    ibc::applications::transfer::v1::MsgTransfer as IbcMsgTransfer,
+};
+use std::iter;
+use tokio::time::{sleep, Duration};
+use tonic::{
+    transport::{Channel, ClientTlsConfig},
+    Code,
+};
+use tower::timeout::Timeout;
 
 #[cfg(feature = "telemetry")]
 use crate::telemetry::{

@@ -2,7 +2,7 @@ mod env;
 use env::TestEnv;
 
 use anyhow::Error;
-use dydx_v4_rust::node::sequencer::*;
+use dydx::node::sequencer::*;
 use serial_test::serial;
 
 #[tokio::test]

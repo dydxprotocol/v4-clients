@@ -1,8 +1,8 @@
 mod support;
 use anyhow::{Error, Result};
-use dydx_v4_rust::config::ClientConfig;
-use dydx_v4_rust::indexer::IndexerClient;
-use dydx_v4_rust::node::Wallet;
+use dydx::config::ClientConfig;
+use dydx::indexer::IndexerClient;
+use dydx::node::Wallet;
 use support::constants::TEST_MNEMONIC;
 
 pub struct Rester {

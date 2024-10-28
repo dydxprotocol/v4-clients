@@ -2,7 +2,7 @@ mod env;
 use env::TestEnv;
 
 use anyhow::Result;
-use dydx_v4_rust::indexer::Denom;
+use dydx::indexer::Denom;
 
 #[tokio::test]
 async fn test_node_get_account_balances() -> Result<()> {

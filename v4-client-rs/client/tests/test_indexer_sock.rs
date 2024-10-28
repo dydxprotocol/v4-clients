@@ -2,7 +2,7 @@ mod env;
 use env::TestEnv;
 
 use anyhow::{anyhow as err, Error};
-use dydx_v4_rust::indexer::*;
+use dydx::indexer::*;
 use tokio::time::{sleep, Duration, Instant};
 
 #[tokio::test]

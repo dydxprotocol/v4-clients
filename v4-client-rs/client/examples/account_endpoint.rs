@@ -1,13 +1,13 @@
 mod support;
 
 use anyhow::{Error, Result};
-use dydx_v4_rust::config::ClientConfig;
-use dydx_v4_rust::indexer::{
+use dydx::config::ClientConfig;
+use dydx::indexer::{
     GetAggregationsOpts, GetFillsOpts, GetHistoricalPnlOpts, GetTradingRewardsOpts,
     GetTransfersOpts, IndexerClient, ListOrdersOpts, ListPositionsOpts, MarketType, OrderSide,
     PerpetualPositionStatus, Ticker, TradingRewardAggregationPeriod,
 };
-use dydx_v4_rust::node::Wallet;
+use dydx::node::Wallet;
 use support::constants::TEST_MNEMONIC;
 
 pub struct Rester {

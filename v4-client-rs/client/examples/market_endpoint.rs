@@ -1,6 +1,6 @@
 use anyhow::{Error, Result};
-use dydx_v4_rust::config::ClientConfig;
-use dydx_v4_rust::indexer::{
+use dydx::config::ClientConfig;
+use dydx::indexer::{
     CandleResolution, GetCandlesOpts, GetHistoricalFundingOpts, GetTradesOpts, IndexerClient,
     ListPerpetualMarketsOpts, SparklineTimePeriod, Ticker,
 };

@@ -8,14 +8,7 @@ use anyhow::{anyhow as err, Error};
 use chrono::{TimeDelta, Utc};
 pub use config::NobleConfig;
 use cosmrs::tx::{self, Tx};
-use ibc_proto::{
-    cosmos::base::v1beta1::Coin as IbcProtoCoin, ibc::applications::transfer::v1::MsgTransfer,
-};
-pub use tokens::NobleUsdc;
-use tokio::time::Duration;
-use tonic::transport::{Channel, ClientTlsConfig};
-use tower::timeout::Timeout;
-use v4_proto_rs::{
+use dydx_proto::{
     cosmos_sdk_proto::cosmos::{
         auth::v1beta1::{
             query_client::QueryClient as AuthClient, BaseAccount, QueryAccountRequest,
@@ -31,6 +24,13 @@ use v4_proto_rs::{
     },
     ToAny,
 };
+use ibc_proto::{
+    cosmos::base::v1beta1::Coin as IbcProtoCoin, ibc::applications::transfer::v1::MsgTransfer,
+};
+pub use tokens::NobleUsdc;
+use tokio::time::Duration;
+use tonic::transport::{Channel, ClientTlsConfig};
+use tower::timeout::Timeout;
 
 /// Wrapper over standard [Cosmos modules](https://github.com/cosmos/cosmos-sdk/tree/main/x) clients.
 pub struct Routes {

@@ -14,7 +14,7 @@ The following features are implemented:
 To add the crate to your project, use the command:
 
 ```sh
-cargo add dydx-v4-rust
+cargo add dydx
 ```
 
 ## Development
@@ -54,7 +54,7 @@ cargo deny check licenses advisories sources
 To generate the documentation, use the command
 
 ```sh
-cargo doc -p dydx-v4-rust
+cargo doc -p dydx
 ```
 
 ## Acknowledgements

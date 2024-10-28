@@ -1,16 +1,14 @@
 mod support;
 use anyhow::{Error, Result};
 use bigdecimal::BigDecimal;
-use dydx_v4_rust::config::ClientConfig;
-use dydx_v4_rust::indexer::{ClientId, IndexerClient};
-use dydx_v4_rust::node::{
-    NodeClient, OrderBuilder, OrderSide, Wallet, SHORT_TERM_ORDER_MAXIMUM_LIFETIME,
-};
+use dydx::config::ClientConfig;
+use dydx::indexer::{ClientId, IndexerClient};
+use dydx::node::{NodeClient, OrderBuilder, OrderSide, Wallet, SHORT_TERM_ORDER_MAXIMUM_LIFETIME};
+use dydx_proto::dydxprotocol::clob::{order::TimeInForce, OrderBatch};
 use rand::thread_rng;
 use std::str::FromStr;
 use support::constants::TEST_MNEMONIC;
 use tokio::time::{sleep, Duration};
-use v4_proto_rs::dydxprotocol::clob::{order::TimeInForce, OrderBatch};
 
 const N_ORDERS: usize = 6;
 

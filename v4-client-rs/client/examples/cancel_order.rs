@@ -1,11 +1,11 @@
 mod support;
 use anyhow::{Error, Result};
-use dydx_v4_rust::config::ClientConfig;
-use dydx_v4_rust::indexer::{AnyId, IndexerClient, Ticker};
-use dydx_v4_rust::node::{NodeClient, OrderBuilder, OrderSide, Wallet};
+use dydx::config::ClientConfig;
+use dydx::indexer::{AnyId, IndexerClient, Ticker};
+use dydx::node::{NodeClient, OrderBuilder, OrderSide, Wallet};
+use dydx_proto::dydxprotocol::clob::order::TimeInForce;
 use support::constants::TEST_MNEMONIC;
 use tokio::time::{sleep, Duration};
-use v4_proto_rs::dydxprotocol::clob::order::TimeInForce;
 
 const ETH_USD_TICKER: &str = "ETH-USD";
 
