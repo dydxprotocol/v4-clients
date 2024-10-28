@@ -3,10 +3,9 @@ name = "dydx"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
-
+readme.workspace = true
 description = "dYdX v4 asynchronous client."
 repository = "https://github.com/dydxprotocol/v4-clients/v4-client-rs"
-readme = "README.md"
 
 # https://crates.io/categories
 categories = ["api-bindings", "asynchronous", "finance"]
