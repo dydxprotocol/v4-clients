@@ -4,13 +4,13 @@ use bigdecimal::BigDecimal;
 use chrono::{DateTime, Utc};
 use cosmrs::{AccountId, Denom as CosmosDenom};
 use derive_more::{Add, Deref, DerefMut, Display, Div, From, Mul, Sub};
+use dydx_proto::dydxprotocol::subaccounts::SubaccountId as ProtoSubaccountId;
 use rand::{thread_rng, Rng};
 use serde::{Deserialize, Serialize};
 use serde_with::{serde_as, DisplayFromStr};
 use std::collections::HashMap;
 use std::convert::TryFrom;
 use std::{fmt, str::FromStr};
-use v4_proto_rs::dydxprotocol::subaccounts::SubaccountId as ProtoSubaccountId;
 
 // Shared types used by REST API, WS
 
@@ -124,7 +124,7 @@ pub struct AnyId;
 /// Client ID defined by the user to identify orders.
 ///
 /// This value should be different for different orders.
-/// To update a specific previously submitted order, the new [`Order`](v4_proto_rs::dydxprotocol::clob::Order) must have the same client ID, and the same [`OrderId`].
+/// To update a specific previously submitted order, the new [`Order`](dydx_proto::dydxprotocol::clob::Order) must have the same client ID, and the same [`OrderId`].
 /// See also: [How can I replace an order?](https://docs.dydx.exchange/introduction-onboarding_faqs).
 #[serde_as]
 #[derive(Deserialize, Debug, Clone, Display, PartialEq, Eq, PartialOrd, Ord, Hash)]

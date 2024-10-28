@@ -1,10 +1,10 @@
 use anyhow::{anyhow as err, Error, Result};
 use chrono::{TimeDelta, Utc};
 #[cfg(feature = "faucet")]
-use dydx_v4_rust::faucet::FaucetClient;
+use dydx::faucet::FaucetClient;
 #[cfg(feature = "noble")]
-use dydx_v4_rust::noble::NobleClient;
-use dydx_v4_rust::{
+use dydx::noble::NobleClient;
+use dydx::{
     config::ClientConfig,
     indexer::{ClientId, Height, IndexerClient, PerpetualMarket, Ticker},
     node::{Account, Address, NodeClient, OrderBuilder, OrderId, OrderSide, Subaccount, Wallet},

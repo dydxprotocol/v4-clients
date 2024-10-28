@@ -1,11 +1,11 @@
 mod support;
 use anyhow::{Error, Result};
-use dydx_v4_rust::config::ClientConfig;
-use dydx_v4_rust::indexer::{
+use dydx::config::ClientConfig;
+use dydx::indexer::{
     ClientId, IndexerClient, ListPositionsOpts,
     PerpetualPositionResponseObject as PerpetualPosition, PerpetualPositionStatus, Subaccount,
 };
-use dydx_v4_rust::node::{NodeClient, Wallet};
+use dydx::node::{NodeClient, Wallet};
 use support::constants::TEST_MNEMONIC;
 
 pub struct OrderPlacer {

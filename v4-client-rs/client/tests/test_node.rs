@@ -4,21 +4,21 @@ use env::TestEnv;
 use anyhow::{anyhow as err, Error};
 use bigdecimal::{num_traits::cast::ToPrimitive, BigDecimal, One};
 use chrono::{TimeDelta, Utc};
-use dydx_v4_rust::{
+use dydx::{
     indexer::{OrderExecution, Token},
     node::*,
 };
-use rand::{thread_rng, Rng};
-use serial_test::serial;
-use std::str::FromStr;
-use tokio::time::{sleep, Duration};
-use v4_proto_rs::dydxprotocol::{
+use dydx_proto::dydxprotocol::{
     clob::{
         order::{self, ConditionType, Side, TimeInForce},
         Order, OrderBatch, OrderId,
     },
     subaccounts::SubaccountId,
 };
+use rand::{thread_rng, Rng};
+use serial_test::serial;
+use std::str::FromStr;
+use tokio::time::{sleep, Duration};
 
 const ETH_USD_PAIR_ID: u32 = 1; // information on market id can be fetch from indexer API
 

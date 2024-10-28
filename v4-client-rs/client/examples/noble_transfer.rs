@@ -4,10 +4,10 @@ use anyhow::Result;
 mod noble_transfer_example {
     use super::*;
     use anyhow::{anyhow as err, Error};
-    use dydx_v4_rust::config::ClientConfig;
-    use dydx_v4_rust::indexer::Token;
-    use dydx_v4_rust::noble::{NobleClient, NobleUsdc};
-    use dydx_v4_rust::node::{NodeClient, Wallet};
+    use dydx::config::ClientConfig;
+    use dydx::indexer::Token;
+    use dydx::noble::{NobleClient, NobleUsdc};
+    use dydx::node::{NodeClient, Wallet};
     use tokio::time::{sleep, Duration};
 
     const TEST_MNEMONIC: &str = "mirror actor skill push coach wait confirm orchard lunch mobile athlete gossip awake miracle matter bus reopen team ladder lazy list timber render wait";

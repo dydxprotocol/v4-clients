@@ -1,13 +1,13 @@
 mod support;
 use anyhow::{Error, Result};
 use bigdecimal::BigDecimal;
-use dydx_v4_rust::config::ClientConfig;
-use dydx_v4_rust::indexer::{
+use dydx::config::ClientConfig;
+use dydx::indexer::{
     ClientId, IndexerClient, ListPositionsOpts,
     PerpetualPositionResponseObject as PerpetualPosition, PerpetualPositionStatus, Subaccount,
     Ticker,
 };
-use dydx_v4_rust::node::{NodeClient, Wallet};
+use dydx::node::{NodeClient, Wallet};
 use std::str::FromStr;
 use support::constants::TEST_MNEMONIC;
 use tokio::time::{sleep, Duration};

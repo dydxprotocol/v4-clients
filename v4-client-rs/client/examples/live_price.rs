@@ -1,8 +1,8 @@
 mod support;
 use anyhow::{Error, Result};
-use dydx_v4_rust::config::ClientConfig;
-use dydx_v4_rust::indexer::{Feed, IndexerClient, MarketsMessage, Ticker};
-use dydx_v4_rust::node::{OrderBuilder, Wallet};
+use dydx::config::ClientConfig;
+use dydx::indexer::{Feed, IndexerClient, MarketsMessage, Ticker};
+use dydx::node::{OrderBuilder, Wallet};
 use support::constants::TEST_MNEMONIC;
 
 pub struct Feeder {

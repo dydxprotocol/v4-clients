@@ -1,13 +1,13 @@
 mod support;
 use anyhow::{Error, Result};
-use dydx_v4_rust::config::ClientConfig;
-use dydx_v4_rust::node::{NodeClient, Wallet};
-use std::iter::once;
-use support::constants::TEST_MNEMONIC;
-use v4_proto_rs::{
+use dydx::config::ClientConfig;
+use dydx::node::{NodeClient, Wallet};
+use dydx_proto::{
     dydxprotocol::{sending::MsgWithdrawFromSubaccount, subaccounts::SubaccountId},
     ToAny,
 };
+use std::iter::once;
+use support::constants::TEST_MNEMONIC;
 
 pub struct Transferor {
     client: NodeClient,

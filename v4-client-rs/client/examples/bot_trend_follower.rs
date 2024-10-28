@@ -2,12 +2,12 @@ mod support;
 
 use anyhow::{anyhow as err, Error, Result};
 use chrono::{TimeDelta, Utc};
-use dydx_v4_rust::config::ClientConfig;
-use dydx_v4_rust::indexer::{
+use dydx::config::ClientConfig;
+use dydx::indexer::{
     CandleResolution, ClientId, Feed, GetCandlesOpts, IndexerClient, ListPerpetualMarketsOpts,
     PerpetualMarket, Price, Quantity, Subaccount, SubaccountsMessage, Ticker, TradesMessage,
 };
-use dydx_v4_rust::node::{
+use dydx::node::{
     Account, NodeClient, OrderBuilder, OrderId, OrderSide, Wallet,
     SHORT_TERM_ORDER_MAXIMUM_LIFETIME,
 };

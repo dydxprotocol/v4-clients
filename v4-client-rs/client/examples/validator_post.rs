@@ -1,15 +1,15 @@
 mod support;
 use anyhow::{Error, Result};
-use dydx_v4_rust::config::ClientConfig;
-use dydx_v4_rust::node::{NodeClient, Wallet};
-use rand::{thread_rng, Rng};
-use support::constants::TEST_MNEMONIC;
-use tokio::time::{sleep, Duration};
-use v4_proto_rs::dydxprotocol::clob::{
+use dydx::config::ClientConfig;
+use dydx::node::{NodeClient, Wallet};
+use dydx_proto::dydxprotocol::clob::{
     order::{ConditionType, GoodTilOneof, Side, TimeInForce},
     Order, OrderId,
 };
-use v4_proto_rs::dydxprotocol::subaccounts::SubaccountId;
+use dydx_proto::dydxprotocol::subaccounts::SubaccountId;
+use rand::{thread_rng, Rng};
+use support::constants::TEST_MNEMONIC;
+use tokio::time::{sleep, Duration};
 
 const ETH_USD_PAIR_ID: u32 = 1;
 const ETH_USD_QUANTUMS: u64 = 10_000_000; // calculated based on market

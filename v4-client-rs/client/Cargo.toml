@@ -1,12 +1,11 @@
 [package]
-name = "dydx-v4-rust"
+name = "dydx"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
 
 description = "dYdX v4 asynchronous client."
-homepage = "https://github.com/dydxprotocol/v4-clients/v4-client-rs"
-repository = "https://github.com/dydxprotocol/v4-clients/v4-clients-rs"
+repository = "https://github.com/dydxprotocol/v4-clients/v4-client-rs"
 readme = "README.md"
 
 # https://crates.io/categories
@@ -47,7 +46,7 @@ tokio.workspace = true
 tokio-tungstenite = { version = "0.23", features = ["native-tls"] }
 toml = "0.8"
 tower = "0.4"
-v4-proto-rs.workspace = true
+dydx-proto.workspace = true
 
 # Telemetry
 metrics = { version = "0.23", optional = true }

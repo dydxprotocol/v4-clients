@@ -1,9 +1,9 @@
 mod support;
 use anyhow::{Error, Result};
-use dydx_v4_rust::config::ClientConfig;
+use dydx::config::ClientConfig;
 #[cfg(feature = "noble")]
-use dydx_v4_rust::noble::NobleClient;
-use dydx_v4_rust::node::{NodeClient, Wallet};
+use dydx::noble::NobleClient;
+use dydx::node::{NodeClient, Wallet};
 use support::constants::TEST_MNEMONIC;
 
 #[tokio::main]

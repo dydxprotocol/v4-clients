@@ -1,7 +1,7 @@
 use super::{Address, NodeClient};
 use crate::indexer::{Denom, Height, Subaccount};
 use anyhow::{anyhow as err, Error};
-use v4_proto_rs::{
+use dydx_proto::{
     cosmos::base::query::v1beta1::PageRequest as V4PageRequest,
     cosmos_sdk_proto::cosmos::{
         auth::v1beta1::{BaseAccount, QueryAccountRequest},

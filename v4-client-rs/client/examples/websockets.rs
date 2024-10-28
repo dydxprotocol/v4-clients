@@ -1,11 +1,11 @@
 mod support;
 use anyhow::{Error, Result};
-use dydx_v4_rust::config::ClientConfig;
-use dydx_v4_rust::indexer::{
+use dydx::config::ClientConfig;
+use dydx::indexer::{
     BlockHeightMessage, CandleResolution, CandlesMessage, Feed, IndexerClient, MarketsMessage,
     OrdersMessage, ParentSubaccountsMessage, SubaccountsMessage, Ticker, TradesMessage,
 };
-use dydx_v4_rust::node::Wallet;
+use dydx::node::Wallet;
 use support::constants::TEST_MNEMONIC;
 use tokio::select;
 

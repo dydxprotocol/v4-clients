@@ -6,8 +6,8 @@ mod noble_tests {
     use env::TestEnv;
 
     use anyhow::Error;
-    use dydx_v4_rust::indexer::Denom;
-    use dydx_v4_rust::noble::NobleUsdc;
+    use dydx::indexer::Denom;
+    use dydx::noble::NobleUsdc;
     use serial_test::serial;
 
     #[tokio::test]

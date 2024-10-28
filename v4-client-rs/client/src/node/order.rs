@@ -6,11 +6,11 @@ use anyhow::{anyhow as err, Error};
 use bigdecimal::{num_traits::cast::ToPrimitive, BigDecimal, One};
 use chrono::{DateTime, Utc};
 use derive_more::From;
-pub use v4_proto_rs::dydxprotocol::clob::{
+pub use dydx_proto::dydxprotocol::clob::{
     order::{Side as OrderSide, TimeInForce as OrderTimeInForce},
     OrderId,
 };
-use v4_proto_rs::dydxprotocol::{
+use dydx_proto::dydxprotocol::{
     clob::{
         msg_cancel_order,
         order::{self, ConditionType},

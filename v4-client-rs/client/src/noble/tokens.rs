@@ -1,7 +1,7 @@
 use crate::indexer::{Denom, Tokenized};
 use anyhow::{anyhow as err, Error};
 use bigdecimal::{num_traits::ToPrimitive, BigDecimal};
-use v4_proto_rs::cosmos_sdk_proto::cosmos::base::v1beta1::Coin as ProtoCoin;
+use dydx_proto::cosmos_sdk_proto::cosmos::base::v1beta1::Coin as ProtoCoin;
 
 /// USDC Noble token.
 pub struct NobleUsdc(pub BigDecimal);

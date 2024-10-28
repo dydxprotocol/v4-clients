@@ -1,12 +1,12 @@
 mod support;
 use anyhow::{Error, Result};
 use bigdecimal::BigDecimal;
-use dydx_v4_rust::config::ClientConfig;
-use dydx_v4_rust::indexer::IndexerClient;
-use dydx_v4_rust::node::{NodeClient, OrderBuilder, OrderSide, Wallet};
+use dydx::config::ClientConfig;
+use dydx::indexer::IndexerClient;
+use dydx::node::{NodeClient, OrderBuilder, OrderSide, Wallet};
+use dydx_proto::dydxprotocol::clob::order::TimeInForce;
 use std::str::FromStr;
 use support::constants::TEST_MNEMONIC;
-use v4_proto_rs::dydxprotocol::clob::order::TimeInForce;
 
 const ETH_USD_TICKER: &str = "ETH-USD";
 

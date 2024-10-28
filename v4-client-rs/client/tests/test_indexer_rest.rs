@@ -3,7 +3,7 @@ use env::TestEnv;
 
 use anyhow::{anyhow as err, Result};
 use bigdecimal::BigDecimal;
-use dydx_v4_rust::indexer::*;
+use dydx::indexer::*;
 use std::str::FromStr;
 
 #[tokio::test]
