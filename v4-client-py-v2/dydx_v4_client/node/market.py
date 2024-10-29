@@ -28,7 +28,10 @@ class Market:
         result = max(quantums, self.market["stepBaseQuantums"])
         return result
 
-    def calculate_subticks(self, price: float) -> int:
+    def calculate_subticks(
+        self,
+        price: float,
+    ) -> int:
         QUOTE_QUANTUMS_ATOMIC_RESOLUTION = -6
         exponent = (
             self.market["atomicResolution"]

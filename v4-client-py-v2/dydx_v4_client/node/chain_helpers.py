@@ -53,9 +53,9 @@ class OrderHelper:
 
     @staticmethod
     def calculate_condition_type(order_type: OrderType) -> Order.ConditionType:
-        if order_type in [OrderType.LIMIT, OrderType.MARKET]:
+        if order_type in [OrderType.LIMIT, OrderType.MARKET, OrderType.STOP_MARKET]:
             return Order.ConditionType.CONDITION_TYPE_UNSPECIFIED
-        elif order_type in [OrderType.STOP_LIMIT, OrderType.STOP_MARKET]:
+        elif order_type in [OrderType.STOP_LIMIT]:
             return Order.ConditionType.CONDITION_TYPE_STOP_LOSS
         elif order_type in [OrderType.TAKE_PROFIT_LIMIT, OrderType.TAKE_PROFIT_MARKET]:
             return Order.ConditionType.CONDITION_TYPE_TAKE_PROFIT
