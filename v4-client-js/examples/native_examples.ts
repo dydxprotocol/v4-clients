@@ -26,7 +26,7 @@ async function test(): Promise<void> {
     const paramsInJson = `{
       "endpointUrls":[
         "https://dydx-testnet.nodefleet.org",
-        "https://test-dydx.kingnodes.com",
+        "https://test-dydx-rpc.kingnodes.com",
         "https://dydx-rpc.liquify.com/api=8878132/dydx"
       ],
       "chainId":"dydx-testnet-4"
