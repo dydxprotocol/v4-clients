@@ -30,7 +30,7 @@ export enum IndexerApiHost {
 }
 
 export enum IndexerWSHost {
-  TESTNET = 'wss://dydx-testnet.imperator.co/v4/ws',
+  TESTNET = 'wss://indexer.v4testnet.dydx.exchange/v4/ws',
   STAGING = 'wss://indexer.v4staging.dydx.exchange/v4/ws',
   LOCAL = 'ws://localhost:3003',
   // For the deployment by DYDX token holders
@@ -42,7 +42,7 @@ export enum FaucetApiHost {
 }
 
 export enum ValidatorApiHost {
-  TESTNET = 'https://test-dydx.kingnodes.com',
+  TESTNET = 'https://test-dydx-rpc.kingnodes.com',
   STAGING = 'https://validator.v4staging.dydx.exchange',
   LOCAL = 'http://localhost:26657',
   // For the deployment by DYDX token holders
