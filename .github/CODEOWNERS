@@ -1,7 +1,7 @@
 # Order is important. The last matching pattern has the most precedence.
 
-v4-client-py-deprecated/    @dydxprotocol/engineering @dydxprotocol/foundation @dydxprotocol/nethermind
-v4-client-py-v2/            @dydxprotocol/engineering @dydxprotocol/foundation @dydxprotocol/nethermind
-v4-client-rs/               @dydxprotocol/engineering @dydxprotocol/foundation @dydxprotocol/nethermind
+/v4-client-py-deprecated/    @dydxprotocol/engineering @dydxprotocol/foundation @dydxprotocol/nethermind
+/v4-client-py-v2/            @dydxprotocol/engineering @dydxprotocol/foundation @dydxprotocol/nethermind
+/v4-client-rs/               @dydxprotocol/engineering @dydxprotocol/foundation @dydxprotocol/nethermind
 
 * @dydxprotocol/engineering
