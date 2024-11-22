@@ -18,7 +18,7 @@ noble = [
     "dep:ibc-proto"
 ]
 telemetry = [
-  "dep:metrics",
+    "dep:metrics",
 ]
 
 [dependencies]
@@ -26,12 +26,12 @@ anyhow.workspace = true
 async-trait.workspace = true
 bigdecimal.workspace = true
 bip32 = { version = "0.5", default-features = false, features = ["bip39", "alloc", "secp256k1"] }
-cosmrs = "0.16"
+cosmrs = "0.21"
 chrono = { version = "0.4", features = ["serde"] }
 derive_more.workspace = true
 futures-util = "0.3"
-governor = "0.6"
-ibc-proto = { version = "0.46", optional = true }
+governor = "0.7"
+ibc-proto = { version = "0.51", optional = true }
 log.workspace = true
 rand = "0.8"
 reqwest = { version = "0.12", features = ["json"] }
@@ -40,18 +40,18 @@ serde_json = "1"
 serde_with = "3.9"
 strum = { version = "0.26", features = ["derive"] }
 thiserror.workspace = true
-tonic = { version = "0.11", features = ["tls", "tls-roots", "transport", "channel"] }
+tonic = { version = "0.12", features = ["tls-native-roots"] }
 tokio.workspace = true
-tokio-tungstenite = { version = "0.23", features = ["native-tls"] }
+tokio-tungstenite = { version = "0.24", features = ["native-tls"] }
 toml = "0.8"
-tower = "0.4"
+tower = { version = "0.5", features = ["timeout"] }
 dydx-proto.workspace = true
 
 # Telemetry
-metrics = { version = "0.23", optional = true }
+metrics = { version = "0.24", optional = true }
 
 [dev-dependencies]
-metrics-exporter-tcp = "0.10.0"
+metrics-exporter-tcp = "0.11.0"
 serial_test = "3.1.1"
 tracing = "0.1"
 tracing-subscriber = "0.3"
