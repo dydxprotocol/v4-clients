@@ -220,11 +220,16 @@ export async function getFeeTiers(): Promise<string> {
   }
 }
 
-export async function getUserFeeTier(address: string): Promise<string> {
+export async function getUserFeeTier(payload: string): Promise<string> {
   try {
     const client = globalThis.client;
     if (client === undefined) {
       throw new UserError('client is not connected. Call connectClient() first');
+    }
+    const json = JSON.parse(payload);
+    const address = json.address;
+    if (address === undefined) {
+      throw new UserError('address is not set');
     }
     const feeTiers = await globalThis.client?.validatorClient.get.getUserFeeTier(address);
     return encodeJson(feeTiers);
