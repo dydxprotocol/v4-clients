@@ -1,6 +1,7 @@
 pub mod accounts;
 pub mod markets;
 pub mod utility;
+pub mod vaults;
 
 use super::config::RestConfig;
 use super::options::*;
@@ -10,6 +11,7 @@ use markets::Markets;
 use reqwest::Client;
 use serde::Serialize;
 use utility::Utility;
+use vaults::Vaults;
 
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -54,5 +56,10 @@ impl RestClient {
     /// Get utility query dispatcher.
     pub(crate) fn utility(&self) -> Utility<'_> {
         Utility::new(self)
+    }
+
+    /// Get vaults query dispatcher.
+    pub(crate) fn vaults(&self) -> Vaults<'_> {
+        Vaults::new(self)
     }
 }
