@@ -146,7 +146,7 @@ pub struct NodeClient {
 impl NodeClient {
     /// Connect to the node.
     pub async fn connect(config: NodeConfig) -> Result<Self, Error> {
-        let tls = ClientTlsConfig::new();
+        let tls = ClientTlsConfig::new().with_native_roots();
         let endpoint = config.endpoint.clone();
         let channel = Channel::from_shared(endpoint)?
             .tls_config(tls)?
