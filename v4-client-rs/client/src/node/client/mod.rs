@@ -1,9 +1,11 @@
 pub mod error;
+mod megavault;
 mod methods;
 
 use super::{
     builder::TxBuilder, config::NodeConfig, order::*, sequencer::*, utils::*, wallet::Account,
 };
+use megavault::MegaVault;
 
 pub use crate::indexer::{Address, ClientId, Height, OrderFlags, Subaccount, Tokenized, Usdc};
 use anyhow::{anyhow as err, Error, Result};
@@ -42,6 +44,7 @@ use dydx_proto::{
         sending::{MsgCreateTransfer, MsgDepositToSubaccount, MsgWithdrawFromSubaccount, Transfer},
         stats::query_client::QueryClient as StatsClient,
         subaccounts::query_client::QueryClient as SubaccountsClient,
+        vault::query_client::QueryClient as VaultClient,
     },
     ToAny,
 };
@@ -106,6 +109,8 @@ pub struct Routes {
     pub subaccounts: SubaccountsClient<Timeout<Channel>>,
     /// Tx utilities for the Cosmos SDK.
     pub tx: TxClient<Timeout<Channel>>,
+    /// Vaults
+    pub vault: VaultClient<Timeout<Channel>>,
 }
 
 impl Routes {
@@ -124,7 +129,8 @@ impl Routes {
             staking: StakingClient::new(channel.clone()),
             stats: StatsClient::new(channel.clone()),
             subaccounts: SubaccountsClient::new(channel.clone()),
-            tx: TxClient::new(channel),
+            tx: TxClient::new(channel.clone()),
+            vault: VaultClient::new(channel),
         }
     }
 }
@@ -498,6 +504,11 @@ impl NodeClient {
         let tx_hash = self.place_order(account, order).await?;
 
         Ok(Some(tx_hash))
+    }
+
+    /// Access the vaults requests dispatcher
+    pub fn megavault(&mut self) -> MegaVault {
+        MegaVault::new(self)
     }
 
     /// Simulate a transaction.
