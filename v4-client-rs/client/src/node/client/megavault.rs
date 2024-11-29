@@ -13,15 +13,20 @@ use dydx_proto::dydxprotocol::{
 
 use bigdecimal::num_bigint::ToBigInt;
 
+/// [`NodeClient`] MegaVault requests dispatcher
 pub struct MegaVault<'a> {
     client: &'a mut NodeClient,
 }
 
 impl<'a> MegaVault<'a> {
+    /// Create a new MegaVault requests dispatcher
     pub(crate) fn new(client: &'a mut NodeClient) -> Self {
         Self { client }
     }
 
+    /// Deposit USDC into the MegaVault.
+    ///
+    /// Check [the example](https://github.com/dydxprotocol/v4-clients/blob/main/v4-client-rs/client/examples/validator_megavault.rs).
     pub async fn deposit(
         &mut self,
         account: &mut Account,
@@ -51,6 +56,11 @@ impl<'a> MegaVault<'a> {
         client.broadcast_transaction(tx_raw).await
     }
 
+    /// Withdraw shares from the MegaVault.
+    /// The number of shares must be equal or greater to some specified minimum amount (in
+    /// USDC-equivalent value).
+    ///
+    /// Check [the example](https://github.com/dydxprotocol/v4-clients/blob/main/v4-client-rs/client/examples/validator_megavault.rs).
     pub async fn withdraw(
         &mut self,
         account: &mut Account,
@@ -86,6 +96,9 @@ impl<'a> MegaVault<'a> {
         client.broadcast_transaction(tx_raw).await
     }
 
+    /// Query the shares associated with an [`Address`].
+    ///
+    /// Check [the example](https://github.com/dydxprotocol/v4-clients/blob/main/v4-client-rs/client/examples/validator_megavault.rs).
     pub async fn get_owner_shares(
         &mut self,
         address: &Address,
@@ -100,6 +113,9 @@ impl<'a> MegaVault<'a> {
         Ok(response)
     }
 
+    /// Query the withdrawal information for a specified number of shares.
+    ///
+    /// Check [the example](https://github.com/dydxprotocol/v4-clients/blob/main/v4-client-rs/client/examples/validator_megavault.rs).
     pub async fn get_withdrawal_info(
         &mut self,
         shares: &BigInt,
