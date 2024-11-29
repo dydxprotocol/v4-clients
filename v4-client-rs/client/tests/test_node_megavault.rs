@@ -1,24 +1,8 @@
 mod env;
 use env::TestEnv;
 
-use anyhow::{anyhow as err, Error};
-use bigdecimal::{num_traits::cast::ToPrimitive, BigDecimal, One};
-use chrono::{TimeDelta, Utc};
-use dydx::{
-    indexer::{OrderExecution, Token},
-    node::*,
-};
-use dydx_proto::dydxprotocol::{
-    clob::{
-        order::{self, ConditionType, Side, TimeInForce},
-        Order, OrderBatch, OrderId,
-    },
-    subaccounts::SubaccountId,
-};
-use rand::{thread_rng, Rng};
+use anyhow::Error;
 use serial_test::serial;
-use std::str::FromStr;
-use tokio::time::{sleep, Duration};
 
 #[tokio::test]
 #[serial]
@@ -44,7 +28,10 @@ async fn test_node_megavault_withdraw() -> Result<(), Error> {
 
     let subaccount = account.subaccount(0)?;
 
-    let tx_res = node.megavault().withdraw(&mut account, subaccount, 0, Some(&1.into())).await;
+    let tx_res = node
+        .megavault()
+        .withdraw(&mut account, subaccount, 0, Some(&1.into()))
+        .await;
 
     node.query_transaction_result(tx_res).await?;
 
@@ -55,7 +42,7 @@ async fn test_node_megavault_withdraw() -> Result<(), Error> {
 async fn test_node_megavault_get_owner_shares() -> Result<(), Error> {
     let env = TestEnv::testnet().await?;
     let mut node = env.node;
-    let mut account = env.account;
+    let account = env.account;
 
     node.megavault().get_owner_shares(account.address()).await?;
 
@@ -66,7 +53,6 @@ async fn test_node_megavault_get_owner_shares() -> Result<(), Error> {
 async fn test_node_megavault_get_withdrawal_info() -> Result<(), Error> {
     let env = TestEnv::testnet().await?;
     let mut node = env.node;
-    let mut account = env.account;
 
     node.megavault().get_withdrawal_info(&1.into()).await?;
 

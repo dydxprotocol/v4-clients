@@ -2,7 +2,14 @@ use super::*;
 use crate::node::utils::BigIntExt;
 
 use anyhow::{anyhow as err, Error};
-use dydx_proto::dydxprotocol::{subaccounts::SubaccountId, vault::{MsgDepositToMegavault, MsgWithdrawFromMegavault, NumShares, QueryMegavaultOwnerSharesRequest, QueryMegavaultOwnerSharesResponse, QueryMegavaultWithdrawalInfoRequest, QueryMegavaultWithdrawalInfoResponse}};
+use dydx_proto::dydxprotocol::{
+    subaccounts::SubaccountId,
+    vault::{
+        MsgDepositToMegavault, MsgWithdrawFromMegavault, NumShares,
+        QueryMegavaultOwnerSharesRequest, QueryMegavaultOwnerSharesResponse,
+        QueryMegavaultWithdrawalInfoRequest, QueryMegavaultWithdrawalInfoResponse,
+    },
+};
 
 use bigdecimal::num_bigint::ToBigInt;
 
@@ -79,7 +86,10 @@ impl<'a> MegaVault<'a> {
         client.broadcast_transaction(tx_raw).await
     }
 
-    pub async fn get_owner_shares(&mut self, address: &Address) -> Result<QueryMegavaultOwnerSharesResponse, Error> {
+    pub async fn get_owner_shares(
+        &mut self,
+        address: &Address,
+    ) -> Result<QueryMegavaultOwnerSharesResponse, Error> {
         let client = &mut self.client;
         let req = QueryMegavaultOwnerSharesRequest {
             address: address.to_string(),
@@ -90,18 +100,24 @@ impl<'a> MegaVault<'a> {
         Ok(response)
     }
 
-    pub async fn get_withdrawal_info(&mut self, shares: &BigInt) -> Result<QueryMegavaultWithdrawalInfoResponse, Error> {
+    pub async fn get_withdrawal_info(
+        &mut self,
+        shares: &BigInt,
+    ) -> Result<QueryMegavaultWithdrawalInfoResponse, Error> {
         let client = &mut self.client;
-        let num_shares = NumShares { 
-            num_shares: shares.to_serializable_vec()?
+        let num_shares = NumShares {
+            num_shares: shares.to_serializable_vec()?,
         };
         let req = QueryMegavaultWithdrawalInfoRequest {
-            shares_to_withdraw: Some(num_shares)
+            shares_to_withdraw: Some(num_shares),
         };
 
-        let response = client.vault.megavault_withdrawal_info(req).await?.into_inner();
+        let response = client
+            .vault
+            .megavault_withdrawal_info(req)
+            .await?
+            .into_inner();
 
         Ok(response)
     }
-
 }

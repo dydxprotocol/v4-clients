@@ -1,6 +1,6 @@
 pub mod error;
-mod methods;
 mod megavault;
+mod methods;
 
 use super::{
     builder::TxBuilder, config::NodeConfig, order::*, sequencer::*, utils::*, wallet::Account,
