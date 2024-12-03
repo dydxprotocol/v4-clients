@@ -17,6 +17,7 @@ import { bigIntToBytes } from '../lib/helpers';
 import { isStatefulOrder, verifyOrderFlags } from '../lib/validation';
 import { GovAddNewMarketParams, OrderFlags } from '../types';
 import {
+  AuthenticatorType,
   Network,
   OrderExecution,
   OrderSide,
@@ -1216,5 +1217,20 @@ export class CompositeClient {
     memo?: string,
   ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
     return this.validatorClient.post.createMarketPermissionless(ticker, subaccount, broadcastMode, gasAdjustment, memo);
+  }
+
+  async addAuthenticator(
+    subaccount: SubaccountInfo,
+    authenticatorType: string,
+    data: Uint8Array,
+  ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
+    return this.validatorClient.post.addAuthenticator(subaccount, authenticatorType, data)
+  }
+
+  async removeAuthenticator(
+    subaccount: SubaccountInfo,
+    id: Long,
+  ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
+    return this.validatorClient.post.removeAuthenticator(subaccount, id)
   }
 }

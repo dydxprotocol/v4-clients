@@ -11,7 +11,7 @@ import _ from 'lodash';
 import Long from 'long';
 import protobuf from 'protobufjs';
 
-import { GAS_MULTIPLIER, SelectedGasDenom } from '../constants';
+import { AuthenticatorType, GAS_MULTIPLIER, SelectedGasDenom } from '../constants';
 import { UnexpectedClientError } from '../lib/errors';
 import { generateRegistry } from '../lib/registry';
 import { SubaccountInfo } from '../subaccount';
@@ -942,6 +942,43 @@ export class Post {
       broadcastMode,
       undefined,
       gasAdjustment,
+    );
+  }
+
+  async addAuthenticator(
+    subaccount: SubaccountInfo,
+    authenticatorType: AuthenticatorType,
+    data: Uint8Array,
+  ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
+    const msg = this.composer.composeMsgAddAuthenticator(subaccount.address, authenticatorType, data);
+
+    return this.send(
+      subaccount.wallet,
+      () => Promise.resolve([msg]),
+      false,
+      undefined,
+      undefined,
+      Method.BroadcastTxSync,
+      undefined,
+      undefined,
+    );
+  }
+
+  async removeAuthenticator(
+    subaccount: SubaccountInfo,
+    id: Long,
+  ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
+    const msg = this.composer.composeMsgRemoveAuthenticator(subaccount.address, id);
+
+    return this.send(
+      subaccount.wallet,
+      () => Promise.resolve([msg]),
+      false,
+      undefined,
+      undefined,
+      Method.BroadcastTxSync,
+      undefined,
+      undefined,
     );
   }
 }

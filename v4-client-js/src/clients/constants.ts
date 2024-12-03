@@ -115,6 +115,10 @@ export const TYPE_URL_MSG_UNDELEGATE = '/cosmos.staking.v1beta1.MsgUndelegate';
 export const TYPE_URL_MSG_WITHDRAW_DELEGATOR_REWARD =
   '/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward';
 
+// x/accountplus
+export const TYPE_URL_MSG_ADD_AUTHENTICATOR = '/dydxprotocol.accountplus.MsgAddAuthenticator'
+export const TYPE_URL_MSG_REMOVE_AUTHENTICATOR = '/dydxprotocol.accountplus.MsgRemoveAuthenticator'
+
 // ------------ Chain Constants ------------
 // The following are same across different networks / deployments.
 export const GOV_MODULE_ADDRESS = 'dydx10d07y265gmmuvt4z0w9aw880jnsr700jnmapky';
@@ -194,6 +198,18 @@ export enum PnlTickInterval {
   HOUR = 'hour',
   day = 'day',
 }
+
+// ----------- Authenticators -------------
+
+export enum AuthenticatorType {
+  ALL_OF = 'AllOf',
+  ANY_OF = 'AnyOf',
+  SIGNATURE_VERIFICATION = 'SignatureVerification',
+  MESSAGE_FILTER = 'MessageFilter',
+  CLOB_PAIR_ID_FILTER = 'ClobPairIdFilter',
+  SUBACCOUNT_FILTER = 'SubaccountFilter',
+}
+
 
 // ------------ API Defaults ------------
 export const DEFAULT_API_TIMEOUT: number = 3_000;
@@ -278,7 +294,7 @@ export class Network {
     const indexerConfig = new IndexerConfig(IndexerApiHost.STAGING, IndexerWSHost.STAGING);
     const validatorConfig = new ValidatorConfig(
       ValidatorApiHost.STAGING,
-      TESTNET_CHAIN_ID,
+      STAGING_CHAIN_ID,
       {
         CHAINTOKEN_DENOM: 'adv4tnt',
         USDC_DENOM: 'ibc/8E27BA2D5493AF5636760E354E46004562C46AB7EC0CC4C1CA14E9E20E2545B5',
