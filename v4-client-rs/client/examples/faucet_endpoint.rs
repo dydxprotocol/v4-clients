@@ -1,4 +1,6 @@
 mod support;
+
+#[cfg(feature = "faucet")]
 use anyhow::Result;
 
 #[cfg(feature = "faucet")]

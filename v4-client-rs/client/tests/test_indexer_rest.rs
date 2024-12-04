@@ -283,6 +283,35 @@ async fn test_indexer_account_get_rewards_aggregated() -> Result<()> {
 }
 
 #[tokio::test]
+async fn test_indexer_vaults_get_megavault_historical_pnl() -> Result<()> {
+    let env = TestEnv::testnet().await?;
+    let resolution = PnlTickInterval::Hour;
+    env.indexer
+        .vaults()
+        .get_megavault_historical_pnl(resolution)
+        .await?;
+    Ok(())
+}
+
+#[tokio::test]
+async fn test_indexer_vaults_get_vaults_historical_pnl() -> Result<()> {
+    let env = TestEnv::testnet().await?;
+    let resolution = PnlTickInterval::Hour;
+    env.indexer
+        .vaults()
+        .get_vaults_historical_pnl(resolution)
+        .await?;
+    Ok(())
+}
+
+#[tokio::test]
+async fn test_indexer_vaults_get_megavault_positions() -> Result<()> {
+    let env = TestEnv::testnet().await?;
+    env.indexer.vaults().get_megavault_positions().await?;
+    Ok(())
+}
+
+#[tokio::test]
 async fn test_perpetual_market_quantization() -> Result<()> {
     let env = TestEnv::testnet().await?;
     let markets = env.indexer.markets().list_perpetual_markets(None).await?;

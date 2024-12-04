@@ -1,4 +1,6 @@
-use anyhow::{anyhow as err, Error, Result};
+#[cfg(any(feature = "faucet", feature = "noble"))]
+use anyhow::anyhow as err;
+use anyhow::{Error, Result};
 use chrono::{TimeDelta, Utc};
 #[cfg(feature = "faucet")]
 use dydx::faucet::FaucetClient;

@@ -30,6 +30,18 @@ pub struct ErrorMsg {
 #[derive(Deserialize, Debug, Clone, From, Display, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct PnlTickId(pub String);
 
+/// PnL tick resolution.
+#[derive(
+    Deserialize, Serialize, Debug, Clone, Copy, From, Display, PartialEq, Eq, PartialOrd, Ord, Hash,
+)]
+#[serde(rename_all = "lowercase")]
+pub enum PnlTickInterval {
+    /// Hour.
+    Hour,
+    /// Day.
+    Day,
+}
+
 /// Transfer id.
 #[derive(
     Serialize, Deserialize, Debug, Clone, From, Display, PartialEq, Eq, PartialOrd, Ord, Hash,
@@ -300,4 +312,52 @@ pub struct HistoricalTradingRewardAggregation {
     pub ended_at: Option<DateTime<Utc>>,
     /// Aggregation period.
     pub period: TradingRewardAggregationPeriod,
+}
+
+/// MegaVault Profit and loss reports.
+#[derive(Deserialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct MegaVaultHistoricalPnlResponse {
+    /// List of PnL reports.
+    pub megavault_pnl: Vec<PnlTicksResponseObject>,
+}
+
+/// MegaVault Profit and loss reports.
+#[derive(Deserialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct MegaVaultPositionResponse {
+    /// List MegaVault positions.
+    pub positions: Vec<VaultPosition>,
+}
+
+/// Vaults profit and loss reports.
+#[derive(Deserialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct VaultsHistoricalPnLResponse {
+    /// List of PnL reports.
+    pub vaults_pnl: Vec<VaultHistoricalPnl>,
+}
+
+/// Vault Profit and loss reports.
+#[derive(Deserialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct VaultHistoricalPnl {
+    /// Associated ticker.
+    pub ticker: String,
+    /// List of PnL reports.
+    pub historical_pnl: Vec<PnlTicksResponseObject>,
+}
+
+/// Vault position.
+#[derive(Deserialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct VaultPosition {
+    /// Associated ticker.
+    pub ticker: String,
+    /// Asset position.
+    pub asset_position: Option<AssetPositionResponseObject>,
+    /// Perpetual position.
+    pub perpetual_position: Option<PerpetualPositionResponseObject>,
+    /// Equity.
+    pub equity: BigDecimal,
 }

@@ -44,6 +44,7 @@ impl NodeClient {
     pub async fn get_account_balances(&mut self, address: &Address) -> Result<Vec<Coin>, Error> {
         let req = QueryAllBalancesRequest {
             address: address.to_string(),
+            resolve_denom: false,
             pagination: None,
         };
         let balances = self.bank.all_balances(req).await?.into_inner().balances;

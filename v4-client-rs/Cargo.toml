@@ -5,7 +5,7 @@ members = [
 ]
 
 [workspace.package]
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 license = "LicenseRef-dYdX-Custom"
 
@@ -15,6 +15,6 @@ async-trait = "0.1"
 bigdecimal = { version = "0.4", features = ["serde"] }
 derive_more = { version = "1", features = ["full"] }
 log = "0.4"
-thiserror = "1"
-tokio = { version = "1.39", features = ["full"] }
-dydx-proto = "0.1.0"
+thiserror = "2"
+tokio = { version = "1.41", features = ["fs", "rt-multi-thread"] }
+dydx-proto = "0.2.0"

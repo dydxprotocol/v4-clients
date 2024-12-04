@@ -44,6 +44,11 @@ impl IndexerClient {
         self.rest.utility()
     }
 
+    /// Get vaults query dispatcher.
+    pub fn vaults(&self) -> rest::Vaults {
+        self.rest.vaults()
+    }
+
     /// Get feeds dispatcher.
     pub fn feed(&mut self) -> Feeds<'_> {
         Feeds::new(&mut self.sock)

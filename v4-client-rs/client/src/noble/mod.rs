@@ -64,7 +64,7 @@ pub struct NobleClient {
 impl NobleClient {
     /// Connect to the node.
     pub async fn connect(config: NobleConfig) -> Result<Self, Error> {
-        let tls = ClientTlsConfig::new();
+        let tls = ClientTlsConfig::new().with_native_roots();
         let endpoint = config.endpoint.clone();
         let channel = Channel::from_shared(endpoint)?
             .tls_config(tls)?
@@ -85,6 +85,7 @@ impl NobleClient {
     pub async fn get_account_balances(&mut self, address: Address) -> Result<Vec<Coin>, Error> {
         let req = QueryAllBalancesRequest {
             address: address.to_string(),
+            resolve_denom: false,
             pagination: None,
         };
         let balances = self

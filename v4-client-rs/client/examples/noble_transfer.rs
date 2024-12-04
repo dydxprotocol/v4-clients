@@ -1,3 +1,4 @@
+#[cfg(feature = "noble")]
 use anyhow::Result;
 
 #[cfg(feature = "noble")]
