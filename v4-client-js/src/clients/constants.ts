@@ -86,7 +86,8 @@ export const TYPE_URL_MSG_UPDATE_CLOB_PAIR = '/dydxprotocol.clob.MsgUpdateClobPa
 export const TYPE_URL_MSG_DELAY_MESSAGE = '/dydxprotocol.delaymsg.MsgDelayMessage';
 
 // x/listing
-export const TYPE_URL_MSG_CREATE_MARKET_PERMISSIONLESS = '/dydxprotocol.listing.MsgCreateMarketPermissionless';
+export const TYPE_URL_MSG_CREATE_MARKET_PERMISSIONLESS =
+  '/dydxprotocol.listing.MsgCreateMarketPermissionless';
 
 // x/perpetuals
 export const TYPE_URL_MSG_CREATE_PERPETUAL = '/dydxprotocol.perpetuals.MsgCreatePerpetual';
@@ -193,6 +194,12 @@ export enum TimePeriod {
 export enum PnlTickInterval {
   HOUR = 'hour',
   day = 'day',
+}
+
+export enum TradingRewardAggregationPeriod {
+  DAILY = 'DAILY',
+  WEEKLY = 'WEEKLY',
+  MONTHLY = 'MONTHLY',
 }
 
 // ------------ API Defaults ------------
