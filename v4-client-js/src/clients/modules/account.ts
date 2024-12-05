@@ -160,7 +160,7 @@ export default class AccountClient extends RestClient {
     });
   }
 
-  async getParentSubaccountOrders(
+  async getParentSubaccountNumberOrders(
     address: string,
     parentSubaccountNumber: number,
     ticker?: string | null,
@@ -265,7 +265,7 @@ export default class AccountClient extends RestClient {
     });
   }
 
-  async getParentSubaccountHistoricalPNLs(
+  async getParentSubaccountNumberHistoricalPNLs(
     address: string,
     parentSubaccountNumber: number,
     createdBeforeOrAtHeight?: number | null,
