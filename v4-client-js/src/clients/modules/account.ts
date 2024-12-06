@@ -300,4 +300,14 @@ export default class AccountClient extends RestClient {
     const uri = `/v4/historicalTradingRewardAggregations/${address}`;
     return this.get(uri, { period, limit, startingBeforeOrAt, startingBeforeOrAtHeight });
   }
+
+  async getHistoricalBlockTradingRewards(
+    address: string,
+    limit?: number,
+    startingBeforeOrAt?: string,
+    startingBeforeOrAtHeight?: string,
+  ): Promise<Data> {
+    const uri = `/v4/historicalBlockTradingRewards/${address}`;
+    return this.get(uri, { limit, startingBeforeOrAt, startingBeforeOrAtHeight });
+  }
 }
