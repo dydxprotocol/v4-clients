@@ -1,4 +1,11 @@
-import { OrderSide, OrderStatus, OrderType, PositionStatus, TickerType } from '../constants';
+import {
+  OrderSide,
+  OrderStatus,
+  OrderType,
+  PositionStatus,
+  TickerType,
+  TradingRewardAggregationPeriod,
+} from '../constants';
 import { Data } from '../types';
 import RestClient from './rest';
 
@@ -6,6 +13,8 @@ import RestClient from './rest';
  * @description REST endpoints for data related to a particular address.
  */
 export default class AccountClient extends RestClient {
+  // ------ Subaccount ------ //
+
   async getSubaccounts(address: string, limit?: number): Promise<Data> {
     const uri = `/v4/addresses/${address}`;
     return this.get(uri, { limit });
@@ -15,6 +24,13 @@ export default class AccountClient extends RestClient {
     const uri = `/v4/addresses/${address}/subaccountNumber/${subaccountNumber}`;
     return this.get(uri);
   }
+
+  async getParentSubaccount(address: string, parentSubaccountNumber: number): Promise<Data> {
+    const uri = `/v4/addresses/${address}/subaccountNumber/${parentSubaccountNumber}`;
+    return this.get(uri);
+  }
+
+  // ------ Positions ------ //
 
   async getSubaccountPerpetualPositions(
     address: string,
@@ -49,6 +65,27 @@ export default class AccountClient extends RestClient {
       subaccountNumber,
       status,
       limit,
+      createdBeforeOrAtHeight,
+      createdBeforeOrAt,
+    });
+  }
+
+  // ------ Transfers ------ //
+
+  async getTransfersBetween(
+    sourceAddress: string,
+    sourceSubaccountNumber: string,
+    recipientAddress: string,
+    recipientSubaccountNumber: string,
+    createdBeforeOrAtHeight?: number | null,
+    createdBeforeOrAt?: string | null,
+  ): Promise<Data> {
+    const uri = '/v4/transfers/between';
+    return this.get(uri, {
+      sourceAddress,
+      sourceSubaccountNumber,
+      recipientAddress,
+      recipientSubaccountNumber,
       createdBeforeOrAtHeight,
       createdBeforeOrAt,
     });
@@ -92,6 +129,8 @@ export default class AccountClient extends RestClient {
     });
   }
 
+  // ------ Orders ------ //
+
   async getSubaccountOrders(
     address: string,
     subaccountNumber: number,
@@ -121,10 +160,39 @@ export default class AccountClient extends RestClient {
     });
   }
 
+  async getParentSubaccountNumberOrders(
+    address: string,
+    parentSubaccountNumber: number,
+    ticker?: string | null,
+    side?: OrderSide | null,
+    status?: OrderStatus | null,
+    type?: OrderType | null,
+    limit?: number | null,
+    goodTilBlockBeforeOrAt?: number | null,
+    goodTilBlockTimeBeforeOrAt?: string | null,
+    returnLatestOrders?: boolean | null,
+  ): Promise<Data> {
+    const uri = '/v4/orders/parentSubaccountNumber';
+    return this.get(uri, {
+      address,
+      parentSubaccountNumber,
+      ticker,
+      side,
+      status,
+      type,
+      limit,
+      goodTilBlockBeforeOrAt,
+      goodTilBlockTimeBeforeOrAt,
+      returnLatestOrders,
+    });
+  }
+
   async getOrder(orderId: string): Promise<Data> {
     const uri = `/v4/orders/${orderId}`;
     return this.get(uri);
   }
+
+  // ------ Fills ------ //
 
   async getSubaccountFills(
     address: string,
@@ -172,6 +240,8 @@ export default class AccountClient extends RestClient {
     });
   }
 
+  // ------ Pnl ------ //
+
   async getSubaccountHistoricalPNLs(
     address: string,
     subaccountNumber: number,
@@ -195,22 +265,49 @@ export default class AccountClient extends RestClient {
     });
   }
 
-  async getTransfersBetween(
-    sourceAddress: string,
-    sourceSubaccountNumber: string,
-    recipientAddress: string,
-    recipientSubaccountNumber: string,
+  async getParentSubaccountNumberHistoricalPNLs(
+    address: string,
+    parentSubaccountNumber: number,
     createdBeforeOrAtHeight?: number | null,
-    createdBeforeOrAt?: string | null
-  ): Promise<Data>  {
-    const uri = '/v4/transfers/between';
+    createdBeforeOrAt?: string | null,
+    createdOnOrAfterHeight?: number | null,
+    createdOnOrAfter?: string | null,
+    limit?: number | null,
+    page?: number | null,
+  ): Promise<Data> {
+    const uri = '/v4//historical-pnl/parentSubaccount';
     return this.get(uri, {
-      sourceAddress,
-      sourceSubaccountNumber,
-      recipientAddress,
-      recipientSubaccountNumber,
+      address,
+      parentSubaccountNumber,
       createdBeforeOrAtHeight,
       createdBeforeOrAt,
+      createdOnOrAfterHeight,
+      createdOnOrAfter,
+      limit,
+      page,
     });
+  }
+
+  // ------ Rewards ------ //
+
+  async getHistoricalTradingRewardsAggregations(
+    address: string,
+    period: TradingRewardAggregationPeriod,
+    limit?: number,
+    startingBeforeOrAt?: string,
+    startingBeforeOrAtHeight?: string,
+  ): Promise<Data> {
+    const uri = `/v4/historicalTradingRewardAggregations/${address}`;
+    return this.get(uri, { period, limit, startingBeforeOrAt, startingBeforeOrAtHeight });
+  }
+
+  async getHistoricalBlockTradingRewards(
+    address: string,
+    limit?: number,
+    startingBeforeOrAt?: string,
+    startingBeforeOrAtHeight?: string,
+  ): Promise<Data> {
+    const uri = `/v4/historicalBlockTradingRewards/${address}`;
+    return this.get(uri, { limit, startingBeforeOrAt, startingBeforeOrAtHeight });
   }
 }
