@@ -1,1 +1,0 @@
-from dydx_v4_client.indexer.rest.indexer_client import IndexerClient

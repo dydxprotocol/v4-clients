@@ -2,7 +2,13 @@ import { decode } from 'bech32';
 import Long from 'long';
 
 import { MAX_SUBACCOUNT_NUMBER, MAX_UINT_32 } from '../clients/constants';
-import { Transfer, OrderFlags, ICancelOrder, IPlaceOrder } from '../clients/types';
+import {
+  Transfer,
+  OrderFlags,
+  ICancelOrder,
+  IPlaceOrder,
+  IBatchCancelOrder,
+} from '../clients/types';
 import { UserError } from './errors';
 
 /**
@@ -78,18 +84,51 @@ export function validateCancelOrderMessage(
 }
 
 /**
+ * @describe validateBatchCancelOrderMessage validates that orders to batch cancel have fields that would be
+ *  valid on-chain.
+ */
+export function validateBatchCancelOrderMessage(
+  subaccountNumber: number,
+  orders: IBatchCancelOrder,
+): UserError | undefined {
+  for (const orderBatch of orders.shortTermOrders) {
+    for (const clientId of orderBatch.clientIds) {
+      if (!verifyNumberIsUint32(clientId)) {
+        return new UserError(`clientId: ${clientId} is not a valid uint32`);
+      }
+    }
+  }
+
+  if (!verifyGoodTilBlock(orders.goodTilBlock)) {
+    return new UserError(`goodTilBlock: ${orders.goodTilBlock} is not a valid uint32 or is 0`);
+  }
+
+  if (!verifySubaccountNumber(subaccountNumber)) {
+    return new UserError(
+      `subaccountNumber: ${subaccountNumber} cannot be < 0 or > ${MAX_SUBACCOUNT_NUMBER}`,
+    );
+  }
+
+  return undefined;
+}
+
+/**
  * @describe validateTransferMessage validates that a transfer to place has fields that would be
  *  valid on-chain.
  */
 export function validateTransferMessage(transfer: Transfer): UserError | undefined {
   if (!verifySubaccountNumber(transfer.sender!!.number || 0)) {
     return new UserError(
-      `senderSubaccountNumber: ${transfer.sender!!.number || 0} cannot be < 0 or > ${MAX_SUBACCOUNT_NUMBER}`,
+      `senderSubaccountNumber: ${
+        transfer.sender!!.number || 0
+      } cannot be < 0 or > ${MAX_SUBACCOUNT_NUMBER}`,
     );
   }
   if (!verifySubaccountNumber(transfer.recipient!!.number || 0)) {
     return new UserError(
-      `recipientSubaccountNumber: ${transfer.recipient!!.number || 0} cannot be < 0 or > ${MAX_SUBACCOUNT_NUMBER}`,
+      `recipientSubaccountNumber: ${
+        transfer.recipient!!.number || 0
+      } cannot be < 0 or > ${MAX_SUBACCOUNT_NUMBER}`,
     );
   }
   if (transfer.assetId !== 0) {

@@ -1,0 +1,9 @@
+[node]
+# You can select other gRPC endpoints from [the list](https://docs.dydx.exchange/infrastructure_providers-network/resources#full-node-endpoints).
+endpoint = "https://dydx-ops-grpc.kingnodes.com:443"
+chain_id = "dydx-mainnet-1"
+fee_denom = "ibc/8E27BA2D5493AF5636760E354E46004562C46AB7EC0CC4C1CA14E9E20E2545B5"
+
+[indexer]
+http.endpoint = "https://indexer.dydx.trade/v4"
+ws.endpoint = "wss://indexer.dydx.trade/v4/ws"

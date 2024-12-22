@@ -49,6 +49,16 @@ function toBigInt(u: Uint8Array): BigInt {
   return negated ? -abs : abs;
 }
 
+export function bigIntToBytes(value: bigint): Uint8Array {
+  const absoluteValue = value < 0 ? value * BigInt(-1) : value;
+  const nonPaddedHexValue = absoluteValue.toString(16);
+  const paddedHexValue =
+    nonPaddedHexValue.length % 2 === 0 ? nonPaddedHexValue : `0${nonPaddedHexValue}`;
+  const numberBytes = Buffer.from(paddedHexValue, 'hex');
+  const signedBytes = Uint8Array.of(value < 0 ? 3 : 2, ...numberBytes);
+  return signedBytes;
+}
+
 export enum ByteArrayEncoding {
   HEX = 'hex',
   BIGINT = 'bigint',

@@ -1,0 +1,27 @@
+syntax = "proto3";
+package slinky.alerts.v1;
+
+import "amino/amino.proto";
+import "cosmos_proto/cosmos.proto";
+import "gogoproto/gogo.proto";
+import "tendermint/abci/types.proto";
+
+option go_package = "github.com/skip-mev/connect/v2/x/alerts/types/strategies";
+
+// ValidatorAlertIncentive defines the incentive strategy to be executed for a
+// validator that has been confirmed to have at fault for an x/alerts alert.
+// This strategy is expected to slash half of the validator's stake.
+message ValidatorAlertIncentive {
+  option (cosmos_proto.implements_interface) = "slinky.incentives.v1.Incentive";
+  option (amino.name) = "slinky/x/alerts/ValidatorAlertIncentive";
+
+  // The validator that has been confirmed to have been at fault for an alert.
+  tendermint.abci.Validator validator = 1 [ (gogoproto.nullable) = false ];
+
+  // AlertSigner is the signer of the alert referenced by the conclusion that
+  // created this incentive.
+  string alert_signer = 2 [ (cosmos_proto.scalar) = "cosmos.AddressString" ];
+
+  // AlertHeight is the height at which the infraction occurred
+  uint64 alert_height = 3;
+}

@@ -7,15 +7,22 @@ import {
   MsgDelegate,
   MsgUndelegate,
 } from '@dydxprotocol/v4-proto/src/codegen/cosmos/staking/v1beta1/tx';
+import { MsgRegisterAffiliate } from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/affiliates/tx';
 import { ClobPair_Status } from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/clob/clob_pair';
 import {
+  MsgBatchCancel,
   MsgCreateClobPair,
   MsgUpdateClobPair,
+  OrderBatch,
 } from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/clob/tx';
 import { MsgDelayMessage } from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/delaymsg/tx';
 import { PerpetualMarketType } from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/perpetuals/perpetual';
 import { MsgCreatePerpetual } from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/perpetuals/tx';
 import { MsgCreateOracleMarket } from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/prices/tx';
+import {
+  MsgDepositToMegavault,
+  MsgWithdrawFromMegavault,
+} from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/vault/tx';
 import { MsgSend } from 'cosmjs-types/cosmos/bank/v1beta1/tx';
 import { Coin } from 'cosmjs-types/cosmos/base/v1beta1/coin';
 import { Any } from 'cosmjs-types/google/protobuf/any';
@@ -40,6 +47,11 @@ import {
   TYPE_URL_MSG_DELEGATE,
   TYPE_URL_MSG_UNDELEGATE,
   TYPE_URL_MSG_WITHDRAW_DELEGATOR_REWARD,
+  TYPE_URL_BATCH_CANCEL,
+  TYPE_URL_MSG_REGISTER_AFFILIATE,
+  TYPE_URL_MSG_DEPOSIT_TO_MEGAVAULT,
+  TYPE_URL_MSG_WITHDRAW_FROM_MEGAVAULT,
+  TYPE_URL_MSG_CREATE_MARKET_PERMISSIONLESS,
 } from '../constants';
 import { DenomConfig } from '../types';
 import {
@@ -51,6 +63,7 @@ import {
   MsgPlaceOrder,
   MsgCancelOrder,
   SubaccountId,
+  MsgCreateMarketPermissionless,
   MsgCreateTransfer,
   Transfer,
   MsgDepositToSubaccount,
@@ -145,6 +158,29 @@ export class Composer {
 
     return {
       typeUrl: TYPE_URL_MSG_CANCEL_ORDER,
+      value: msg,
+    };
+  }
+
+  public composeMsgBatchCancelShortTermOrders(
+    address: string,
+    subaccountNumber: number,
+    shortTermCancels: OrderBatch[],
+    goodTilBlock: number,
+  ): EncodeObject {
+    const subaccountId: SubaccountId = {
+      owner: address,
+      number: subaccountNumber,
+    };
+
+    const msg: MsgBatchCancel = {
+      subaccountId,
+      shortTermCancels,
+      goodTilBlock,
+    };
+
+    return {
+      typeUrl: TYPE_URL_BATCH_CANCEL,
       value: msg,
     };
   }
@@ -419,6 +455,51 @@ export class Composer {
     };
   }
 
+  // ------------ x/vault ------------
+  public composeMsgDepositToMegavault(
+    address: string,
+    subaccountNumber: number,
+    quoteQuantums: Uint8Array,
+  ): EncodeObject {
+    const subaccountId: SubaccountId = {
+      owner: address,
+      number: subaccountNumber,
+    };
+
+    const msg: MsgDepositToMegavault = {
+      quoteQuantums,
+      subaccountId,
+    };
+
+    return {
+      typeUrl: TYPE_URL_MSG_DEPOSIT_TO_MEGAVAULT,
+      value: msg,
+    };
+  }
+
+  public composeMsgWithdrawFromMegavault(
+    address: string,
+    subaccountNumber: number,
+    shares: Uint8Array,
+    minQuoteQuantums: Uint8Array,
+  ): EncodeObject {
+    const subaccountId: SubaccountId = {
+      owner: address,
+      number: subaccountNumber,
+    };
+
+    const msg: MsgWithdrawFromMegavault = {
+      minQuoteQuantums,
+      shares: { numShares: shares },
+      subaccountId,
+    };
+
+    return {
+      typeUrl: TYPE_URL_MSG_WITHDRAW_FROM_MEGAVAULT,
+      value: msg,
+    };
+  }
+
   // ------------ x/staking ------------
   public composeMsgDelegate(delegator: string, validator: string, amount: Coin): EncodeObject {
     const msg: MsgDelegate = {
@@ -457,6 +538,41 @@ export class Composer {
       typeUrl: TYPE_URL_MSG_WITHDRAW_DELEGATOR_REWARD,
       value: msg,
     };
+  }
+
+  // ------------ x/affiliates ------------
+  public composeMsgRegisterAffiliate(referee: string, affiliate: string): EncodeObject {
+    const msg: MsgRegisterAffiliate = {
+      referee,
+      affiliate,
+    };
+
+    return {
+      typeUrl: TYPE_URL_MSG_REGISTER_AFFILIATE,
+      value: msg,
+    };
+  }
+
+  // ------------ x/listing ------------
+  public composeMsgCreateMarketPermissionless(
+    address: string,
+    ticker: string,
+    subaccountNumber: number,
+  ): EncodeObject {
+    const subaccountId: SubaccountId = {
+      owner: address,
+      number: subaccountNumber,
+    };
+
+    const msg: MsgCreateMarketPermissionless = {
+      ticker,
+      subaccountId
+    };
+
+    return {
+      typeUrl: TYPE_URL_MSG_CREATE_MARKET_PERMISSIONLESS,
+      value: msg,
+    }
   }
 
   // ------------ util ------------

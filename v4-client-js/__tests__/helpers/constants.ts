@@ -10,6 +10,7 @@ import {
   IPlaceOrder,
   Order_Side,
   Order_TimeInForce,
+  IBatchCancelOrder,
 } from '../../src/types';
 
 export const TEST_ADDRESS: string = 'dydx1vl9h9nkmau4e9v7tm30wekespu3d2qhd9404wa';
@@ -42,6 +43,17 @@ export const defaultCancelOrder: ICancelOrder = {
   clientId: generateRandomClientId(),
   orderFlags: OrderFlags.SHORT_TERM,
   clobPairId: ClobPairId.PERPETUAL_PAIR_BTC_USD,
+  goodTilBlock: 4250,
+};
+
+// BatchCancelOrder variables
+export const defaultBatchCancelOrder: IBatchCancelOrder = {
+  shortTermOrders: [
+    {
+      clobPairId: ClobPairId.PERPETUAL_PAIR_BTC_USD,
+      clientIds: [generateRandomClientId(), generateRandomClientId()],
+    },
+  ],
   goodTilBlock: 4250,
 };
 

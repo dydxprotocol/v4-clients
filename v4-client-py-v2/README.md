@@ -32,6 +32,96 @@ Install from github:
 pip install git+https://github.com/dydxprotocol/v4-clients/blob/main/v4-client-py-v2
 ```
 
+Certainly! Here's the continued README section:
+
+---
+
+## Installation
+
+### Install from PyPI:
+
+To install the client from PyPI, run:
+
+```bash
+pip install dydx-v4-client
+```
+
+### Install from GitHub:
+
+To install directly from the GitHub repository, run:
+
+```bash
+pip install git+https://github.com/dydxprotocol/v4-clients/blob/main/v4-client-py-v2
+```
+
+### Common Installation Issue on Ubuntu
+
+If you're using Ubuntu and encounter the following error when trying to install `dydx-v4-client`:
+
+```
+Failed building wheel for ed25519-blake2b
+```
+
+This error suggests there might be some compatibility issues or missing dependencies. The likely cause is that the `ed25519-blake2b` package requires Rust to be installed for building the necessary components. Here’s how you can fix this:
+
+1. **Ensure Necessary Build Tools Are Installed:**
+
+   First, update your package list and install the essential build tools:
+
+   ```bash
+   sudo apt-get update
+   sudo apt-get install build-essential python3-dev
+   ```
+
+2. **Install Additional System Libraries:**
+
+   Install the SSL development libraries:
+
+   ```bash
+   sudo apt-get install libssl-dev
+   ```
+
+3. **Install Rust Using rustup:**
+
+   Rust is required to build certain packages. Install it using the following command:
+
+   ```bash
+   curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+   ```
+
+   Follow the prompts to complete the installation. After installation, you may need to restart your terminal or run:
+
+   ```bash
+   source $HOME/.cargo/env
+   ```
+
+   to update your PATH.
+
+4. **Upgrade pip, setuptools, and wheel:**
+
+   Ensure you have the latest versions of pip, setuptools, and wheel:
+
+   ```bash
+   pip install --upgrade pip setuptools wheel
+   ```
+
+5. **Install the ed25519-blake2b Package Separately:**
+
+   To isolate the issue, try installing the `ed25519-blake2b` package first:
+
+   ```bash
+   pip install ed25519-blake2b
+   ```
+
+6. **Reattempt Installation of dydx-v4-client:**
+
+   If the above steps succeed, try installing `dydx-v4-client` again:
+
+   ```bash
+   pip install dydx-v4-client
+   ```
+
+
 ## Getting Started Guide
 
 **dYdX Python SDK Trading Documentation**: go-to resource for starting trades on dYdX using the Python SDK. Follow this guide to learn the basics and begin trading.

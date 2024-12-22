@@ -2,13 +2,19 @@ import { PartialTransactionOptions, TransactionOptions } from '../../src';
 import { DEFAULT_SEQUENCE } from '../../src/lib/constants';
 import { convertPartialTransactionOptionsToFull, stripHexPrefix } from '../../src/lib/helpers';
 import { defaultTransactionOptions } from '../helpers/constants';
-import { calculateSubticks } from '../../src/clients/helpers/chain-helpers';
+import { calculateSubticks, calculateQuantums } from '../../src/clients/helpers/chain-helpers';
 import Long from 'long';
 
 describe('helpers', () => {
   describe('calculateSubticks', () => {
-    it('test test', () => {
+    it('correctly handles decimals', () => {
       expect(calculateSubticks(8.45, -7, -9, 1000000)).toEqual(new Long(845_000_000));
+    });
+  });
+
+  describe('calculateQuantums', () => {
+    it('correctly handles decimals', () => {
+      expect(calculateQuantums(0.0003, -10, 1000000)).toEqual(new Long(3_000_000));
     });
   });
   

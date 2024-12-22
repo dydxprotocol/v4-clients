@@ -1,5 +1,6 @@
 const path = require('path');
 
+const NodePolyfillPlugin = require('node-polyfill-webpack-plugin');
 const webpack = require('webpack');
 
 module.exports = {
@@ -31,6 +32,7 @@ module.exports = {
       http: require.resolve('stream-http'),
       path: require.resolve('path-browserify'),
       crypto: require.resolve('crypto-browserify'),
+      util: require.resolve('util'),
     },
   },
   plugins: [
@@ -44,5 +46,6 @@ module.exports = {
         },
       },
     }),
+    new NodePolyfillPlugin(),
   ],
 };

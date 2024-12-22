@@ -1,0 +1,35 @@
+name: "Conventional PR Title"
+on:
+  pull_request:
+    types: ['opened', 'edited', 'reopened', 'synchronize']
+    paths:
+      - 'v4-client-js/**'
+      - 'v4-client-rs/**'
+jobs:
+  conventional-pr-title:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./v4-client-js
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Use Node.js 20.8.1
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20.8.1
+          registry-url: https://registry.npmjs.org
+          cache: "npm"
+          cache-dependency-path: '**/package-lock.json'
+
+      - name: Install dependencies
+        run: |
+          npm install @commitlint/config-conventional
+
+      - name: Lint PR Title
+        run: |
+          echo "${PR_TITLE}" | npx commitlint --config commitlint.config.js
+        env:
+          PR_TITLE: '${{ github.event.pull_request.title }}'
+

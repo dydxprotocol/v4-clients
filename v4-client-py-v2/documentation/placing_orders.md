@@ -33,4 +33,4 @@ Alternatively, you can use the market-based calculator, which provides more conv
 - Long term order + cancel: Example in `examples/long_term_order_cancel_example.py`
 
 ## Next Steps
-Continue reading to learn how to [manage your positions](./account_order_information.md) using the dYdX Python SDK.
+Continue reading to learn how to [cancel orders](./cancelling_orders.md) using the dYdX Python SDK.

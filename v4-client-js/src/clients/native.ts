@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /*
     Native app can call JS functions with primitives.
 */
@@ -16,7 +17,7 @@ import Long from 'long';
 import { BECH32_PREFIX, GAS_MULTIPLIER, NOBLE_BECH32_PREFIX } from '../lib/constants';
 import { UserError } from '../lib/errors';
 import { ByteArrayEncoding, encodeJson } from '../lib/helpers';
-import { deriveHDKeyFromEthereumSignature } from '../lib/onboarding';
+import { deriveHDKeyFromEthereumSignature, deriveHDKeyFromMnemonic } from '../lib/onboarding';
 import { NetworkOptimizer } from '../network_optimizer';
 import { CompositeClient, MarketInfo } from './composite-client';
 import {
@@ -30,6 +31,7 @@ import {
   SelectedGasDenom,
 } from './constants';
 import { FaucetClient } from './faucet-client';
+import { parseToPrimitives } from './helpers/request-helpers';
 import { Response } from './lib/axios';
 import LocalWallet from './modules/local-wallet';
 import { NobleClient } from './noble-client';
@@ -147,6 +149,12 @@ export async function connectWallet(mnemonic: string): Promise<string> {
     globalThis.wallet = await LocalWallet.fromMnemonic(mnemonic, BECH32_PREFIX);
     globalThis.nobleWallet = await LocalWallet.fromMnemonic(mnemonic, NOBLE_BECH32_PREFIX);
 
+    const { privateKey, publicKey } = deriveHDKeyFromMnemonic(mnemonic);
+    globalThis.hdKey = {
+      privateKey,
+      publicKey,
+    };
+
     try {
       await globalThis.nobleClient?.connect(globalThis.nobleWallet);
     } catch (e) {
@@ -212,11 +220,16 @@ export async function getFeeTiers(): Promise<string> {
   }
 }
 
-export async function getUserFeeTier(address: string): Promise<string> {
+export async function getUserFeeTier(payload: string): Promise<string> {
   try {
     const client = globalThis.client;
     if (client === undefined) {
       throw new UserError('client is not connected. Call connectClient() first');
+    }
+    const json = JSON.parse(payload);
+    const address = json.address;
+    if (address === undefined) {
+      throw new UserError('address is not set');
     }
     const feeTiers = await globalThis.client?.validatorClient.get.getUserFeeTier(address);
     return encodeJson(feeTiers);
@@ -431,7 +444,7 @@ export async function withdraw(payload: string): Promise<string> {
     }
 
     const subaccount = new SubaccountInfo(wallet, subaccountNumber);
-    const tx = await client.withdrawFromSubaccount(subaccount, amount, json.recipient);
+    const tx = await client.withdrawFromSubaccount(subaccount, amount, json.recipient, json.memo);
     return encodeJson(tx);
   } catch (error) {
     return wrappedError(error);
@@ -552,7 +565,7 @@ export async function transferNativeToken(payload: string): Promise<string> {
       },
       false,
       client.validatorClient.post.defaultDydxGasPrice,
-      undefined,
+      json.memo,
     );
     return encodeJson(tx);
   } catch (error) {
@@ -1211,14 +1224,14 @@ export async function getWithdrawalCapacityByDenom(payload: string): Promise<str
   }
 }
 
-export async function getWithdrawalAndTransferGatingStatus(): Promise<string> {
+export async function getWithdrawalAndTransferGatingStatus(perpetualId: number): Promise<string> {
   try {
     const client = globalThis.client;
     if (client === undefined) {
       throw new UserError('client is not connected. Call connectClient() first');
     }
 
-    const response = await client.validatorClient.get.getWithdrawalAndTransferGatingStatus();
+    const response = await client.validatorClient.get.getWithdrawalAndTransferGatingStatus(perpetualId);
     return encodeJson(response);
   } catch (error) {
     return wrappedError(error);
@@ -1306,6 +1319,34 @@ export async function signCompliancePayload(payload: string): Promise<string> {
   }
 }
 
+export async function signPushNotificationTokenRegistrationPayload(payload: string): Promise<string> {
+  try {
+    const json = JSON.parse(payload);
+    const message = json.message;
+    if (message === undefined) {
+      throw new UserError('message is not set');
+    }
+    if (!globalThis.hdKey?.privateKey || !globalThis.hdKey?.publicKey) {
+      throw new Error('Missing hdKey');
+    }
+
+    const timestampInSeconds = Math.floor(Date.now() / 1000);
+    const messageToSign: string = `${message}:REGISTER_TOKEN"${''}:${timestampInSeconds}`;
+    const messageHash = sha256(Buffer.from(messageToSign));
+
+    const signed = await Secp256k1.createSignature(messageHash, globalThis.hdKey.privateKey);
+    const signedMessage = signed.toFixedLength();
+
+    return encodeJson({
+      signedMessage: Buffer.from(signedMessage).toString('base64'),
+      publicKey: Buffer.from(globalThis.hdKey.publicKey).toString('base64'),
+      timestamp: timestampInSeconds,
+    });
+  } catch (error) {
+    return wrappedError(error);
+  }
+}
+
 export async function setSelectedGasDenom(gasDenom: string): Promise<string> {
   try {
     const client = globalThis.client;
@@ -1314,6 +1355,93 @@ export async function setSelectedGasDenom(gasDenom: string): Promise<string> {
     }
     await client.setSelectedGasDenom(gasDenom as SelectedGasDenom);
     return encodeJson('success');
+  } catch (error) {
+    return wrappedError(error);
+  }
+}
+
+export async function getMegavaultOwnerShares(payload: string): Promise<string> {
+  try {
+    const client = globalThis.client;
+    if (client === undefined) {
+      throw new UserError('client is not connected. Call connectClient() first');
+    }
+    const json = JSON.parse(payload);
+    const address = json.address;
+    if (address === undefined) {
+      throw new UserError('address is not set');
+    }
+    const response =
+      await globalThis.client?.validatorClient.get.getMegavaultOwnerShares(address);
+    return encodeJson(parseToPrimitives(response));
+  } catch (e) {
+    return wrappedError(e);
+  }
+}
+
+export async function getMegavaultWithdrawalInfo(
+  sharesToWithdraw: bigint
+): Promise<string> {
+  try {
+    const client = globalThis.client;
+    if (client === undefined) {
+      throw new UserError('client is not connected. Call connectClient() first');
+    }
+    const response =
+      await globalThis.client?.validatorClient.get.getMegavaultWithdrawalInfo(sharesToWithdraw);
+      return encodeJson(parseToPrimitives(response));
+  } catch (e) {
+    return wrappedError(e);
+  }
+}
+
+export async function depositToMegavault(
+  subaccountNumber: number,
+  amountUsdc: number
+): Promise<string> {
+  try {
+    const client = globalThis.client;
+    if (client === undefined) {
+      throw new UserError('client is not connected. Call connectNetwork() first');
+    }
+    const wallet = globalThis.wallet;
+    if (wallet === undefined) {
+      throw new UserError('wallet is not set. Call connectWallet() first');
+    }
+    const subaccount = new SubaccountInfo(wallet, subaccountNumber);
+    const tx = await client.depositToMegavault(
+      subaccount,
+      amountUsdc,
+      Method.BroadcastTxCommit,
+    );
+    return encodeJson(parseToPrimitives(tx));
+  } catch (error) {
+    return wrappedError(error);
+  }
+}
+
+export async function withdrawFromMegavault(
+  subaccountNumber: number,
+  shares: number,
+  minAmount: number,
+): Promise<string> {
+  try {
+    const client = globalThis.client;
+    if (client === undefined) {
+      throw new UserError('client is not connected. Call connectNetwork() first');
+    }
+    const wallet = globalThis.wallet;
+    if (wallet === undefined) {
+      throw new UserError('wallet is not set. Call connectWallet() first');
+    }
+    const subaccount = new SubaccountInfo(wallet, subaccountNumber);
+    const tx = await client.withdrawFromMegavault(
+      subaccount,
+      shares,
+      minAmount,
+      Method.BroadcastTxCommit,
+    );
+    return encodeJson(parseToPrimitives(tx));
   } catch (error) {
     return wrappedError(error);
   }

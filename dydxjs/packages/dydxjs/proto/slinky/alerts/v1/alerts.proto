@@ -1,0 +1,123 @@
+syntax = "proto3";
+package slinky.alerts.v1;
+
+import "slinky/oracle/v1/genesis.proto";
+import "amino/amino.proto";
+import "cosmos_proto/cosmos.proto";
+import "gogoproto/gogo.proto";
+import "tendermint/abci/types.proto";
+import "google/protobuf/any.proto";
+import "slinky/types/v1/currency_pair.proto";
+
+option go_package = "github.com/skip-mev/connect/v2/x/alerts/types";
+
+// Alert defines the basic meta-data necessary for the alerts module to resolve
+// a claim that the price of a CurrencyPair on-chain is deviating from the price
+// off-chain.
+message Alert {
+  option (amino.name) = "slinky/x/alerts/Alert";
+
+  // height represents the height for which the alert is filed.
+  uint64 height = 1;
+
+  // signer is the signer of this alert, this is the address that will receive
+  // the reward in the case of a positive conclusion, or whose bond will get
+  // slashed in the event of a negative conclusion.
+  string signer = 2 [ (cosmos_proto.scalar) = "cosmos.AddressString" ];
+
+  // currency_pair is the currency-pair that this claim asserts is deviating
+  // from the price off-chain.
+  slinky.types.v1.CurrencyPair currency_pair = 3
+      [ (gogoproto.nullable) = false ];
+}
+
+// AlertStatus contains the module specific state for an alert: Has the alert
+// been concluded? What height was the alert submitted, what height should the
+// alert be purged?
+message AlertStatus {
+  option (amino.name) = "slinky/x/alerts/AlertStatus";
+
+  // ConclusionStatus determines whether the alert has been concluded.
+  uint64 conclusion_status = 1;
+
+  // SubmissionHeight is the height that the alert was submitted in.
+  uint64 submission_height = 2;
+
+  // SubmissionTimestamp is the block-timestamp of the block that the alert was
+  // submitted in (as a UTC value in Unix time).
+  uint64 submission_timestamp = 3;
+
+  // PurgeHeight is the height at which the alert should be purged.
+  uint64 purge_height = 4;
+}
+
+// AlertWithStatus represents a wrapper around the Alert and AlertStatus
+// objects, this is so that the module specific information about Alerts can be
+// packaged together.
+message AlertWithStatus {
+  option (amino.name) = "slinky/x/alerts/AlertWithStatus";
+
+  // alert is the alert that this status corresponds to.
+  Alert alert = 1 [ (gogoproto.nullable) = false ];
+
+  // status is the status of the alert.
+  AlertStatus status = 2 [ (gogoproto.nullable) = false ];
+}
+
+// Signature is a container for a signer address mapped to a signature.
+message Signature {
+  string signer = 1;
+  bytes signature = 2;
+}
+
+// MultiSigConcluson defines a conclusion that is accompanied by a set of
+// signatures. The signature is defined over the alert UID, status, OracleData,
+// and PriceBound. The signatures are used to verify that the conclusion is
+// valid.
+message MultiSigConclusion {
+  option (amino.name) = "slinky/x/alerts/Conclusion";
+  option (cosmos_proto.implements_interface) = "slinky.alerts.v1.Conclusion";
+
+  // alert is the alert that this conclusion corresponds to.
+  Alert alert = 1 [ (gogoproto.nullable) = false ];
+
+  // oracle_data is the oracle data that this conclusion references.
+  tendermint.abci.ExtendedCommitInfo extended_commit_info = 2
+      [ (gogoproto.nullable) = false ];
+
+  // signatures is a map of signer -> signature. Where the signature is over
+  // Alert.UID, PriceBound, the marshalled ExtendedCommitInfo, and status.
+  repeated Signature signatures = 3 [ (gogoproto.nullable) = false ];
+
+  // price-bound is the price bound of the currency-pair off-chain for the
+  // designated time-range.
+  PriceBound price_bound = 4 [ (gogoproto.nullable) = false ];
+
+  // status is the status of the conclusion.
+  bool status = 5;
+
+  // CurrencyPairID is the ID of the currency-pair that this conclusion
+  // corresponds to.
+  uint64 currency_pair_i_d = 6;
+}
+
+// MultiSigConclusionVerificationParams defines the parameters necessary to
+// verify a MultiSigConclusion. It contains a map between signer and public key.
+// Notice, the public-key (value) are the base-64 encoded bytes of the public
+// key. And the signer (key) is the bech32 encoded address of the signer.
+// Notice, all public keys must be secp256 keys.
+message MultiSigConclusionVerificationParams {
+  option (amino.name) = "slinky/x/alerts/ConclusionVerificationParams";
+  option (cosmos_proto.implements_interface) =
+      "slinky.alerts.v1.ConclusionVerificationParams";
+
+  // signers is a map of signer -> public key.
+  repeated google.protobuf.Any signers = 1;
+}
+
+// PriceBound represents the bounds of the price of a currency-pair off chain
+// for a designated time-range
+message PriceBound {
+  string high = 1;
+  string low = 2;
+}

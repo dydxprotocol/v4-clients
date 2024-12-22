@@ -1,8 +1,11 @@
+import logging
 from dataclasses import dataclass
 from functools import partial
 
 import grpc
 from grpc import insecure_channel
+
+logger = logging.getLogger(__name__)
 
 secure_channel = partial(
     grpc.secure_channel, credentials=grpc.ssl_channel_credentials()
@@ -27,6 +30,12 @@ class Network:
 def make_config(
     make_channel, make_node, rest_indexer: str, websocket_indexer: str, node_url: str
 ):
+    if node_url.startswith("http://") or node_url.startswith("https://"):
+        logger.warning(
+            "Node URL should not contain http(s)://. Stripping the prefix. In the future, consider providing the URL without the http(s) prefix."
+        )
+        node_url = node_url.split("://", 1)[1]
+
     return Network(
         rest_indexer,
         websocket_indexer,
@@ -56,7 +65,7 @@ testnet_node = partial(
 make_testnet = partial(
     make_secure,
     testnet_node,
-    rest_indexer="https://dydx-testnet.imperator.co",
+    rest_indexer="https://indexer.v4testnet.dydx.exchange",
     websocket_indexer="wss://indexer.v4testnet.dydx.exchange/v4/ws",
     node_url="test-dydx-grpc.kingnodes.com",
 )

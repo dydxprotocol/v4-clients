@@ -33,6 +33,7 @@ import {
   MsgPlaceOrder,
   MsgCancelOrder,
   Order_ConditionType,
+  OrderBatch,
 } from './proto-includes';
 
 // Required for encoding and decoding queries that are of type Long.
@@ -54,9 +55,16 @@ export class Post {
   public readonly defaultGasPrice: GasPrice;
   public readonly defaultDydxGasPrice: GasPrice;
 
+  public useTimestampNonce: boolean = false;
   private accountNumberCache: Map<string, Account> = new Map();
 
-  constructor(get: Get, chainId: string, denoms: DenomConfig, defaultClientMemo?: string) {
+  constructor(
+    get: Get,
+    chainId: string,
+    denoms: DenomConfig,
+    defaultClientMemo?: string,
+    useTimestampNonce?: boolean,
+  ) {
     this.get = get;
     this.chainId = chainId;
     this.registry = generateRegistry();
@@ -73,6 +81,19 @@ export class Post {
           : denoms.CHAINTOKEN_DENOM
       }`,
     );
+    if (useTimestampNonce === true) this.useTimestampNonce = useTimestampNonce;
+  }
+
+  /**
+   * @description Retrieves the account number for the given wallet address and populates the accountNumberCache.
+   * The account number is required for txOptions when signing a transaction.
+   * Pre-populating the cache avoids a round-trip request during the first transaction creation in the session, preventing it from being a performance blocker.
+   */
+  public async populateAccountNumberCache(address: string): Promise<void> {
+    if (this.accountNumberCache.has(address)) return;
+
+    const account = await this.get.getAccount(address);
+    this.accountNumberCache.set(address, account);
   }
 
   setSelectedGasDenom(selectedGasDenom: SelectedGasDenom): void {
@@ -100,18 +121,21 @@ export class Post {
     memo?: string,
     account?: () => Promise<Account>,
   ): Promise<StdFee> {
-    const msgsPromise = messaging();
-    const accountPromise = account ? await account() : this.account(wallet.address!);
-    const msgsAndAccount = await Promise.all([msgsPromise, accountPromise]);
-    const msgs = msgsAndAccount[0];
+    let msgs: EncodeObject[];
+    // protocol expects timestamp nonce in UTC milliseconds, which is the unit returned by Date.now()
+    let sequence = Date.now();
 
-    return this.simulateTransaction(
-      wallet.pubKey!,
-      msgsAndAccount[1].sequence,
-      msgs,
-      gasPrice,
-      memo,
-    );
+    if (this.useTimestampNonce) {
+      msgs = await messaging();
+    } else {
+      const msgsPromise = messaging();
+      const accountPromise = account ? await account() : this.account(wallet.address!);
+      const msgsAndAccount = await Promise.all([msgsPromise, accountPromise]);
+      msgs = msgsAndAccount[0];
+      sequence = msgsAndAccount[1].sequence;
+    }
+
+    return this.simulateTransaction(wallet.pubKey!, sequence, msgs, gasPrice, memo);
   }
 
   /**
@@ -153,6 +177,7 @@ export class Post {
     memo?: string,
     broadcastMode?: BroadcastMode,
     account?: () => Promise<Account>,
+    gasAdjustment: number = GAS_MULTIPLIER,
   ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
     const msgsPromise = messaging();
     const accountPromise = account ? await account() : this.account(wallet.address!);
@@ -167,6 +192,7 @@ export class Post {
       gasPrice,
       memo ?? this.defaultClientMemo,
       broadcastMode ?? this.defaultBroadcastMode(msgs),
+      gasAdjustment,
     );
   }
 
@@ -211,17 +237,27 @@ export class Post {
     zeroFee: boolean,
     gasPrice: GasPrice = this.getGasPrice(),
     memo?: string,
+    gasAdjustment: number = GAS_MULTIPLIER,
   ): Promise<Uint8Array> {
+    // protocol expects timestamp nonce in UTC milliseconds, which is the unit returned by Date.now()
+    const sequence = this.useTimestampNonce ? Date.now() : account.sequence;
     // Simulate transaction if no fee is specified.
     const fee: StdFee = zeroFee
       ? {
           amount: [],
           gas: '1000000',
         }
-      : await this.simulateTransaction(wallet.pubKey!, account.sequence, messages, gasPrice, memo);
+      : await this.simulateTransaction(
+          wallet.pubKey!,
+          sequence,
+          messages,
+          gasPrice,
+          memo,
+          gasAdjustment,
+        );
 
     const txOptions: TransactionOptions = {
-      sequence: account.sequence,
+      sequence,
       accountNumber: account.accountNumber,
       chainId: this.chainId,
     };
@@ -233,11 +269,12 @@ export class Post {
    * @description Retrieve an account structure for transactions.
    * For short term orders, the sequence doesn't matter. Use cached if available.
    * For long term and conditional orders, a round trip to validator must be made.
+   * when timestamp nonce is supported, no need to fetch account sequence number
    */
   public async account(address: string, orderFlags?: OrderFlags): Promise<Account> {
-    if (orderFlags === OrderFlags.SHORT_TERM) {
+    if (orderFlags === OrderFlags.SHORT_TERM || this.useTimestampNonce) {
       if (this.accountNumberCache.has(address)) {
-        // For SHORT_TERM orders, the sequence doesn't matter
+        // If order is SHORT_TERM or if timestamp nonce is enabled, the sequence doesn't matter
         return this.accountNumberCache.get(address)!;
       }
     }
@@ -259,6 +296,7 @@ export class Post {
     gasPrice: GasPrice = this.getGasPrice(),
     memo?: string,
     broadcastMode?: BroadcastMode,
+    gasAdjustment: number = GAS_MULTIPLIER,
   ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
     const signedTransaction = await this.signTransaction(
       wallet,
@@ -267,6 +305,7 @@ export class Post {
       zeroFee,
       gasPrice,
       memo,
+      gasAdjustment,
     );
     return this.sendSignedTransaction(signedTransaction, broadcastMode);
   }
@@ -299,6 +338,7 @@ export class Post {
     messages: readonly EncodeObject[],
     gasPrice: GasPrice = this.getGasPrice(),
     memo?: string,
+    gasAdjustment: number = GAS_MULTIPLIER,
   ): Promise<StdFee> {
     // Get simulated response.
     const encodedMessages: Any[] = messages.map((message: EncodeObject) =>
@@ -320,7 +360,7 @@ export class Post {
     const gasEstimate: number = Uint53.fromString(
       simulationResponse.gasInfo.gasUsed.toString(),
     ).toNumber();
-    const fee = calculateFee(Math.floor(gasEstimate * GAS_MULTIPLIER), gasPrice);
+    const fee = calculateFee(Math.floor(gasEstimate * gasAdjustment), gasPrice);
 
     // TODO(TRCL-2550): Temporary workaround before IBC denom is supported in '@cosmjs/stargate'.
     // The '@cosmjs/stargate' does not support denom with '/', so currently GAS_PRICE is
@@ -518,6 +558,45 @@ export class Post {
       cancelOrder.goodTilBlockTime,
       broadcastMode,
     );
+  }
+
+  async batchCancelShortTermOrders(
+    subaccount: SubaccountInfo,
+    shortTermOrders: OrderBatch[],
+    goodTilBlock: number,
+    broadcastMode?: BroadcastMode,
+  ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
+    const msg = await this.batchCancelShortTermOrdersMsg(
+      subaccount.address,
+      subaccount.subaccountNumber,
+      shortTermOrders,
+      goodTilBlock,
+    );
+    return this.send(
+      subaccount.wallet,
+      () => Promise.resolve([msg]),
+      true,
+      undefined,
+      undefined,
+      broadcastMode,
+    );
+  }
+
+  async batchCancelShortTermOrdersMsg(
+    address: string,
+    subaccountNumber: number,
+    shortTermOrders: OrderBatch[],
+    goodTilBlock: number,
+  ): Promise<EncodeObject> {
+    return new Promise((resolve) => {
+      const msg = this.composer.composeMsgBatchCancelShortTermOrders(
+        address,
+        subaccountNumber,
+        shortTermOrders,
+        goodTilBlock,
+      );
+      resolve(msg);
+    });
   }
 
   async transfer(
@@ -759,5 +838,110 @@ export class Post {
 
   withdrawDelegatorRewardMsg(delegator: string, validator: string): EncodeObject {
     return this.composer.composeMsgWithdrawDelegatorReward(delegator, validator);
+  }
+
+  // vaults
+  async depositToMegavault(
+    subaccount: SubaccountInfo,
+    quoteQuantums: Uint8Array,
+    broadcastMode?: BroadcastMode,
+  ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
+    const msg = await this.depositToMegavaultMsg(
+      subaccount.address,
+      subaccount.subaccountNumber,
+      quoteQuantums,
+    );
+    return this.send(
+      subaccount.wallet,
+      () => Promise.resolve([msg]),
+      false,
+      undefined,
+      undefined,
+      broadcastMode,
+    );
+  }
+
+  depositToMegavaultMsg(
+    ...args: Parameters<Composer['composeMsgDepositToMegavault']>
+  ): EncodeObject {
+    return this.composer.composeMsgDepositToMegavault(...args);
+  }
+
+  async withdrawFromMegavault(
+    subaccount: SubaccountInfo,
+    shares: Uint8Array,
+    minQuoteQuantums: Uint8Array,
+    broadcastMode?: BroadcastMode,
+  ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
+    const msg = await this.withdrawFromMegavaultMsg(
+      subaccount.address,
+      subaccount.subaccountNumber,
+      shares,
+      minQuoteQuantums,
+    );
+    return this.send(
+      subaccount.wallet,
+      () => Promise.resolve([msg]),
+      false,
+      undefined,
+      undefined,
+      broadcastMode,
+    );
+  }
+
+  withdrawFromMegavaultMsg(
+    ...args: Parameters<Composer['composeMsgWithdrawFromMegavault']>
+  ): EncodeObject {
+    return this.composer.composeMsgWithdrawFromMegavault(...args);
+  }
+
+  async registerAffiliate(
+    subaccount: SubaccountInfo,
+    affiliate: string,
+    broadcastMode?: BroadcastMode,
+    gasAdjustment: number = 2,
+  ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
+    const msg = this.registerAffiliateMsg(subaccount.address, affiliate);
+    return this.send(
+      subaccount.wallet,
+      () => Promise.resolve([msg]),
+      false,
+      undefined,
+      undefined,
+      broadcastMode,
+      undefined,
+      gasAdjustment,
+    );
+  }
+
+  registerAffiliateMsg(...args: Parameters<Composer['composeMsgRegisterAffiliate']>): EncodeObject {
+    return this.composer.composeMsgRegisterAffiliate(...args);
+  }
+
+  launchMarketMsg(
+    ...args: Parameters<Composer['composeMsgCreateMarketPermissionless']>
+  ): EncodeObject {
+    return this.composer.composeMsgCreateMarketPermissionless(...args);
+  }
+
+  async createMarketPermissionless(
+    ticker: string,
+    subaccount: SubaccountInfo,
+    broadcastMode?: BroadcastMode,
+    gasAdjustment?: number,
+    memo?: string,
+  ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
+    const msg = this.launchMarketMsg(subaccount.address, ticker, subaccount.subaccountNumber);
+
+    return this.send(
+      subaccount.wallet,
+      () => Promise.resolve([msg]),
+      false,
+      undefined,
+      memo,
+      broadcastMode,
+      undefined,
+      gasAdjustment,
+    );
   }
 }

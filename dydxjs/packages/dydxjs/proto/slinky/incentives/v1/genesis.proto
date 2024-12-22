@@ -1,0 +1,24 @@
+syntax = "proto3";
+package slinky.incentives.v1;
+
+option go_package = "github.com/skip-mev/connect/v2/x/incentives/types";
+
+import "gogoproto/gogo.proto";
+
+// GenesisState is the genesis-state for the x/incentives module.
+message GenesisState {
+  // Registry is a list of incentives by type. The registry defined here
+  // should be a subset of the incentive types defined in the incentive
+  // module (keeper).
+  repeated IncentivesByType registry = 1 [ (gogoproto.nullable) = false ];
+}
+
+// IncentivesByType encapsulates a list of incentives by type. Each of the
+// entries here must correspond to the same incentive type defined here.
+message IncentivesByType {
+  // IncentiveType is the incentive type i.e. (BadPriceIncentiveType,
+  // GoodPriceIncentiveType).
+  string incentive_type = 1;
+  // Entries is a list of incentive bytes.
+  repeated bytes entries = 2;
+}

@@ -13,6 +13,7 @@ import { parseUnits } from 'ethers';
 import Long from 'long';
 import protobuf from 'protobufjs';
 
+import { bigIntToBytes } from '../lib/helpers';
 import { isStatefulOrder, verifyOrderFlags } from '../lib/validation';
 import { GovAddNewMarketParams, OrderFlags } from '../types';
 import {
@@ -34,13 +35,14 @@ import {
   calculateClientMetadata,
   calculateConditionType,
   calculateConditionalOrderTriggerSubticks,
+  calculateVaultQuantums,
 } from './helpers/chain-helpers';
 import { IndexerClient } from './indexer-client';
 import { UserError } from './lib/errors';
 import { generateRegistry } from './lib/registry';
 import LocalWallet from './modules/local-wallet';
 import { SubaccountInfo } from './subaccount';
-import { BroadcastMode } from './types';
+import { BroadcastMode, OrderBatch } from './types';
 import { ValidatorClient } from './validator-client';
 
 // Required for encoding and decoding queries that are of type Long.
@@ -56,6 +58,12 @@ export interface MarketInfo {
   stepBaseQuantums: number;
   quantumConversionExponent: number;
   subticksPerTick: number;
+}
+
+export interface OrderBatchWithMarketId {
+  marketId: string;
+  clobPairId?: number;
+  clientIds: number[];
 }
 
 export class CompositeClient {
@@ -101,6 +109,11 @@ export class CompositeClient {
   setSelectedGasDenom(gasDenom: SelectedGasDenom): void {
     if (!this._validatorClient) throw new Error('Validator client not initialized');
     this._validatorClient.setSelectedGasDenom(gasDenom);
+  }
+
+  async populateAccountNumberCache(address: string): Promise<void> {
+    if (!this._validatorClient) throw new Error('Validator client not initialized');
+    await this._validatorClient.populateAccountNumberCache(address);
   }
 
   /**
@@ -391,7 +404,7 @@ export class CompositeClient {
       msg
         .then((it) => resolve([it]))
         .catch((err) => {
-          console.log(err);
+          throw err;
         });
     });
     const orderFlags = calculateOrderFlags(type, timeInForce);
@@ -697,6 +710,60 @@ export class CompositeClient {
   }
 
   /**
+   * @description Batch cancel short term orders using marketId to clobPairId translation.
+   *
+   * @param subaccount The subaccount to cancel the order from
+   * @param shortTermOrders The list of short term order batches to cancel with marketId
+   * @param goodTilBlock The goodTilBlock of the order to cancel
+   * @returns The transaction hash.
+   */
+  async batchCancelShortTermOrdersWithMarketId(
+    subaccount: SubaccountInfo,
+    shortTermOrders: OrderBatchWithMarketId[],
+    goodTilBlock: number,
+    broadcastMode?: BroadcastMode,
+  ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
+    const orderBatches = await Promise.all(
+      shortTermOrders.map(async ({ marketId, clobPairId, clientIds }) => ({
+        clobPairId: (
+          clobPairId ??
+          (await this.indexerClient.markets.getPerpetualMarkets(marketId)).markets[marketId]
+        ).clobPairId,
+        clientIds,
+      })),
+    );
+
+    return this.validatorClient.post.batchCancelShortTermOrders(
+      subaccount,
+      orderBatches,
+      goodTilBlock,
+      broadcastMode,
+    );
+  }
+
+  /**
+   * @description Batch cancel short term orders using clobPairId.
+   *
+   * @param subaccount The subaccount to cancel the order from
+   * @param shortTermOrders The list of short term order batches to cancel with clobPairId
+   * @param goodTilBlock The goodTilBlock of the order to cancel
+   * @returns The transaction hash.
+   */
+  async batchCancelShortTermOrdersWithClobPairId(
+    subaccount: SubaccountInfo,
+    shortTermOrders: OrderBatch[],
+    goodTilBlock: number,
+    broadcastMode?: BroadcastMode,
+  ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
+    return this.validatorClient.post.batchCancelShortTermOrders(
+      subaccount,
+      shortTermOrders,
+      goodTilBlock,
+      broadcastMode,
+    );
+  }
+
+  /**
    * @description Transfer from a subaccount to another subaccount
    *
    * @param subaccount The subaccount to transfer from
@@ -992,6 +1059,55 @@ export class CompositeClient {
     return Buffer.from(signature).toString('base64');
   }
 
+  // vaults
+
+  async depositToMegavault(
+    subaccount: SubaccountInfo,
+    amountUsdc: number,
+    broadcastMode?: BroadcastMode,
+  ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
+    return this.validatorClient.post.depositToMegavault(
+      subaccount,
+      bigIntToBytes(calculateVaultQuantums(amountUsdc)),
+      broadcastMode,
+    );
+  }
+
+  depositToMegavaultMessage(subaccount: SubaccountInfo, amountUsdc: number): EncodeObject {
+    return this.validatorClient.post.depositToMegavaultMsg(
+      subaccount.address,
+      subaccount.subaccountNumber,
+      bigIntToBytes(calculateVaultQuantums(amountUsdc)),
+    );
+  }
+
+  async withdrawFromMegavault(
+    subaccount: SubaccountInfo,
+    shares: number,
+    minAmount: number,
+    broadcastMode?: BroadcastMode,
+  ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
+    return this.validatorClient.post.withdrawFromMegavault(
+      subaccount,
+      bigIntToBytes(BigInt(Math.floor(shares))),
+      bigIntToBytes(calculateVaultQuantums(minAmount)),
+      broadcastMode,
+    );
+  }
+
+  withdrawFromMegavaultMessage(
+    subaccount: SubaccountInfo,
+    shares: number,
+    minAmount: number,
+  ): EncodeObject {
+    return this.validatorClient.post.withdrawFromMegavaultMsg(
+      subaccount.address,
+      subaccount.subaccountNumber,
+      bigIntToBytes(BigInt(Math.floor(shares))),
+      bigIntToBytes(calculateVaultQuantums(minAmount)),
+    );
+  }
+
   /**
    * @description Submit a governance proposal to add a new market.
    *
@@ -1090,5 +1206,15 @@ export class CompositeClient {
     });
 
     return this.send(wallet, () => msg, false, undefined, memo);
+  }
+
+  async createMarketPermissionless(
+    subaccount: SubaccountInfo,
+    ticker: string,
+    broadcastMode?: BroadcastMode,
+    gasAdjustment?: number,
+    memo?: string,
+  ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
+    return this.validatorClient.post.createMarketPermissionless(ticker, subaccount, broadcastMode, gasAdjustment, memo);
   }
 }
