@@ -1,7 +1,6 @@
 from typing import List, Optional
 
 import grpc
-from ecdsa.util import sigencode_string_canonize
 from v4_proto.cosmos.auth.v1beta1 import query_pb2_grpc as auth
 from v4_proto.cosmos.auth.v1beta1.auth_pb2 import BaseAccount
 from v4_proto.cosmos.auth.v1beta1.query_pb2 import QueryAccountRequest
@@ -9,7 +8,6 @@ from v4_proto.cosmos.bank.v1beta1 import query_pb2 as bank_query
 from v4_proto.cosmos.bank.v1beta1 import query_pb2_grpc as bank_query_grpc
 from v4_proto.cosmos.base.abci.v1beta1.abci_pb2 import TxResponse
 from v4_proto.cosmos.base.v1beta1.coin_pb2 import Coin
-from v4_proto.cosmos.crypto.secp256k1.keys_pb2 import PubKey
 from v4_proto.cosmos.tx.signing.v1beta1.signing_pb2 import SignMode
 from v4_proto.cosmos.tx.v1beta1 import service_pb2_grpc
 from v4_proto.cosmos.tx.v1beta1.service_pb2 import (
@@ -29,7 +27,8 @@ from v4_proto.cosmos.tx.v1beta1.tx_pb2 import (
 
 from dydx_v4_client.config import GAS_MULTIPLIER
 from dydx_v4_client.node.builder import as_any
-from dydx_v4_client.wallet import from_mnemonic
+from dydx_v4_client.key_pair import KeyPair
+from dydx_v4_client.wallet import Wallet
 
 
 class NobleClient:
@@ -72,8 +71,8 @@ class NobleClient:
         """
         if not mnemonic:
             raise ValueError("Mnemonic not provided")
-        private_key = from_mnemonic(mnemonic)
-        self.wallet = private_key
+        key_pair = KeyPair.from_mnemonic(mnemonic)
+        self.wallet = Wallet(key_pair, 0, 0)
         self.channel = grpc.secure_channel(
             self.rest_endpoint,
             grpc.ssl_channel_credentials(),
@@ -178,26 +177,19 @@ class NobleClient:
 
         # Sign and broadcast the transaction
         signer_info = SignerInfo(
-            public_key=as_any(
-                PubKey(key=self.wallet.get_verifying_key().to_string("compressed"))
-            ),
+            public_key=as_any(self.wallet.public_key),
             mode_info=ModeInfo(single=ModeInfo.Single(mode=SignMode.SIGN_MODE_DIRECT)),
-            sequence=self.get_account(
-                self.wallet.get_verifying_key().to_string()
-            ).sequence,
+            sequence=self.get_account(self.wallet.address).sequence,
         )
         body = TxBody(messages=messages, memo=memo or self.default_client_memo)
         auth_info = AuthInfo(signer_infos=[signer_info], fee=fee)
-        signature = self.wallet.sign(
+        signature = self.wallet.key.sign(
             SignDoc(
                 body_bytes=body.SerializeToString(),
                 auth_info_bytes=auth_info.SerializeToString(),
-                account_number=self.get_account(
-                    self.wallet.get_verifying_key().to_string()
-                ).account_number,
+                account_number=self.get_account(self.wallet.address).account_number,
                 chain_id=self.chain_id,
-            ).SerializeToString(),
-            sigencode=sigencode_string_canonize,
+            ).SerializeToString()
         )
 
         tx = Tx(body=body, auth_info=auth_info, signatures=[signature])
@@ -233,13 +225,9 @@ class NobleClient:
 
         # Get simulated response
         signer_info = SignerInfo(
-            public_key=as_any(
-                PubKey(key=self.wallet.get_verifying_key().to_string("compressed"))
-            ),
+            public_key=as_any(self.wallet.public_key),
             mode_info=ModeInfo(single=ModeInfo.Single(mode=SignMode.SIGN_MODE_DIRECT)),
-            sequence=self.get_account(
-                self.wallet.get_verifying_key().to_string()
-            ).sequence,
+            sequence=self.get_account(self.wallet.address).sequence,
         )
         body = TxBody(messages=messages, memo=memo or self.default_client_memo)
         auth_info = AuthInfo(signer_infos=[signer_info], fee=Fee(gas_limit=0))

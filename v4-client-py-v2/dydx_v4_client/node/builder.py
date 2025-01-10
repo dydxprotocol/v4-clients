@@ -2,7 +2,6 @@ from dataclasses import dataclass
 from typing import List
 
 import google
-from ecdsa.util import sigencode_string_canonize
 from google.protobuf.message import Message
 from v4_proto.cosmos.base.v1beta1.coin_pb2 import Coin
 from v4_proto.cosmos.tx.signing.v1beta1.signing_pb2 import SignMode
@@ -34,7 +33,7 @@ def get_signer_info(public_key, sequence):
     )
 
 
-def get_signature(private_key, body, auth_info, account_number, chain_id):
+def get_signature(key_pair, body, auth_info, account_number, chain_id):
     signdoc = SignDoc(
         body_bytes=body.SerializeToString(),
         auth_info_bytes=auth_info.SerializeToString(),
@@ -42,9 +41,7 @@ def get_signature(private_key, body, auth_info, account_number, chain_id):
         chain_id=chain_id,
     )
 
-    return private_key.sign(
-        signdoc.SerializeToString(), sigencode=sigencode_string_canonize
-    )
+    return key_pair.sign(signdoc.SerializeToString())
 
 
 DEFAULT_FEE = Fee(

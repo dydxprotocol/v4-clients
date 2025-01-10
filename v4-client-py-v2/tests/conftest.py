@@ -13,7 +13,8 @@ from dydx_v4_client.indexer.socket.websocket import IndexerSocket
 from dydx_v4_client.network import TESTNET, TESTNET_FAUCET, TESTNET_NOBLE
 from dydx_v4_client.node.client import NodeClient
 from dydx_v4_client.node.message import order, order_id
-from dydx_v4_client.wallet import Wallet, from_mnemonic
+from dydx_v4_client.wallet import Wallet
+from dydx_v4_client.key_pair import KeyPair
 
 pytest_plugins = ("pytest_asyncio",)
 
@@ -23,6 +24,9 @@ DYDX_TEST_PRIVATE_KEY = (
 DYDX_TEST_MNEMONIC = (
     "mirror actor skill push coach wait confirm orchard lunch mobile athlete gossip awake "
     "miracle matter bus reopen team ladder lazy list timber render wait"
+)
+DYDX_TEST_PUBLIC_KEY = (
+    "03f0be763f781b5b59ebc37d721beda913148a539425baa720b97d4820f652ed75"
 )
 TEST_ADDRESS = "dydx14zzueazeh0hj67cghhf9jypslcf9sh2n5k6art"
 RECIPIENT = "dydx1slanxj8x9ntk9knwa6cvfv2tzlsq5gk3dshml0"
@@ -61,13 +65,18 @@ def test_address():
 
 
 @pytest.fixture
+def test_public_key():
+    return DYDX_TEST_PUBLIC_KEY
+
+
+@pytest.fixture
 def recipient():
     return RECIPIENT
 
 
 @pytest.fixture
-def private_key():
-    return from_mnemonic(DYDX_TEST_MNEMONIC)
+def key_pair():
+    return KeyPair.from_mnemonic(DYDX_TEST_MNEMONIC)
 
 
 @pytest.fixture
@@ -94,14 +103,14 @@ def test_order(test_order_id):
     )
 
 
-async def get_wallet(node_client, private_key, test_address):
+async def get_wallet(node_client, key_pair, test_address):
     account = await node_client.get_account(test_address)
-    return Wallet(private_key, account.account_number, account.sequence)
+    return Wallet(key_pair, account.account_number, account.sequence)
 
 
 @pytest.fixture()
-async def wallet(node_client, private_key, test_address):
-    return await get_wallet(node_client, private_key, test_address)
+async def wallet(node_client, key_pair, test_address):
+    return await get_wallet(node_client, key_pair, test_address)
 
 
 def retry_on_forbidden(max_retries=3, delay=1, skip=False):
