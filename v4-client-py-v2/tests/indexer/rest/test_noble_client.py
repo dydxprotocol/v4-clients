@@ -1,5 +1,6 @@
 import pytest
-from v4_proto.cosmos.base.abci.v1beta1.abci_pb2 import TxResponse
+
+from dydx_v4_client.node.fee import Coin, Fee
 
 
 @pytest.mark.asyncio
@@ -8,43 +9,52 @@ async def test_is_connected(noble_client):
 
 
 @pytest.mark.asyncio
-@pytest.mark.skip(reason="This test is not implemented")
-async def test_ibc_transfer(node_client, noble_client):
-    message = {
-        "source_port": "transfer",
-        "source_channel": "channel-0",
-        "token": {"denom": "usdc", "amount": "1000"},
-        "sender": noble_client.wallet.get_verifying_key().to_string(),
-        "receiver": "cosmos1...",
-        "timeout_height": 0,
-        "timeout_timestamp": 0,
-    }
-    tx_response = await node_client.ibc_transfer([message])
-    assert isinstance(tx_response, TxResponse)
-    assert tx_response.code == 0
+async def test_get_address(noble_client):
+    address = noble_client.wallet.address
+
+    assert isinstance(address, str)
+    assert len(address) == 43
+    assert address.startswith("dydx")
 
 
 @pytest.mark.asyncio
-@pytest.mark.skip(reason="This test is not implemented")
-async def test_send(noble_client):
-    message = {
-        "depositor": noble_client.wallet.get_verifying_key().to_string(),
-        "amount": {"denom": "usdc", "amount": "1000"},
-    }
-    tx_response = await noble_client.send([message])
-    assert isinstance(tx_response, TxResponse)
-    assert tx_response.code == 0
+@pytest.mark.skip(reason="NobleClient testnet is not available")
+async def test_get_account_balances(noble_client):
+    balances = await noble_client.get_account_balances()
+
+    assert isinstance(balances, list)
+    assert len(balances) > 0
+    assert all(isinstance(coin, Coin) for coin in balances)
+
+    # Check if there's a balance for the native token (uusdc)
+    uusdc_balance = next((coin for coin in balances if coin.denom == "uusdc"), None)
+    assert uusdc_balance is not None
+    assert int(uusdc_balance.amount) > 0
 
 
 @pytest.mark.asyncio
-@pytest.mark.skip(reason="This test is not implemented")
-async def test_simulate_transaction(noble_client, node_client):
-    message = {
-        "depositor": noble_client.wallet.get_verifying_key().to_string(),
-        "amount": {"denom": "usdc", "amount": "1000"},
-    }
-    fee = await noble_client.simulate_transaction([message])
-    assert isinstance(fee, dict)
-    assert fee["gas_limit"] > 0
-    assert len(fee["amount"]) == 1
-    assert "usdc" in fee["amount"][0]["denom"]
+@pytest.mark.skip(reason="NobleClient testnet is not available")
+async def test_simulate_transfer_native_token(noble_client, test_address):
+    amount = "1000000"  # 1 USDC (assuming 6 decimal places)
+    recipient = "dydx15ndn9c895f8ntck25qughtuck9spv2d9svw5qx"
+
+    fee = await noble_client.simulate_transfer_native_token(amount, recipient)
+
+    assert isinstance(fee, Fee)
+    assert len(fee.amount) > 0
+    assert fee.gas_limit > 0
+
+    fee_amount = sum(int(coin.amount) for coin in fee.amount)
+    assert fee_amount < int(amount) * 0.01
+
+
+@pytest.mark.asyncio
+@pytest.mark.skip(reason="NobleClient testnet is not available")
+async def test_transfer_native_token(noble_client):
+    amount = "1000000"  # 1 USDC (6 decimal places)
+    recipient = "dydx15ndn9c895f8ntck25qughtuck9spv2d9svw5qx"
+
+    tx_hash = await noble_client.transfer_native(amount, recipient)
+
+    assert isinstance(tx_hash, str)
+    assert len(tx_hash) == 64
