@@ -1,5 +1,5 @@
 """
-This module implements ECDSA (Elliptic Curve Digital Signature Algorithm) key pair wrapper class. Initaialy `ecdsa.SigningKey` was directly used. However due to security concrens and to avoid direct dependency on specific implementation, `KeyPair class was introduced. This class provides a wrapper around the `coincurve.PrivateKey` and mimics how `ecdsa` was used before.
+This module implements ECDSA (Elliptic Curve Digital Signature Algorithm) key pair wrapper class. Initially `ecdsa.SigningKey` was directly used. However due to security concerns and to avoid direct dependency on specific implementation, `KeyPair class was introduced. This class provides a wrapper around the `coincurve.PrivateKey` and mimics how `ecdsa` was used before.
 """
 
 from dataclasses import dataclass
