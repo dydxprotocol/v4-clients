@@ -13,7 +13,8 @@ from dydx_v4_client.indexer.socket.websocket import (
 from dydx_v4_client.network import TESTNET
 from dydx_v4_client.node.client import NodeClient
 from dydx_v4_client.node.message import order, order_id
-from dydx_v4_client.wallet import Wallet, from_string
+from dydx_v4_client.key_pair import KeyPair
+from dydx_v4_client.wallet import Wallet
 from tests.conftest import DYDX_TEST_PRIVATE_KEY
 
 logging.basicConfig(
@@ -37,7 +38,7 @@ class BasicAdder:
         self, node_client: NodeClient, address: str, key: str, subaccount_number: int
     ):
         self.address = address
-        self.key = from_string(bytes.fromhex(key))
+        self.key = KeyPair.from_hex(key)
         self.subaccount_number = subaccount_number
         self.node_client = node_client
         self.testnet_indexer_socket = IndexerSocket(
