@@ -74,7 +74,7 @@ async def test_send_token(node_client, wallet, test_address, recipient):
 
 @pytest.mark.asyncio
 async def test_order(
-    node_client, test_order, test_order_id, test_address, private_key, wallet
+    node_client, test_order, test_order_id, test_address, key_pair, wallet
 ):
     try:
         placed = await node_client.place_order(
@@ -89,7 +89,7 @@ async def test_order(
         # codespace: "clob"\n  code:...hj67cghhf9jypslcf9sh2n5k6art Number:0} ClientId:13850897 OrderFlags:64 ClobPairId:0}: Stateful order does not exist"
         time.sleep(1.5)
 
-        wallet = await get_wallet(node_client, private_key, test_address)
+        wallet = await get_wallet(node_client, key_pair, test_address)
 
         canceled = await node_client.cancel_order(
             wallet,

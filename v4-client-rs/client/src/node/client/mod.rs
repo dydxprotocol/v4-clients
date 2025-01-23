@@ -7,7 +7,9 @@ use super::{
 };
 use megavault::MegaVault;
 
-pub use crate::indexer::{Address, ClientId, Height, OrderFlags, Subaccount, Tokenized, Usdc};
+pub use crate::indexer::{
+    Address, ClientId, Height, OrderFlags, Subaccount, Ticker, Tokenized, Usdc,
+};
 use anyhow::{anyhow as err, Error, Result};
 use bigdecimal::{
     num_bigint::{BigInt, Sign},
@@ -38,12 +40,13 @@ use dydx_proto::{
             Order, OrderBatch,
         },
         feetiers::query_client::QueryClient as FeeTiersClient,
+        listing::MsgCreateMarketPermissionless,
         perpetuals::query_client::QueryClient as PerpetualsClient,
         prices::query_client::QueryClient as PricesClient,
         rewards::query_client::QueryClient as RewardsClient,
         sending::{MsgCreateTransfer, MsgDepositToSubaccount, MsgWithdrawFromSubaccount, Transfer},
         stats::query_client::QueryClient as StatsClient,
-        subaccounts::query_client::QueryClient as SubaccountsClient,
+        subaccounts::{query_client::QueryClient as SubaccountsClient, SubaccountId},
         vault::query_client::QueryClient as VaultClient,
     },
     ToAny,
@@ -509,6 +512,27 @@ impl NodeClient {
     /// Access the vaults requests dispatcher
     pub fn megavault(&mut self) -> MegaVault {
         MegaVault::new(self)
+    }
+
+    /// Create a market permissionless
+    pub async fn create_market_permissionless(
+        &mut self,
+        account: &mut Account,
+        ticker: &Ticker,
+        subaccount: &Subaccount,
+    ) -> Result<TxHash, NodeError> {
+        let subaccount_id = SubaccountId {
+            owner: subaccount.address.to_string(),
+            number: subaccount.number.0,
+        };
+        let msg = MsgCreateMarketPermissionless {
+            ticker: ticker.to_string(),
+            subaccount_id: Some(subaccount_id),
+        };
+
+        let tx_raw = self.create_transaction(account, msg).await?;
+
+        self.broadcast_transaction(tx_raw).await
     }
 
     /// Simulate a transaction.
