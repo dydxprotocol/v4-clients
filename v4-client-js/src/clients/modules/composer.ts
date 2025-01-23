@@ -55,6 +55,7 @@ import {
   TYPE_URL_MSG_CREATE_MARKET_PERMISSIONLESS,
   TYPE_URL_MSG_ADD_AUTHENTICATOR,
   TYPE_URL_MSG_REMOVE_AUTHENTICATOR,
+  AuthenticatorType,
 } from '../constants';
 import { DenomConfig } from '../types';
 import {
@@ -108,6 +109,7 @@ export class Composer {
       orderFlags,
       clobPairId,
     };
+
     const order: Order = {
       orderId,
       side,
@@ -582,7 +584,7 @@ export class Composer {
 
   public composeMsgAddAuthenticator(
     address: string,
-    authenticatorType: string,
+    authenticatorType: AuthenticatorType,
     data: Uint8Array,
   ): EncodeObject {
     const msg: MsgAddAuthenticator = {

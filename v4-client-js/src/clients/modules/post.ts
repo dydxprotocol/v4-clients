@@ -178,6 +178,7 @@ export class Post {
     broadcastMode?: BroadcastMode,
     account?: () => Promise<Account>,
     gasAdjustment: number = GAS_MULTIPLIER,
+    authenticators?: Long[],
   ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
     const msgsPromise = messaging();
     const accountPromise = account ? await account() : this.account(wallet.address!);
@@ -193,6 +194,7 @@ export class Post {
       memo ?? this.defaultClientMemo,
       broadcastMode ?? this.defaultBroadcastMode(msgs),
       gasAdjustment,
+      authenticators,
     );
   }
 
@@ -238,6 +240,7 @@ export class Post {
     gasPrice: GasPrice = this.getGasPrice(),
     memo?: string,
     gasAdjustment: number = GAS_MULTIPLIER,
+    authenticators?: Long[],
   ): Promise<Uint8Array> {
     // protocol expects timestamp nonce in UTC milliseconds, which is the unit returned by Date.now()
     const sequence = this.useTimestampNonce ? Date.now() : account.sequence;
@@ -260,6 +263,7 @@ export class Post {
       sequence,
       accountNumber: account.accountNumber,
       chainId: this.chainId,
+      authenticators,
     };
     // Generate signed transaction.
     return wallet.signTransaction(messages, txOptions, fee, memo);
@@ -297,6 +301,7 @@ export class Post {
     memo?: string,
     broadcastMode?: BroadcastMode,
     gasAdjustment: number = GAS_MULTIPLIER,
+    authenticators?: Long[],
   ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
     const signedTransaction = await this.signTransaction(
       wallet,
@@ -306,6 +311,7 @@ export class Post {
       gasPrice,
       memo,
       gasAdjustment,
+      authenticators,
     );
     return this.sendSignedTransaction(signedTransaction, broadcastMode);
   }

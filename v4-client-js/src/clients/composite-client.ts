@@ -67,6 +67,11 @@ export interface OrderBatchWithMarketId {
   clientIds: number[];
 }
 
+export interface PermissionedKeysAccountAuth {
+  authenticators: Long[];
+  accountForOrder: SubaccountInfo;
+}
+
 export class CompositeClient {
   public readonly network: Network;
   public gasDenom: SelectedGasDenom = SelectedGasDenom.USDC;
@@ -152,6 +157,7 @@ export class CompositeClient {
     memo?: string,
     broadcastMode?: BroadcastMode,
     account?: () => Promise<Account>,
+    authenticators?: Long[],
   ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
     return this.validatorClient.post.send(
       wallet,
@@ -161,6 +167,8 @@ export class CompositeClient {
       memo,
       broadcastMode,
       account,
+      undefined,
+     authenticators,
     );
   }
 
@@ -298,10 +306,15 @@ export class CompositeClient {
     timeInForce: Order_TimeInForce,
     reduceOnly: boolean,
     memo?: string,
+    permissionedKeysAccountAuth?: PermissionedKeysAccountAuth,
   ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
+    // For permissioned orders, use the permissioning account details instead of the subaccount
+    // This allows placing orders on behalf of another account when using permissioned keys
+    const accountForOrder = permissionedKeysAccountAuth ? permissionedKeysAccountAuth.accountForOrder : subaccount;
     const msgs: Promise<EncodeObject[]> = new Promise((resolve, reject) => {
+
       const msg = this.placeShortTermOrderMessage(
-        subaccount,
+        accountForOrder,
         marketId,
         side,
         price,
@@ -312,14 +325,16 @@ export class CompositeClient {
         reduceOnly,
       );
       msg
-        .then((it) => resolve([it]))
+        .then((it) => {
+          resolve([it]);
+        })
         .catch((err) => {
           console.log(err);
           reject(err);
         });
     });
     const account: Promise<Account> = this.validatorClient.post.account(
-      subaccount.address,
+      accountForOrder.address,
       undefined,
     );
     return this.send(
@@ -330,6 +345,7 @@ export class CompositeClient {
       memo,
       undefined,
       () => account,
+      permissionedKeysAccountAuth?.authenticators,
     );
   }
 
@@ -1221,7 +1237,7 @@ export class CompositeClient {
 
   async addAuthenticator(
     subaccount: SubaccountInfo,
-    authenticatorType: string,
+    authenticatorType: AuthenticatorType,
     data: Uint8Array,
   ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
     return this.validatorClient.post.addAuthenticator(subaccount, authenticatorType, data)
