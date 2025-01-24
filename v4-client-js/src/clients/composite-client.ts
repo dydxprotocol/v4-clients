@@ -5,6 +5,7 @@ import {
   BroadcastTxAsyncResponse,
   BroadcastTxSyncResponse,
 } from '@cosmjs/tendermint-rpc/build/tendermint37';
+import { GetAuthenticatorsResponse } from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/accountplus/query';
 import {
   Order_ConditionType,
   Order_TimeInForce,
@@ -1248,5 +1249,9 @@ export class CompositeClient {
     id: Long,
   ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
     return this.validatorClient.post.removeAuthenticator(subaccount, id)
+  }
+
+  async getAuthenticators(address: string): Promise<GetAuthenticatorsResponse>{
+    return this.validatorClient.get.getAuthenticators(address);
   }
 }
