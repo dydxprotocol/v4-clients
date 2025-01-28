@@ -5,7 +5,7 @@ use anyhow::{anyhow as err, Error};
 use bigdecimal::{num_traits::cast::ToPrimitive, BigDecimal, One};
 use chrono::{TimeDelta, Utc};
 use dydx::{
-    indexer::{OrderExecution, Token},
+    indexer::{OrderExecution, Ticker, Token},
     node::*,
 };
 use dydx_proto::dydxprotocol::{
@@ -352,4 +352,26 @@ async fn test_node_close_position() -> Result<(), Error> {
     .await?;
 
     Ok(())
+}
+
+#[tokio::test]
+#[serial]
+async fn test_node_create_market_permissionless() -> Result<(), Error> {
+    let env = TestEnv::testnet().await?;
+    let mut node = env.node;
+    let mut account = env.account;
+
+    let subaccount = account.subaccount(0)?;
+    // Avoid creating a new market and just try to create one that already exists
+    let ticker = Ticker::from("ETH-USD");
+
+    let tx_res = node
+        .create_market_permissionless(&mut account, &ticker, &subaccount)
+        .await;
+
+    match node.query_transaction_result(tx_res).await {
+        Err(e) if e.to_string().contains("Market params pair already exists") => Ok(()),
+        Err(e) => Err(e),
+        Ok(_) => Err(err!("Market creation (ETH-USD) should fail")),
+    }
 }

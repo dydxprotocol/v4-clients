@@ -1,9 +1,9 @@
 use crate::indexer::Denom;
 use cosmrs::tendermint::chain::Id as ChainId;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 /// Configuration for [`NobleClient`](crate::noble::NobleClient)
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Serialize)]
 pub struct NobleConfig {
     /// Node endpoint.
     pub endpoint: String,

@@ -1,8 +1,8 @@
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use std::num::NonZeroU32;
 
 /// Websocket Indexer client configuration.
-#[derive(Clone, Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct SockConfig {
     /// Websocket endpoint.
     ///

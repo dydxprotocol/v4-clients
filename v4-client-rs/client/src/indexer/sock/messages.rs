@@ -86,7 +86,7 @@ impl MessageFormatter {
                 map.extend(fields);
             }
         }
-        Message::Text(message.to_string())
+        Message::Text(message.to_string().into())
     }
 }
 
