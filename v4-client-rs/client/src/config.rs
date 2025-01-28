@@ -4,12 +4,12 @@ use super::faucet::FaucetConfig;
 use super::noble::NobleConfig;
 use super::{indexer::IndexerConfig, node::NodeConfig};
 use anyhow::Error;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use std::path::Path;
 use tokio::fs;
 
 /// Serves as a configuration wrapper over configurations for specific clients.
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Serialize)]
 pub struct ClientConfig {
     /// Configuration for [`IndexerClient`](crate::indexer::IndexerClient)
     pub indexer: IndexerConfig,

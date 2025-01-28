@@ -5,7 +5,7 @@ use reqwest::Client;
 use serde::{Deserialize, Serialize};
 
 /// Configuration for the Faucet client.
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Serialize)]
 pub struct FaucetConfig {
     /// The base url of the faucet service.
     pub endpoint: String,
