@@ -51,7 +51,7 @@ impl<'a> MegaVault<'a> {
             quote_quantums: quantums,
         };
 
-        let tx_raw = client.create_transaction(account, msg).await?;
+        let tx_raw = client.create_transaction(account, msg, None).await?;
 
         client.broadcast_transaction(tx_raw).await
     }
@@ -91,7 +91,7 @@ impl<'a> MegaVault<'a> {
             shares: num_shares,
         };
 
-        let tx_raw = client.create_transaction(account, msg).await?;
+        let tx_raw = client.create_transaction(account, msg, None).await?;
 
         client.broadcast_transaction(tx_raw).await
     }

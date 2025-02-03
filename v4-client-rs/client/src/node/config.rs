@@ -29,7 +29,7 @@ pub struct NodeConfig {
 }
 
 fn default_timeout() -> u64 {
-    1_000
+    2_000
 }
 
 fn default_manage_sequencing() -> bool {
