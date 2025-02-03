@@ -48,7 +48,7 @@ async fn main() -> Result<()> {
     .to_any();
     let simulated_tx = client
         .builder
-        .build_transaction(&account, once(msg), None)?;
+        .build_transaction(&account, once(msg), None, None)?;
     let simulation = client.simulate(&simulated_tx).await?;
     tracing::info!("Simulation: {:?}", simulation);
 
@@ -67,7 +67,7 @@ async fn main() -> Result<()> {
     .to_any();
     let final_tx = client
         .builder
-        .build_transaction(&account, once(final_msg), Some(fee))?;
+        .build_transaction(&account, once(final_msg), Some(fee), None)?;
     let tx_hash = client.broadcast_transaction(final_tx).await?;
     tracing::info!("Withdraw transaction hash: {:?}", tx_hash);
 

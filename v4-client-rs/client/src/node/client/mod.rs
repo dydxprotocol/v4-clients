@@ -1,19 +1,13 @@
-///
-pub mod authenticator;
+mod authenticators;
 pub mod error;
 mod megavault;
 mod methods;
 
-use self::{authenticator::Authenticators, megavault::MegaVault};
+pub use self::authenticators::{AuthenticatorBuilder, AuthenticatorType};
+use self::{authenticators::Authenticators, megavault::MegaVault};
 use super::{
-    builder::TxBuilder,
-    config::NodeConfig,
-    order::*,
-    sequencer::*,
-    utils::*,
-    wallet::{Account, PublicAccount},
+    builder::TxBuilder, config::NodeConfig, order::*, sequencer::*, utils::*, wallet::Account,
 };
-
 pub use crate::indexer::{
     Address, ClientId, Height, OrderFlags, Subaccount, Ticker, Tokenized, Usdc,
 };
@@ -24,10 +18,7 @@ use bigdecimal::{
 };
 #[cfg(feature = "noble")]
 use chrono::{TimeDelta, Utc};
-use cosmrs::{
-    crypto::PublicKey,
-    tx::{self, Tx},
-};
+use cosmrs::tx::{self, Tx};
 use derive_more::{Deref, DerefMut};
 use dydx_proto::{
     cosmos_sdk_proto::cosmos::{
@@ -635,7 +626,7 @@ impl NodeClient {
     ) -> Result<tx::Raw, Error> {
         if seqnum_required && self.config.manage_sequencing {
             if let Some(authing) = auth {
-                if let Some((acc, _)) = account.auth_mut().get_mut(&authing) {
+                if let Some((acc, _)) = account.authenticators_mut().get_mut(&authing) {
                     let nonce = self.sequencer.next_nonce(acc.address()).await?;
                     acc.set_next_nonce(nonce);
                 }
@@ -645,7 +636,7 @@ impl NodeClient {
             }
         } else if !seqnum_required {
             if let Some(authing) = auth {
-                if let Some((acc, _)) = account.auth_mut().get_mut(&authing) {
+                if let Some((acc, _)) = account.authenticators_mut().get_mut(&authing) {
                     acc.set_next_nonce(Nonce::Sequence(acc.sequence_number()));
                 }
             } else {

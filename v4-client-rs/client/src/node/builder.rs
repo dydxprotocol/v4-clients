@@ -1,4 +1,4 @@
-use super::{fee, sequencer::Nonce, Account, PublicAccount};
+use super::{fee, sequencer::Nonce, Account};
 use crate::indexer::{Address, Denom};
 use anyhow::{anyhow as err, Error, Result};
 pub use cosmrs::tendermint::chain::Id;
@@ -48,9 +48,10 @@ impl TxBuilder {
     ) -> Result<tx::Raw, Error> {
         let mut builder = tx::BodyBuilder::new();
         builder.msgs(msgs).memo("");
+        // Add authenticators, if present, as a Tx extension
         let mut authing = None;
         if let Some(address) = auth {
-            if let Some((acc, ids)) = account.auth().get(&address) {
+            if let Some((acc, ids)) = account.authenticators().get(&address) {
                 let ext = TxExtension {
                     selected_authenticators: ids.clone(),
                 };
@@ -62,6 +63,7 @@ impl TxBuilder {
 
         let fee = fee.unwrap_or(self.calculate_fee(None)?);
 
+        // If an authenticator is used, use its parameters instead
         let (next_nonce, account_number) = if let Some(authing) = authing {
             (authing.next_nonce(), authing.account_number())
         } else {

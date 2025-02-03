@@ -16,16 +16,17 @@ pub struct Authenticators<'a> {
     client: &'a mut NodeClient,
 }
 
-///
+/// [`Authenticator`] type. 
+/// An authenticator can be composed by a single or multiple types.
 #[derive(Debug, Clone, Copy, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub enum AuthenticatorType {
-    ///
+    /// Enables authentication via a specific key.
     SignatureVerification,
-    ///
+    /// Restricts authentication to certain message types.
     MessageFilter,
-    ///
+    /// Restricts authentication to certain subaccount constraints.
     ClobPairIdFilter,
-    ///
+    /// Restricts transactions to specific CLOB pair IDs.
     SubaccountFilter,
 }
 
@@ -41,7 +42,8 @@ impl<'a> Authenticators<'a> {
         Self { client }
     }
 
-    /// Add an authenticator.
+    /// Add an [`Authenticator`].
+    /// Authenticators can be built using the [`AuthenticatorBuilder`] mechanism.
     ///
     /// Check [the example]().
     pub async fn add(
@@ -106,7 +108,20 @@ impl<'a> Authenticators<'a> {
     }
 }
 
-///
+impl fmt::Display for AuthenticatorComposableType {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{:?}", self)
+    }
+}
+
+/// An authenticator representation used to issue `add` requests.
+#[derive(Debug, Clone)]
+pub struct Authenticator {
+    pub(crate) composable: AuthenticatorComposableType,
+    pub(crate) config: Vec<AuthenticatorEntry>,
+}
+
+/// An authenticator with its data.
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub(crate) struct AuthenticatorEntry {
     #[serde(rename = "type")]
@@ -114,25 +129,12 @@ pub(crate) struct AuthenticatorEntry {
     config: Vec<u8>,
 }
 
-///
+/// Authenticator verification rules.
 #[derive(Debug, Clone)]
 pub(crate) enum AuthenticatorComposableType {
     AnyOf,
     AllOf,
     Single,
-}
-
-impl fmt::Display for AuthenticatorComposableType {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{:?}", self)
-    }
-}
-
-///
-#[derive(Debug, Clone)]
-pub struct Authenticator {
-    pub(crate) composable: AuthenticatorComposableType,
-    pub(crate) config: Vec<AuthenticatorEntry>,
 }
 
 impl Authenticator {
@@ -156,7 +158,7 @@ impl Authenticator {
         Ok(())
     }
 
-    ///
+    /// Get the authenticator's type' string representation.
     pub(super) fn type_to_string(&self) -> Result<String> {
         match self.composable {
             AuthenticatorComposableType::AllOf | AuthenticatorComposableType::AnyOf => {
@@ -169,7 +171,7 @@ impl Authenticator {
         }
     }
 
-    ///
+    /// Get the authenticator's data' string representation.
     pub(super) fn config_to_bytes(&self) -> Result<Vec<u8>> {
         match self.composable {
             AuthenticatorComposableType::AllOf | AuthenticatorComposableType::AnyOf => {
@@ -183,14 +185,15 @@ impl Authenticator {
     }
 }
 
-/// Authenticator builder
+/// [`Authenticator`] builder.
 #[derive(Debug, Clone)]
 pub struct AuthenticatorBuilder {
     auth: Authenticator,
 }
 
 impl AuthenticatorBuilder {
-    ///
+    /// Creates an empty [`Authenticator`] builder with no added types.
+    /// Building this straightaway produces an error.
     pub fn empty() -> Self {
         Self {
             auth: Authenticator {
@@ -200,19 +203,29 @@ impl AuthenticatorBuilder {
         }
     }
 
-    /// Sets the authenticator as "any of"
+    /// Sets the authenticator composition type as `AnyOf`.
+    /// Transactions issued using an `AnyOf` authenticator will be successful if any of the added types succeed.
     pub fn any_of(&mut self) -> &mut Self {
         self.auth.composable = AuthenticatorComposableType::AnyOf;
         self
     }
 
-    /// Sets the authenticator as "all of"
+    /// Sets the authenticator composition type as `AllOf`.
+    /// Transactions issued using an `AllOf` authenticator will be successful only if all of the added types succeed.
     pub fn all_of(&mut self) -> &mut Self {
         self.auth.composable = AuthenticatorComposableType::AllOf;
         self
     }
 
-    /// Add an authentication method
+    /// Sets the authenticator composition type as `Single`.
+    /// The authenticator will be built using from a single type.
+    pub fn single(&mut self) -> &mut Self {
+        self.auth.composable = AuthenticatorComposableType::Single;
+        self
+    }
+
+    /// Adds an authenticator type.
+    /// An authenticator can be composed of several types.
     pub fn add(
         &mut self,
         authenticator_type: AuthenticatorType,
@@ -225,8 +238,8 @@ impl AuthenticatorBuilder {
         self
     }
 
-    /// Finalizes the builder, constructing an [`Authenticator`]
-    pub fn build(&self) -> Result<Authenticator> {
+    /// Finalizes the builder, constructing an [`Authenticator`].
+    pub fn build(self) -> Result<Authenticator> {
         self.try_into()
     }
 }

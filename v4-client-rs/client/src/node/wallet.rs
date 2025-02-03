@@ -75,7 +75,7 @@ impl Wallet {
             account_id,
             index,
             key: private_key,
-            auth: AuthManager::default(),
+            auths: AuthenticatorsManager::default(),
         })
     }
 }
@@ -91,7 +91,7 @@ pub struct Account {
     #[allow(dead_code)]
     account_id: AccountId,
     /// List of accounts/IDs which authorize this account.
-    auth: AuthManager,
+    auths: AuthenticatorsManager,
     // Self public data
     public: PublicAccount,
 }
@@ -109,7 +109,7 @@ pub struct PublicAccount {
 
 /// Manages authentication relationships for an account.
 #[derive(Clone, Debug, Default)]
-pub struct AuthManager {
+pub struct AuthenticatorsManager {
     // Optimally the key would be a PublicAccount, however it may need to be mutable
     auths: HashMap<Address, (PublicAccount, Vec<u64>)>,
 }
@@ -132,19 +132,13 @@ impl Account {
     }
 
     /// Access the authenticators manager
-    pub fn auth(&self) -> &AuthManager {
-        &self.auth
+    pub fn authenticators(&self) -> &AuthenticatorsManager {
+        &self.auths
     }
 
     /// Access the authenticators manager as mut
-    pub fn auth_mut(&mut self) -> &mut AuthManager {
-        &mut self.auth
-    }
-
-    /// Non-mutable access to public parameters
-    pub fn public(&self) -> &PublicAccount {
-        self.public.sequence_number;
-        &self.public
+    pub fn authenticators_mut(&mut self) -> &mut AuthenticatorsManager {
+        &mut self.auths
     }
 
     delegate! {
@@ -192,25 +186,6 @@ impl PublicAccount {
         Ok(())
     }
 
-    ///// Creates a public account using its address
-    //pub async fn from_address(address: Address, client: &mut NodeClient) -> Result<Self, Error> {
-    //    let prefix = BECH32_PREFIX_DYDX;
-    //    let account_id = key.account_id(prefix).map_err(Error::msg)?;
-    //    let address: Address = account_id.to_string().parse()?;
-    //    let (account_number, sequence_number) =
-    //        client.query_address(&address).await?;
-    //    Ok(
-    //        Self {
-    //            key,
-    //            account_id,
-    //            address,
-    //            account_number,
-    //            sequence_number,
-    //            next_nonce: None,
-    //        }
-    //    )
-    //}
-
     /// An address of the account.
     pub fn address(&self) -> &Address {
         &self.address
@@ -250,7 +225,7 @@ impl PublicAccount {
     }
 }
 
-impl AuthManager {
+impl AuthenticatorsManager {
     /// Get the list of IDs associated with an authorizing account.
     pub fn get(&self, authing: &Address) -> Option<&(PublicAccount, Vec<u64>)> {
         self.auths.get(authing)
@@ -266,7 +241,7 @@ impl AuthManager {
         if let Some(ids) = self.auths.get_mut(auth.address()) {
             ids.1.push(id);
         } else {
-            self.auths.insert(auth.address(), (auth, vec![id]));
+            self.auths.insert(auth.address().clone(), (auth, vec![id]));
         }
     }
 
