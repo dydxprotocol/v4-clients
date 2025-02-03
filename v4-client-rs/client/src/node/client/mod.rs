@@ -1,11 +1,18 @@
+///
+pub mod authenticator;
 pub mod error;
 mod megavault;
 mod methods;
 
+use self::{authenticator::Authenticators, megavault::MegaVault};
 use super::{
-    builder::TxBuilder, config::NodeConfig, order::*, sequencer::*, utils::*, wallet::Account,
+    builder::TxBuilder,
+    config::NodeConfig,
+    order::*,
+    sequencer::*,
+    utils::*,
+    wallet::{Account, PublicAccount},
 };
-use megavault::MegaVault;
 
 pub use crate::indexer::{
     Address, ClientId, Height, OrderFlags, Subaccount, Ticker, Tokenized, Usdc,
@@ -17,7 +24,10 @@ use bigdecimal::{
 };
 #[cfg(feature = "noble")]
 use chrono::{TimeDelta, Utc};
-use cosmrs::tx::{self, Tx};
+use cosmrs::{
+    crypto::PublicKey,
+    tx::{self, Tx},
+};
 use derive_more::{Deref, DerefMut};
 use dydx_proto::{
     cosmos_sdk_proto::cosmos::{
@@ -34,6 +44,7 @@ use dydx_proto::{
         },
     },
     dydxprotocol::{
+        accountplus::query_client::QueryClient as AccountPlusClient,
         bridge::query_client::QueryClient as BridgeClient,
         clob::{
             query_client::QueryClient as ClobClient, MsgBatchCancel, MsgCancelOrder, MsgPlaceOrder,
@@ -86,6 +97,8 @@ pub type TxHash = String;
 /// Wrapper over standard [Cosmos modules](https://github.com/cosmos/cosmos-sdk/tree/main/x) clients
 /// and [dYdX modules](https://github.com/dydxprotocol/v4-chain/tree/main/protocol/x) clients.
 pub struct Routes {
+    ///
+    pub accountplus: AccountPlusClient<Timeout<Channel>>,
     /// Authentication of accounts and transactions for Cosmos SDK applications.
     pub auth: AuthClient<Timeout<Channel>>,
     /// Token transfer functionalities.
@@ -120,6 +133,7 @@ impl Routes {
     /// Creates new modules clients wrapper.
     pub fn new(channel: Timeout<Channel>) -> Self {
         Self {
+            accountplus: AccountPlusClient::new(channel.clone()),
             auth: AuthClient::new(channel.clone()),
             bank: BankClient::new(channel.clone()),
             base: BaseClient::new(channel.clone()),
@@ -230,10 +244,26 @@ impl NodeClient {
             .as_ref()
             .is_some_and(|id| id.order_flags == OrderFlags::ShortTerm as u32);
 
+        // Check if order requires authorization
+        let mut auth = None;
+        if is_short_term {
+            let order_for = &order
+                .order_id
+                .as_ref()
+                .ok_or_else(|| err!("Order does not have an ID"))?
+                .subaccount_id
+                .as_ref()
+                .ok_or_else(|| err!("Order does not have a subaccount ID"))?
+                .owner;
+            if order_for != account.address().as_ref() {
+                auth = Some(order_for.parse::<Address>()?);
+            }
+        }
+
         let msg = MsgPlaceOrder { order: Some(order) };
 
         let tx_raw = self
-            .create_base_transaction(account, msg, !is_short_term)
+            .create_base_transaction(account, msg, !is_short_term, auth.as_ref())
             .await?;
 
         let tx_hash = self.broadcast_transaction(tx_raw).await?;
@@ -269,7 +299,9 @@ impl NodeClient {
             good_til_oneof: Some(until.try_into()?),
         };
 
-        let tx_raw = self.create_base_transaction(account, msg, true).await?;
+        let tx_raw = self
+            .create_base_transaction(account, msg, true, None)
+            .await?;
 
         let tx_hash = self.broadcast_transaction(tx_raw).await?;
 
@@ -311,7 +343,9 @@ impl NodeClient {
             good_til_block: until_block.0,
         };
 
-        let tx_raw = self.create_base_transaction(account, msg, true).await?;
+        let tx_raw = self
+            .create_base_transaction(account, msg, true, None)
+            .await?;
 
         let tx_hash = self.broadcast_transaction(tx_raw).await?;
 
@@ -345,7 +379,7 @@ impl NodeClient {
             quantums: amount.into().quantize_as_u64()?,
         };
 
-        let tx_raw = self.create_transaction(account, msg).await?;
+        let tx_raw = self.create_transaction(account, msg, None).await?;
 
         self.broadcast_transaction(tx_raw).await
     }
@@ -367,7 +401,7 @@ impl NodeClient {
             quantums: amount.into().quantize_as_u64()?,
         };
 
-        let tx_raw = self.create_transaction(account, msg).await?;
+        let tx_raw = self.create_transaction(account, msg, None).await?;
 
         self.broadcast_transaction(tx_raw).await
     }
@@ -392,7 +426,7 @@ impl NodeClient {
             transfer: Some(transfer),
         };
 
-        let tx_raw = self.create_transaction(account, msg).await?;
+        let tx_raw = self.create_transaction(account, msg, None).await?;
 
         self.broadcast_transaction(tx_raw).await
     }
@@ -413,7 +447,7 @@ impl NodeClient {
             amount: vec![token.coin()?],
         };
 
-        let tx_raw = self.create_transaction(account, msg).await?;
+        let tx_raw = self.create_transaction(account, msg, None).await?;
 
         self.broadcast_transaction(tx_raw).await
     }
@@ -451,7 +485,7 @@ impl NodeClient {
             memo: Default::default(),
         };
 
-        let tx_raw = self.create_transaction(account, msg).await?;
+        let tx_raw = self.create_transaction(account, msg, None).await?;
 
         self.broadcast_transaction(tx_raw).await
     }
@@ -514,6 +548,11 @@ impl NodeClient {
         MegaVault::new(self)
     }
 
+    /// Access the authenticators/permissioned keys requests dispatcher
+    pub fn authenticators(&mut self) -> Authenticators {
+        Authenticators::new(self)
+    }
+
     /// Create a market permissionless
     pub async fn create_market_permissionless(
         &mut self,
@@ -530,7 +569,7 @@ impl NodeClient {
             subaccount_id: Some(subaccount_id),
         };
 
-        let tx_raw = self.create_transaction(account, msg).await?;
+        let tx_raw = self.create_transaction(account, msg, None).await?;
 
         self.broadcast_transaction(tx_raw).await
     }
@@ -568,8 +607,11 @@ impl NodeClient {
         &mut self,
         account: &mut Account,
         msg: impl ToAny,
+        auth: Option<&Address>,
     ) -> Result<tx::Raw, NodeError> {
-        let tx_raw = self.create_base_transaction(account, msg, true).await?;
+        let tx_raw = self
+            .create_base_transaction(account, msg, true, auth)
+            .await?;
         let tx_bytes = tx_raw
             .to_bytes()
             .map_err(|e| err!("Raw Tx to bytes failed: {e}"))?;
@@ -580,7 +622,7 @@ impl NodeClient {
         let gas = simulated.gas_used;
         let fee = self.builder.calculate_fee(Some(gas))?;
         self.builder
-            .build_transaction(account, tx.body.messages, Some(fee))
+            .build_transaction(account, tx.body.messages, Some(fee), None)
             .map_err(|e| e.into())
     }
 
@@ -589,16 +631,30 @@ impl NodeClient {
         account: &mut Account,
         msg: impl ToAny,
         seqnum_required: bool,
+        auth: Option<&Address>,
     ) -> Result<tx::Raw, Error> {
         if seqnum_required && self.config.manage_sequencing {
-            let nonce = self.sequencer.next_nonce(account.address()).await?;
-            account.set_next_nonce(nonce);
+            if let Some(authing) = auth {
+                if let Some((acc, _)) = account.auth_mut().get_mut(&authing) {
+                    let nonce = self.sequencer.next_nonce(acc.address()).await?;
+                    acc.set_next_nonce(nonce);
+                }
+            } else {
+                let nonce = self.sequencer.next_nonce(account.address()).await?;
+                account.set_next_nonce(nonce);
+            }
         } else if !seqnum_required {
-            account.set_next_nonce(Nonce::Sequence(account.sequence_number()))
+            if let Some(authing) = auth {
+                if let Some((acc, _)) = account.auth_mut().get_mut(&authing) {
+                    acc.set_next_nonce(Nonce::Sequence(acc.sequence_number()));
+                }
+            } else {
+                account.set_next_nonce(Nonce::Sequence(account.sequence_number()));
+            }
         }
 
         self.builder
-            .build_transaction(account, iter::once(msg.to_any()), None)
+            .build_transaction(account, iter::once(msg.to_any()), None, auth)
     }
 
     /// Broadcast a transaction

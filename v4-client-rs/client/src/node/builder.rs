@@ -1,12 +1,12 @@
-use super::sequencer::Nonce;
-use super::{fee, Account};
-use crate::indexer::Denom;
+use super::{fee, sequencer::Nonce, Account, PublicAccount};
+use crate::indexer::{Address, Denom};
 use anyhow::{anyhow as err, Error, Result};
 pub use cosmrs::tendermint::chain::Id;
 use cosmrs::{
     tx::{self, Fee, SignDoc, SignerInfo},
     Any,
 };
+use dydx_proto::{dydxprotocol::accountplus::TxExtension, ToAny};
 
 /// Transaction builder.
 pub struct TxBuilder {
@@ -44,24 +44,38 @@ impl TxBuilder {
         account: &Account,
         msgs: impl IntoIterator<Item = Any>,
         fee: Option<Fee>,
+        auth: Option<&Address>,
     ) -> Result<tx::Raw, Error> {
-        let tx_body = tx::BodyBuilder::new().msgs(msgs).memo("").finish();
+        let mut builder = tx::BodyBuilder::new();
+        builder.msgs(msgs).memo("");
+        let mut authing = None;
+        if let Some(address) = auth {
+            if let Some((acc, ids)) = account.auth().get(&address) {
+                let ext = TxExtension {
+                    selected_authenticators: ids.clone(),
+                };
+                builder.non_critical_extension_option(ext.to_any());
+                authing = Some(acc);
+            }
+        }
+        let tx_body = builder.finish();
 
         let fee = fee.unwrap_or(self.calculate_fee(None)?);
 
-        let nonce = match account.next_nonce() {
+        let (next_nonce, account_number) = if let Some(authing) = authing {
+            (authing.next_nonce(), authing.account_number())
+        } else {
+            (account.next_nonce(), account.account_number())
+        };
+
+        let nonce = match next_nonce {
             Some(Nonce::Sequence(number) | Nonce::Timestamp(number)) => *number,
             None => return Err(err!("Account's next nonce not set")),
         };
         let auth_info = SignerInfo::single_direct(Some(account.public_key()), nonce).auth_info(fee);
 
-        let sign_doc = SignDoc::new(
-            &tx_body,
-            &auth_info,
-            &self.chain_id,
-            account.account_number(),
-        )
-        .map_err(|e| err!("cannot create sign doc: {e}"))?;
+        let sign_doc = SignDoc::new(&tx_body, &auth_info, &self.chain_id, account_number)
+            .map_err(|e| err!("cannot create sign doc: {e}"))?;
 
         account.sign(sign_doc)
     }
