@@ -15,8 +15,6 @@ export const DYDX_LOCAL_ADDRESS = 'dydx199tqg4wdlnu4qjlxchpd7seg454937hjrknju4';
 export const DYDX_LOCAL_MNEMONIC =
   'merge panther lobster crazy road hollow amused security before critic about cliff exhibit cause coyote talent happy where lion river tobacco option coconut small';
 
-export const DYDX_TEST_MNEMONIC_2 = 'movie yard still copper exile wear brisk chest ride dizzy novel future menu finish radar lunar claim hub middle force turtle mouse frequent embark';
-
 export const MARKET_BTC_USD: string = 'BTC-USD';
 export const PERPETUAL_PAIR_BTC_USD: number = 0;
 
