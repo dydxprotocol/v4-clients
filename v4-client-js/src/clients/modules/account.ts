@@ -275,7 +275,7 @@ export default class AccountClient extends RestClient {
     limit?: number | null,
     page?: number | null,
   ): Promise<Data> {
-    const uri = '/v4//historical-pnl/parentSubaccount';
+    const uri = '/v4/historical-pnl/parentSubaccount';
     return this.get(uri, {
       address,
       parentSubaccountNumber,
