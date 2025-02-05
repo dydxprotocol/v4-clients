@@ -7,7 +7,6 @@ import {
   MsgDelegate,
   MsgUndelegate,
 } from '@dydxprotocol/v4-proto/src/codegen/cosmos/staking/v1beta1/tx';
-import { MsgAddAuthenticator, MsgRemoveAuthenticator } from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/accountplus/tx';
 import { MsgRegisterAffiliate } from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/affiliates/tx';
 import { ClobPair_Status } from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/clob/clob_pair';
 import {
@@ -53,9 +52,6 @@ import {
   TYPE_URL_MSG_DEPOSIT_TO_MEGAVAULT,
   TYPE_URL_MSG_WITHDRAW_FROM_MEGAVAULT,
   TYPE_URL_MSG_CREATE_MARKET_PERMISSIONLESS,
-  TYPE_URL_MSG_ADD_AUTHENTICATOR,
-  TYPE_URL_MSG_REMOVE_AUTHENTICATOR,
-  AuthenticatorType,
 } from '../constants';
 import { DenomConfig } from '../types';
 import {
@@ -109,7 +105,6 @@ export class Composer {
       orderFlags,
       clobPairId,
     };
-
     const order: Order = {
       orderId,
       side,
@@ -576,40 +571,6 @@ export class Composer {
 
     return {
       typeUrl: TYPE_URL_MSG_CREATE_MARKET_PERMISSIONLESS,
-      value: msg,
-    }
-  }
-
-  // ----------- x/accountplus --------
-
-  public composeMsgAddAuthenticator(
-    address: string,
-    authenticatorType: AuthenticatorType,
-    data: Uint8Array,
-  ): EncodeObject {
-    const msg: MsgAddAuthenticator = {
-      sender: address,
-      authenticatorType,
-      data,
-    }
-
-    return {
-      typeUrl: TYPE_URL_MSG_ADD_AUTHENTICATOR,
-      value: msg,
-    }
-  }
-
-  public composeMsgRemoveAuthenticator(
-    address: string,
-    id: Long,
-  ): EncodeObject {
-    const msg: MsgRemoveAuthenticator = {
-      sender: address,
-      id,
-    }
-
-    return {
-      typeUrl: TYPE_URL_MSG_REMOVE_AUTHENTICATOR,
       value: msg,
     }
   }

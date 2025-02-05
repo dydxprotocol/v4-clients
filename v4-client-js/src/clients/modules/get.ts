@@ -7,7 +7,6 @@ import {
   TxExtension,
   QueryAbciResponse,
 } from '@cosmjs/stargate';
-import { GetAuthenticatorsRequest, GetAuthenticatorsResponse } from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/accountplus/query';
 import * as AuthModule from 'cosmjs-types/cosmos/auth/v1beta1/query';
 import * as BankModule from 'cosmjs-types/cosmos/bank/v1beta1/query';
 import { Any } from 'cosmjs-types/google/protobuf/any';
@@ -609,21 +608,6 @@ export class Get {
     );
 
     return AffiliateModule.AffiliateWhitelistResponse.decode(data);
-  }
-
-  async getAuthenticators(address: string): Promise<GetAuthenticatorsResponse> {
-    const requestData = Uint8Array.from(
-      GetAuthenticatorsRequest.encode({
-        account: address,
-      }).finish(),
-    );
-
-    const data = await this.sendQuery(
-      '/dydxprotocol.accountplus.Query/GetAuthenticators',
-      requestData,
-    );
-
-    return GetAuthenticatorsResponse.decode(data);
   }
 
   private async sendQuery(requestUrl: string, requestData: Uint8Array): Promise<Uint8Array> {

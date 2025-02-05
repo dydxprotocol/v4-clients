@@ -29,7 +29,6 @@ export interface PartialTransactionOptions {
 // Information for signing a transaction while offline.
 export interface TransactionOptions extends PartialTransactionOptions {
   sequence: number;
-  authenticators?: Long[];
 }
 
 // OrderFlags, just a number in proto, defined as enum for convenience

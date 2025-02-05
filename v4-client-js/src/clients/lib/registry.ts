@@ -1,6 +1,5 @@
 import { GeneratedType, Registry } from '@cosmjs/proto-signing';
 import { defaultRegistryTypes } from '@cosmjs/stargate';
-import { MsgAddAuthenticator, MsgRemoveAuthenticator } from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/accountplus/tx';
 import { MsgRegisterAffiliate } from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/affiliates/tx';
 import {
   MsgPlaceOrder,
@@ -39,8 +38,6 @@ import {
   TYPE_URL_MSG_WITHDRAW_FROM_MEGAVAULT,
   TYPE_URL_MSG_REGISTER_AFFILIATE,
   TYPE_URL_MSG_CREATE_MARKET_PERMISSIONLESS,
-  TYPE_URL_MSG_ADD_AUTHENTICATOR,
-  TYPE_URL_MSG_REMOVE_AUTHENTICATOR,
 } from '../constants';
 
 export const registry: ReadonlyArray<[string, GeneratedType]> = [];
@@ -76,11 +73,6 @@ export function generateRegistry(): Registry {
 
     // affiliates
     [TYPE_URL_MSG_REGISTER_AFFILIATE, MsgRegisterAffiliate as GeneratedType],
-
-
-    // authentication
-    [TYPE_URL_MSG_ADD_AUTHENTICATOR, MsgAddAuthenticator as GeneratedType],
-    [TYPE_URL_MSG_REMOVE_AUTHENTICATOR, MsgRemoveAuthenticator as GeneratedType],
 
     // default types
     ...defaultRegistryTypes,
