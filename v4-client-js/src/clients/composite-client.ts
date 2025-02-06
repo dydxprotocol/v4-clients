@@ -5,6 +5,7 @@ import {
   BroadcastTxAsyncResponse,
   BroadcastTxSyncResponse,
 } from '@cosmjs/tendermint-rpc/build/tendermint37';
+import { GetAuthenticatorsResponse } from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/accountplus/query';
 import {
   Order_ConditionType,
   Order_TimeInForce,
@@ -17,6 +18,7 @@ import { bigIntToBytes } from '../lib/helpers';
 import { isStatefulOrder, verifyOrderFlags } from '../lib/validation';
 import { GovAddNewMarketParams, OrderFlags } from '../types';
 import {
+  AuthenticatorType,
   Network,
   OrderExecution,
   OrderSide,
@@ -64,6 +66,11 @@ export interface OrderBatchWithMarketId {
   marketId: string;
   clobPairId?: number;
   clientIds: number[];
+}
+
+export interface PermissionedKeysAccountAuth {
+  authenticators: Long[];
+  accountForOrder: SubaccountInfo;
 }
 
 export class CompositeClient {
@@ -151,6 +158,7 @@ export class CompositeClient {
     memo?: string,
     broadcastMode?: BroadcastMode,
     account?: () => Promise<Account>,
+    authenticators?: Long[],
   ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
     return this.validatorClient.post.send(
       wallet,
@@ -160,6 +168,8 @@ export class CompositeClient {
       memo,
       broadcastMode,
       account,
+      undefined,
+     authenticators,
     );
   }
 
@@ -297,10 +307,15 @@ export class CompositeClient {
     timeInForce: Order_TimeInForce,
     reduceOnly: boolean,
     memo?: string,
+    permissionedKeysAccountAuth?: PermissionedKeysAccountAuth,
   ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
+    // For permissioned orders, use the permissioning account details instead of the subaccount
+    // This allows placing orders on behalf of another account when using permissioned keys
+    const accountForOrder = permissionedKeysAccountAuth ? permissionedKeysAccountAuth.accountForOrder : subaccount;
     const msgs: Promise<EncodeObject[]> = new Promise((resolve, reject) => {
+
       const msg = this.placeShortTermOrderMessage(
-        subaccount,
+        accountForOrder,
         marketId,
         side,
         price,
@@ -311,14 +326,16 @@ export class CompositeClient {
         reduceOnly,
       );
       msg
-        .then((it) => resolve([it]))
+        .then((it) => {
+          resolve([it]);
+        })
         .catch((err) => {
           console.log(err);
           reject(err);
         });
     });
     const account: Promise<Account> = this.validatorClient.post.account(
-      subaccount.address,
+      accountForOrder.address,
       undefined,
     );
     return this.send(
@@ -329,6 +346,7 @@ export class CompositeClient {
       memo,
       undefined,
       () => account,
+      permissionedKeysAccountAuth?.authenticators,
     );
   }
 
@@ -1216,5 +1234,24 @@ export class CompositeClient {
     memo?: string,
   ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
     return this.validatorClient.post.createMarketPermissionless(ticker, subaccount, broadcastMode, gasAdjustment, memo);
+  }
+
+  async addAuthenticator(
+    subaccount: SubaccountInfo,
+    authenticatorType: AuthenticatorType,
+    data: Uint8Array,
+  ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
+    return this.validatorClient.post.addAuthenticator(subaccount, authenticatorType, data)
+  }
+
+  async removeAuthenticator(
+    subaccount: SubaccountInfo,
+    id: Long,
+  ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
+    return this.validatorClient.post.removeAuthenticator(subaccount, id)
+  }
+
+  async getAuthenticators(address: string): Promise<GetAuthenticatorsResponse>{
+    return this.validatorClient.get.getAuthenticators(address);
   }
 }
