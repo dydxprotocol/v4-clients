@@ -4,8 +4,10 @@ import grpc
 import pytest
 import v4_proto
 
+from dydx_v4_client.node.authenticators import message_filter
 from dydx_v4_client.node.message import subaccount
 from tests.conftest import get_wallet
+
 
 REQUEST_PROCESSING_TIME = 5
 
@@ -120,3 +122,11 @@ async def test_transfer(node_client, wallet, test_address, recipient):
             pytest.skip("Subaccount is undercollateralized. Skipping the test.")
         else:
             raise e
+
+
+@pytest.mark.asyncio
+async def test_add_authenticator(node_client, wallet):
+    response = await node_client.add_authenticator(
+        wallet, message_filter("/dydxprotocol.clob.MsgCreateOrder")
+    )
+    assert_successful_broadcast(response)
