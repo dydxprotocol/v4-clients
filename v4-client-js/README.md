@@ -45,7 +45,7 @@ git clone git@github.com:dydxprotocol/v4-clients.git
 cd v4-client-js/examples
 ```
 
-These examples by default use a test account with `DYDX_TEST_MNEMONIC` from the TS client library under `v4-client-js/examples/constants`.
+These examples by default use a test account with `DYDX_TEST_MNEMONIC` from the TS client library under `v4-client-js/examples/constants`, but you can use any test address that you own.
 
 ### 3. Run the scripts with node
 
