@@ -25,6 +25,9 @@ from v4_proto.cosmos.tx.v1beta1.service_pb2 import (
     SimulateRequest,
 )
 from v4_proto.cosmos.tx.v1beta1.tx_pb2 import Tx
+from v4_proto.dydxprotocol.accountplus import query_pb2 as accountplus_query
+from v4_proto.dydxprotocol.accountplus import query_pb2_grpc as accountplus_query_grpc
+from v4_proto.dydxprotocol.accountplus import tx_pb2 as accountplus_tx
 from v4_proto.dydxprotocol.bridge import query_pb2 as bridge_query
 from v4_proto.dydxprotocol.bridge import query_pb2_grpc as bridge_query_grpc
 from v4_proto.dydxprotocol.clob import clob_pair_pb2 as clob_pair_type
@@ -69,7 +72,8 @@ from v4_proto.dydxprotocol.subaccounts.subaccount_pb2 import SubaccountId
 from v4_proto.dydxprotocol.clob.tx_pb2 import OrderBatch
 
 from dydx_v4_client.network import NodeConfig
-from dydx_v4_client.node.builder import Builder
+from dydx_v4_client.node.authenticators import *
+from dydx_v4_client.node.builder import Builder, TxOptions
 from dydx_v4_client.node.fee import Coin, Fee, calculate_fee, Denom
 from dydx_v4_client.node.message import (
     cancel_order,
@@ -79,6 +83,8 @@ from dydx_v4_client.node.message import (
     transfer,
     withdraw,
     batch_cancel,
+    add_authenticator,
+    remove_authenticator,
 )
 from dydx_v4_client.wallet import Wallet
 
@@ -429,6 +435,14 @@ class QueryNodeClient:
         stub = rewards_query_grpc.QueryStub(self.channel)
         return stub.Params(rewards_query.QueryParamsRequest())
 
+    async def get_authenticators(
+        self, address: str
+    ) -> accountplus_query.GetAuthenticatorsResponse:
+        stub = accountplus_query_grpc.QueryStub(self.channel)
+        return stub.GetAuthenticators(
+            accountplus_query.GetAuthenticatorsRequest(account=address)
+        )
+
 
 class SequenceManager:
     def __init__(self, query_node_client: QueryNodeClient):
@@ -528,7 +542,11 @@ class MutatingNodeClient(QueryNodeClient):
         return response
 
     async def broadcast_message(
-        self, wallet: Wallet, message: Message, mode=BroadcastMode.BROADCAST_MODE_SYNC
+        self,
+        wallet: Wallet,
+        message: Message,
+        mode=BroadcastMode.BROADCAST_MODE_SYNC,
+        tx_options: Optional[TxOptions] = None,
     ):
         """
         Broadcasts a message.
@@ -537,16 +555,20 @@ class MutatingNodeClient(QueryNodeClient):
             wallet (Wallet): The wallet to use for signing the transaction.
             message (Message): The message to broadcast.
             mode (BroadcastMode, optional): The broadcast mode. Defaults to BroadcastMode.BROADCAST_MODE_SYNC.
+            tx_options (TxOptions, optional): Options for transaction to support authenticators.
 
         Returns:
             The response from the broadcast.
         """
-        if self.sequence_manager:
+        if not tx_options and self.sequence_manager:
             await self.sequence_manager.before_send(wallet)
 
-        response = await self.broadcast(self.builder.build(wallet, message), mode)
+        response = await self.broadcast(
+            self.builder.build(wallet, message, tx_options=tx_options),
+            mode,
+        )
 
-        if self.sequence_manager:
+        if not tx_options and self.sequence_manager:
             await self.sequence_manager.after_send(wallet)
 
         return response
@@ -710,18 +732,28 @@ class NodeClient(MutatingNodeClient):
             ),
         )
 
-    async def place_order(self, wallet: Wallet, order: Order):
+    async def place_order(
+        self,
+        wallet: Wallet,
+        order: Order,
+        tx_options: Optional[TxOptions] = None,
+    ):
         """
         Places an order.
 
         Args:
             wallet (Wallet): The wallet to use for signing the transaction.
             order (Order): The order to place.
+            tx_options (TxOptions, optional): Options for transaction to support authenticators.
 
         Returns:
             The response from the transaction broadcast.
         """
-        return await self.broadcast_message(wallet, place_order(order))
+        return await self.broadcast_message(
+            wallet,
+            place_order(order),
+            tx_options=tx_options,
+        )
 
     async def cancel_order(
         self,
@@ -729,6 +761,7 @@ class NodeClient(MutatingNodeClient):
         order_id: OrderId,
         good_til_block: int = None,
         good_til_block_time: int = None,
+        tx_options: Optional[TxOptions] = None,
     ):
         """
         Cancels an order.
@@ -738,12 +771,15 @@ class NodeClient(MutatingNodeClient):
             order_id (OrderId): The ID of the order to cancel.
             good_til_block (int, optional): The block number until which the order is valid. Defaults to None.
             good_til_block_time (int, optional): The block time until which the order is valid. Defaults to None.
+            tx_options (TxOptions, optional): Options for transaction to support authenticators.
 
         Returns:
             The response from the transaction broadcast.
         """
         return await self.broadcast_message(
-            wallet, cancel_order(order_id, good_til_block, good_til_block_time)
+            wallet,
+            cancel_order(order_id, good_til_block, good_til_block_time),
+            tx_options=tx_options,
         )
 
     async def batch_cancel_orders(
@@ -752,6 +788,7 @@ class NodeClient(MutatingNodeClient):
         subaccount_id: SubaccountId,
         short_term_cancels: List[OrderBatch],
         good_til_block: int,
+        tx_options: Optional[TxOptions] = None,
     ):
         """
         Batch cancels orders for a subaccount.
@@ -761,6 +798,7 @@ class NodeClient(MutatingNodeClient):
             subaccount_id (SubaccountId): The subaccount ID for which to cancel orders.
             short_term_cancels (List[OrderBatch]): List of OrderBatch objects containing the orders to cancel.
             good_til_block (int): The last block the short term order cancellations can be executed at.
+            tx_options (TxOptions, optional): Options for transaction to support authenticators.
 
         Returns:
             The response from the transaction broadcast.
@@ -770,4 +808,56 @@ class NodeClient(MutatingNodeClient):
             short_term_cancels=short_term_cancels,
             good_til_block=good_til_block,
         )
-        return await self.broadcast_message(wallet, batch_cancel_msg)
+        return await self.broadcast_message(
+            wallet,
+            batch_cancel_msg,
+            tx_options=tx_options,
+        )
+
+    async def add_authenticator(
+        self,
+        wallet: Wallet,
+        authenticator: Authenticator,
+    ):
+        """
+        Adds authenticator to a subaccount.
+
+        Args:
+            wallet (Wallet): The wallet to use for signing the transaction or authenticating the request.
+            authenticator Authenticator: The authenticator to be added.
+
+        Returns:
+            The response from the transaction broadcast.
+        """
+        add_authenticator_msg = add_authenticator(
+            wallet.address,
+            authenticator.type,
+            authenticator.config,
+        )
+
+        return await self.send_message(
+            wallet,
+            add_authenticator_msg,
+        )
+
+    async def remove_authenticator(self, wallet: Wallet, authenticator_id: int):
+        """
+        Removes authenticator from a subaccount.
+
+        Args:
+            wallet (Wallet): The wallet to use for signing the transaction or authenticating the request.
+            authenticator_id (int): The authenticator identifier.
+
+        Returns:
+            The response from the transaction broadcast.
+        """
+
+        remove_authenticator_msg = remove_authenticator(
+            wallet.address,
+            authenticator_id,
+        )
+
+        return await self.send_message(
+            wallet,
+            remove_authenticator_msg,
+        )

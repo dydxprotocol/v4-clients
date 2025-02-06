@@ -12,6 +12,10 @@ from v4_proto.dydxprotocol.sending.transfer_pb2 import (
 from v4_proto.dydxprotocol.sending.tx_pb2 import MsgCreateTransfer
 from v4_proto.dydxprotocol.subaccounts.subaccount_pb2 import SubaccountId
 from v4_proto.dydxprotocol.clob.tx_pb2 import MsgBatchCancel, OrderBatch
+from v4_proto.dydxprotocol.accountplus.tx_pb2 import (
+    MsgAddAuthenticator,
+    MsgRemoveAuthenticator,
+)
 
 PY_V2_CLIENT_ID = 2
 
@@ -145,5 +149,22 @@ def send_token(sender: str, recipient: str, quantums: int, denomination: str):
         from_address=sender,
         to_address=recipient,
         amount=[Coin(amount=str(quantums), denom=denomination)],
+    )
+    return message
+
+
+def add_authenticator(sender: str, auth_type: str, config: bytes):
+    message = MsgAddAuthenticator(
+        sender=sender,
+        authenticator_type=auth_type,
+        data=config,
+    )
+    return message
+
+
+def remove_authenticator(sender: str, authenticator_id: int):
+    message = MsgRemoveAuthenticator(
+        sender=sender,
+        id=authenticator_id,
     )
     return message
