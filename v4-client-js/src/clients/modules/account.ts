@@ -265,6 +265,7 @@ export default class AccountClient extends RestClient {
     });
   }
 
+  // limit applies to the subaccount ticks, so expect number of results to be much lower than limit
   async getParentSubaccountNumberHistoricalPNLs(
     address: string,
     parentSubaccountNumber: number,
