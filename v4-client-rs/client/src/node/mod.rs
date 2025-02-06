@@ -10,9 +10,11 @@ mod utils;
 mod wallet;
 
 pub use builder::TxBuilder;
-pub use client::{error::*, Address, NodeClient, Subaccount, TxHash};
+pub use client::{
+    error::*, Address, AuthenticatorBuilder, AuthenticatorType, NodeClient, Subaccount, TxHash,
+};
 pub use config::NodeConfig;
 pub use order::*;
 pub use types::ChainId;
 pub use utils::BigIntExt;
-pub use wallet::{Account, Wallet};
+pub use wallet::{Account, PublicAccount, Wallet};
