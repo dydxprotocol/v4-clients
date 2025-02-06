@@ -46,7 +46,6 @@ def make_config(
 make_secure = partial(make_config, secure_channel)
 make_insecure = partial(make_config, insecure_channel)
 
-
 mainnet_node = partial(
     NodeConfig,
     "dydx-mainnet-1",
@@ -55,6 +54,21 @@ mainnet_node = partial(
 )
 make_mainnet = partial(make_secure, mainnet_node)
 
+
+staging_node = partial(
+    NodeConfig,
+    "dydxprotocol-testnet",
+    chaintoken_denom="adv4tnt",
+    usdc_denom="ibc/8E27BA2D5493AF5636760E354E46004562C46AB7EC0CC4C1CA14E9E20E2545B5",
+)
+make_staging = partial(
+    make_secure,
+    staging_node,
+    rest_indexer="https://indexer.v4staging.dydx.exchange/",
+    websocket_indexer="wss://indexer.v4staging.dydx.exchange/v4/ws",
+    node_url="validator.v4staging.dydx.exchange",
+)
+STAGING = make_staging()
 
 testnet_node = partial(
     NodeConfig,
@@ -72,7 +86,6 @@ make_testnet = partial(
 TESTNET = make_testnet()
 TESTNET_FAUCET = "https://faucet.v4testnet.dydx.exchange"
 TESTNET_NOBLE = "https://rpc.testnet.noble.strange.love"
-
 
 local_node = partial(
     NodeConfig,

@@ -8,6 +8,7 @@ from v4_proto.cosmos.staking.v1beta1.query_pb2 import (
     QueryDelegatorUnbondingDelegationsResponse,
     QueryValidatorsResponse,
 )
+from v4_proto.dydxprotocol.accountplus.query_pb2 import GetAuthenticatorsResponse
 from v4_proto.dydxprotocol.bridge.query_pb2 import (
     QueryDelayedCompleteBridgeMessagesResponse,
 )
@@ -174,3 +175,9 @@ async def test_get_user_fee_tier(node_client, test_address):
 async def test_get_rewards_params(node_client):
     rewards_params = await node_client.get_rewards_params()
     assert isinstance(rewards_params, QueryParamsResponse)
+
+
+@pytest.mark.asyncio
+async def test_get_authenticators(node_client, test_address):
+    authenticators = await node_client.get_authenticators(test_address)
+    assert isinstance(authenticators, GetAuthenticatorsResponse)
