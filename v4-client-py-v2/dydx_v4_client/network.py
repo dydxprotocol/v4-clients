@@ -54,22 +54,6 @@ mainnet_node = partial(
 )
 make_mainnet = partial(make_secure, mainnet_node)
 
-
-staging_node = partial(
-    NodeConfig,
-    "dydxprotocol-testnet",
-    chaintoken_denom="adv4tnt",
-    usdc_denom="ibc/8E27BA2D5493AF5636760E354E46004562C46AB7EC0CC4C1CA14E9E20E2545B5",
-)
-make_staging = partial(
-    make_secure,
-    staging_node,
-    rest_indexer="https://indexer.v4staging.dydx.exchange/",
-    websocket_indexer="wss://indexer.v4staging.dydx.exchange/v4/ws",
-    node_url="validator.v4staging.dydx.exchange",
-)
-STAGING = make_staging()
-
 testnet_node = partial(
     NodeConfig,
     "dydx-testnet-4",
