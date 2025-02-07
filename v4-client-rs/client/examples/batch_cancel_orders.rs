@@ -5,7 +5,7 @@ use dydx::config::ClientConfig;
 use dydx::indexer::{ClientId, IndexerClient};
 use dydx::node::{NodeClient, OrderBuilder, OrderSide, Wallet, SHORT_TERM_ORDER_MAXIMUM_LIFETIME};
 use dydx_proto::dydxprotocol::clob::{order::TimeInForce, OrderBatch};
-use rand::thread_rng;
+use rand::rng;
 use std::str::FromStr;
 use support::constants::TEST_MNEMONIC;
 use tokio::time::{sleep, Duration};
@@ -63,8 +63,7 @@ async fn main() -> Result<()> {
         let height = placer.client.get_latest_block_height().await?;
         let order_builder = builder.clone().until(height.ahead(10));
 
-        let (order_id, order) =
-            order_builder.build(ClientId::random_with_rng(&mut thread_rng()))?;
+        let (order_id, order) = order_builder.build(ClientId::random_with_rng(&mut rng()))?;
         let client_id = order_id.client_id;
         client_ids.push(client_id);
         let tx_hash = placer.client.place_order(&mut account, order).await?;
