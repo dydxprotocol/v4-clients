@@ -7,7 +7,11 @@ from dydx_v4_client import MAX_CLIENT_ID, OrderFlags
 from dydx_v4_client.indexer.rest.constants import OrderType
 from dydx_v4_client.indexer.rest.indexer_client import IndexerClient
 from dydx_v4_client.network import TESTNET
-from dydx_v4_client.node.authenticators import *
+from dydx_v4_client.node.authenticators import (
+    composed_authenticator,
+    message_filter,
+    signature_verification,
+)
 from dydx_v4_client.node.builder import TxOptions
 from dydx_v4_client.node.client import NodeClient
 from dydx_v4_client.node.market import Market

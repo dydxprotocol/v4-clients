@@ -72,7 +72,7 @@ from v4_proto.dydxprotocol.subaccounts.subaccount_pb2 import SubaccountId
 from v4_proto.dydxprotocol.clob.tx_pb2 import OrderBatch
 
 from dydx_v4_client.network import NodeConfig
-from dydx_v4_client.node.authenticators import *
+from dydx_v4_client.node.authenticators import Authenticator, SubAuthenticator
 from dydx_v4_client.node.builder import Builder, TxOptions
 from dydx_v4_client.node.fee import Coin, Fee, calculate_fee, Denom
 from dydx_v4_client.node.message import (
@@ -817,14 +817,14 @@ class NodeClient(MutatingNodeClient):
         wallet: Wallet,
         authenticator: Union[SubAuthenticator, Authenticator],
     ) -> accountplus_tx.MsgAddAuthenticatorResponse:
-        """ Adds authenticator to the wallet. """
-        if isinstance(authenticator['config'], list):
-            config = json.dumps(authenticator['config'])
+        """Adds authenticator to the wallet."""
+        if isinstance(authenticator.config, list):
+            config = json.dumps(authenticator.config)
         else:
-            config = authenticator['config']
+            config = authenticator.config
         request = accountplus_tx.MsgAddAuthenticator(
             sender=wallet.address,
-            authenticator_type=authenticator['type'],
+            authenticator_type=authenticator.type,
             data=config.encode(),
         )
         return await self.send_message(wallet, request)
@@ -832,7 +832,7 @@ class NodeClient(MutatingNodeClient):
     async def remove_authenticator(
         self, wallet: Wallet, authenticator_id: int
     ) -> accountplus_tx.MsgRemoveAuthenticatorResponse:
-        """ Adds authenticator from the wallet. """
+        """Adds authenticator from the wallet."""
         request = accountplus_tx.MsgRemoveAuthenticator(
             sender=wallet.address,
             id=authenticator_id,
