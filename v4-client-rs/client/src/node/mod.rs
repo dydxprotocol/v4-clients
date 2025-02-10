@@ -11,7 +11,8 @@ mod wallet;
 
 pub use builder::TxBuilder;
 pub use client::{
-    error::*, Address, AuthenticatorBuilder, AuthenticatorType, NodeClient, Subaccount, TxHash,
+    error::*, Address, Authenticator, AuthenticatorBuilder, AuthenticatorType, NodeClient,
+    Subaccount, TxHash,
 };
 pub use config::NodeConfig;
 pub use order::*;
