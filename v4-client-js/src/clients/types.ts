@@ -105,6 +105,30 @@ export interface HeightResponse {
 
 export interface ComplianceResponse {
   restricted: boolean;
+  reason?: string;
+}
+
+export enum ComplianceReason {
+  MANUAL = 'MANUAL',
+  US_GEO = 'US_GEO',
+  CA_GEO = 'CA_GEO',
+  GB_GEO = 'GB_GEO',
+  SANCTIONED_GEO = 'SANCTIONED_GEO',
+  COMPLIANCE_PROVIDER = 'COMPLIANCE_PROVIDER',
+}
+
+export enum ComplianceStatus {
+  COMPLIANT = 'COMPLIANT',
+  FIRST_STRIKE_CLOSE_ONLY = 'FIRST_STRIKE_CLOSE_ONLY',
+  FIRST_STRIKE = 'FIRST_STRIKE',
+  CLOSE_ONLY = 'CLOSE_ONLY',
+  BLOCKED = 'BLOCKED',
+}
+
+export interface ComplianceV2Response {
+  status: ComplianceStatus;
+  reason?: ComplianceReason;
+  updatedAt?: string;
 }
 
 // ------------ Squid ------------ //
