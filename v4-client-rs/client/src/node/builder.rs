@@ -51,7 +51,7 @@ impl TxBuilder {
         // Add authenticators, if present, as a Tx extension
         let mut authing = None;
         if let Some(address) = auth {
-            if let Some((acc, ids)) = account.authenticators().get(&address) {
+            if let Some((acc, ids)) = account.authenticators().get(address) {
                 let ext = TxExtension {
                     selected_authenticators: ids.clone(),
                 };

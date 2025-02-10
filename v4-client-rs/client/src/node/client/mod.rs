@@ -88,7 +88,7 @@ pub type TxHash = String;
 /// Wrapper over standard [Cosmos modules](https://github.com/cosmos/cosmos-sdk/tree/main/x) clients
 /// and [dYdX modules](https://github.com/dydxprotocol/v4-chain/tree/main/protocol/x) clients.
 pub struct Routes {
-    ///
+    /// Smart account features, includes authenticators.
     pub accountplus: AccountPlusClient<Timeout<Channel>>,
     /// Authentication of accounts and transactions for Cosmos SDK applications.
     pub auth: AuthClient<Timeout<Channel>>,
@@ -626,9 +626,9 @@ impl NodeClient {
     ) -> Result<tx::Raw, Error> {
         if seqnum_required && self.config.manage_sequencing {
             if let Some(authing) = auth {
-                if let Some((acc, _)) = account.authenticators_mut().get_mut(&authing) {
-                    let nonce = self.sequencer.next_nonce(acc.address()).await?;
-                    acc.set_next_nonce(nonce);
+                if let Some((master, _)) = account.authenticators_mut().get_mut(authing) {
+                    let nonce = self.sequencer.next_nonce(master.address()).await?;
+                    master.set_next_nonce(nonce);
                 }
             } else {
                 let nonce = self.sequencer.next_nonce(account.address()).await?;
@@ -636,8 +636,8 @@ impl NodeClient {
             }
         } else if !seqnum_required {
             if let Some(authing) = auth {
-                if let Some((acc, _)) = account.authenticators_mut().get_mut(&authing) {
-                    acc.set_next_nonce(Nonce::Sequence(acc.sequence_number()));
+                if let Some((master, _)) = account.authenticators_mut().get_mut(authing) {
+                    master.set_next_nonce(Nonce::Sequence(master.sequence_number()));
                 }
             } else {
                 account.set_next_nonce(Nonce::Sequence(account.sequence_number()));

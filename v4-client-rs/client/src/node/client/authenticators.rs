@@ -1,13 +1,10 @@
 use super::*;
 
-use anyhow::{anyhow as err, bail, ensure, Error};
+use crate::indexer::{ClobPairId, SubaccountNumber};
+use anyhow::{anyhow as err, Error};
 use core::fmt;
-use dydx_proto::dydxprotocol::{
-    accountplus::{
-        AccountAuthenticator, GetAuthenticatorsRequest, GetAuthenticatorsResponse,
-        MsgAddAuthenticator, MsgRemoveAuthenticator,
-    },
-    subaccounts::SubaccountId,
+use dydx_proto::dydxprotocol::accountplus::{
+    AccountAuthenticator, GetAuthenticatorsRequest, MsgAddAuthenticator, MsgRemoveAuthenticator,
 };
 use serde::{Deserialize, Serialize};
 
@@ -16,7 +13,7 @@ pub struct Authenticators<'a> {
     client: &'a mut NodeClient,
 }
 
-/// [`Authenticator`] type. 
+/// [`Authenticator`] type.
 /// An authenticator can be composed by a single or multiple types.
 #[derive(Debug, Clone, Copy, Eq, Hash, PartialEq, Serialize, Deserialize)]
 pub enum AuthenticatorType {
@@ -141,7 +138,7 @@ impl Authenticator {
     /// Self integrity check
     pub(super) fn check(&self) -> Result<()> {
         if self.config.is_empty() {
-            return Err(err!("Authenticator methods are empty").into());
+            return Err(err!("Authenticator methods are empty"));
         }
         match self.composable {
             AuthenticatorComposableType::AllOf | AuthenticatorComposableType::AnyOf => {
@@ -149,8 +146,7 @@ impl Authenticator {
                     return Err(err!(
                         "{:?} authenticator must have at least 2 sub-authenticators",
                         self.composable
-                    )
-                    .into());
+                    ));
                 }
             }
             _ => (),
@@ -166,7 +162,7 @@ impl Authenticator {
             }
             AuthenticatorComposableType::Single => {
                 // Use the first entry
-                self.config.iter().next().map(|entry| entry.ty.to_string()).ok_or_else(|| err!("Authenticator must contain at least one authenticator method if not composable"))
+                self.config.first().map(|entry| entry.ty.to_string()).ok_or_else(|| err!("Authenticator must contain at least one authenticator method if not composable"))
             }
         }
     }
@@ -179,7 +175,7 @@ impl Authenticator {
             }
             AuthenticatorComposableType::Single => {
                 // Use the first entry
-                self.config.iter().next().map(|entry| entry.config.clone()).ok_or_else(|| err!("Authenticator must contain at least one authenticator method if not composable"))
+                self.config.first().map(|entry| entry.config.clone()).ok_or_else(|| err!("Authenticator must contain at least one authenticator method if not composable"))
             }
         }
     }
@@ -238,8 +234,62 @@ impl AuthenticatorBuilder {
         self
     }
 
+    /// Add `SignatureVerification` authenticator type.
+    pub fn signature_verification(&mut self, pubkey: impl Into<Vec<u8>>) -> &mut Self {
+        self.add(AuthenticatorType::SignatureVerification, pubkey);
+        self
+    }
+
+    /// Add `MessageFilter` authenticator type.
+    pub fn filter_message<T>(&mut self, message_types: T) -> &mut Self
+    where
+        T: IntoIterator,
+        T::Item: AsRef<str>,
+    {
+        let config = message_types
+            .into_iter()
+            .map(|s| s.as_ref().to_string())
+            .collect::<Vec<String>>()
+            .join(",")
+            .into_bytes();
+        self.add(AuthenticatorType::MessageFilter, config);
+        self
+    }
+
+    /// Add `ClobPairIdFilter` authenticator type.
+    pub fn filter_clob_pair<T>(&mut self, ids: T) -> &mut Self
+    where
+        T: IntoIterator,
+        T::Item: Into<ClobPairId>,
+    {
+        let config = ids
+            .into_iter()
+            .map(|s| s.into().0.to_string())
+            .collect::<Vec<String>>()
+            .join(",")
+            .into_bytes();
+        self.add(AuthenticatorType::ClobPairIdFilter, config);
+        self
+    }
+
+    /// Add `SubaccountFilter` authenticator type.
+    pub fn filter_subaccount<T>(&mut self, numbers: T) -> Result<&mut Self>
+    where
+        T: IntoIterator,
+        T::Item: TryInto<SubaccountNumber, Error = Error>,
+    {
+        let config = numbers
+            .into_iter()
+            .map(|s| s.try_into().map(|sn| sn.0.to_string()))
+            .collect::<Result<Vec<String>>>()?
+            .join(",")
+            .into_bytes();
+        self.add(AuthenticatorType::SubaccountFilter, config);
+        Ok(self)
+    }
+
     /// Finalizes the builder, constructing an [`Authenticator`].
-    pub fn build(self) -> Result<Authenticator> {
+    pub fn build(&self) -> Result<Authenticator> {
         self.try_into()
     }
 }
