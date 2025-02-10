@@ -8,7 +8,7 @@ use dydx_proto::dydxprotocol::accountplus::{
 };
 use serde::{Deserialize, Serialize};
 
-/// [`NodeClient`] Authenticator requests dispatcher
+/// [`NodeClient`] Authenticator requests dispatcher.
 pub struct Authenticators<'a> {
     client: &'a mut NodeClient,
 }
