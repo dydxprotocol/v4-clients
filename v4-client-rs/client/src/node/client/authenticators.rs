@@ -42,7 +42,7 @@ impl<'a> Authenticators<'a> {
     /// Add an [`Authenticator`].
     /// Authenticators can be built using the [`AuthenticatorBuilder`] mechanism.
     ///
-    /// Check [the example]().
+    /// Check [the example](https://github.com/dydxprotocol/v4-clients/blob/main/v4-client-rs/client/examples/authenticator.rs).
     pub async fn add(
         &mut self,
         account: &mut Account,
@@ -66,7 +66,7 @@ impl<'a> Authenticators<'a> {
 
     /// Remove an authenticator.
     ///
-    /// Check [the example]().
+    /// Check [the example](https://github.com/dydxprotocol/v4-clients/blob/main/v4-client-rs/client/examples/authenticator.rs).
     pub async fn remove(
         &mut self,
         account: &mut Account,
@@ -87,7 +87,7 @@ impl<'a> Authenticators<'a> {
 
     /// List authenticators.
     ///
-    /// Check [the example]().
+    /// Check [the example](https://github.com/dydxprotocol/v4-clients/blob/main/v4-client-rs/client/examples/authenticator.rs).
     pub async fn list(&mut self, address: Address) -> Result<Vec<AccountAuthenticator>, Error> {
         let client = &mut self.client;
 
@@ -182,6 +182,8 @@ impl Authenticator {
 }
 
 /// [`Authenticator`] builder.
+///
+/// See the [example](https://github.com/dydxprotocol/v4-clients/blob/main/v4-client-rs/client/examples/authenticator.rs).
 #[derive(Debug, Clone)]
 pub struct AuthenticatorBuilder {
     auth: Authenticator,

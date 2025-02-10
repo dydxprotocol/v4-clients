@@ -539,7 +539,9 @@ impl NodeClient {
         MegaVault::new(self)
     }
 
-    /// Access the authenticators/permissioned keys requests dispatcher
+    /// Access the authenticators/permissioned keys requests dispatcher.
+    ///
+    /// See the [example](https://github.com/dydxprotocol/v4-clients/blob/main/v4-client-rs/client/examples/authenticator.rs).
     pub fn authenticators(&mut self) -> Authenticators {
         Authenticators::new(self)
     }
