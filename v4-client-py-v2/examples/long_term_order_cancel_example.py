@@ -51,12 +51,12 @@ async def test():
 
     time.sleep(5)
 
-    cancel = await node.cancel_order(
+    cancel_response = await node.cancel_order(
         wallet,
         order_id,
         good_til_block_time=since_now(seconds=120),
     )
-    print(cancel)
+    print(f"Cancel response: {cancel_response}")
 
 
 asyncio.run(test())
