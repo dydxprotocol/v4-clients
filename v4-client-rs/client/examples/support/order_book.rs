@@ -136,8 +136,8 @@ pub struct OrderBookTable<'a> {
     inner: &'a OrderBook,
 }
 
-impl<'a> fmt::Display for OrderBookTable<'a> {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+impl fmt::Display for OrderBookTable<'_> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         for (price, size) in &self.inner.bids {
             writeln!(f, "BID: {} - {}", price, size)?;
         }
