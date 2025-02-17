@@ -1,12 +1,12 @@
 use cosmrs::tendermint::{chain::Id, error::Error};
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use strum::{AsRefStr, Display};
 
 /// [Chain ID](https://docs.dydx.exchange/infrastructure_providers-network/network_constants#chain-id)
 /// serves as a unique chain identificator to prevent replay attacks.
 ///
 /// See also [Cosmos ecosystem](https://cosmos.directory/).
-#[derive(Debug, Eq, PartialEq, Clone, Display, AsRefStr, Deserialize)]
+#[derive(Debug, Eq, PartialEq, Clone, Display, AsRefStr, Deserialize, Serialize)]
 pub enum ChainId {
     /// Testnet.
     #[strum(serialize = "dydx-testnet-4")]
