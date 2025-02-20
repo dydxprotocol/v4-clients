@@ -31,6 +31,13 @@ DYDX_TEST_PUBLIC_KEY = (
 TEST_ADDRESS = "dydx14zzueazeh0hj67cghhf9jypslcf9sh2n5k6art"
 RECIPIENT = "dydx1slanxj8x9ntk9knwa6cvfv2tzlsq5gk3dshml0"
 
+# NOTE: took this from js client, seems to be inactive though
+DYDX_TEST_MNEMONIC_2 = (
+    "movie yard still copper exile wear brisk chest ride dizzy novel future menu finish "
+    "radar lunar claim hub middle force turtle mouse frequent embark"
+)
+TEST_ADDRESS_2 = "dydx18sukah44zfkjndlhcdmhkjnarl2sevhwf894vh"
+
 
 @pytest.fixture
 def indexer_rest_client():
