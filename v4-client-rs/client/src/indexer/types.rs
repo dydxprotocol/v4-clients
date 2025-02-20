@@ -170,6 +170,12 @@ impl From<u32> for ClobPairId {
     }
 }
 
+impl From<&u32> for ClobPairId {
+    fn from(value: &u32) -> Self {
+        ClobPairId::from(*value)
+    }
+}
+
 /// Client metadata.
 #[serde_as]
 #[derive(Deserialize, Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -452,6 +458,13 @@ impl TryFrom<u32> for SubaccountNumber {
             0..=128_000 => Ok(SubaccountNumber(number)),
             _ => Err(err!("Subaccount number must be [0, 128_000]")),
         }
+    }
+}
+
+impl TryFrom<&u32> for SubaccountNumber {
+    type Error = Error;
+    fn try_from(number: &u32) -> Result<Self, Error> {
+        Self::try_from(*number)
     }
 }
 
