@@ -15,7 +15,7 @@ use dydx_proto::dydxprotocol::{
     },
     subaccounts::SubaccountId,
 };
-use rand::{thread_rng, Rng};
+use rand::{rng, Rng};
 use serial_test::serial;
 use std::str::FromStr;
 use tokio::time::{sleep, Duration};
@@ -168,7 +168,7 @@ async fn test_node_place_order() -> Result<(), Error> {
         .limit(OrderSide::Buy, 1, 1)
         .long_term()
         .until(Utc::now() + TimeDelta::seconds(60))
-        .build(thread_rng().gen_range(0..100_000_000))?;
+        .build(rng().random_range(0..100_000_000))?;
 
     let tx_res = node.place_order(&mut account, order).await;
 
@@ -190,7 +190,7 @@ async fn test_node_place_order_market_short_term() -> Result<(), Error> {
         .market(OrderSide::Buy, BigDecimal::from_str("0.001")?)
         .price(10) // Low slippage price to not execute
         .until(height.ahead(10))
-        .build(thread_rng().gen_range(0..100_000_000))?;
+        .build(rng().random_range(0..100_000_000))?;
 
     node.place_order(&mut account, order).await?;
 
@@ -211,7 +211,7 @@ async fn test_node_cancel_order() -> Result<(), Error> {
         .limit(OrderSide::Buy, 1, 1)
         .until(Utc::now() + TimeDelta::seconds(60))
         .long_term()
-        .build(thread_rng().gen_range(0..100_000_000))?;
+        .build(rng().random_range(0..100_000_000))?;
     let order_tx_hash = node.place_order(&mut account, order).await?;
     node.query_transaction(&order_tx_hash).await?;
 
@@ -347,7 +347,7 @@ async fn test_node_close_position() -> Result<(), Error> {
         subaccount,
         market,
         None,
-        thread_rng().gen_range(0..100_000_000),
+        rng().random_range(0..100_000_000),
     )
     .await?;
 

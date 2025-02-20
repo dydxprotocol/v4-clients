@@ -1,7 +1,7 @@
 use crate::indexer::Denom;
 use anyhow::{anyhow as err, Error};
 use bigdecimal::{num_traits::ToPrimitive, BigDecimal, One};
-use derive_more::{Deref, DerefMut, From};
+use derive_more::{Deref, DerefMut};
 use dydx_proto::cosmos_sdk_proto::cosmos::base::v1beta1::Coin as ProtoCoin;
 
 /// USDC token.

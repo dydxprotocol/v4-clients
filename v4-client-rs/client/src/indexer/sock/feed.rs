@@ -1,5 +1,5 @@
 use anyhow::anyhow as err;
-use derive_more::Debug;
+use derive_more::with_trait::Debug;
 use std::ops::{Deref, DerefMut};
 use thiserror::Error;
 use tokio::sync::mpsc;
