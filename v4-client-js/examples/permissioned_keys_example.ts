@@ -55,21 +55,38 @@ async function removeAuthenticator(
   await client.removeAuthenticator(subaccount, id);
 }
 
-async function addAuthenticator(client: CompositeClient, subaccount: SubaccountInfo, authedPubKey:string): Promise<void> {
-  const subAuthenticators = [{
+async function addAuthenticator(
+  client: CompositeClient,
+  subaccount: SubaccountInfo,
+  authedPubKey: string,
+): Promise<void> {
+  const subAuth = [ {
     type: AuthenticatorType.SIGNATURE_VERIFICATION,
     config: authedPubKey,
   },
   {
-    type: AuthenticatorType.MESSAGE_FILTER,
-    config: toBase64(new TextEncoder().encode("/dydxprotocol.clob.MsgPlaceOrder")),
-  },
+    type: AuthenticatorType.ANY_OF,
+    config: [
+    {
+      type: AuthenticatorType.MESSAGE_FILTER,
+      config: toBase64(new TextEncoder().encode('/dydxprotocol.clob.MsgPlaceOrder')),
+    },
+    {
+      type: AuthenticatorType.MESSAGE_FILTER,
+      config: toBase64(new TextEncoder().encode('/dydxprotocol.clob.MsgPlaceOrder')),
+    },
+    ]
+  }
 ];
 
-  const jsonString = JSON.stringify(subAuthenticators);
+  const jsonString = JSON.stringify(subAuth);
   const encodedData = new TextEncoder().encode(jsonString);
 
-  await client.addAuthenticator(subaccount, AuthenticatorType.ALL_OF, encodedData);
+  try {
+    await client.addAuthenticator(subaccount, AuthenticatorType.ALL_OF, encodedData);
+  } catch (error) {
+    console.log(error.message);
+  }
 }
 
 async function placeOrder(

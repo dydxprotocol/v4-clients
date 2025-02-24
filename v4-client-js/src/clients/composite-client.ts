@@ -1,3 +1,5 @@
+import { TextDecoder } from 'util';
+
 import { EncodeObject } from '@cosmjs/proto-signing';
 import { Account, GasPrice, IndexedTx, StdFee } from '@cosmjs/stargate';
 import { Method } from '@cosmjs/tendermint-rpc';
@@ -18,6 +20,7 @@ import { bigIntToBytes } from '../lib/helpers';
 import { isStatefulOrder, verifyOrderFlags } from '../lib/validation';
 import { GovAddNewMarketParams, OrderFlags } from '../types';
 import {
+  Authenticator,
   AuthenticatorType,
   Network,
   OrderExecution,
@@ -169,7 +172,7 @@ export class CompositeClient {
       broadcastMode,
       account,
       undefined,
-     authenticators,
+      authenticators,
     );
   }
 
@@ -311,9 +314,10 @@ export class CompositeClient {
   ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
     // For permissioned orders, use the permissioning account details instead of the subaccount
     // This allows placing orders on behalf of another account when using permissioned keys
-    const accountForOrder = permissionedKeysAccountAuth ? permissionedKeysAccountAuth.accountForOrder : subaccount;
+    const accountForOrder = permissionedKeysAccountAuth
+      ? permissionedKeysAccountAuth.accountForOrder
+      : subaccount;
     const msgs: Promise<EncodeObject[]> = new Promise((resolve, reject) => {
-
       const msg = this.placeShortTermOrderMessage(
         accountForOrder,
         marketId,
@@ -1233,7 +1237,13 @@ export class CompositeClient {
     gasAdjustment?: number,
     memo?: string,
   ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
-    return this.validatorClient.post.createMarketPermissionless(ticker, subaccount, broadcastMode, gasAdjustment, memo);
+    return this.validatorClient.post.createMarketPermissionless(
+      ticker,
+      subaccount,
+      broadcastMode,
+      gasAdjustment,
+      memo,
+    );
   }
 
   async addAuthenticator(
@@ -1241,17 +1251,79 @@ export class CompositeClient {
     authenticatorType: AuthenticatorType,
     data: Uint8Array,
   ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
-    return this.validatorClient.post.addAuthenticator(subaccount, authenticatorType, data)
+    // Validate the provided authenticators before sending to the validator
+    const authenticator: Authenticator = {
+      type: authenticatorType,
+      config: JSON.parse(new TextDecoder().decode(data)),
+    };
+    if (!this.validateAuthenticator(authenticator)) {
+      throw new Error(
+        'Invalid authenticators: Nested authenticators must include a SIGNATURE_VERIFICATION authenticator.',
+      );
+    }
+
+    return this.validatorClient.post.addAuthenticator(subaccount, authenticatorType, data);
   }
 
   async removeAuthenticator(
     subaccount: SubaccountInfo,
     id: Long,
   ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
-    return this.validatorClient.post.removeAuthenticator(subaccount, id)
+    return this.validatorClient.post.removeAuthenticator(subaccount, id);
   }
 
-  async getAuthenticators(address: string): Promise<GetAuthenticatorsResponse>{
+  async getAuthenticators(address: string): Promise<GetAuthenticatorsResponse> {
     return this.validatorClient.get.getAuthenticators(address);
+  }
+
+  // Function to validate that all authentication paths require SIGNATURE_VERIFICATION
+  private validateAuthenticator(
+    authenticator: Authenticator,
+    _parentType: string | null = null,
+  ): boolean {
+    let hasSignatureVerification = false;
+
+    function checkAuthenticator(auth: Authenticator, parentType: string | null): boolean {
+      let localHasSignatureVerification = false;
+      if (auth.type === AuthenticatorType.SIGNATURE_VERIFICATION) {
+        localHasSignatureVerification = true;
+        hasSignatureVerification = true;
+      }
+      if (auth.type === AuthenticatorType.ANY_OF) {
+        // Ensure ANY_OF is only inside an ALL_OF and not at the root level
+        if (parentType !== AuthenticatorType.ALL_OF) {
+          throw new Error(
+            'ANY_OF should be inside of an ALL_OF containing a SIGNATURE_VERIFICATION.',
+          );
+        }
+        // Prevent ANY_OF from containing SIGNATURE_VERIFICATION
+        if (
+          Array.isArray(auth.config) &&
+          auth.config.some(
+            (nestedAuth) => nestedAuth.type === AuthenticatorType.SIGNATURE_VERIFICATION,
+          )
+        ) {
+          throw new Error(
+            'ANY_OF should not contain SIGNATURE_VERIFICATION as it makes signature optional.',
+          );
+        }
+      }
+      // Recursively check nested authenticators
+      if (Array.isArray(auth.config)) {
+        localHasSignatureVerification =
+          auth.config.some((nestedAuth) => checkAuthenticator(nestedAuth, auth.type)) ||
+          localHasSignatureVerification;
+      }
+      return localHasSignatureVerification;
+    }
+
+    // Ensure that SIGNATURE_VERIFICATION is required for all authentication paths
+    if (!checkAuthenticator(authenticator, null)) {
+      throw new Error(
+        'All authentication paths should include a SIGNATURE_VERIFICATION authenticator.',
+      );
+    }
+
+    return hasSignatureVerification;
   }
 }
