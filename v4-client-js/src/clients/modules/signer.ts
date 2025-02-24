@@ -1,7 +1,14 @@
 import { Secp256k1Pubkey } from '@cosmjs/amino';
 import { fromBase64 } from '@cosmjs/encoding';
 import { Int53 } from '@cosmjs/math';
-import { EncodeObject, encodePubkey, makeAuthInfoBytes, makeSignDoc, OfflineDirectSigner } from '@cosmjs/proto-signing';
+import {
+  EncodeObject,
+  encodePubkey,
+  isOfflineDirectSigner,
+  makeAuthInfoBytes,
+  makeSignDoc,
+  OfflineSigner,
+} from '@cosmjs/proto-signing';
 import { SigningStargateClient, StdFee } from '@cosmjs/stargate';
 import { TxExtension } from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/accountplus/tx';
 import { TxBody, TxRaw } from 'cosmjs-types/cosmos/tx/v1beta1/tx';
@@ -22,12 +29,12 @@ protobuf.configure();
 export class TransactionSigner {
   readonly address: string;
   readonly stargateSigningClient: SigningStargateClient;
-  readonly offlineSigner: OfflineDirectSigner;
+  readonly offlineSigner: OfflineSigner;
 
   constructor(
     address: string,
     stargateSigningClient: SigningStargateClient,
-    offlineSigner: OfflineDirectSigner,
+    offlineSigner: OfflineSigner,
   ) {
     this.address = address;
     this.stargateSigningClient = stargateSigningClient;
@@ -105,14 +112,28 @@ export class TransactionSigner {
 
     // Use OfflineSigner to sign the transaction
     const signerAddress = this.address;
-    const { signed, signature } = await this.offlineSigner.signDirect(signerAddress, signDoc);
+    if (isOfflineDirectSigner(this.offlineSigner)) {
+      const { signed, signature } = await this.offlineSigner.signDirect(signerAddress, signDoc);
 
-    const txRaw = TxRaw.fromPartial({
-      bodyBytes: signed.bodyBytes,
-      authInfoBytes: signed.authInfoBytes,
-      signatures: [fromBase64(signature.signature)],
-    });
-
-    return Uint8Array.from(TxRaw.encode(txRaw).finish());
+      const txRaw = TxRaw.fromPartial({
+        bodyBytes: signed.bodyBytes,
+        authInfoBytes: signed.authInfoBytes,
+        signatures: [fromBase64(signature.signature)],
+      });
+      return Uint8Array.from(TxRaw.encode(txRaw).finish());
+    } else {
+      const rawTx: TxRaw = await this.stargateSigningClient.sign(
+        this.address,
+        messages,
+        fee,
+        memo,
+        {
+          accountNumber: transactionOptions.accountNumber,
+          sequence: transactionOptions.sequence,
+          chainId: transactionOptions.chainId,
+        },
+      );
+      return Uint8Array.from(TxRaw.encode(rawTx).finish());
+    }
   }
 }

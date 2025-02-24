@@ -3,7 +3,7 @@ import {
   AccountData,
   DirectSecp256k1HdWallet,
   EncodeObject,
-  OfflineDirectSigner,
+  OfflineSigner,
 } from '@cosmjs/proto-signing';
 import { SigningStargateClient } from '@cosmjs/stargate';
 import Long from 'long';
@@ -22,9 +22,9 @@ export default class LocalWallet {
   address?: string;
   pubKey?: Secp256k1Pubkey;
   signer?: TransactionSigner;
-  offlineSigner?: OfflineDirectSigner;
+  offlineSigner?: OfflineSigner;
 
-  static async fromOfflineSigner(signer: OfflineDirectSigner): Promise<LocalWallet> {
+  static async fromOfflineSigner(signer: OfflineSigner): Promise<LocalWallet> {
     const wallet = new LocalWallet();
     await wallet.setSigner(signer);
     return wallet;
@@ -36,7 +36,7 @@ export default class LocalWallet {
     return wallet;
   }
 
-  async setSigner(signer: OfflineDirectSigner): Promise<void> {
+  async setSigner(signer: OfflineSigner): Promise<void> {
     this.offlineSigner = signer;
     const stargateClient = await SigningStargateClient.offline(signer, {
       registry: generateRegistry(),
