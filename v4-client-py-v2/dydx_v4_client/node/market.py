@@ -74,7 +74,7 @@ class Market:
             order_type, time_in_force, post_only, execution
         )
         client_metadata = OrderHelper.calculate_client_metadata(order_type)
-        
+
         # Use the provided condition_type if given, otherwise calculate it
         if condition_type is None:
             condition_type = OrderHelper.calculate_condition_type(order_type)
