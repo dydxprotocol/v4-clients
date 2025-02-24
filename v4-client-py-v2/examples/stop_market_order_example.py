@@ -1,4 +1,5 @@
 import random
+import asyncio
 
 from dydx_v4_client import MAX_CLIENT_ID, OrderFlags
 from v4_proto.dydxprotocol.clob.order_pb2 import Order
@@ -7,7 +8,7 @@ from dydx_v4_client.indexer.rest.constants import OrderType, OrderExecution
 from dydx_v4_client.indexer.rest.indexer_client import IndexerClient
 from dydx_v4_client.network import TESTNET
 from dydx_v4_client.node.client import NodeClient
-from dydx_v4_client.node.market import Market
+from dydx_v4_client.node.market import Market, since_now
 from dydx_v4_client.wallet import Wallet
 from tests.conftest import DYDX_TEST_MNEMONIC, TEST_ADDRESS
 
@@ -25,7 +26,7 @@ async def test_place_stop_market_order():
     wallet = await Wallet.from_mnemonic(node, DYDX_TEST_MNEMONIC, TEST_ADDRESS)
 
     order_id = market.order_id(
-        TEST_ADDRESS, 0, random.randint(0, MAX_CLIENT_ID), OrderFlags.SHORT_TERM
+        TEST_ADDRESS, 0, random.randint(0, MAX_CLIENT_ID), OrderFlags.CONDITIONAL
     )
 
     current_block = await node.latest_block_height()
@@ -39,7 +40,9 @@ async def test_place_stop_market_order():
         time_in_force=Order.TimeInForce.TIME_IN_FORCE_IOC,
         reduce_only=False,
         execution=OrderExecution.IOC,
-        good_til_block=current_block + 10,
+        good_til_block_time = since_now(seconds=60),
+        condition_type=Order.ConditionType.CONDITION_TYPE_STOP_LOSS,
+        conditional_order_trigger_subticks=market.calculate_subticks(trigger_price),
     )
     print(new_order)
     transaction = await node.place_order(
@@ -49,3 +52,5 @@ async def test_place_stop_market_order():
 
     print(transaction)
     wallet.sequence += 1
+
+asyncio.run(test_place_stop_market_order())

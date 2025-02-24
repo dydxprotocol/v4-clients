@@ -67,13 +67,17 @@ class Market:
         good_til_block: int = None,
         good_til_block_time: int = None,
         execution: OrderExecution = OrderExecution.DEFAULT,
+        condition_type=None,
         conditional_order_trigger_subticks: int = 0,
     ) -> Order:
         order_time_in_force = OrderHelper.calculate_time_in_force(
             order_type, time_in_force, post_only, execution
         )
         client_metadata = OrderHelper.calculate_client_metadata(order_type)
-        condition_type = OrderHelper.calculate_condition_type(order_type)
+        
+        # Use the provided condition_type if given, otherwise calculate it
+        if condition_type is None:
+            condition_type = OrderHelper.calculate_condition_type(order_type)
 
         return order(
             order_id=order_id,
