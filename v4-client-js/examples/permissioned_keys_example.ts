@@ -47,7 +47,11 @@ async function test(): Promise<void> {
   await placeOrder(client, subaccount2, subaccount1, authenticatorID);
 }
 
-async function removeAuthenticator(client: CompositeClient,subaccount: SubaccountInfo, id: Long): Promise<void> {
+async function removeAuthenticator(
+  client: CompositeClient,
+  subaccount: SubaccountInfo,
+  id: Long,
+): Promise<void> {
   await client.removeAuthenticator(subaccount, id);
 }
 
@@ -68,10 +72,15 @@ async function addAuthenticator(client: CompositeClient, subaccount: SubaccountI
   await client.addAuthenticator(subaccount, AuthenticatorType.ALL_OF, encodedData);
 }
 
-async function placeOrder(client: CompositeClient, fromAccount: SubaccountInfo, forAccount: SubaccountInfo, authenticatorId: Long): Promise<void> {
+async function placeOrder(
+  client: CompositeClient,
+  fromAccount: SubaccountInfo,
+  forAccount: SubaccountInfo,
+  authenticatorId: Long,
+): Promise<void> {
   try {
-    const side = OrderSide.BUY
-    const price = Number("1000");
+    const side = OrderSide.BUY;
+    const price = Number('1000');
     const currentBlock = await client.validatorClient.get.latestBlockHeight();
     const nextValidBlockHeight = currentBlock + 5;
     const goodTilBlock = nextValidBlockHeight + 10;
@@ -94,7 +103,7 @@ async function placeOrder(client: CompositeClient, fromAccount: SubaccountInfo, 
       {
         authenticators: [authenticatorId],
         accountForOrder: forAccount,
-      }
+      },
     );
     console.log('**Order Tx**');
     console.log(Buffer.from(tx.hash).toString('hex'));
