@@ -1279,24 +1279,24 @@ export class CompositeClient {
   validateAuthenticator(authenticator: Authenticator): boolean {
     function checkAuthenticator(auth: Authenticator): boolean {
       if (auth.type === AuthenticatorType.SIGNATURE_VERIFICATION) {
-        return true; // A SignatureVerification authenticator is valid
+        return true; // A SignatureVerification authenticator is safe.
       }
 
       if (!Array.isArray(auth.config)) {
-        return false; // Invalid case: a non-array config for a composite authenticator
+        return false; // Unsafe case: a non-array config for a composite authenticator
       }
 
       if (auth.type === AuthenticatorType.ANY_OF) {
-        // ANY_OF is valid only if ALL sub-authenticators return true
+        // ANY_OF is safe only if ALL sub-authenticators return true
         return auth.config.every((nestedAuth) => checkAuthenticator(nestedAuth));
       }
 
       if (auth.type === AuthenticatorType.ALL_OF) {
-        // ALL_OF is valid if at least one sub-authenticator returns true
+        // ALL_OF is safe if at least one sub-authenticator returns true
         return auth.config.some((nestedAuth) => checkAuthenticator(nestedAuth));
       }
 
-      // If it's a base-case authenticator but not SignatureVerification, it's invalid
+      // If it's a base-case authenticator but not SignatureVerification, it's unsafe
       return false;
     }
 
