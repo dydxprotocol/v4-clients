@@ -1258,7 +1258,7 @@ export class CompositeClient {
     };
     if (!this.validateAuthenticator(authenticator)) {
       throw new Error(
-        'Invalid authenticators: Nested authenticators must include a SIGNATURE_VERIFICATION authenticator.',
+        'Invalid authenticator, please ensure the authenticator permissions are correct',
       );
     }
 
@@ -1276,54 +1276,35 @@ export class CompositeClient {
     return this.validatorClient.get.getAuthenticators(address);
   }
 
-  // Function to validate that all authentication paths require SIGNATURE_VERIFICATION
-  private validateAuthenticator(
-    authenticator: Authenticator,
-    _parentType: string | null = null,
-  ): boolean {
-    let hasSignatureVerification = false;
-
-    function checkAuthenticator(auth: Authenticator, parentType: string | null): boolean {
-      let localHasSignatureVerification = false;
+  validateAuthenticator(authenticator: Authenticator): boolean {
+    function checkAuthenticator(auth: Authenticator): boolean {
       if (auth.type === AuthenticatorType.SIGNATURE_VERIFICATION) {
-        localHasSignatureVerification = true;
-        hasSignatureVerification = true;
+        return true; // A SignatureVerification authenticator is valid
       }
+
+      if (!Array.isArray(auth.config)) {
+        return false; // Invalid case: a non-array config for a composite authenticator
+      }
+
       if (auth.type === AuthenticatorType.ANY_OF) {
-        // Ensure ANY_OF is only inside an ALL_OF and not at the root level
-        if (parentType !== AuthenticatorType.ALL_OF) {
-          throw new Error(
-            'ANY_OF should be inside of an ALL_OF containing a SIGNATURE_VERIFICATION.',
-          );
-        }
-        // Prevent ANY_OF from containing SIGNATURE_VERIFICATION
-        if (
-          Array.isArray(auth.config) &&
-          auth.config.some(
-            (nestedAuth) => nestedAuth.type === AuthenticatorType.SIGNATURE_VERIFICATION,
-          )
-        ) {
-          throw new Error(
-            'ANY_OF should not contain SIGNATURE_VERIFICATION as it makes signature optional.',
-          );
-        }
+        // ANY_OF is valid only if ALL sub-authenticators return true
+        return auth.config.every((nestedAuth) => checkAuthenticator(nestedAuth));
       }
-      // Recursively check nested authenticators
-      if (Array.isArray(auth.config)) {
-        localHasSignatureVerification =
-          auth.config.some((nestedAuth) => checkAuthenticator(nestedAuth, auth.type)) ||
-          localHasSignatureVerification;
+
+      if (auth.type === AuthenticatorType.ALL_OF) {
+        // ALL_OF is valid if at least one sub-authenticator returns true
+        return auth.config.some((nestedAuth) => checkAuthenticator(nestedAuth));
       }
-      return localHasSignatureVerification;
+
+      // If it's a base-case authenticator but not SignatureVerification, it's invalid
+      return false;
     }
 
-    // Ensure that SIGNATURE_VERIFICATION is required for all authentication paths
-    if (!checkAuthenticator(authenticator, null)) {
-      throw new Error(
-        'All authentication paths should include a SIGNATURE_VERIFICATION authenticator.',
-      );
+    // The top-level authenticator must pass validation
+    if (!checkAuthenticator(authenticator)) {
+      return false
     }
 
-    return hasSignatureVerification;
+    return true;
   }
 }
