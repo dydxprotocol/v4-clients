@@ -1,3 +1,5 @@
+import { TextDecoder } from 'util';
+
 import { EncodeObject } from '@cosmjs/proto-signing';
 import { Account, GasPrice, IndexedTx, StdFee } from '@cosmjs/stargate';
 import { Method } from '@cosmjs/tendermint-rpc';
@@ -18,6 +20,7 @@ import { bigIntToBytes } from '../lib/helpers';
 import { isStatefulOrder, verifyOrderFlags } from '../lib/validation';
 import { GovAddNewMarketParams, OrderFlags } from '../types';
 import {
+  Authenticator,
   AuthenticatorType,
   Network,
   OrderExecution,
@@ -169,7 +172,7 @@ export class CompositeClient {
       broadcastMode,
       account,
       undefined,
-     authenticators,
+      authenticators,
     );
   }
 
@@ -311,9 +314,10 @@ export class CompositeClient {
   ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
     // For permissioned orders, use the permissioning account details instead of the subaccount
     // This allows placing orders on behalf of another account when using permissioned keys
-    const accountForOrder = permissionedKeysAccountAuth ? permissionedKeysAccountAuth.accountForOrder : subaccount;
+    const accountForOrder = permissionedKeysAccountAuth
+      ? permissionedKeysAccountAuth.accountForOrder
+      : subaccount;
     const msgs: Promise<EncodeObject[]> = new Promise((resolve, reject) => {
-
       const msg = this.placeShortTermOrderMessage(
         accountForOrder,
         marketId,
@@ -1233,7 +1237,13 @@ export class CompositeClient {
     gasAdjustment?: number,
     memo?: string,
   ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
-    return this.validatorClient.post.createMarketPermissionless(ticker, subaccount, broadcastMode, gasAdjustment, memo);
+    return this.validatorClient.post.createMarketPermissionless(
+      ticker,
+      subaccount,
+      broadcastMode,
+      gasAdjustment,
+      memo,
+    );
   }
 
   async addAuthenticator(
@@ -1241,17 +1251,60 @@ export class CompositeClient {
     authenticatorType: AuthenticatorType,
     data: Uint8Array,
   ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
-    return this.validatorClient.post.addAuthenticator(subaccount, authenticatorType, data)
+    // Validate the provided authenticators before sending to the validator
+    const authenticator: Authenticator = {
+      type: authenticatorType,
+      config: JSON.parse(new TextDecoder().decode(data)),
+    };
+    if (!this.validateAuthenticator(authenticator)) {
+      throw new Error(
+        'Invalid authenticator, please ensure the authenticator permissions are correct',
+      );
+    }
+
+    return this.validatorClient.post.addAuthenticator(subaccount, authenticatorType, data);
   }
 
   async removeAuthenticator(
     subaccount: SubaccountInfo,
     id: Long,
   ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
-    return this.validatorClient.post.removeAuthenticator(subaccount, id)
+    return this.validatorClient.post.removeAuthenticator(subaccount, id);
   }
 
-  async getAuthenticators(address: string): Promise<GetAuthenticatorsResponse>{
+  async getAuthenticators(address: string): Promise<GetAuthenticatorsResponse> {
     return this.validatorClient.get.getAuthenticators(address);
+  }
+
+  validateAuthenticator(authenticator: Authenticator): boolean {
+    function checkAuthenticator(auth: Authenticator): boolean {
+      if (auth.type === AuthenticatorType.SIGNATURE_VERIFICATION) {
+        return true; // A SignatureVerification authenticator is safe.
+      }
+
+      if (!Array.isArray(auth.config)) {
+        return false; // Unsafe case: a non-array config for a composite authenticator
+      }
+
+      if (auth.type === AuthenticatorType.ANY_OF) {
+        // ANY_OF is safe only if ALL sub-authenticators return true
+        return auth.config.every((nestedAuth) => checkAuthenticator(nestedAuth));
+      }
+
+      if (auth.type === AuthenticatorType.ALL_OF) {
+        // ALL_OF is safe if at least one sub-authenticator returns true
+        return auth.config.some((nestedAuth) => checkAuthenticator(nestedAuth));
+      }
+
+      // If it's a base-case authenticator but not SignatureVerification, it's unsafe
+      return false;
+    }
+
+    // The top-level authenticator must pass validation
+    if (!checkAuthenticator(authenticator)) {
+      return false
+    }
+
+    return true;
   }
 }

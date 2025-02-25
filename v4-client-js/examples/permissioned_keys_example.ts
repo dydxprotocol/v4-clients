@@ -47,31 +47,57 @@ async function test(): Promise<void> {
   await placeOrder(client, subaccount2, subaccount1, authenticatorID);
 }
 
-async function removeAuthenticator(client: CompositeClient,subaccount: SubaccountInfo, id: Long): Promise<void> {
+async function removeAuthenticator(
+  client: CompositeClient,
+  subaccount: SubaccountInfo,
+  id: Long,
+): Promise<void> {
   await client.removeAuthenticator(subaccount, id);
 }
 
-async function addAuthenticator(client: CompositeClient, subaccount: SubaccountInfo, authedPubKey:string): Promise<void> {
-  const subAuthenticators = [{
+async function addAuthenticator(
+  client: CompositeClient,
+  subaccount: SubaccountInfo,
+  authedPubKey: string,
+): Promise<void> {
+  const subAuth = [ {
     type: AuthenticatorType.SIGNATURE_VERIFICATION,
     config: authedPubKey,
   },
   {
-    type: AuthenticatorType.MESSAGE_FILTER,
-    config: toBase64(new TextEncoder().encode("/dydxprotocol.clob.MsgPlaceOrder")),
-  },
+    type: AuthenticatorType.ANY_OF,
+    config: [
+    {
+      type: AuthenticatorType.MESSAGE_FILTER,
+      config: toBase64(new TextEncoder().encode('/dydxprotocol.clob.MsgPlaceOrder')),
+    },
+    {
+      type: AuthenticatorType.MESSAGE_FILTER,
+      config: toBase64(new TextEncoder().encode('/dydxprotocol.clob.MsgPlaceOrder')),
+    },
+    ]
+  }
 ];
 
-  const jsonString = JSON.stringify(subAuthenticators);
+  const jsonString = JSON.stringify(subAuth);
   const encodedData = new TextEncoder().encode(jsonString);
 
-  await client.addAuthenticator(subaccount, AuthenticatorType.ALL_OF, encodedData);
+  try {
+    await client.addAuthenticator(subaccount, AuthenticatorType.ALL_OF, encodedData);
+  } catch (error) {
+    console.log(error.message);
+  }
 }
 
-async function placeOrder(client: CompositeClient, fromAccount: SubaccountInfo, forAccount: SubaccountInfo, authenticatorId: Long): Promise<void> {
+async function placeOrder(
+  client: CompositeClient,
+  fromAccount: SubaccountInfo,
+  forAccount: SubaccountInfo,
+  authenticatorId: Long,
+): Promise<void> {
   try {
-    const side = OrderSide.BUY
-    const price = Number("1000");
+    const side = OrderSide.BUY;
+    const price = Number('1000');
     const currentBlock = await client.validatorClient.get.latestBlockHeight();
     const nextValidBlockHeight = currentBlock + 5;
     const goodTilBlock = nextValidBlockHeight + 10;
@@ -94,7 +120,7 @@ async function placeOrder(client: CompositeClient, fromAccount: SubaccountInfo, 
       {
         authenticators: [authenticatorId],
         accountForOrder: forAccount,
-      }
+      },
     );
     console.log('**Order Tx**');
     console.log(Buffer.from(tx.hash).toString('hex'));
