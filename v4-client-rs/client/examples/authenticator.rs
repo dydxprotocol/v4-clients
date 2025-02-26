@@ -7,7 +7,7 @@ use bigdecimal::BigDecimal;
 use dydx::config::ClientConfig;
 use dydx::indexer::{IndexerClient, Subaccount};
 use dydx::node::{
-    Account, AuthenticatorBuilder, NodeClient, OrderBuilder, OrderSide, PublicAccount, Wallet,
+    Account, Authenticator, NodeClient, OrderBuilder, OrderSide, PublicAccount, Wallet,
 };
 use dydx_proto::dydxprotocol::clob::order::TimeInForce;
 use std::str::FromStr;
@@ -57,23 +57,23 @@ async fn main() -> Result<()> {
     // created by the permissioning account.
     // An authenticator declares the conditions/permissions that allow the permissioned account to
     // trade under.
-    let authenticator = AuthenticatorBuilder::empty()
+    let authenticator = Authenticator::AllOf(vec![
         // The permissioned account needs to share its public key with the permissioning account.
         // Through other channels, users can share their public keys using hex strings, e.g.,
         // let keystring = hex::encode(&account.public_key().to_bytes())
         // let bytes = hex::decode(&keystring);
-        .signature_verification(permissioned.account.public_key().to_bytes())
-        // The allowed actions
-        .filter_message(&["/dydxprotocol.clob.MsgPlaceOrder"])
-        // The allowed markets
-        .filter_clob_pair([0, 1])
-        // The allowed subaccounts
-        .filter_subaccount([0])?
+        Authenticator::SignatureVerification(permissioned.account.public_key().to_bytes()),
+        // The allowed actions. Several message types are allowed to be defined, separated by commas.
+        Authenticator::MessageFilter("/dydxprotocol.clob.MsgPlaceOrder".into()),
+        // The allowed markets. Several IDs allowed to be defined.
+        Authenticator::ClobPairIdFilter("0,1".into()),
+        // The allowed subaccounts. Several subaccounts allowed to be defined.
+        Authenticator::SubaccountFilter("0".into()),
         // A transaction will only be accepted if all conditions above are satisfied.
-        // Alternatively, `.any_of()` can be used.
-        // If only one condition was declared, `.all_of()` or `.any_of()` should not be used.
-        .all_of()
-        .build()?;
+        // Alternatively, `Authenticator::AnyOf` can be used.
+        // If only one condition was declared (if so, it must be a `Authenticator::SignatureVerification`),
+        // `AllOf` or `AnyOf` should not be used.
+    ]);
 
     // Broadcast the built authenticator.
     master

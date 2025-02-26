@@ -3,7 +3,7 @@ pub mod error;
 mod megavault;
 mod methods;
 
-pub use self::authenticators::{Authenticator, AuthenticatorBuilder, AuthenticatorType};
+pub use self::authenticators::Authenticator;
 use self::{authenticators::Authenticators, megavault::MegaVault};
 use super::{
     builder::TxBuilder, config::NodeConfig, order::*, sequencer::*, utils::*, wallet::Account,

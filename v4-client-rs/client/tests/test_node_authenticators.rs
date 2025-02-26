@@ -31,14 +31,12 @@ async fn test_node_auth_add_allof() -> Result<(), Error> {
     let address = account.address().clone();
     let paccount = env.wallet.account_offline(1)?;
 
-    let authenticator = AuthenticatorBuilder::empty()
-        .all_of()
-        .signature_verification(paccount.public_key().to_bytes())
-        .filter_message(&["/dydxprotocol.clob.MsgPlaceOrder"])
-        .filter_subaccount([0])?
-        .filter_clob_pair([0, 1])
-        .build()?;
-    println!("authenticator: {authenticator:?}");
+    let authenticator = Authenticator::AllOf(vec![
+        Authenticator::SignatureVerification(paccount.public_key().to_bytes()),
+        Authenticator::MessageFilter("dydxprotocol.clob.MsgPlaceOrder".into()),
+        Authenticator::SubaccountFilter("0".into()),
+        Authenticator::ClobPairIdFilter("0,1".into()),
+    ]);
     node.authenticators()
         .add(&mut account, address, authenticator)
         .await?;
@@ -63,10 +61,7 @@ async fn test_node_auth_add_single() -> Result<(), Error> {
     let address = account.address().clone();
     let paccount = env.wallet.account_offline(1)?;
 
-    let authenticator = AuthenticatorBuilder::empty()
-        .signature_verification(paccount.public_key().to_bytes())
-        .filter_message(&["/dydxprotocol.clob.MsgPlaceOrder"])
-        .build()?;
+    let authenticator = Authenticator::SignatureVerification(paccount.public_key().to_bytes());
     node.authenticators()
         .add(&mut account, address, authenticator)
         .await?;
@@ -94,11 +89,10 @@ async fn test_node_auth_place_order_short_term() -> Result<(), Error> {
     let mut paccount = env.wallet.account(1, &mut node).await?;
 
     // Add authenticator
-    let authenticator = AuthenticatorBuilder::empty()
-        .signature_verification(paccount.public_key().to_bytes())
-        .filter_message(&["/dydxprotocol.clob.MsgPlaceOrder"])
-        .all_of()
-        .build()?;
+    let authenticator = Authenticator::AllOf(vec![
+        Authenticator::SignatureVerification(paccount.public_key().to_bytes()),
+        Authenticator::MessageFilter("/dydxprotocol.clob.MsgPlaceOrder".into()),
+    ]);
     node.authenticators()
         .add(&mut account, address.clone(), authenticator)
         .await?;

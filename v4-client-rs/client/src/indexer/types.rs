@@ -161,7 +161,7 @@ impl From<AnyId> for ClientId {
 
 /// Clob pair id.
 #[serde_as]
-#[derive(Deserialize, Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Deserialize, Serialize, Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct ClobPairId(#[serde_as(as = "DisplayFromStr")] pub u32);
 
 impl From<u32> for ClobPairId {

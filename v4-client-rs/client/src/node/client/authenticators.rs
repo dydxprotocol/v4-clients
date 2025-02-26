@@ -1,8 +1,6 @@
 use super::*;
 
-use crate::indexer::{ClobPairId, SubaccountNumber};
-use anyhow::{anyhow as err, Error};
-use core::fmt;
+use anyhow::{anyhow as err, ensure, Error};
 use dydx_proto::dydxprotocol::accountplus::{
     AccountAuthenticator, GetAuthenticatorsRequest, MsgAddAuthenticator, MsgRemoveAuthenticator,
 };
@@ -15,22 +13,24 @@ pub struct Authenticators<'a> {
 
 /// [`Authenticator`] type.
 /// An authenticator can be composed by a single or multiple types.
-#[derive(Debug, Clone, Copy, Eq, Hash, PartialEq, Serialize, Deserialize)]
-pub enum AuthenticatorType {
+#[derive(Debug, Clone, Eq, Hash, PartialEq, Serialize, Deserialize)]
+#[serde(tag = "type", content = "config")]
+pub enum Authenticator {
     /// Enables authentication via a specific key.
-    SignatureVerification,
-    /// Restricts authentication to certain message types.
-    MessageFilter,
-    /// Restricts authentication to certain subaccount constraints.
-    ClobPairIdFilter,
-    /// Restricts transactions to specific CLOB pair IDs.
-    SubaccountFilter,
-}
-
-impl fmt::Display for AuthenticatorType {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{:?}", self)
-    }
+    SignatureVerification(Vec<u8>),
+    /// Restricts authentication to certain message types. Configured using string bytes, with
+    /// different message types separated by commas.
+    MessageFilter(Vec<u8>),
+    /// Restricts authentication to certain subaccount constraints. Configured using string bytes,
+    /// with different IDs separated by commas.
+    SubaccountFilter(Vec<u8>),
+    /// Restricts transactions to specific CLOB pair IDs. Configured using string bytes, with
+    /// different subaccount numbers separated by commas.
+    ClobPairIdFilter(Vec<u8>),
+    /// Composable type, restricts authentication if any sub-authenticator is valid.
+    AnyOf(Vec<Authenticator>),
+    /// Composable type, restricts authentication if all sub-authenticators are valid.
+    AllOf(Vec<Authenticator>),
 }
 
 impl<'a> Authenticators<'a> {
@@ -51,11 +51,13 @@ impl<'a> Authenticators<'a> {
     ) -> Result<TxHash, NodeError> {
         let client = &mut self.client;
 
-        authenticator.check()?;
+        authenticator
+            .validate()
+            .map_err(|e| err!("Authenticator structure validation failed: {e}"))?;
 
         let msg = MsgAddAuthenticator {
             sender: address.into(),
-            authenticator_type: authenticator.type_to_string()?,
+            authenticator_type: authenticator.type_to_str().to_owned(),
             data: authenticator.config_to_bytes()?,
         };
 
@@ -105,209 +107,168 @@ impl<'a> Authenticators<'a> {
     }
 }
 
-impl fmt::Display for AuthenticatorComposableType {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{:?}", self)
+impl Authenticator {
+    /// Get the authenticator's type' string representation.
+    pub(super) fn type_to_str(&self) -> &str {
+        match self {
+            Authenticator::SignatureVerification(_) => "SignatureVerification",
+            Authenticator::MessageFilter(_) => "MessageFilter",
+            Authenticator::ClobPairIdFilter(_) => "ClobPairIdFilter",
+            Authenticator::SubaccountFilter(_) => "SubaccountFilter",
+            Authenticator::AnyOf(_) => "AnyOf",
+            Authenticator::AllOf(_) => "AllOf",
+        }
+    }
+
+    pub(super) fn config_to_bytes(&self) -> Result<Vec<u8>> {
+        match self {
+            Authenticator::AllOf(types) | Authenticator::AnyOf(types) => {
+                Ok(serde_json::to_string(&types)?.into_bytes())
+            }
+            Authenticator::SignatureVerification(v)
+            | Authenticator::MessageFilter(v)
+            | Authenticator::ClobPairIdFilter(v)
+            | Authenticator::SubaccountFilter(v) => Ok(v.clone()),
+        }
+    }
+
+    /// Self integrity validation, checking if the Authenticator tree-like structure is valid.
+    pub fn validate(&self) -> Result<()> {
+        match self {
+            // SignatureVerification must cover all authenticator paths
+            Authenticator::SignatureVerification(_) => Ok(()),
+            Authenticator::MessageFilter(_)
+            | Authenticator::ClobPairIdFilter(_)
+            | Authenticator::SubaccountFilter(_) => Err(err!(
+                "{} not covered by a SignatureVerification",
+                self.type_to_str()
+            )),
+            Authenticator::AnyOf(types) => {
+                ensure!(
+                    types.len() >= 2,
+                    "AnyOf authenticator must have at least 2 sub-authenticators"
+                );
+                // AnyOf is valid only if all sub-authenticators returns Ok()
+                types
+                    .iter()
+                    .try_for_each(|ty| ty.validate())
+                    .map_err(|e| err!("AnyOf sub-authenticator failed: {e}"))?;
+                Ok(())
+            }
+            Authenticator::AllOf(types) => {
+                ensure!(
+                    types.len() >= 2,
+                    "AllOf authenticator must have at least 2 sub-authenticators"
+                );
+                // AllOf is valid only if any sub-authenticator returns Ok()
+                if !types.iter().any(|ty| ty.validate().is_ok()) {
+                    return Err(err!(
+                        "AllOf sub-authenticators do not contain a SignatureVerification"
+                    ));
+                };
+                Ok(())
+            }
+        }
     }
 }
 
-/// An authenticator representation used to issue `add` requests.
-#[derive(Debug, Clone)]
-pub struct Authenticator {
-    pub(crate) composable: AuthenticatorComposableType,
-    pub(crate) config: Vec<AuthenticatorEntry>,
-}
+#[cfg(test)]
+mod tests {
+    use super::*;
 
-/// An authenticator with its data.
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub(crate) struct AuthenticatorEntry {
-    #[serde(rename = "type")]
-    ty: AuthenticatorType,
-    config: Vec<u8>,
-}
-
-/// Authenticator verification rules.
-#[derive(Debug, Clone)]
-pub(crate) enum AuthenticatorComposableType {
-    AnyOf,
-    AllOf,
-    Single,
-}
-
-impl Authenticator {
-    /// Self integrity check
-    pub(super) fn check(&self) -> Result<()> {
-        if self.config.is_empty() {
-            return Err(err!("Authenticator methods are empty"));
-        }
-        match self.composable {
-            AuthenticatorComposableType::AllOf | AuthenticatorComposableType::AnyOf => {
-                if self.config.len() < 2 {
-                    return Err(err!(
-                        "{:?} authenticator must have at least 2 sub-authenticators",
-                        self.composable
-                    ));
-                }
-            }
-            _ => (),
-        }
+    #[test]
+    fn test_authenticator_check_anyof_sigs() -> Result<()> {
+        let auth = Authenticator::AnyOf(vec![
+            Authenticator::SignatureVerification(vec![]),
+            Authenticator::SignatureVerification(vec![]),
+        ]);
+        auth.validate()?;
         Ok(())
     }
 
-    /// Get the authenticator's type' string representation.
-    pub(super) fn type_to_string(&self) -> Result<String> {
-        match self.composable {
-            AuthenticatorComposableType::AllOf | AuthenticatorComposableType::AnyOf => {
-                Ok(self.composable.to_string())
-            }
-            AuthenticatorComposableType::Single => {
-                // Use the first entry
-                self.config.first().map(|entry| entry.ty.to_string()).ok_or_else(|| err!("Authenticator must contain at least one authenticator method if not composable"))
-            }
-        }
+    #[test]
+    fn test_authenticator_check_anyof_sig_nosig() -> Result<()> {
+        let auth = Authenticator::AnyOf(vec![
+            Authenticator::SignatureVerification(vec![]),
+            Authenticator::MessageFilter("".into()),
+        ]);
+        // Sig must not be ignored
+        assert!(auth.validate().is_err());
+        Ok(())
     }
 
-    /// Get the authenticator's data' string representation.
-    pub(super) fn config_to_bytes(&self) -> Result<Vec<u8>> {
-        match self.composable {
-            AuthenticatorComposableType::AllOf | AuthenticatorComposableType::AnyOf => {
-                Ok(serde_json::to_string(&self.config)?.into_bytes())
-            }
-            AuthenticatorComposableType::Single => {
-                // Use the first entry
-                self.config.first().map(|entry| entry.config.clone()).ok_or_else(|| err!("Authenticator must contain at least one authenticator method if not composable"))
-            }
-        }
-    }
-}
-
-/// [`Authenticator`] builder.
-///
-/// See the [example](https://github.com/dydxprotocol/v4-clients/blob/main/v4-client-rs/client/examples/authenticator.rs).
-#[derive(Debug, Clone)]
-pub struct AuthenticatorBuilder {
-    auth: Authenticator,
-}
-
-impl AuthenticatorBuilder {
-    /// Creates an empty [`Authenticator`] builder with no added types.
-    /// Building this straightaway produces an error.
-    pub fn empty() -> Self {
-        Self {
-            auth: Authenticator {
-                composable: AuthenticatorComposableType::Single,
-                config: Vec::new(),
-            },
-        }
+    #[test]
+    fn test_authenticator_check_allof_sig_nosig() -> Result<()> {
+        let auth = Authenticator::AllOf(vec![
+            Authenticator::SignatureVerification(vec![]),
+            Authenticator::MessageFilter("".into()),
+        ]);
+        auth.validate()?;
+        Ok(())
     }
 
-    /// Sets the authenticator composition type as `AnyOf`.
-    /// Transactions issued using an `AnyOf` authenticator will be successful if any of the added types succeed.
-    pub fn any_of(&mut self) -> &mut Self {
-        self.auth.composable = AuthenticatorComposableType::AnyOf;
-        self
+    #[test]
+    fn test_authenticator_check_allof_nosig() -> Result<()> {
+        let auth = Authenticator::AllOf(vec![
+            Authenticator::MessageFilter("".into()),
+            Authenticator::MessageFilter("".into()),
+        ]);
+        // There should be a sig
+        assert!(auth.validate().is_err());
+        Ok(())
     }
 
-    /// Sets the authenticator composition type as `AllOf`.
-    /// Transactions issued using an `AllOf` authenticator will be successful only if all of the added types succeed.
-    pub fn all_of(&mut self) -> &mut Self {
-        self.auth.composable = AuthenticatorComposableType::AllOf;
-        self
+    #[test]
+    fn test_authenticator_check_allof_anyof() -> Result<()> {
+        let auth = Authenticator::AllOf(vec![
+            Authenticator::SignatureVerification(vec![]),
+            Authenticator::AnyOf(vec![
+                Authenticator::MessageFilter("".into()),
+                Authenticator::MessageFilter("".into()),
+            ]),
+        ]);
+        auth.validate()?;
+        Ok(())
     }
 
-    /// Sets the authenticator composition type as `Single`.
-    /// The authenticator will be built using from a single type.
-    pub fn single(&mut self) -> &mut Self {
-        self.auth.composable = AuthenticatorComposableType::Single;
-        self
+    #[test]
+    fn test_authenticator_check_allof_allof() -> Result<()> {
+        let auth = Authenticator::AllOf(vec![
+            Authenticator::MessageFilter("".into()),
+            Authenticator::AllOf(vec![
+                Authenticator::SignatureVerification(vec![]),
+                Authenticator::SignatureVerification(vec![]),
+            ]),
+        ]);
+        auth.validate()?;
+        Ok(())
     }
 
-    /// Adds an authenticator type.
-    /// An authenticator can be composed of several types.
-    pub fn add(
-        &mut self,
-        authenticator_type: AuthenticatorType,
-        data: impl Into<Vec<u8>>,
-    ) -> &mut Self {
-        self.auth.config.push(AuthenticatorEntry {
-            ty: authenticator_type,
-            config: data.into(),
-        });
-        self
+    #[test]
+    fn test_authenticator_check_allof_anyof_sig_nosig() -> Result<()> {
+        let auth = Authenticator::AllOf(vec![
+            Authenticator::MessageFilter("".into()),
+            Authenticator::AnyOf(vec![
+                Authenticator::MessageFilter("".into()),
+                Authenticator::SignatureVerification(vec![]),
+            ]),
+        ]);
+        // Sig does not cover Msg->Msg
+        assert!(auth.validate().is_err());
+        Ok(())
     }
 
-    /// Add `SignatureVerification` authenticator type.
-    pub fn signature_verification(&mut self, pubkey: impl Into<Vec<u8>>) -> &mut Self {
-        self.add(AuthenticatorType::SignatureVerification, pubkey);
-        self
-    }
-
-    /// Add `MessageFilter` authenticator type.
-    pub fn filter_message<T>(&mut self, message_types: T) -> &mut Self
-    where
-        T: IntoIterator,
-        T::Item: AsRef<str>,
-    {
-        let config = message_types
-            .into_iter()
-            .map(|s| s.as_ref().to_string())
-            .collect::<Vec<String>>()
-            .join(",")
-            .into_bytes();
-        self.add(AuthenticatorType::MessageFilter, config);
-        self
-    }
-
-    /// Add `ClobPairIdFilter` authenticator type.
-    pub fn filter_clob_pair<T>(&mut self, ids: T) -> &mut Self
-    where
-        T: IntoIterator,
-        T::Item: Into<ClobPairId>,
-    {
-        let config = ids
-            .into_iter()
-            .map(|s| s.into().0.to_string())
-            .collect::<Vec<String>>()
-            .join(",")
-            .into_bytes();
-        self.add(AuthenticatorType::ClobPairIdFilter, config);
-        self
-    }
-
-    /// Add `SubaccountFilter` authenticator type.
-    pub fn filter_subaccount<T>(&mut self, numbers: T) -> Result<&mut Self>
-    where
-        T: IntoIterator,
-        T::Item: TryInto<SubaccountNumber, Error = Error>,
-    {
-        let config = numbers
-            .into_iter()
-            .map(|s| s.try_into().map(|sn| sn.0.to_string()))
-            .collect::<Result<Vec<String>>>()?
-            .join(",")
-            .into_bytes();
-        self.add(AuthenticatorType::SubaccountFilter, config);
-        Ok(self)
-    }
-
-    /// Finalizes the builder, constructing an [`Authenticator`].
-    pub fn build(&self) -> Result<Authenticator> {
-        self.try_into()
-    }
-}
-
-impl TryFrom<AuthenticatorBuilder> for Authenticator {
-    type Error = Error;
-    fn try_from(builder: AuthenticatorBuilder) -> Result<Self> {
-        builder.auth.check()?;
-        Ok(builder.auth)
-    }
-}
-
-impl TryFrom<&AuthenticatorBuilder> for Authenticator {
-    type Error = Error;
-    fn try_from(builder: &AuthenticatorBuilder) -> Result<Self> {
-        builder.auth.check()?;
-        Ok(builder.auth.clone())
+    #[test]
+    fn test_authenticator_check_anyof_anyof_sig_nosig() -> Result<()> {
+        let auth = Authenticator::AnyOf(vec![
+            Authenticator::MessageFilter("".into()),
+            Authenticator::AnyOf(vec![
+                Authenticator::MessageFilter("".into()),
+                Authenticator::SignatureVerification(vec![]),
+            ]),
+        ]);
+        // Sig does not cover Msg, Msg->Msg
+        assert!(auth.validate().is_err());
+        Ok(())
     }
 }
