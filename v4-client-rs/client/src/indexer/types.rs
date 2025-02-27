@@ -161,12 +161,18 @@ impl From<AnyId> for ClientId {
 
 /// Clob pair id.
 #[serde_as]
-#[derive(Deserialize, Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Deserialize, Serialize, Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct ClobPairId(#[serde_as(as = "DisplayFromStr")] pub u32);
 
 impl From<u32> for ClobPairId {
     fn from(value: u32) -> Self {
         Self(value)
+    }
+}
+
+impl From<&u32> for ClobPairId {
+    fn from(value: &u32) -> Self {
+        ClobPairId::from(*value)
     }
 }
 
@@ -452,6 +458,13 @@ impl TryFrom<u32> for SubaccountNumber {
             0..=128_000 => Ok(SubaccountNumber(number)),
             _ => Err(err!("Subaccount number must be [0, 128_000]")),
         }
+    }
+}
+
+impl TryFrom<&u32> for SubaccountNumber {
+    type Error = Error;
+    fn try_from(number: &u32) -> Result<Self, Error> {
+        Self::try_from(*number)
     }
 }
 
