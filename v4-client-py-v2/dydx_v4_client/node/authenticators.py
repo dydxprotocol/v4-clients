@@ -62,7 +62,6 @@ class Authenticator:
             [sa.encode() for sa in sub_authenticators],
             separators=(",", ":"),
         )
-
         return Authenticator(
             auth_type,
             composed_config.encode(),
@@ -73,3 +72,45 @@ class Authenticator:
         dicls = asdict(self)
         dicls["config"] = list(dicls["config"])
         return dicls
+
+
+def validate_authenticator(authenticator: Authenticator) -> bool:
+    """Validate the authenticator."""
+    if authenticator.config.startswith(b"["):
+        decoded_config = json.loads(authenticator.config.decode())
+    else:
+        decoded_config = authenticator.config
+
+    return check_authenticator(dict(type=authenticator.type, config=decoded_config))
+
+
+def check_authenticator(auth: dict) -> bool:
+    """
+    Check if the authenticator is safe to use.
+    Parameters:
+    - auth is a decoded authenticator object.
+    """
+    if not is_authenticator_alike(auth):
+        return False
+
+    if auth["type"] == AuthenticatorType.SignatureVerification:
+        # SignatureVerification authenticator is considered safe
+        return True
+
+    if not isinstance(auth["config"], list):
+        return False
+
+    if auth["type"] == AuthenticatorType.AnyOf:
+        # ANY_OF is safe only if ALL sub-authenticators return true
+        return all(check_authenticator(sub_auth) for sub_auth in auth["config"])
+
+    if auth["type"] == AuthenticatorType.AllOf:
+        # ALL_OF is safe if at least one sub-authenticator returns true
+        return any(check_authenticator(sub_auth) for sub_auth in auth["config"])
+
+    # If it's a base-case authenticator but not SignatureVerification, it's unsafe
+    return False
+
+
+def is_authenticator_alike(auth: dict) -> bool:
+    return isinstance(auth, dict) and auth.get("type") and auth.get("config")

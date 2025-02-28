@@ -829,6 +829,11 @@ class NodeClient(MutatingNodeClient):
         Returns:
             The response from the transaction broadcast.
         """
+        if not validate_authenticator(authenticator):
+            raise ValueError(
+                "Invalid authenticator, please ensure the authenticator permissions are correct."
+            )
+
         add_authenticator_msg = add_authenticator(
             wallet.address,
             authenticator.type,
