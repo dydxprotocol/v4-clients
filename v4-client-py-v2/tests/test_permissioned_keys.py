@@ -36,7 +36,7 @@ def test_authenticator_is_serializable():
 
     EXPECTED_KEY_BYTES = ", ".join(map(str, pub_key))
 
-    auth_txt = json.dumps(authenticator.encode())
+    auth_txt = json.dumps(authenticator.todict())
     assert (
         auth_txt
         == '{"type": "SignatureVerification", "config": [' + EXPECTED_KEY_BYTES + "]}"

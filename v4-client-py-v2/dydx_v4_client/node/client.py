@@ -72,7 +72,7 @@ from v4_proto.dydxprotocol.subaccounts.subaccount_pb2 import SubaccountId
 from v4_proto.dydxprotocol.clob.tx_pb2 import OrderBatch
 
 from dydx_v4_client.network import NodeConfig
-from dydx_v4_client.node.authenticators import *
+from dydx_v4_client.node.authenticators import Authenticator, validate_authenticator
 from dydx_v4_client.node.builder import Builder, TxOptions
 from dydx_v4_client.node.fee import Coin, Fee, calculate_fee, Denom
 from dydx_v4_client.node.message import (

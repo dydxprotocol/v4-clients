@@ -59,7 +59,7 @@ class Authenticator:
     ) -> "Authenticator":
         """Combines multiple sub-authenticators into a single one."""
         composed_config = json.dumps(
-            [sa.encode() for sa in sub_authenticators],
+            [sa.todict() for sa in sub_authenticators],
             separators=(",", ":"),
         )
         return Authenticator(
@@ -67,7 +67,7 @@ class Authenticator:
             composed_config.encode(),
         )
 
-    def encode(self):
+    def todict(self) -> dict:
         """Prepare object for composition."""
         dicls = asdict(self)
         dicls["config"] = list(dicls["config"])

@@ -83,7 +83,7 @@ class Builder:
         messages: List[Message],
         fee: Fee,
         tx_options: Optional[TxOptions] = None,
-    ):
+    ) -> Tx:
         non_critical_extension_options = []
         if tx_options is not None:
             tx_extension = TxExtension(
@@ -120,5 +120,5 @@ class Builder:
         message: Message,
         fee: Fee = DEFAULT_FEE,
         tx_options: Optional[dict] = None,
-    ):
+    ) -> Tx:
         return self.build_transaction(wallet, [as_any(message)], fee, tx_options)
