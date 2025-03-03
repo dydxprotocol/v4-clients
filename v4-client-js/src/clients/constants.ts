@@ -211,6 +211,11 @@ export enum AuthenticatorType {
   SUBACCOUNT_FILTER = 'SubaccountFilter',
 }
 
+export interface Authenticator {
+  type: AuthenticatorType;
+  config: string | Authenticator[];
+}
+
 export enum TradingRewardAggregationPeriod {
   DAILY = 'DAILY',
   WEEKLY = 'WEEKLY',
