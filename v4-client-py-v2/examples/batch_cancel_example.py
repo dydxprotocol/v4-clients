@@ -50,8 +50,8 @@ async def test_batch_cancel():
 
     # Place orders
     for order in orders:
-        place = await node.place_order(wallet, order)
-        print(f"Placed order: {place}")
+        place_order_response = await node.place_order(wallet, order)
+        print(f"Placed order: {place_order_response}")
         wallet.sequence += 1
 
     # Prepare batch cancel
@@ -64,6 +64,8 @@ async def test_batch_cancel():
         wallet, subaccount_id, [order_batch], cancellation_current_block + 10
     )
     print(f"Batch cancel response: {batch_cancel_response}")
+    resp_code = batch_cancel_response.tx_response.code
+    print(f"Successful {resp_code == 0},")
 
 
 asyncio.run(test_batch_cancel())
