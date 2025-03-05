@@ -15,7 +15,7 @@ use tonic::{transport::Channel, Request};
 use tower::timeout::Timeout;
 
 /// Transaction sequence number validation value used to enable protection against replay attacks.
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Eq, Hash, PartialEq)]
 pub enum Nonce {
     /// A sequence number is incremental, associated with the number of transactions (short-term
     /// orders excluded) issued by an [`Account`](super::wallet::Account).

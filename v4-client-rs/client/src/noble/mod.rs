@@ -201,7 +201,7 @@ impl NobleClient {
 
         let tx_raw =
             self.builder
-                .build_transaction(account, std::iter::once(msg.to_any()), None)?;
+                .build_transaction(account, std::iter::once(msg.to_any()), None, None)?;
 
         let simulated = self.simulate(&tx_raw).await?;
         let gas = simulated.gas_used;
@@ -212,7 +212,7 @@ impl NobleClient {
             .map_err(|e| err!("Raw Tx to bytes failed: {e}"))?;
         let tx = Tx::from_bytes(&tx_bytes).map_err(|e| err!("Failed to decode Tx bytes: {e}"))?;
         self.builder
-            .build_transaction(account, tx.body.messages, Some(fee))?;
+            .build_transaction(account, tx.body.messages, Some(fee), None)?;
 
         let request = BroadcastTxRequest {
             tx_bytes: tx_raw

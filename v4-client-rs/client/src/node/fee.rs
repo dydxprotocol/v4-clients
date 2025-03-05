@@ -8,7 +8,7 @@ use bigdecimal::{
 use cosmrs::{tx::Fee, Coin};
 
 /// Gas ajdustement value to avoid rejected transactions caused by gas understimation.
-const GAS_MULTIPLIER: f64 = 1.4;
+const GAS_MULTIPLIER: f64 = 1.8;
 
 pub(crate) fn default() -> Fee {
     Fee {
