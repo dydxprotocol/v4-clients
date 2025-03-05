@@ -1,11 +1,10 @@
 import time
-
 import grpc
 import pytest
 import v4_proto
-
 from dydx_v4_client.node.message import subaccount
 from tests.conftest import get_wallet
+
 
 REQUEST_PROCESSING_TIME = 5
 
