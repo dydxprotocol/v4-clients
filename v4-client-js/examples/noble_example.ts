@@ -99,7 +99,7 @@ async function test(): Promise<void> {
 }
 
 test()
-  .then(() => {})
+  .then(() => { })
   .catch((error) => {
     console.log(error.message);
     console.log(error);
