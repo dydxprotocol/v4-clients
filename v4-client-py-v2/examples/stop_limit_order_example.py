@@ -40,7 +40,7 @@ async def test_place_stop_limit_order():
         time_in_force=Order.TimeInForce.TIME_IN_FORCE_UNSPECIFIED,
         reduce_only=False,
         execution=OrderExecution.DEFAULT,
-        good_til_block_time = since_now(seconds=3600),
+        good_til_block_time=since_now(seconds=3600),
         condition_type=Order.ConditionType.CONDITION_TYPE_STOP_LOSS,
         conditional_order_trigger_subticks=market.calculate_subticks(trigger_price),
     )
@@ -52,5 +52,6 @@ async def test_place_stop_limit_order():
 
     print(transaction)
     wallet.sequence += 1
+
 
 asyncio.run(test_place_stop_limit_order())
