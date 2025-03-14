@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.0] - 2025-03-05
+
+### 🚀 Features
+
+- Create market permissionless (#304)
+- *(config)* Implement Serialize trait for configuration structs (#314)
+- Permissioned keys (#322)
+
+### 🐛 Bug Fixes
+
+- *(noble)* DYdX<->Noble transfers seqnum, `NobleUsdc` ergonomics (#336)
+
 ## [0.1.1] - 2024-12-02
 
 ### 🚀 Features

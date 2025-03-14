@@ -5,7 +5,7 @@ use chrono::{DateTime, Utc};
 use cosmrs::{AccountId, Denom as CosmosDenom};
 use derive_more::{Add, Deref, DerefMut, Display, Div, From, Mul, Sub};
 use dydx_proto::dydxprotocol::subaccounts::SubaccountId as ProtoSubaccountId;
-use rand::{thread_rng, Rng};
+use rand::{rng, Rng};
 use serde::{Deserialize, Serialize};
 use serde_with::{serde_as, DisplayFromStr};
 use std::collections::HashMap;
@@ -136,14 +136,14 @@ impl ClientId {
         ClientId(id)
     }
 
-    /// Creates a random `ClientId` using the default rand::thread_rng.
+    /// Creates a random `ClientId` using the default rand::rng.
     pub fn random() -> Self {
-        ClientId(thread_rng().gen())
+        ClientId(rng().random())
     }
 
     /// Creates a random `ClientId` using a user-provided RNG.
     pub fn random_with_rng<R: Rng>(rng: &mut R) -> Self {
-        ClientId(rng.gen())
+        ClientId(rng.random())
     }
 }
 
@@ -161,12 +161,18 @@ impl From<AnyId> for ClientId {
 
 /// Clob pair id.
 #[serde_as]
-#[derive(Deserialize, Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Deserialize, Serialize, Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct ClobPairId(#[serde_as(as = "DisplayFromStr")] pub u32);
 
 impl From<u32> for ClobPairId {
     fn from(value: u32) -> Self {
         Self(value)
+    }
+}
+
+impl From<&u32> for ClobPairId {
+    fn from(value: &u32) -> Self {
+        ClobPairId::from(*value)
     }
 }
 
@@ -452,6 +458,13 @@ impl TryFrom<u32> for SubaccountNumber {
             0..=128_000 => Ok(SubaccountNumber(number)),
             _ => Err(err!("Subaccount number must be [0, 128_000]")),
         }
+    }
+}
+
+impl TryFrom<&u32> for SubaccountNumber {
+    type Error = Error;
+    fn try_from(number: &u32) -> Result<Self, Error> {
+        Self::try_from(*number)
     }
 }
 

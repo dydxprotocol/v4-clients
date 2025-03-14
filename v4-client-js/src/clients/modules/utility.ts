@@ -1,4 +1,9 @@
-import type { ComplianceResponse, HeightResponse, TimeResponse } from '../types';
+import type {
+  ComplianceResponse,
+  ComplianceV2Response,
+  HeightResponse,
+  TimeResponse,
+} from '../types';
 import RestClient from './rest';
 
 export default class UtilityClient extends RestClient {
@@ -28,5 +33,15 @@ export default class UtilityClient extends RestClient {
   async screen(address: string): Promise<ComplianceResponse> {
     const uri = '/v4/screen';
     return this.get(uri, { address });
+  }
+
+  /**
+   * @description Screen an address to see if it is restricted
+   * @param {string} address evm or dydx address
+   * @returns {ComplianceResponse} whether the specified address is restricted
+   */
+  async complianceScreen(address: string): Promise<ComplianceV2Response> {
+    const uri = `/v4/compliance/screen/${address}`;
+    return this.get(uri);
   }
 }

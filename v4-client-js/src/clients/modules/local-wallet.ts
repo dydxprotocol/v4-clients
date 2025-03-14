@@ -46,7 +46,7 @@ export default class LocalWallet {
     this.accounts = [...accountData];
     this.address = firstAccount.address;
     this.pubKey = encodeSecp256k1Pubkey(firstAccount.pubkey);
-    this.signer = new TransactionSigner(this.address, stargateClient);
+    this.signer = new TransactionSigner(this.address, stargateClient, signer);
   }
 
   async setMnemonic(mnemonic: string, prefix?: string): Promise<void> {
@@ -60,6 +60,6 @@ export default class LocalWallet {
     fee?: StdFee,
     memo: string = '',
   ): Promise<Uint8Array> {
-    return this.signer!.signTransaction(messages, transactionOptions, fee, memo);
+    return this.signer!.signTransaction(messages, transactionOptions, fee, memo, this.pubKey);
   }
 }

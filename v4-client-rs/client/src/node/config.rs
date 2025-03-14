@@ -1,9 +1,9 @@
 use crate::indexer::Denom;
 use crate::node::ChainId;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 /// Configuration for [`NodeClient`](crate::node::NodeClient)
-#[derive(Clone, Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct NodeConfig {
     /// Node endpoint.
     ///
@@ -29,7 +29,7 @@ pub struct NodeConfig {
 }
 
 fn default_timeout() -> u64 {
-    1_000
+    2_000
 }
 
 fn default_manage_sequencing() -> bool {

@@ -1,3 +1,5 @@
+import { TextDecoder } from 'util';
+
 import { EncodeObject } from '@cosmjs/proto-signing';
 import { Account, GasPrice, IndexedTx, StdFee } from '@cosmjs/stargate';
 import { Method } from '@cosmjs/tendermint-rpc';
@@ -5,6 +7,7 @@ import {
   BroadcastTxAsyncResponse,
   BroadcastTxSyncResponse,
 } from '@cosmjs/tendermint-rpc/build/tendermint37';
+import { GetAuthenticatorsResponse } from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/accountplus/query';
 import {
   Order_ConditionType,
   Order_TimeInForce,
@@ -17,6 +20,8 @@ import { bigIntToBytes } from '../lib/helpers';
 import { isStatefulOrder, verifyOrderFlags } from '../lib/validation';
 import { GovAddNewMarketParams, OrderFlags } from '../types';
 import {
+  Authenticator,
+  AuthenticatorType,
   Network,
   OrderExecution,
   OrderSide,
@@ -64,6 +69,11 @@ export interface OrderBatchWithMarketId {
   marketId: string;
   clobPairId?: number;
   clientIds: number[];
+}
+
+export interface PermissionedKeysAccountAuth {
+  authenticators: Long[];
+  accountForOrder: SubaccountInfo;
 }
 
 export class CompositeClient {
@@ -151,6 +161,7 @@ export class CompositeClient {
     memo?: string,
     broadcastMode?: BroadcastMode,
     account?: () => Promise<Account>,
+    authenticators?: Long[],
   ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
     return this.validatorClient.post.send(
       wallet,
@@ -160,6 +171,8 @@ export class CompositeClient {
       memo,
       broadcastMode,
       account,
+      undefined,
+      authenticators,
     );
   }
 
@@ -297,10 +310,16 @@ export class CompositeClient {
     timeInForce: Order_TimeInForce,
     reduceOnly: boolean,
     memo?: string,
+    permissionedKeysAccountAuth?: PermissionedKeysAccountAuth,
   ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
+    // For permissioned orders, use the permissioning account details instead of the subaccount
+    // This allows placing orders on behalf of another account when using permissioned keys
+    const accountForOrder = permissionedKeysAccountAuth
+      ? permissionedKeysAccountAuth.accountForOrder
+      : subaccount;
     const msgs: Promise<EncodeObject[]> = new Promise((resolve, reject) => {
       const msg = this.placeShortTermOrderMessage(
-        subaccount,
+        accountForOrder,
         marketId,
         side,
         price,
@@ -311,14 +330,16 @@ export class CompositeClient {
         reduceOnly,
       );
       msg
-        .then((it) => resolve([it]))
+        .then((it) => {
+          resolve([it]);
+        })
         .catch((err) => {
           console.log(err);
           reject(err);
         });
     });
     const account: Promise<Account> = this.validatorClient.post.account(
-      subaccount.address,
+      accountForOrder.address,
       undefined,
     );
     return this.send(
@@ -329,6 +350,7 @@ export class CompositeClient {
       memo,
       undefined,
       () => account,
+      permissionedKeysAccountAuth?.authenticators,
     );
   }
 
@@ -1215,6 +1237,74 @@ export class CompositeClient {
     gasAdjustment?: number,
     memo?: string,
   ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
-    return this.validatorClient.post.createMarketPermissionless(ticker, subaccount, broadcastMode, gasAdjustment, memo);
+    return this.validatorClient.post.createMarketPermissionless(
+      ticker,
+      subaccount,
+      broadcastMode,
+      gasAdjustment,
+      memo,
+    );
+  }
+
+  async addAuthenticator(
+    subaccount: SubaccountInfo,
+    authenticatorType: AuthenticatorType,
+    data: Uint8Array,
+  ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
+    // Validate the provided authenticators before sending to the validator
+    const authenticator: Authenticator = {
+      type: authenticatorType,
+      config: JSON.parse(new TextDecoder().decode(data)),
+    };
+    if (!this.validateAuthenticator(authenticator)) {
+      throw new Error(
+        'Invalid authenticator, please ensure the authenticator permissions are correct',
+      );
+    }
+
+    return this.validatorClient.post.addAuthenticator(subaccount, authenticatorType, data);
+  }
+
+  async removeAuthenticator(
+    subaccount: SubaccountInfo,
+    id: Long,
+  ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
+    return this.validatorClient.post.removeAuthenticator(subaccount, id);
+  }
+
+  async getAuthenticators(address: string): Promise<GetAuthenticatorsResponse> {
+    return this.validatorClient.get.getAuthenticators(address);
+  }
+
+  validateAuthenticator(authenticator: Authenticator): boolean {
+    function checkAuthenticator(auth: Authenticator): boolean {
+      if (auth.type === AuthenticatorType.SIGNATURE_VERIFICATION) {
+        return true; // A SignatureVerification authenticator is safe.
+      }
+
+      if (!Array.isArray(auth.config)) {
+        return false; // Unsafe case: a non-array config for a composite authenticator
+      }
+
+      if (auth.type === AuthenticatorType.ANY_OF) {
+        // ANY_OF is safe only if ALL sub-authenticators return true
+        return auth.config.every((nestedAuth) => checkAuthenticator(nestedAuth));
+      }
+
+      if (auth.type === AuthenticatorType.ALL_OF) {
+        // ALL_OF is safe if at least one sub-authenticator returns true
+        return auth.config.some((nestedAuth) => checkAuthenticator(nestedAuth));
+      }
+
+      // If it's a base-case authenticator but not SignatureVerification, it's unsafe
+      return false;
+    }
+
+    // The top-level authenticator must pass validation
+    if (!checkAuthenticator(authenticator)) {
+      return false
+    }
+
+    return true;
   }
 }

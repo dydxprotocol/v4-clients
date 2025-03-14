@@ -7,7 +7,7 @@ use dydx_proto::dydxprotocol::clob::{
     Order, OrderId,
 };
 use dydx_proto::dydxprotocol::subaccounts::SubaccountId;
-use rand::{thread_rng, Rng};
+use rand::{rng, Rng};
 use support::constants::TEST_MNEMONIC;
 use tokio::time::{sleep, Duration};
 
@@ -46,7 +46,7 @@ async fn main() -> Result<()> {
     let order_ids = (0..N_ORDERS)
         .map(|_| OrderId {
             subaccount_id: Some(subaccount.clone()),
-            client_id: thread_rng().gen_range(0..100_000_000),
+            client_id: rng().random_range(0..100_000_000),
             order_flags: ORDER_FLAGS_SHORT_TERM,
             clob_pair_id: ETH_USD_PAIR_ID,
         })

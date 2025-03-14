@@ -5,5 +5,10 @@ chain_id = "dydx-mainnet-1"
 fee_denom = "ibc/8E27BA2D5493AF5636760E354E46004562C46AB7EC0CC4C1CA14E9E20E2545B5"
 
 [indexer]
-http.endpoint = "https://indexer.dydx.trade/v4"
+http.endpoint = "https://indexer.dydx.trade"
 ws.endpoint = "wss://indexer.dydx.trade/v4/ws"
+
+[noble]
+endpoint = "http://noble-grpc.polkachu.com:21590"
+chain_id = "noble-1"
+fee_denom = "uusdc"

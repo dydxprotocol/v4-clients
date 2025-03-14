@@ -1,9 +1,10 @@
 #[cfg(feature = "noble")]
 use anyhow::Result;
+mod support;
 
 #[cfg(feature = "noble")]
 mod noble_transfer_example {
-    use super::*;
+    use super::{support::constants::TEST_MNEMONIC, *};
     use anyhow::{anyhow as err, Error};
     use dydx::config::ClientConfig;
     use dydx::indexer::Token;
@@ -11,7 +12,6 @@ mod noble_transfer_example {
     use dydx::node::{NodeClient, Wallet};
     use tokio::time::{sleep, Duration};
 
-    const TEST_MNEMONIC: &str = "mirror actor skill push coach wait confirm orchard lunch mobile athlete gossip awake miracle matter bus reopen team ladder lazy list timber render wait";
     const DYDX_SOURCE_CHANNEL: &str = "channel-0";
     const NOBLE_SOURCE_CHANNEL: &str = "channel-33";
 
@@ -45,14 +45,18 @@ mod noble_transfer_example {
         tracing_subscriber::fmt().try_init().map_err(Error::msg)?;
         let mut bridger = Bridger::connect().await?;
 
-        let mut account_dydx = bridger.wallet.account_offline(0)?;
-        let mut account_noble = bridger.wallet.noble().account_offline(0)?;
+        let mut account_dydx = bridger.wallet.account(0, &mut bridger.node).await?;
+        let mut account_noble = bridger
+            .wallet
+            .noble()
+            .account(0, &mut bridger.noble)
+            .await?;
 
         let address_dydx = account_dydx.address().clone();
         let address_noble = account_noble.address().clone();
 
         tracing::info!(
-            "Before transfer balance: {:?}",
+            "Before transfer Noble balance: {:?}",
             bridger
                 .noble
                 .get_account_balances(address_noble.clone())
@@ -64,7 +68,7 @@ mod noble_transfer_example {
                 &mut account_dydx,
                 address_dydx.clone(),
                 address_noble.clone(),
-                Token::Usdc(1.into()),
+                Token::Usdc(1.into()), // Transfer 1 USDC
                 DYDX_SOURCE_CHANNEL.into(),
             )
             .await?;
@@ -73,7 +77,7 @@ mod noble_transfer_example {
         sleep(Duration::from_secs(30)).await;
 
         tracing::info!(
-            "After transfer balance: {:?}",
+            "After transfer Noble balance: {:?}",
             bridger
                 .noble
                 .get_account_balances(address_noble.clone())
@@ -86,7 +90,7 @@ mod noble_transfer_example {
                 &mut account_noble,
                 address_noble.clone(),
                 address_dydx,
-                NobleUsdc::from(1),
+                NobleUsdc::from(1), // Transfer back 1 USC
                 NOBLE_SOURCE_CHANNEL.into(),
             )
             .await?;
@@ -95,7 +99,7 @@ mod noble_transfer_example {
         sleep(Duration::from_secs(30)).await;
 
         tracing::info!(
-            "Undo transfer balance: {:?}",
+            "Undo transfer Noble balance: {:?}",
             bridger
                 .noble
                 .get_account_balances(address_noble.clone())

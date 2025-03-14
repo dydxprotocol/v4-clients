@@ -46,7 +46,6 @@ def make_config(
 make_secure = partial(make_config, secure_channel)
 make_insecure = partial(make_config, insecure_channel)
 
-
 mainnet_node = partial(
     NodeConfig,
     "dydx-mainnet-1",
@@ -72,7 +71,6 @@ make_testnet = partial(
 TESTNET = make_testnet()
 TESTNET_FAUCET = "https://faucet.v4testnet.dydx.exchange"
 TESTNET_NOBLE = "https://rpc.testnet.noble.strange.love"
-
 
 local_node = partial(
     NodeConfig,

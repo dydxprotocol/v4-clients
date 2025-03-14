@@ -1,8 +1,8 @@
 pub use crate::indexer::{rest::RestConfig, sock::SockConfig};
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 /// Indexer client configuration.
-#[derive(Clone, Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct IndexerConfig {
     /// Indexer REST client configuration.
     #[serde(alias = "http")]

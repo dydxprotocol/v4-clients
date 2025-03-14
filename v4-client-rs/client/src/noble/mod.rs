@@ -2,12 +2,12 @@ mod config;
 mod tokens;
 use crate::{
     indexer::{Address, Denom, Tokenized},
-    node::{Account, TxBuilder, TxHash},
+    node::{sequencer::Nonce, Account, TxBuilder, TxHash},
 };
 use anyhow::{anyhow as err, Error};
 use chrono::{TimeDelta, Utc};
 pub use config::NobleConfig;
-use cosmrs::tx::{self, Tx};
+use cosmrs::tx;
 use dydx_proto::{
     cosmos_sdk_proto::cosmos::{
         auth::v1beta1::{
@@ -196,23 +196,26 @@ impl NobleClient {
 
         if self.config.manage_sequencing {
             let (_, sequence_number) = self.query_address(account.address()).await?;
-            account.set_sequence_number(sequence_number);
+            account.set_next_nonce(Nonce::Sequence(sequence_number));
         }
 
-        let tx_raw =
-            self.builder
-                .build_transaction(account, std::iter::once(msg.to_any()), None)?;
+        let tx_raw = self.builder.build_transaction(
+            account,
+            std::iter::once(msg.clone().to_any()),
+            None,
+            None,
+        )?;
 
         let simulated = self.simulate(&tx_raw).await?;
         let gas = simulated.gas_used;
         let fee = self.builder.calculate_fee(Some(gas))?;
 
-        let tx_bytes = tx_raw
-            .to_bytes()
-            .map_err(|e| err!("Raw Tx to bytes failed: {e}"))?;
-        let tx = Tx::from_bytes(&tx_bytes).map_err(|e| err!("Failed to decode Tx bytes: {e}"))?;
-        self.builder
-            .build_transaction(account, tx.body.messages, Some(fee))?;
+        let tx_raw = self.builder.build_transaction(
+            account,
+            std::iter::once(msg.to_any()),
+            Some(fee),
+            None,
+        )?;
 
         let request = BroadcastTxRequest {
             tx_bytes: tx_raw
