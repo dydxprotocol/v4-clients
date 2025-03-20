@@ -117,8 +117,8 @@ export const TYPE_URL_MSG_WITHDRAW_DELEGATOR_REWARD =
   '/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward';
 
 // x/accountplus
-export const TYPE_URL_MSG_ADD_AUTHENTICATOR = '/dydxprotocol.accountplus.MsgAddAuthenticator'
-export const TYPE_URL_MSG_REMOVE_AUTHENTICATOR = '/dydxprotocol.accountplus.MsgRemoveAuthenticator'
+export const TYPE_URL_MSG_ADD_AUTHENTICATOR = '/dydxprotocol.accountplus.MsgAddAuthenticator';
+export const TYPE_URL_MSG_REMOVE_AUTHENTICATOR = '/dydxprotocol.accountplus.MsgRemoveAuthenticator';
 
 // ------------ Chain Constants ------------
 // The following are same across different networks / deployments.
@@ -257,6 +257,7 @@ export class ValidatorConfig {
   public broadcastOptions?: BroadcastOptions;
   public defaultClientMemo?: string;
   public useTimestampNonce?: boolean;
+  public timestampNonceOffsetMs?: number;
 
   constructor(
     restEndpoint: string,
@@ -265,6 +266,7 @@ export class ValidatorConfig {
     broadcastOptions?: BroadcastOptions,
     defaultClientMemo?: string,
     useTimestampNonce?: boolean,
+    timestampNonceOffsetMs?: number,
   ) {
     this.restEndpoint = restEndpoint?.endsWith('/') ? restEndpoint.slice(0, -1) : restEndpoint;
     this.chainId = chainId;
@@ -273,6 +275,7 @@ export class ValidatorConfig {
     this.broadcastOptions = broadcastOptions;
     this.defaultClientMemo = defaultClientMemo;
     this.useTimestampNonce = useTimestampNonce;
+    this.timestampNonceOffsetMs = timestampNonceOffsetMs;
   }
 }
 
