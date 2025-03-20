@@ -15,6 +15,7 @@ from tests.conftest import (
 
 MARKET_ID = "ETH-USD"
 
+
 @pytest.mark.asyncio
 async def test_authenticator():
     node = await NodeClient.connect(TESTNET.node)
@@ -45,8 +46,8 @@ async def test_authenticator():
                 [
                     Authenticator.signature_verification(trader_wallet.public_key.key),
                     Authenticator.message_filter("/dydxprotocol.clob.MsgPlaceOrder"),
-                ]
-            )
+                ],
+            ),
         ],
     )
 

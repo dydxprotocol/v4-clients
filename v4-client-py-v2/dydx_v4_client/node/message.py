@@ -176,7 +176,9 @@ def convert_nested_config_to_base64(config: bytes):
     try:
         config_json_array = json.loads(config.decode())
         for config_json in config_json_array:
-            config_json['config'] = base64.b64encode(bytes(config_json['config'])).decode()
+            config_json["config"] = base64.b64encode(
+                bytes(config_json["config"])
+            ).decode()
         config_modified = json.dumps(config_json_array)
         return config_modified.encode()
     except:
