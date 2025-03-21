@@ -40,11 +40,10 @@ async def test_authenticator():
         AuthenticatorType.AllOf,
         [
             Authenticator.signature_verification(trader_wallet.public_key.key),
-            Authenticator.message_filter("/dydxprotocol.clob.MsgPlaceOrder"),
             Authenticator.compose(
-                AuthenticatorType.AllOf,
+                AuthenticatorType.AnyOf,
                 [
-                    Authenticator.signature_verification(trader_wallet.public_key.key),
+                    Authenticator.message_filter("/dydxprotocol.clob.MsgPlaceOrder"),
                     Authenticator.message_filter("/dydxprotocol.clob.MsgPlaceOrder"),
                 ],
             ),
