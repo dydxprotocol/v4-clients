@@ -1,10 +1,11 @@
 use super::*;
 
 use anyhow::{anyhow as err, ensure, Error};
+use base64::prelude::*;
 use dydx_proto::dydxprotocol::accountplus::{
     AccountAuthenticator, GetAuthenticatorsRequest, MsgAddAuthenticator, MsgRemoveAuthenticator,
 };
-use serde::{Deserialize, Serialize};
+use serde::ser;
 
 /// [`NodeClient`] Authenticator requests dispatcher.
 pub struct Authenticators<'a> {
@@ -13,20 +14,19 @@ pub struct Authenticators<'a> {
 
 /// [`Authenticator`] type.
 /// An authenticator can be composed by a single or multiple types.
-#[derive(Debug, Clone, Eq, Hash, PartialEq, Serialize, Deserialize)]
-#[serde(tag = "type", content = "config")]
+#[derive(Debug, Clone, Eq, Hash, PartialEq)]
 pub enum Authenticator {
     /// Enables authentication via a specific key.
     SignatureVerification(Vec<u8>),
     /// Restricts authentication to certain message types. Configured using string bytes, with
     /// different message types separated by commas.
-    MessageFilter(Vec<u8>),
+    MessageFilter(String),
     /// Restricts authentication to certain subaccount constraints. Configured using string bytes,
     /// with different IDs separated by commas.
-    SubaccountFilter(Vec<u8>),
+    SubaccountFilter(String),
     /// Restricts transactions to specific CLOB pair IDs. Configured using string bytes, with
     /// different subaccount numbers separated by commas.
-    ClobPairIdFilter(Vec<u8>),
+    ClobPairIdFilter(String),
     /// Composable type, restricts authentication if any sub-authenticator is valid.
     AnyOf(Vec<Authenticator>),
     /// Composable type, restricts authentication if all sub-authenticators are valid.
@@ -125,10 +125,10 @@ impl Authenticator {
             Authenticator::AllOf(types) | Authenticator::AnyOf(types) => {
                 Ok(serde_json::to_string(&types)?.into_bytes())
             }
-            Authenticator::SignatureVerification(v)
-            | Authenticator::MessageFilter(v)
+            Authenticator::SignatureVerification(v) => Ok(v.clone()),
+            Authenticator::MessageFilter(v)
             | Authenticator::ClobPairIdFilter(v)
-            | Authenticator::SubaccountFilter(v) => Ok(v.clone()),
+            | Authenticator::SubaccountFilter(v) => Ok(v.clone().into_bytes()),
         }
     }
 
@@ -169,6 +169,38 @@ impl Authenticator {
                 Ok(())
             }
         }
+    }
+}
+
+impl serde::Serialize for Authenticator {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        let mut json_obj = serde_json::Map::new();
+
+        // type (tag)
+        json_obj.insert(
+            "type".to_string(),
+            serde_json::Value::String(self.type_to_str().to_string()),
+        );
+
+        // config (content)
+        let config_bytes = match self {
+            Authenticator::SignatureVerification(bytes) => bytes.to_owned(),
+            Authenticator::MessageFilter(string)
+            | Authenticator::SubaccountFilter(string)
+            | Authenticator::ClobPairIdFilter(string) => string.clone().into_bytes(),
+            Authenticator::AnyOf(auths) | Authenticator::AllOf(auths) => {
+                serde_json::to_string(auths)
+                    .map_err(|e| ser::Error::custom(format!("JSON serialization error: {}", e)))?
+                    .into_bytes()
+            }
+        };
+        let base64 = BASE64_STANDARD.encode(config_bytes);
+        json_obj.insert("config".to_string(), serde_json::Value::String(base64));
+
+        serde_json::Value::Object(json_obj).serialize(serializer)
     }
 }
 
