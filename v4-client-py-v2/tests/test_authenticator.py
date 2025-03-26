@@ -15,6 +15,7 @@ from tests.conftest import (
 MARKET_ID = "ETH-USD"
 REQUEST_PROCESSING_TIME = 5
 
+
 @pytest.fixture(autouse=True)
 def sleep_after_test(request):
     """
@@ -46,11 +47,14 @@ async def test_auth_add_single():
     node, wallet, trader_wallet = await connection_setup()
 
     # Authenticate the "trader" wallet
-    place_order_auth = Authenticator.signature_verification(trader_wallet.public_key.key)
+    place_order_auth = Authenticator.signature_verification(
+        trader_wallet.public_key.key
+    )
 
     response = await node.add_authenticator(wallet, place_order_auth)
 
     assert response.tx_response.code == 0, response
+
 
 @pytest.mark.asyncio
 async def test_auth_add_allof_anyof():
@@ -75,6 +79,7 @@ async def test_auth_add_allof_anyof():
 
     assert response.tx_response.code == 0, response
 
+
 @pytest.mark.asyncio
 async def test_auth_add_allof_allof_anyof():
     node, wallet, trader_wallet = await connection_setup()
@@ -91,8 +96,12 @@ async def test_auth_add_allof_allof_anyof():
                     Authenticator.compose(
                         AuthenticatorType.AnyOf,
                         [
-                            Authenticator.message_filter("/dydxprotocol.clob.MsgPlaceOrder"),
-                            Authenticator.message_filter("/dydxprotocol.clob.MsgCancelOrder"),
+                            Authenticator.message_filter(
+                                "/dydxprotocol.clob.MsgPlaceOrder"
+                            ),
+                            Authenticator.message_filter(
+                                "/dydxprotocol.clob.MsgCancelOrder"
+                            ),
                         ],
                     ),
                 ],
