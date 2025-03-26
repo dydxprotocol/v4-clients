@@ -176,6 +176,10 @@ def convert_nested_config_to_base64(config: bytes):
     try:
         config_json_array = json.loads(config.decode())
         for config_json in config_json_array:
+            if config_json["type"] == "AnyOf" or config_json["type"] == "AllOf":
+                config_json["config"] = convert_nested_config_to_base64(
+                    bytes(config_json["config"])
+                )
             config_json["config"] = base64.b64encode(
                 bytes(config_json["config"])
             ).decode()
