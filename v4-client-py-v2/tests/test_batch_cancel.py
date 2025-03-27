@@ -1,4 +1,5 @@
 import pytest
+import time
 
 
 from random import randint
@@ -16,6 +17,18 @@ from tests.conftest import DYDX_TEST_MNEMONIC, assert_successful_broadcast
 
 MARKET_ID = "BTC-USD"
 PERPETUAL_PAIR_BTC_USD = 0
+REQUEST_PROCESSING_TIME = 5
+
+
+@pytest.fixture(autouse=True)
+def sleep_after_test(request):
+    """
+    Applies 5 seconds sleep to all tests in this file.
+    It gives the testnet the time to process the request.
+    Otherwise tests would throw incorrect sequence errors.
+    """
+    yield
+    time.sleep(REQUEST_PROCESSING_TIME)
 
 
 @pytest.mark.asyncio
