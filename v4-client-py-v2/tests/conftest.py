@@ -16,6 +16,9 @@ from dydx_v4_client.node.message import order, order_id
 from dydx_v4_client.wallet import Wallet
 from dydx_v4_client.key_pair import KeyPair
 
+from v4_proto.dydxprotocol.clob.order_pb2 import Order, OrderId
+from v4_proto.cosmos.tx.v1beta1.service_pb2 import BroadcastTxResponse
+
 pytest_plugins = ("pytest_asyncio",)
 
 DYDX_TEST_PRIVATE_KEY = (
@@ -40,22 +43,22 @@ TEST_ADDRESS_2 = "dydx18sukah44zfkjndlhcdmhkjnarl2sevhwf894vh"
 
 
 @pytest.fixture
-def indexer_rest_client():
+def indexer_rest_client() -> IndexerClient:
     return IndexerClient("https://indexer.v4testnet.dydx.exchange")
 
 
 @pytest.fixture
-async def indexer_socket_client():
+async def indexer_socket_client() -> IndexerSocket:
     return IndexerSocket(TESTNET.websocket_indexer)
 
 
 @pytest.fixture
-async def faucet_client():
+async def faucet_client() -> FaucetClient:
     return FaucetClient(faucet_url=TESTNET_FAUCET)
 
 
 @pytest.fixture
-async def node_client():
+async def node_client() -> NodeClient:
     return await NodeClient.connect(TESTNET.node)
 
 
@@ -67,27 +70,27 @@ async def noble_client():
 
 
 @pytest.fixture
-def test_address():
+def test_address() -> str:
     return TEST_ADDRESS
 
 
 @pytest.fixture
-def test_public_key():
+def test_public_key() -> str:
     return DYDX_TEST_PUBLIC_KEY
 
 
 @pytest.fixture
-def recipient():
+def recipient() -> str:
     return RECIPIENT
 
 
 @pytest.fixture
-def key_pair():
+def key_pair() -> KeyPair:
     return KeyPair.from_mnemonic(DYDX_TEST_MNEMONIC)
 
 
 @pytest.fixture
-def test_order_id(test_address):
+def test_order_id(test_address) -> OrderId:
     return order_id(
         test_address,
         subaccount_number=0,
@@ -98,7 +101,7 @@ def test_order_id(test_address):
 
 
 @pytest.fixture
-def test_order(test_order_id):
+def test_order(test_order_id) -> Order:
     return order(
         test_order_id,
         time_in_force=0,
@@ -110,13 +113,13 @@ def test_order(test_order_id):
     )
 
 
-async def get_wallet(node_client, key_pair, test_address):
+async def get_wallet(node_client, key_pair, test_address) -> Wallet:
     account = await node_client.get_account(test_address)
     return Wallet(key_pair, account.account_number, account.sequence)
 
 
 @pytest.fixture()
-async def wallet(node_client, key_pair, test_address):
+async def wallet(node_client, key_pair, test_address) -> Wallet:
     return await get_wallet(node_client, key_pair, test_address)
 
 
@@ -147,3 +150,12 @@ def retry_on_forbidden(max_retries=3, delay=1, skip=False):
         return wrapper
 
     return decorator
+
+
+def is_successful(response) -> bool:
+    return response.tx_response.code == 0
+
+
+def assert_successful_broadcast(response):
+    assert type(response) == BroadcastTxResponse
+    assert is_successful(response)
