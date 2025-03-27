@@ -72,5 +72,5 @@ export function calculateClockOffsetFromFetchDateHeader(
   // we need an offset such that estimatedLocalTimeAtServerArrival + offset = serverReportedTime
   const offset = serverReportedTime - estimatedLocalTimeAtServerArrival;
 
-  return offset;
+  return Math.floor(offset);
 }
