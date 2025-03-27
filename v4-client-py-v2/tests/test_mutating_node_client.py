@@ -6,7 +6,6 @@ from dydx_v4_client.node.message import subaccount
 from tests.conftest import get_wallet, assert_successful_broadcast
 
 
-
 REQUEST_PROCESSING_TIME = 5
 
 
