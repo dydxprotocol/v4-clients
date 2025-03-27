@@ -69,7 +69,6 @@ export class ValidatorClient {
     this._post.setSelectedGasDenom(gasDenom);
   }
 
-
   /**
    * @description populate account number cache in the Post module for performance.
    */
@@ -98,6 +97,7 @@ export class ValidatorClient {
       this.config.denoms,
       this.config.defaultClientMemo,
       this.config.useTimestampNonce,
+      this.config.timestampNonceOffsetMs,
     );
   }
 }

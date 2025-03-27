@@ -60,3 +60,17 @@ export function getGovAddNewMarketTitle(ticker: string): string {
 export function getGovAddNewMarketSummary(ticker: string, delayBlocks: number): string {
   return `Add the x/prices, x/perpetuals and x/clob parameters needed for a ${ticker} perpetual market. Create the market in INITIALIZING status and transition it to ACTIVE status after ${delayBlocks} blocks.`;
 }
+
+export function calculateClockOffsetFromFetchDateHeader(
+  clientRequestStartTime: number,
+  serverReportedTime: number,
+  clientRequestEndTime: number,
+): number {
+  // use midpoint, so assume that time for request reach server === time for response to reach us
+  const estimatedLocalTimeAtServerArrival = (clientRequestStartTime + clientRequestEndTime) / 2;
+
+  // we need an offset such that estimatedLocalTimeAtServerArrival + offset = serverReportedTime
+  const offset = serverReportedTime - estimatedLocalTimeAtServerArrival;
+
+  return offset;
+}

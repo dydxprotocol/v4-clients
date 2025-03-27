@@ -56,6 +56,7 @@ export class Post {
   public readonly defaultDydxGasPrice: GasPrice;
 
   public useTimestampNonce: boolean = false;
+  public timestampNonceOffsetMs: number = 0;
   private accountNumberCache: Map<string, Account> = new Map();
 
   constructor(
@@ -64,6 +65,7 @@ export class Post {
     denoms: DenomConfig,
     defaultClientMemo?: string,
     useTimestampNonce?: boolean,
+    timestampNonceOffsetMs?: number,
   ) {
     this.get = get;
     this.chainId = chainId;
@@ -81,7 +83,10 @@ export class Post {
           : denoms.CHAINTOKEN_DENOM
       }`,
     );
-    if (useTimestampNonce === true) this.useTimestampNonce = useTimestampNonce;
+    if (useTimestampNonce === true) {
+      this.useTimestampNonce = useTimestampNonce;
+      this.timestampNonceOffsetMs = timestampNonceOffsetMs ?? this.timestampNonceOffsetMs;
+    }
   }
 
   /**
@@ -243,7 +248,9 @@ export class Post {
     authenticators?: Long[],
   ): Promise<Uint8Array> {
     // protocol expects timestamp nonce in UTC milliseconds, which is the unit returned by Date.now()
-    const sequence = this.useTimestampNonce ? Date.now() : account.sequence;
+    const sequence = this.useTimestampNonce
+      ? Date.now() + this.timestampNonceOffsetMs
+      : account.sequence;
     // Simulate transaction if no fee is specified.
     const fee: StdFee = zeroFee
       ? {
@@ -956,7 +963,11 @@ export class Post {
     authenticatorType: AuthenticatorType,
     data: Uint8Array,
   ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
-    const msg = this.composer.composeMsgAddAuthenticator(subaccount.address, authenticatorType, data);
+    const msg = this.composer.composeMsgAddAuthenticator(
+      subaccount.address,
+      authenticatorType,
+      data,
+    );
 
     return this.send(
       subaccount.wallet,

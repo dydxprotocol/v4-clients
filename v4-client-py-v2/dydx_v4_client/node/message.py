@@ -16,6 +16,8 @@ from v4_proto.dydxprotocol.accountplus.tx_pb2 import (
     MsgAddAuthenticator,
     MsgRemoveAuthenticator,
 )
+import json
+import base64
 
 PY_V2_CLIENT_ID = 2
 
@@ -157,7 +159,7 @@ def add_authenticator(sender: str, auth_type: str, config: bytes):
     message = MsgAddAuthenticator(
         sender=sender,
         authenticator_type=auth_type,
-        data=config,
+        data=convert_nested_config_to_base64(config),
     )
     return message
 
@@ -168,3 +170,20 @@ def remove_authenticator(sender: str, authenticator_id: int):
         id=authenticator_id,
     )
     return message
+
+
+def convert_nested_config_to_base64(config: bytes):
+    try:
+        config_json_array = json.loads(config.decode())
+        for config_json in config_json_array:
+            if config_json["type"] == "AnyOf" or config_json["type"] == "AllOf":
+                config_json["config"] = convert_nested_config_to_base64(
+                    bytes(config_json["config"])
+                )
+            config_json["config"] = base64.b64encode(
+                bytes(config_json["config"])
+            ).decode()
+        config_modified = json.dumps(config_json_array)
+        return config_modified.encode()
+    except:
+        return config
