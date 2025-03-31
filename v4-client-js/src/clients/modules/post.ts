@@ -128,7 +128,7 @@ export class Post {
   ): Promise<StdFee> {
     let msgs: EncodeObject[];
     // protocol expects timestamp nonce in UTC milliseconds, which is the unit returned by Date.now()
-    let sequence = Date.now();
+    let sequence = Date.now() + this.timestampNonceOffsetMs;
 
     if (this.useTimestampNonce) {
       msgs = await messaging();
