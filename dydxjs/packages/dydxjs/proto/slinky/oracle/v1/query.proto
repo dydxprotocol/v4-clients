@@ -5,7 +5,7 @@ import "google/api/annotations.proto";
 import "slinky/oracle/v1/genesis.proto";
 import "slinky/types/v1/currency_pair.proto";
 
-option go_package = "github.com/skip-mev/connect/v2/x/oracle/types";
+option go_package = "github.com/dydxprotocol/slinky/x/oracle/types";
 
 // Query is the query service for the x/oracle module.
 service Query {
