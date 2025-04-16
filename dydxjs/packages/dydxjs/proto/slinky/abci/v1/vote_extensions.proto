@@ -1,7 +1,7 @@
 syntax = "proto3";
 package slinky.abci.v1;
 
-option go_package = "github.com/skip-mev/connect/v2/abci/ve/types";
+option go_package = "github.com/dydxprotocol/slinky/abci/ve/types";
 
 // OracleVoteExtension defines the vote extension structure for oracle prices.
 message OracleVoteExtension {

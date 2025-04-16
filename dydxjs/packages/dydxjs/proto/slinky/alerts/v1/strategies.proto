@@ -6,7 +6,7 @@ import "cosmos_proto/cosmos.proto";
 import "gogoproto/gogo.proto";
 import "tendermint/abci/types.proto";
 
-option go_package = "github.com/skip-mev/connect/v2/x/alerts/types/strategies";
+option go_package = "github.com/dydxprotocol/slinky/x/alerts/types/strategies";
 
 // ValidatorAlertIncentive defines the incentive strategy to be executed for a
 // validator that has been confirmed to have at fault for an x/alerts alert.

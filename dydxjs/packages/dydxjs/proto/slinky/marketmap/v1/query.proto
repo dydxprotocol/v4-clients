@@ -7,7 +7,7 @@ import "slinky/types/v1/currency_pair.proto";
 import "slinky/marketmap/v1/market.proto";
 import "slinky/marketmap/v1/params.proto";
 
-option go_package = "github.com/skip-mev/connect/v2/x/marketmap/types";
+option go_package = "github.com/dydxprotocol/slinky/x/marketmap/types";
 
 // Query is the query service for the x/marketmap module.
 service Query {
