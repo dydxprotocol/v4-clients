@@ -4,7 +4,7 @@ use env::TestEnv;
 use anyhow::Error;
 use bigdecimal::BigDecimal;
 use dydx::node::*;
-use rand::{thread_rng, Rng};
+use rand::{rng, Rng};
 use serial_test::serial;
 use std::str::FromStr;
 use tokio::time::{sleep, Duration};
@@ -24,7 +24,37 @@ async fn test_node_auth_list() -> Result<(), Error> {
 
 #[tokio::test]
 #[serial]
-async fn test_node_auth_add_allof() -> Result<(), Error> {
+async fn test_node_auth_add_allof_all_types() -> Result<(), Error> {
+    let env = TestEnv::testnet().await?;
+    let mut node = env.node;
+    let mut account = env.account;
+    let address = account.address().clone();
+    let paccount = env.wallet.account_offline(1)?;
+
+    let authenticator = Authenticator::AllOf(vec![
+        Authenticator::SignatureVerification(paccount.public_key().to_bytes().into()),
+        Authenticator::MessageFilter("dydxprotocol.clob.MsgPlaceOrder".into()),
+        Authenticator::SubaccountFilter("0".into()),
+        Authenticator::ClobPairIdFilter("0,1".into()),
+    ]);
+    node.authenticators()
+        .add(&mut account, address, authenticator)
+        .await?;
+
+    sleep(Duration::from_secs(3)).await;
+
+    let list = node
+        .authenticators()
+        .list(account.address().clone())
+        .await?;
+    assert!(!list.is_empty());
+
+    Ok(())
+}
+
+#[tokio::test]
+#[serial]
+async fn test_node_auth_add_allof_nested_msgs() -> Result<(), Error> {
     let env = TestEnv::testnet().await?;
     let mut node = env.node;
     let mut account = env.account;
@@ -33,9 +63,10 @@ async fn test_node_auth_add_allof() -> Result<(), Error> {
 
     let authenticator = Authenticator::AllOf(vec![
         Authenticator::SignatureVerification(paccount.public_key().to_bytes()),
-        Authenticator::MessageFilter("dydxprotocol.clob.MsgPlaceOrder".into()),
-        Authenticator::SubaccountFilter("0".into()),
-        Authenticator::ClobPairIdFilter("0,1".into()),
+        Authenticator::AnyOf(vec![
+            Authenticator::MessageFilter("/dydxprotocol.clob.MsgPlaceOrder".into()),
+            Authenticator::MessageFilter("/dydxprotocol.clob.MsgCancelOrder".into()),
+        ]),
     ]);
     node.authenticators()
         .add(&mut account, address, authenticator)
@@ -111,7 +142,7 @@ async fn test_node_auth_place_order_short_term() -> Result<(), Error> {
         .market(OrderSide::Buy, BigDecimal::from_str("0.001")?)
         .price(10) // Low slippage price to not execute
         .until(height.ahead(10))
-        .build(thread_rng().gen_range(0..100_000_000))?;
+        .build(rng().random_range(0..100_000_000))?;
 
     // Push order by permissioned account
     node.place_order(&mut paccount, order).await?;
