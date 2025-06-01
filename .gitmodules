@@ -9,4 +9,4 @@
 	url = git@github.com:circlefin/noble-cctp.git
 [submodule "slinky"]
 	path = dydxjs/packages/dydxjs/proto/slinky-src
-	url = git@github.com:skip-mev/slinky.git
+	url = git@github.com:dydxprotocol/slinky.git
