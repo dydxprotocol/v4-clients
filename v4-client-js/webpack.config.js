@@ -1,4 +1,5 @@
 import path from 'path';
+
 import NodePolyfillPlugin from 'node-polyfill-webpack-plugin';
 import webpack from 'webpack';
 

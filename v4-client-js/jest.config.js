@@ -1,4 +1,5 @@
 import { createRequire } from 'module';
+
 import baseConfig from '@dydxprotocol/node-service-base-dev/jest.config';
 
 // Create require function for resolving paths in ESM
