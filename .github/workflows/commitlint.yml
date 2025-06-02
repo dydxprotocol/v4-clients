@@ -1,10 +1,10 @@
 name: "Conventional PR Title"
 on:
   pull_request:
-    types: ['opened', 'edited', 'reopened', 'synchronize']
+    types: ["opened", "edited", "reopened", "synchronize"]
     paths:
-      - 'v4-client-js/**'
-      - 'v4-client-rs/**'
+      - "v4-client-js/**"
+      - "v4-client-rs/**"
 jobs:
   conventional-pr-title:
     runs-on: ubuntu-latest
@@ -21,7 +21,7 @@ jobs:
           node-version: 20.8.1
           registry-url: https://registry.npmjs.org
           cache: "npm"
-          cache-dependency-path: '**/package-lock.json'
+          cache-dependency-path: "**/package-lock.json"
 
       - name: Install dependencies
         run: |
@@ -29,7 +29,6 @@ jobs:
 
       - name: Lint PR Title
         run: |
-          echo "${PR_TITLE}" | npx commitlint --config commitlint.config.js
+          echo "${PR_TITLE}" | npx commitlint --config commitlint.config.cjs
         env:
-          PR_TITLE: '${{ github.event.pull_request.title }}'
-
+          PR_TITLE: "${{ github.event.pull_request.title }}"
