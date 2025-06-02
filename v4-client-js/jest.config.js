@@ -1,8 +1,11 @@
-// Use the base configuration as-is.
-exports = require('./node_modules/@dydxprotocol/node-service-base-dev/jest.config');
+import { createRequire } from 'module';
+import baseConfig from '@dydxprotocol/node-service-base-dev/jest.config';
 
-module.exports = {
-  ...exports,
+// Create require function for resolving paths in ESM
+const require = createRequire(import.meta.url);
+
+export default {
+  ...baseConfig,
   moduleNameMapper: {
     '^axios$': require.resolve('axios'),
   },

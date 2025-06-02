@@ -1,9 +1,8 @@
-const path = require('path');
+import path from 'path';
+import NodePolyfillPlugin from 'node-polyfill-webpack-plugin';
+import webpack from 'webpack';
 
-const NodePolyfillPlugin = require('node-polyfill-webpack-plugin');
-const webpack = require('webpack');
-
-module.exports = {
+export default {
   mode: 'development',
   target: ['web', 'es5'], // Set the target to 'web' for browser environment
   entry: './src/clients/native.ts',

@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   extends: ['./node_modules/@dydxprotocol/node-service-base-dev/.eslintrc.js', 'prettier'],
 
   parser: '@typescript-eslint/parser',

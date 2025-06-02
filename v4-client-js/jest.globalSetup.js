@@ -1,5 +1,6 @@
 // This function runs once before all tests.
-module.exports = () => {
+export default async () => {
   // eslint-disable-next-line
-  require('dotenv-flow').config();
+  const { config } = await import('dotenv-flow');
+  config();
 };
