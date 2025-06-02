@@ -7,7 +7,6 @@ import {
   BroadcastTxAsyncResponse,
   BroadcastTxSyncResponse,
 } from '@cosmjs/tendermint-rpc/build/tendermint37';
-import _ from 'lodash';
 import Long from 'long';
 import protobuf from 'protobufjs';
 
@@ -379,7 +378,7 @@ export class Post {
     // The '@cosmjs/stargate' does not support denom with '/', so currently GAS_PRICE is
     // represented in 'uusdc', and the output of `calculateFee` is in '', which is replaced
     // below by USDC_DENOM string.
-    const amount: Coin[] = _.map(fee.amount, (coin: Coin) => {
+    const amount: Coin[] = fee.amount.map((coin: Coin) => {
       if (coin.denom === 'uusdc') {
         return {
           amount: coin.amount,

@@ -9,7 +9,7 @@
     "node_modules/@dydxprotocol/v4-proto/**/**.ts"
   ],
   "compilerOptions": {
-    "outDir": "build",
-    "noFallthroughCasesInSwitch": false
+    "noFallthroughCasesInSwitch": false,
+    "target": "ES2019"
   }
 }
