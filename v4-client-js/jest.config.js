@@ -1,6 +1,6 @@
 import { createRequire } from 'module';
 
-import baseConfig from '@dydxprotocol/node-service-base-dev/jest.config';
+import * as baseConfig from '@dydxprotocol/node-service-base-dev/jest.config.js';
 
 // Create require function for resolving paths in ESM
 const require = createRequire(import.meta.url);
