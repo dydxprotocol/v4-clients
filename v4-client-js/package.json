@@ -20,7 +20,7 @@
     "build:cjs": "tsc -p tsconfig.cjs.json",
     "fix-package-json": "echo '{\"type\":\"commonjs\"}' > build/cjs/package.json",
     "commitlint": "commitlint --edit",
-    "compile": "tsc",
+    "compile": "tsc -p tsconfig.esm.json",
     "compile:watch": "npm run compile -- --watch",
     "coverage": "npm run test -- --coverage",
     "fix": "npm run lint -- --fix",
