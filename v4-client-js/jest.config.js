@@ -1,5 +1,5 @@
 // Use the base configuration as-is.
-exports = require('./node_modules/@dydxprotocol/node-service-base-dev/jest.config');
+exports = require('@dydxprotocol/node-service-base-dev/jest.config');
 
 module.exports = {
   ...exports,
@@ -9,6 +9,4 @@ module.exports = {
     '^axios$': require.resolve('axios'),
   },
   coveragePathIgnorePatterns: ['src/codegen/'],
-  globalSetup: './jest.globalSetup.cjs',
-  setupFilesAfterEnv: ['./jest.setup.cjs'],
 };
