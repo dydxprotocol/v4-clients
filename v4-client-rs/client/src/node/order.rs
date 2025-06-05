@@ -274,7 +274,7 @@ impl OrderBuilder {
 
     /// Set as Take Profit Market order.
     ///
-    /// The order enters in force if the price reaches `trigger_price` and converst to an ordinary market order,
+    /// The order enters in force if the price reaches `trigger_price` and converts to an ordinary market order,
     /// i.e. it is executed at the best available market price.
     pub fn take_profit_market(
         mut self,
