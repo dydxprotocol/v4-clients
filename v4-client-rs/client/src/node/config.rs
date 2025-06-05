@@ -21,7 +21,7 @@ pub struct NodeConfig {
     /// Have NodeClient manage transaction sequence numbering.
     ///
     /// Long-term (stateful) orders require managing a sequence number for an account.
-    /// Either the client manages it automatically via quering the network for the next
+    /// Either the client manages it automatically via querying the network for the next
     /// sequence number or it is a responsibility of a user.
     /// It is a [replay prevention](https://docs.dydx.exchange/api_integration-trading/short_term_vs_stateful).
     #[serde(default = "default_manage_sequencing")]

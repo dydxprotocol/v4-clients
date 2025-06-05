@@ -117,7 +117,7 @@ pub enum CandleResolution {
     D1,
 }
 
-/// Representatio of an arbitrary ID.
+/// Representation of an arbitrary ID.
 #[derive(Clone, Debug)]
 pub struct AnyId;
 

@@ -20,7 +20,7 @@ pub enum Nonce {
     /// A sequence number is incremental, associated with the number of transactions (short-term
     /// orders excluded) issued by an [`Account`](super::wallet::Account).
     Sequence(u64),
-    /// A valid timestamp nonce folows the rules:
+    /// A valid timestamp nonce follows the rules:
     /// 1. now - 30s ≤ timestamp ≤ now + 30s;
     /// 2. timestamp is strictly larger than any of the largest 20 timestamp nonces previously submitted in the account’s lifetime;
     /// 3. timestamp has never been used before.
