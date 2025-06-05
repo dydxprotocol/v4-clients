@@ -250,10 +250,6 @@ pub struct HistoricalPnlResponse {
 #[derive(Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct PnlTicksResponseObject {
-    /// Report id.
-    pub id: PnlTickId,
-    /// Subaccount id.
-    pub subaccount_id: SubaccountId,
     /// Block height.
     pub block_height: Height,
     /// Time (UTC).
