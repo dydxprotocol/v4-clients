@@ -21,7 +21,9 @@ async fn test_node_governance_delegate_undelegate() -> Result<(), Error> {
     assert!(!validators.is_empty());
 
     // Check for undelegation requests
-    let undelegations = node.get_delegator_unbonding_delegations(env.address.clone(), None).await?;
+    let undelegations = node
+        .get_delegator_unbonding_delegations(env.address.clone(), None)
+        .await?;
 
     // Find validator with least amount of undelegations, to avoid max undelegation requests
     let mut validator_to_num_of_undelegations: HashMap<String, u64> = HashMap::new();
@@ -30,13 +32,19 @@ async fn test_node_governance_delegate_undelegate() -> Result<(), Error> {
         validator_to_num_of_undelegations.insert(v.operator_address.clone(), 0);
     });
 
-    undelegations.iter().fold(&mut validator_to_num_of_undelegations, |acc, u| {
-        *acc.entry(u.validator_address.clone()).or_insert(0) += 1;
-        acc
-    });
+    undelegations
+        .iter()
+        .fold(&mut validator_to_num_of_undelegations, |acc, u| {
+            *acc.entry(u.validator_address.clone()).or_insert(0) += 1;
+            acc
+        });
 
     // Could fail if all validators exceed max undelegation requests
-    let validator_with_least_undelegations = validator_to_num_of_undelegations.iter().min_by_key(|(_, v)| *v).unwrap().0;
+    let validator_with_least_undelegations = validator_to_num_of_undelegations
+        .iter()
+        .min_by_key(|(_, v)| *v)
+        .unwrap()
+        .0;
     let validator_address = Address::from_str(validator_with_least_undelegations).unwrap();
 
     // Delegation
