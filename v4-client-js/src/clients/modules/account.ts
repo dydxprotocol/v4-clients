@@ -334,7 +334,7 @@ export default class AccountClient extends RestClient {
     afterOrAt?: string,
     page?: number,
   ): Promise<Data> {
-    const uri = `/v4/fundingPayments/parentSubaccountNumber`;
+    const uri = `/v4/fundingPayments/parentSubaccount`;
     return this.get(uri, { address, parentSubaccountNumber, limit, ticker, afterOrAt, page });
   }
 }
