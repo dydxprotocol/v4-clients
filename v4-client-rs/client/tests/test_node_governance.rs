@@ -3,6 +3,7 @@ use env::TestEnv;
 
 use anyhow::Error;
 use dydx::{indexer::Token, node::*};
+use ibc_proto::cosmos::gov::v1::ProposalStatus;
 use serial_test::serial;
 use std::{collections::HashMap, str::FromStr};
 
@@ -132,6 +133,17 @@ async fn test_node_governance_register_affiliate() -> Result<(), Error> {
             env.address, affiliate_address,
         )
     );
+
+    Ok(())
+}
+
+#[tokio::test]
+#[serial]
+async fn test_node_governance_proposals() -> Result<(), Error> {
+    let env = TestEnv::testnet().await?;
+    let mut node = env.node;
+
+    let _proposals = node.governance().proposals(ProposalStatus::Passed, env.address.clone(), env.address.clone(), None).await?;
 
     Ok(())
 }

@@ -6,6 +6,9 @@ use dydx_proto::{
     },
     dydxprotocol::affiliates::MsgRegisterAffiliate,
 };
+use ibc_proto::cosmos::gov::v1::{Proposal, QueryProposalsRequest};
+use ibc_proto::cosmos::gov::v1::ProposalStatus;
+use ibc_proto::cosmos::base::query::v1beta1::PageRequest;
 
 /// [`NodeClient`] Governance requests dispatcher.
 pub struct Governance<'a> {
@@ -87,5 +90,27 @@ impl<'a> Governance<'a> {
         let tx_raw = self.client.create_transaction(account, msg, None).await?;
 
         self.client.broadcast_transaction(tx_raw).await
+    }
+
+    /// Query for the governance proposals.
+    ///
+    /// Check [the example](https://github.com/dydxprotocol/v4-clients/blob/main/v4-client-rs/client/examples/validator_get.rs).
+    pub async fn proposals(
+        &mut self,
+        status: ProposalStatus,
+        voter: Address,
+        depositor: Address,
+        pagination: Option<PageRequest>,
+    ) -> Result<Vec<Proposal>, Error> {
+        let req = QueryProposalsRequest {
+            proposal_status: status.into(),
+            voter: voter.into(),
+            depositor: depositor.into(),
+            pagination,
+        };
+
+        let proposals = self.client.governance.proposals(req).await?.into_inner().proposals;
+
+        Ok(proposals)
     }
 }
