@@ -116,5 +116,17 @@ async fn main() -> Result<()> {
     let reward_params = getter.client.get_rewards_params().await?;
     tracing::info!("Get reward params: {reward_params:?}");
 
+    let affiliate_info = getter.client.get_affiliate_info(&address).await?;
+    tracing::info!("Get affiliate info: {affiliate_info:?}");
+
+    let affiliate_tiers = getter.client.get_all_affiliate_tiers().await?;
+    tracing::info!("Get affiliate tiers: {affiliate_tiers:?}");
+
+    let affiliate_whitelist = getter.client.get_affiliate_whitelist().await?;
+    tracing::info!("Get affiliate whitelist: {affiliate_whitelist:?}");
+
+    let referred_by = getter.client.get_referred_by(address).await?;
+    tracing::info!("Get referred by: {referred_by:?}");
+
     Ok(())
 }
