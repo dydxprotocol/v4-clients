@@ -21,6 +21,8 @@ impl<'a> Governance<'a> {
     }
 
     /// Delegate coins from a delegator to a validator.
+    ///
+    /// Check [the example](https://github.com/dydxprotocol/v4-clients/blob/main/v4-client-rs/client/examples/governance.rs).
     pub async fn delegate(
         &mut self,
         account: &mut Account,
@@ -40,6 +42,8 @@ impl<'a> Governance<'a> {
     }
 
     /// Undelegate coins from a delegator to a validator.
+    ///
+    /// Check [the example](https://github.com/dydxprotocol/v4-clients/blob/main/v4-client-rs/client/examples/governance.rs).
     pub async fn undelegate(
         &mut self,
         account: &mut Account,
@@ -59,6 +63,8 @@ impl<'a> Governance<'a> {
     }
 
     /// Delegation withdrawal to a delegator from a validator.
+    ///
+    /// Check [the example](https://github.com/dydxprotocol/v4-clients/blob/main/v4-client-rs/client/examples/governance.rs).
     pub async fn withdraw_delegate_reward(
         &mut self,
         account: &mut Account,
@@ -76,6 +82,8 @@ impl<'a> Governance<'a> {
     }
 
     /// Register a referee-affiliate relationship.
+    ///
+    /// Check [the example](https://github.com/dydxprotocol/v4-clients/blob/main/v4-client-rs/client/examples/governance.rs).
     pub async fn register_affiliate(
         &mut self,
         account: &mut Account,
@@ -94,7 +102,7 @@ impl<'a> Governance<'a> {
 
     /// Query for the governance proposals.
     ///
-    /// Check [the example](https://github.com/dydxprotocol/v4-clients/blob/main/v4-client-rs/client/examples/validator_get.rs).
+    /// Check [the example](https://github.com/dydxprotocol/v4-clients/blob/main/v4-client-rs/client/examples/governance.rs).
     pub async fn proposals(
         &mut self,
         status: ProposalStatus,
