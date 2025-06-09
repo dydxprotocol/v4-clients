@@ -311,4 +311,30 @@ export default class AccountClient extends RestClient {
     const uri = `/v4/historicalBlockTradingRewards/${address}`;
     return this.get(uri, { limit, startingBeforeOrAt, startingBeforeOrAtHeight });
   }
+
+  // ------ Funding Payments------ //
+
+  async getSubaccountFundingPayments(
+    address: string,
+    subaccountNumber: number,
+    limit?: number,
+    ticker?: string,
+    afterOrAt?: string,
+    page?: number,
+  ): Promise<Data> {
+    const uri = `/v4/fundingPayments`;
+    return this.get(uri, { address, subaccountNumber, limit, ticker, afterOrAt, page });
+  }
+
+  async getParentSubaccountNumberFundingPayments(
+    address: string,
+    parentSubaccountNumber: number,
+    limit?: number,
+    ticker?: string,
+    afterOrAt?: string,
+    page?: number,
+  ): Promise<Data> {
+    const uri = `/v4/fundingPayments/parentSubaccountNumber`;
+    return this.get(uri, { address, parentSubaccountNumber, limit, ticker, afterOrAt, page });
+  }
 }
