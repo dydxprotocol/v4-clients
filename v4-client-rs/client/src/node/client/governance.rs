@@ -6,7 +6,7 @@ use dydx_proto::{
     },
     dydxprotocol::affiliates::MsgRegisterAffiliate,
 };
-use ibc_proto::cosmos::gov::v1::{Proposal, QueryProposalsRequest};
+use ibc_proto::cosmos::{distribution::v1beta1::{QueryDelegationTotalRewardsRequest, QueryDelegationTotalRewardsResponse}, gov::v1::{Proposal, QueryProposalsRequest}};
 use ibc_proto::cosmos::gov::v1::ProposalStatus;
 use ibc_proto::cosmos::base::query::v1beta1::PageRequest;
 
@@ -120,5 +120,26 @@ impl<'a> Governance<'a> {
         let proposals = self.client.governance.proposals(req).await?.into_inner().proposals;
 
         Ok(proposals)
+    }
+
+    /// Query the rewards accrued by a delegator.
+    ///
+    /// Check [the example](https://github.com/dydxprotocol/v4-clients/blob/main/v4-client-rs/client/examples/governance.rs).
+    pub async fn delegation_total_rewards(
+        &mut self,
+        delegator_address: Address,
+    ) -> Result<QueryDelegationTotalRewardsResponse, Error> {
+        let req = QueryDelegationTotalRewardsRequest {
+            delegator_address: delegator_address.to_string(),
+        };
+
+        let rewards = self
+            .client
+            .distribution
+            .delegation_total_rewards(req)
+            .await?
+            .into_inner();
+
+        Ok(rewards)
     }
 }

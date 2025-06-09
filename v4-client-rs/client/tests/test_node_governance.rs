@@ -147,3 +147,14 @@ async fn test_node_governance_proposals() -> Result<(), Error> {
 
     Ok(())
 }
+
+#[tokio::test]
+#[serial]
+async fn test_node_governance_delegation_total_rewards() -> Result<(), Error> {
+    let env = TestEnv::testnet().await?;
+    let mut node = env.node;
+
+    let _rewards = node.governance().delegation_total_rewards(env.address.clone()).await?;
+
+    Ok(())
+}

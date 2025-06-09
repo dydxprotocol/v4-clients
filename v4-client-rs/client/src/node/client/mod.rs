@@ -37,6 +37,7 @@ use dydx_proto::{
             service_client::ServiceClient as TxClient, BroadcastMode, BroadcastTxRequest,
             GetTxRequest, SimulateRequest,
         },
+        distribution::v1beta1::query_client::QueryClient as DistributionClient,
     },
     dydxprotocol::{
         accountplus::query_client::QueryClient as AccountPlusClient,
@@ -104,6 +105,8 @@ pub struct Routes {
     pub bridge: BridgeClient<Timeout<Channel>>,
     /// dYdX orderbook
     pub clob: ClobClient<Timeout<Channel>>,
+    /// dYdX distribution
+    pub distribution: DistributionClient<Timeout<Channel>>,
     /// dYdX fees
     pub feetiers: FeeTiersClient<Timeout<Channel>>,
     /// dYdX perpetuals
@@ -136,6 +139,7 @@ impl Routes {
             base: BaseClient::new(channel.clone()),
             bridge: BridgeClient::new(channel.clone()),
             clob: ClobClient::new(channel.clone()),
+            distribution: DistributionClient::new(channel.clone()),
             feetiers: FeeTiersClient::new(channel.clone()),
             perpetuals: PerpetualsClient::new(channel.clone()),
             prices: PricesClient::new(channel.clone()),
