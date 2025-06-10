@@ -20,12 +20,20 @@ use dydx_proto::{
         },
     },
     dydxprotocol::{
-        bridge::{DelayedCompleteBridgeMessage, QueryDelayedCompleteBridgeMessagesRequest}, clob::{
+        bridge::{DelayedCompleteBridgeMessage, QueryDelayedCompleteBridgeMessagesRequest},
+        clob::{
             ClobPair, EquityTierLimitConfiguration, QueryAllClobPairRequest,
             QueryEquityTierLimitConfigurationRequest, QueryGetClobPairRequest,
-        }, feetiers::{PerpetualFeeTier, QueryPerpetualFeeParamsRequest, QueryUserFeeTierRequest}, perpetuals::{Perpetual, QueryAllPerpetualsRequest, QueryPerpetualRequest}, prices::{MarketPrice, QueryAllMarketPricesRequest, QueryMarketPriceRequest}, ratelimit::{LimiterCapacity, QueryCapacityByDenomRequest}, rewards, stats::{QueryUserStatsRequest, UserStats}, subaccounts::{
+        },
+        feetiers::{PerpetualFeeTier, QueryPerpetualFeeParamsRequest, QueryUserFeeTierRequest},
+        perpetuals::{Perpetual, QueryAllPerpetualsRequest, QueryPerpetualRequest},
+        prices::{MarketPrice, QueryAllMarketPricesRequest, QueryMarketPriceRequest},
+        ratelimit::{LimiterCapacity, QueryCapacityByDenomRequest},
+        rewards,
+        stats::{QueryUserStatsRequest, UserStats},
+        subaccounts::{
             QueryAllSubaccountRequest, QueryGetSubaccountRequest, Subaccount as SubaccountInfo,
-        }
+        },
     },
 };
 
@@ -431,5 +439,4 @@ impl NodeClient {
 
         Ok(capacity)
     }
-
 }
