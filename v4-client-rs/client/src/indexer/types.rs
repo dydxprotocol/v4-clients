@@ -593,7 +593,7 @@ pub enum Denom {
     #[serde(rename = "adydx")]
     Dydx,
     /// dYdX native testnet token.
-    #[serde(rename = "adv4tnt")]
+                #[serde(rename = "adv4tnt")]
     DydxTnt,
     /// Noble USDC token.
     #[cfg(feature = "noble")]

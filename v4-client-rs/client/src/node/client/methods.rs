@@ -20,19 +20,12 @@ use dydx_proto::{
         },
     },
     dydxprotocol::{
-        bridge::{DelayedCompleteBridgeMessage, QueryDelayedCompleteBridgeMessagesRequest},
-        clob::{
+        bridge::{DelayedCompleteBridgeMessage, QueryDelayedCompleteBridgeMessagesRequest}, clob::{
             ClobPair, EquityTierLimitConfiguration, QueryAllClobPairRequest,
             QueryEquityTierLimitConfigurationRequest, QueryGetClobPairRequest,
-        },
-        feetiers::{PerpetualFeeTier, QueryPerpetualFeeParamsRequest, QueryUserFeeTierRequest},
-        perpetuals::{Perpetual, QueryAllPerpetualsRequest, QueryPerpetualRequest},
-        prices::{MarketPrice, QueryAllMarketPricesRequest, QueryMarketPriceRequest},
-        rewards,
-        stats::{QueryUserStatsRequest, UserStats},
-        subaccounts::{
+        }, feetiers::{PerpetualFeeTier, QueryPerpetualFeeParamsRequest, QueryUserFeeTierRequest}, perpetuals::{Perpetual, QueryAllPerpetualsRequest, QueryPerpetualRequest}, prices::{MarketPrice, QueryAllMarketPricesRequest, QueryMarketPriceRequest}, ratelimit::{LimiterCapacity, QueryCapacityByDenomRequest}, rewards, stats::{QueryUserStatsRequest, UserStats}, subaccounts::{
             QueryAllSubaccountRequest, QueryGetSubaccountRequest, Subaccount as SubaccountInfo,
-        },
+        }
     },
 };
 
@@ -421,4 +414,22 @@ impl NodeClient {
             .ok_or_else(|| err!("Rewards query response does not contain params"))?;
         Ok(params)
     }
+
+    /// Query capacity by denom.
+    ///
+    /// Check [the example](https://github.com/dydxprotocol/v4-clients/blob/main/v4-client-rs/client/examples/validator_get.rs).
+    pub async fn capacity_by_denom(&mut self, denom: Denom) -> Result<Vec<LimiterCapacity>, Error> {
+        let req = QueryCapacityByDenomRequest {
+            denom: denom.to_string(),
+        };
+        let capacity = self
+            .ratelimit
+            .capacity_by_denom(req)
+            .await?
+            .into_inner()
+            .limiter_capacity_list;
+
+        Ok(capacity)
+    }
+
 }
