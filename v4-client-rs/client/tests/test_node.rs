@@ -5,7 +5,7 @@ use anyhow::{anyhow as err, Error};
 use bigdecimal::{num_traits::cast::ToPrimitive, BigDecimal, One};
 use chrono::{TimeDelta, Utc};
 use dydx::{
-    indexer::{OrderExecution, Ticker, Token},
+    indexer::{Denom, OrderExecution, Ticker, Token},
     node::*,
 };
 use dydx_proto::dydxprotocol::{
@@ -374,4 +374,16 @@ async fn test_node_create_market_permissionless() -> Result<(), Error> {
         Err(e) => Err(e),
         Ok(_) => Err(err!("Market creation (ETH-USD) should fail")),
     }
+}
+
+#[tokio::test]
+async fn test_node_capacity_by_denom() -> Result<(), Error> {
+    let env = TestEnv::testnet().await?;
+    let mut node = env.node;
+
+    let capacity = node.capacity_by_denom(Denom::Usdc).await?;
+
+    assert!(!capacity.is_empty());
+
+    Ok(())
 }
