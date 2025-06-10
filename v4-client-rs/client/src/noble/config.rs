@@ -15,7 +15,7 @@ pub struct NobleConfig {
     /// Fee [`Denom`].
     pub fee_denom: Denom,
     /// The sequence is a value that represents the number of transactions sent from an account.
-    /// Either the client manages it automatically via quering the network for the next
+    /// Either the client manages it automatically via querying the network for the next
     /// sequence number or it is a responsibility of a user.
     /// It is a [replay prevention](https://docs.cosmos.network/v0.47/learn/beginner/tx-lifecycle).
     #[serde(default = "default_manage_sequencing")]
