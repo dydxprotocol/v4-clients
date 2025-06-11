@@ -13,6 +13,7 @@ use dydx_proto::dydxprotocol::{
         order::{self, ConditionType, Side, TimeInForce},
         Order, OrderBatch, OrderId,
     },
+    ratelimit::{QueryCapacityByDenomRequest, QueryCapacityByDenomResponse},
     subaccounts::SubaccountId,
 };
 use rand::{rng, Rng};
@@ -374,4 +375,21 @@ async fn test_node_create_market_permissionless() -> Result<(), Error> {
         Err(e) => Err(e),
         Ok(_) => Err(err!("Market creation (ETH-USD) should fail")),
     }
+}
+
+#[tokio::test]
+async fn test_node_send_query() -> Result<(), Error> {
+    let env = TestEnv::testnet().await?;
+    let mut node = env.node;
+
+    let _tx_res: QueryCapacityByDenomResponse = node
+        .send_query(
+            QueryCapacityByDenomRequest {
+                denom: "adv4tnt".parse()?,
+            },
+            "/dydxprotocol.ratelimit.Query/CapacityByDenom",
+        )
+        .await?;
+
+    Ok(())
 }

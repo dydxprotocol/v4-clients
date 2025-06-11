@@ -21,18 +21,21 @@ use chrono::{TimeDelta, Utc};
 use cosmrs::tx::{self, Tx};
 use derive_more::{Deref, DerefMut};
 use dydx_proto::{
-    cosmos_sdk_proto::cosmos::{
-        auth::v1beta1::query_client::QueryClient as AuthClient,
-        bank::v1beta1::{query_client::QueryClient as BankClient, MsgSend},
-        base::{
-            abci::v1beta1::GasInfo,
-            tendermint::v1beta1::service_client::ServiceClient as BaseClient,
+    cosmos_sdk_proto::{
+        cosmos::{
+            auth::v1beta1::query_client::QueryClient as AuthClient,
+            bank::v1beta1::{query_client::QueryClient as BankClient, MsgSend},
+            base::{
+                abci::v1beta1::GasInfo,
+                tendermint::v1beta1::service_client::ServiceClient as BaseClient,
+            },
+            staking::v1beta1::query_client::QueryClient as StakingClient,
+            tx::v1beta1::{
+                service_client::ServiceClient as TxClient, BroadcastMode, BroadcastTxRequest,
+                GetTxRequest, SimulateRequest,
+            },
         },
-        staking::v1beta1::query_client::QueryClient as StakingClient,
-        tx::v1beta1::{
-            service_client::ServiceClient as TxClient, BroadcastMode, BroadcastTxRequest,
-            GetTxRequest, SimulateRequest,
-        },
+        traits::Message,
     },
     dydxprotocol::{
         accountplus::query_client::QueryClient as AccountPlusClient,
@@ -61,7 +64,10 @@ use ibc_proto::{
 };
 use std::iter;
 use tokio::time::{sleep, Duration};
+use tokio_tungstenite::tungstenite::http::uri::PathAndQuery;
+use tonic::codec::ProstCodec;
 use tonic::{
+    client::Grpc,
     transport::{Channel, ClientTlsConfig},
     Code,
 };
@@ -116,6 +122,8 @@ pub struct Routes {
     pub subaccounts: SubaccountsClient<Timeout<Channel>>,
     /// Tx utilities for the Cosmos SDK.
     pub tx: TxClient<Timeout<Channel>>,
+    /// Query client
+    pub query: Grpc<Timeout<Channel>>,
     /// Vaults
     pub vault: VaultClient<Timeout<Channel>>,
 }
@@ -138,6 +146,7 @@ impl Routes {
             stats: StatsClient::new(channel.clone()),
             subaccounts: SubaccountsClient::new(channel.clone()),
             tx: TxClient::new(channel.clone()),
+            query: Grpc::new(channel.clone()),
             vault: VaultClient::new(channel),
         }
     }
@@ -678,6 +687,30 @@ impl NodeClient {
                 message: response.raw_log,
             }))
         }
+    }
+
+    /// Generic query method.
+    ///
+    /// Note: specify the return type explicitly, to avoid warnings.
+    ///
+    /// Check [the example](https://github.com/dydxprotocol/v4-clients/blob/main/v4-client-rs/client/examples/validator_get.rs).
+    pub async fn send_query<I, O>(&mut self, msg: I, method: &str) -> Result<O, Error>
+    where
+        I: 'static + ToAny,
+        O: Message + Default + 'static,
+    {
+        let path = PathAndQuery::from_maybe_shared(method.to_string())?;
+        let req = tonic::Request::new(msg);
+
+        self.query
+            .ready()
+            .await
+            .map_err(|e| err!("Service was not ready: {e}"))?;
+
+        let response: tonic::Response<O> =
+            self.query.unary(req, path, ProstCodec::default()).await?;
+
+        Ok(response.into_inner())
     }
 
     /// Query the network for a transaction

@@ -2,6 +2,9 @@ mod support;
 use anyhow::{Error, Result};
 use dydx::config::ClientConfig;
 use dydx::node::{NodeClient, Wallet};
+use dydx_proto::dydxprotocol::ratelimit::{
+    QueryCapacityByDenomRequest, QueryCapacityByDenomResponse,
+};
 use support::constants::TEST_MNEMONIC;
 
 const ETH_USD_PAIR_ID: u32 = 1;
@@ -115,6 +118,17 @@ async fn main() -> Result<()> {
 
     let reward_params = getter.client.get_rewards_params().await?;
     tracing::info!("Get reward params: {reward_params:?}");
+
+    let rewards_params: QueryCapacityByDenomResponse = getter
+        .client
+        .send_query(
+            QueryCapacityByDenomRequest {
+                denom: "adv4tnt".parse()?,
+            },
+            "/dydxprotocol.ratelimit.Query/CapacityByDenom",
+        )
+        .await?;
+    tracing::info!("Capacity by denom request (using send_query): {rewards_params:?}");
 
     Ok(())
 }
