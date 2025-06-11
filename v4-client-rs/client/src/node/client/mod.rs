@@ -48,7 +48,11 @@ use dydx_proto::{
         rewards::query_client::QueryClient as RewardsClient,
         sending::{MsgCreateTransfer, MsgDepositToSubaccount, MsgWithdrawFromSubaccount, Transfer},
         stats::query_client::QueryClient as StatsClient,
-        subaccounts::{query_client::QueryClient as SubaccountsClient, QueryGetWithdrawalAndTransfersBlockedInfoRequest, QueryGetWithdrawalAndTransfersBlockedInfoResponse, SubaccountId},
+        subaccounts::{
+            query_client::QueryClient as SubaccountsClient,
+            QueryGetWithdrawalAndTransfersBlockedInfoRequest,
+            QueryGetWithdrawalAndTransfersBlockedInfoResponse, SubaccountId,
+        },
         vault::query_client::QueryClient as VaultClient,
     },
     ToAny,
