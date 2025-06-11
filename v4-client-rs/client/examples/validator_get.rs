@@ -116,5 +116,11 @@ async fn main() -> Result<()> {
     let reward_params = getter.client.get_rewards_params().await?;
     tracing::info!("Get reward params: {reward_params:?}");
 
+    let withdrawal_and_transfers_blocked_info =
+        getter.client.withdrawal_and_transfers_blocked_info(ETH_USD_PAIR_ID).await?;
+    tracing::info!(
+        "Get withdrawal and transfers blocked info: {withdrawal_and_transfers_blocked_info:?}"
+    );
+
     Ok(())
 }

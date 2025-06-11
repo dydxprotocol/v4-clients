@@ -375,3 +375,15 @@ async fn test_node_create_market_permissionless() -> Result<(), Error> {
         Ok(_) => Err(err!("Market creation (ETH-USD) should fail")),
     }
 }
+
+#[tokio::test]
+#[serial]
+async fn test_node_withdrawal_and_transfers_blocked_info() -> Result<(), Error> {
+    let env = TestEnv::testnet().await?;
+    let mut node = env.node;
+
+    let _withdrawal_and_transfers_blocked_info =
+        node.withdrawal_and_transfers_blocked_info(ETH_USD_PAIR_ID).await?;
+
+    Ok(())
+}
