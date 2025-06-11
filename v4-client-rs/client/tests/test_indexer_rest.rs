@@ -100,6 +100,16 @@ async fn test_indexer_utility_get_screen() -> Result<()> {
 }
 
 #[tokio::test]
+async fn test_indexer_utility_get_compliance_screen() -> Result<()> {
+    let env = TestEnv::testnet().await?;
+    env.indexer
+        .utility()
+        .get_compliance_screen(&env.address)
+        .await?;
+    Ok(())
+}
+
+#[tokio::test]
 async fn test_indexer_account_get_subaccounts() -> Result<()> {
     let env = TestEnv::testnet().await?;
     env.indexer.accounts().get_subaccounts(&env.address).await?;
