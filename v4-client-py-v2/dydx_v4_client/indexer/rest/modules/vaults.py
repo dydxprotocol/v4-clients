@@ -40,7 +40,7 @@ class MegaVaultClient(RestClient):
         uri = f"/v4/vault/v1/megavault/positions"
         return await self.get(uri)
 
-    async def get_megavault_positions(self, ):
+    async def get_megavault_positions(self):
         """
             Retrieves megavault's current position
 
