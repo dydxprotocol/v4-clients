@@ -38,7 +38,7 @@ class MegaVaultClient(RestClient):
             }
         )
 
-    async def get_megavault_positions(self, ):
+    async def get_megavault_positions(self):
         """
             Retrieves megavault's current position
 
