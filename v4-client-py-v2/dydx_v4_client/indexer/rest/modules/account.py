@@ -50,6 +50,24 @@ class AccountClient(RestClient):
         uri = f"/v4/addresses/{address}/subaccountNumber/{subaccount_number}"
         return await self.get(uri)
 
+    async def get_parent_subaccount(
+            self,
+            address: str,
+            subaccount_number: int,
+    ) -> Any:
+        """
+        Query for the parent subaccount, its child subaccounts, equity, collateral and margin.
+
+        Args:
+            address (str): The parent address
+            subaccount_number (int): Parent subaccount number
+
+        Returns:
+            Any: The parent subaccount data
+        """
+        uri = f"/v4/addresses/{address}/parentSubaccountNumber/{subaccount_number}"
+        return await self.get(uri)
+
     async def get_subaccount_perpetual_positions(
         self,
         address: str,

@@ -15,6 +15,15 @@ async def test_subaccounts(indexer_rest_client, test_address):
     subaccount_number = subaccount0["subaccountNumber"]
     assert subaccount_number is not None
 
+@pytest.mark.asyncio
+@retry_on_forbidden(max_retries=3, delay=1, skip=True)
+async def test_parent_subaccounts(indexer_rest_client, test_address):
+    response = await indexer_rest_client.account.get_parent_subaccount(test_address, 0)
+    assert response['subaccount'] is not None
+    assert len(response['subaccount']) > 0
+    assert response['subaccount']['address'] is not None
+    assert response['subaccount']['childSubaccounts'] is not None
+    assert len(response['subaccount']['childSubaccounts']) > 0
 
 @pytest.mark.asyncio
 @retry_on_forbidden(max_retries=3, delay=1, skip=True)
