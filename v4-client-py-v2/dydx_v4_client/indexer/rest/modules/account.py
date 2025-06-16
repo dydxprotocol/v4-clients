@@ -117,8 +117,8 @@ class AccountClient(RestClient):
         List all positions of a parent subaccount.
 
         Args:
-            address (str): The address.
-            subaccount_number (int): The subaccount number.
+            address (str): The parent address.
+            subaccount_number (int): The parent subaccount number.
             status (Optional[PositionStatus]): The position status filter.
             limit (Optional[int]): The maximum number of positions to retrieve.
             created_before_or_at_height (Optional[int]): The block height filter for positions created before or at.
@@ -169,6 +169,43 @@ class AccountClient(RestClient):
             params={
                 "address": address,
                 "subaccountNumber": subaccount_number,
+                "status": status,
+                "limit": limit,
+                "createdBeforeOrAtHeight": created_before_or_at_height,
+                "createdBeforeOrAt": created_before_or_at,
+            },
+        )
+
+
+    async def get_parent_subaccount_asset_positions(
+        self,
+        address: str,
+        subaccount_number: int,
+        status: Optional[PositionStatus] = None,
+        limit: Optional[int] = None,
+        created_before_or_at_height: Optional[int] = None,
+        created_before_or_at: Optional[str] = None,
+    ) -> Any:
+        """
+        Query for asset positions (size, buy/sell etc) for a parent subaccount.
+
+        Args:
+            address (str): The parent address.
+            subaccount_number (int): Parent subaccount number.
+            status (Optional[PositionStatus]): The position status filter.
+            limit (Optional[int]): The maximum number of positions to retrieve.
+            created_before_or_at_height (Optional[int]): The block height filter for positions created before or at.
+            created_before_or_at (Optional[str]): The timestamp filter for positions created before or at.
+
+        Returns:
+            Any: The asset positions data.
+        """
+        uri = "/v4/assetPositions/parentSubaccountNumber"
+        return await self.get(
+            uri,
+            params={
+                "address": address,
+                "parentSubaccountNumber": subaccount_number,
                 "status": status,
                 "limit": limit,
                 "createdBeforeOrAtHeight": created_before_or_at_height,

@@ -48,6 +48,20 @@ async def test_asset_positions(indexer_rest_client, test_address):
         position = positions[0]
         assert position is not None
 
+@pytest.mark.asyncio
+@retry_on_forbidden(max_retries=3, delay=1, skip=True)
+async def test_parent_subaccount_asset_positions(indexer_rest_client, test_address):
+    response = await indexer_rest_client.account.get_parent_subaccount_asset_positions(
+        test_address, 0
+    )
+    assert response is not None
+    positions = response["positions"]
+    assert positions is not None
+    if len(positions) > 0:
+        position = positions[0]
+        assert position is not None
+
+
 
 @pytest.mark.asyncio
 @retry_on_forbidden(max_retries=3, delay=1, skip=True)
