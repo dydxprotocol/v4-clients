@@ -104,6 +104,42 @@ class AccountClient(RestClient):
             },
         )
 
+    async def get_parent_subaccount_positions(
+            self,
+            address: str,
+            subaccount_number: int,
+            status: Optional[PositionStatus] = None,
+            limit: Optional[int] = None,
+            created_before_or_at_height: Optional[int] = None,
+            created_before_or_at: Optional[str] = None,
+    ):
+        """
+        List all positions of a parent subaccount.
+
+        Args:
+            address (str): The address.
+            subaccount_number (int): The subaccount number.
+            status (Optional[PositionStatus]): The position status filter.
+            limit (Optional[int]): The maximum number of positions to retrieve.
+            created_before_or_at_height (Optional[int]): The block height filter for positions created before or at.
+            created_before_or_at (Optional[str]): The timestamp filter for positions created before or at.
+
+        Returns:
+            Any: The parent's subaccount's positions data.
+        """
+        uri = "/v4/perpetualPositions/parentSubaccountNumber"
+        return await self.get(
+            uri,
+            params={
+                "address": address,
+                "parentSubaccountNumber": subaccount_number,
+                "status": status,
+                "limit": limit,
+                "createdBeforeOrAtHeight": created_before_or_at_height,
+                "createdBeforeOrAt": created_before_or_at,
+            },
+        )
+
     async def get_subaccount_asset_positions(
         self,
         address: str,
