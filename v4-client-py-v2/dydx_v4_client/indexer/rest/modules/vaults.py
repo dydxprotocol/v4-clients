@@ -13,12 +13,7 @@ class MegaVaultClient(RestClient):
             Any: List of megavault historical pnl
         """
         uri = f"/v4/vault/v1/megavault/historicalPnl"
-        return await self.get(
-            uri,
-            params={
-                "resolution": resolution
-            }
-        )
+        return await self.get(uri, params={"resolution": resolution})
 
     async def get_vaults_historical_pnl(self, resolution):
         """
@@ -31,21 +26,16 @@ class MegaVaultClient(RestClient):
             Any: List of vault historical pnl
         """
         uri = f"/v4/vault/v1/vaults/historicalPnl"
-        return await self.get(
-            uri,
-            params={
-                "resolution": resolution
-            }
-        )
+        return await self.get(uri, params={"resolution": resolution})
 
     async def get_megavault_positions(self):
         """
-            Retrieves megavault's current position
+        Retrieves megavault's current position
 
-            Args:
+        Args:
 
-            Returns:
-                Any: Megavault position
+        Returns:
+            Any: Megavault position
         """
         uri = f"/v4/vault/v1/megavault/positions"
         return await self.get(uri)
