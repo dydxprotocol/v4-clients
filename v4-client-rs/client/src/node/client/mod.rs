@@ -694,12 +694,12 @@ impl NodeClient {
     /// Note: specify the return type explicitly, to avoid warnings.
     ///
     /// Check [the example](https://github.com/dydxprotocol/v4-clients/blob/main/v4-client-rs/client/examples/validator_get.rs).
-    pub async fn send_query<I, O>(&mut self, msg: I, method: &str) -> Result<O, Error>
+    pub async fn send_query<I, O>(&mut self, msg: I, method: &'static str) -> Result<O, Error>
     where
         I: 'static + ToAny,
         O: Message + Default + 'static,
     {
-        let path = PathAndQuery::from_maybe_shared(method.to_string())?;
+        let path = PathAndQuery::from_static(method);
         let req = tonic::Request::new(msg);
 
         self.query
