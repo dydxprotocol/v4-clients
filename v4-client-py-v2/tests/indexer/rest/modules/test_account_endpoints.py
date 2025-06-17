@@ -214,3 +214,15 @@ async def test_parent_fills(indexer_rest_client, test_address):
         fill = fills[0]
         assert fill is not None
         assert fill['id'] is not None
+
+@pytest.mark.asyncio
+@retry_on_forbidden(max_retries=3, delay=1, skip=True)
+async def test_get_parent_historical_pnl(indexer_rest_client, test_address):
+    response = await indexer_rest_client.account.get_parent_historical_pnls(
+        test_address, 0
+    )
+    assert response is not None
+    assert response['historicalPnl'] is not None
+    if len(response['historicalPnl']) > 0:
+        assert response['historicalPnl'][0] is not None
+        assert response['historicalPnl'][0]['equity'] is not None

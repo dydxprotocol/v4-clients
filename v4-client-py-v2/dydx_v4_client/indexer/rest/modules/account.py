@@ -583,3 +583,42 @@ class AccountClient(RestClient):
                 "createdBeforeOrAt": created_before_or_at,
             },
         )
+
+    async def get_parent_historical_pnls(
+        self,
+        address: str,
+        subaccount_number: int,
+        limit: Optional[int] = None,
+        created_before_or_at_height: Optional[int] = None,
+        created_before_or_at: Optional[str] = None,
+        created_on_or_after_height: Optional[int] = None,
+        created_on_or_after: Optional[str] = None,
+    ) -> Any:
+        """
+        Query for profit and loss report for the specified time/block range of a parent subaccount.
+
+        Args:
+            address (str): The address.
+            subaccount_number (int): The subaccount number.
+            limit (Optional[int]): The maximum number of historical pnls to retrieve.
+            created_before_or_at_height (Optional[int]): The block height filter for historical pnl created before or at.
+            created_before_or_at (Optional[str]): The timestamp filter for PnLs effective before or at.
+            created_on_or_after_height (Optional[str]): The block height filter for historical pnl created on or after.
+            created_on_or_after (Optional[str]): The timestamp filter for PnLs effective at or after.
+
+        Returns:
+            Any: The historical PnLs data.
+        """
+        uri = "/v4/historical-pnl/parentSubaccountNumber"
+        return await self.get(
+            uri,
+            params={
+                "address": address,
+                "parentSubaccountNumber": subaccount_number,
+                "limit": limit,
+                "createdBeforeOrAtHeight": created_before_or_at_height,
+                "createdBeforeOrAt": created_before_or_at,
+                "createdOnOrAfterHeight": created_on_or_after_height,
+                "createdOnOrAfter": created_on_or_after
+            },
+        )
