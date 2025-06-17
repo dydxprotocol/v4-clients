@@ -203,3 +203,14 @@ async def test_list_parent_orders(indexer_rest_client, test_address):
         assert response[0] is not None
         assert response[0]['id'] is not None
 
+@pytest.mark.asyncio
+@retry_on_forbidden(max_retries=3, delay=1, skip=True)
+async def test_parent_fills(indexer_rest_client, test_address):
+    response = await indexer_rest_client.account.get_parent_fills(test_address, 0)
+    assert response is not None
+    fills = response["fills"]
+    assert fills is not None
+    if len(fills) > 0:
+        fill = fills[0]
+        assert fill is not None
+        assert fill['id'] is not None
