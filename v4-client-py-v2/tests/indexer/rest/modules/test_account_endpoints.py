@@ -181,3 +181,9 @@ async def test_historical_trading_rewards_aggregated(indexer_rest_client, test_a
         assert "endedAt" in aggregation
         assert "startedAtHeight" in aggregation
         assert "endedAtHeight" in aggregation
+
+@pytest.mark.asyncio
+@retry_on_forbidden(max_retries=3, delay=1, skip=True)
+async def test_get_transfer_between(indexer_rest_client, test_address):
+    response = await indexer_rest_client.account.get_transfer_between(test_address, 0, test_address, 1)
+    assert response['transfersSubset'] is not None

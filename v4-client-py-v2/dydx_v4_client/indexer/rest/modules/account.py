@@ -426,3 +426,37 @@ class AccountClient(RestClient):
             "startingBeforeOrAtHeight": starting_before_or_at_height,
         }
         return await self.get(uri, params=params)
+
+    async def get_transfer_between(
+        self,
+        source_address: str,
+        source_subaccount_number: int,
+        recipient_address: str,
+        recipient_subaccount_number: int,
+        created_before_or_at_height: Optional[int] = None,
+        created_before_or_at: Optional[str] = None
+    ):
+        """
+        Query and retrieve transfer information between two subaccounts
+
+        Args:
+            source_address (str): The source account address.
+            source_subaccount_number (int): The source subaccount number.
+            recipient_address (str): The recipient account address.
+            recipient_subaccount_number (int): The recipient subaccount number.
+            created_before_or_at_height (Optional[int]): The block height filter for rewards created before or at.
+            created_before_or_at (Optional[str]): The timestamp filter for rewards created before or at.
+        """
+
+        uri = f"/v4/transfers/between"
+        return await self.get(
+            uri,
+            params={
+                "sourceAddress": source_address,
+                "sourceSubaccountNumber": source_subaccount_number,
+                "recipientAddress": recipient_address,
+                "recipientSubaccountNumber": recipient_subaccount_number,
+                "createdBeforeOrAtHeight": created_before_or_at_height,
+                "createdBeforeOrAt": created_before_or_at
+            }
+        )
