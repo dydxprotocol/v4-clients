@@ -193,3 +193,13 @@ async def test_get_transfer_between(indexer_rest_client, test_address):
 async def test_get_parent_transfers(indexer_rest_client, test_address):
     response = await indexer_rest_client.account.get_parent_transfers(test_address, 0)
     assert response['transfers'] is not None
+
+@pytest.mark.asyncio
+@retry_on_forbidden(max_retries=3, delay=1, skip=True)
+async def test_list_parent_orders(indexer_rest_client, test_address):
+    response = await indexer_rest_client.account.list_parent_orders(test_address, 0)
+    assert response is not None
+    if len(response) > 0:
+        assert response[0] is not None
+        assert response[0]['id'] is not None
+

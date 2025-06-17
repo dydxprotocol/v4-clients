@@ -446,6 +446,9 @@ class AccountClient(RestClient):
             recipient_subaccount_number (int): The recipient subaccount number.
             created_before_or_at_height (Optional[int]): The block height filter for rewards created before or at.
             created_before_or_at (Optional[str]): The timestamp filter for rewards created before or at.
+
+        Returns:
+            Any: The aggregated transfer data between to accounts.
         """
 
         uri = f"/v4/transfers/between"
@@ -478,6 +481,9 @@ class AccountClient(RestClient):
             limit (Optional[int]): The maximum number of aggregated transfer information to retrieve.
             created_before_or_at_height (Optional[int]): The block height filter for transfers created before or at.
             created_before_or_at (Optional[str]): The timestamp filter for transfers created before or at.
+
+        Returns:
+            Any: The aggregated parent transfer information.
         """
         uri = "/v4/transfers/parentSubaccountNumber"
         return await self.get(
@@ -488,5 +494,53 @@ class AccountClient(RestClient):
                 "limit": limit,
                 "createdBeforeOrAtHeight": created_before_or_at_height,
                 "createdBeforeOrAt": created_before_or_at
+            }
+        )
+
+    async def list_parent_orders(
+        self,
+        address: str,
+        subaccount_number: int,
+        limit: Optional[int] = None,
+        ticker: Optional[str] = None,
+        side: Optional[OrderSide] = None,
+        status: Optional[OrderStatus] = None,
+        order_type: Optional[OrderType] = None,
+        good_til_block_before_or_at: Optional[int] = None,
+        good_til_block_time_before_or_at: Optional[str] = None,
+        return_latest_orders: Optional[bool] = None
+    ):
+        """
+        Query for orders filtered by order params of a parent subaccount.
+
+        Args:
+            address (str): The account address.
+            subaccount_number (int): The subaccount number.
+            limit (Optional[int]): The maximum number of orders to retrieve.
+            ticker (Optional[str]): The ticker filter.
+            side (Optional[OrderSide]): The order side filter.
+            status (Optional[OrderStatus]): The order status filter.
+            order_type (Optional[OrderType]): The order type filter.
+            good_til_block_before_or_at (Optional[int]): The block number filter for orders good until before or at.
+            good_til_block_time_before_or_at (Optional[str]): The timestamp filter for orders good until before or at.
+            return_latest_orders (Optional[bool]): Whether to return only the latest orders.
+
+        Returns:
+            Any: The aggregated list of parent orders.
+        """
+        uri=f"/v4/orders/parentSubaccountNumber"
+        return await self.get(
+            uri,
+            params={
+                "address": address,
+                "parentSubaccountNumber": subaccount_number,
+                "limit": limit,
+                "ticker": ticker,
+                "side": side,
+                "status": status,
+                "type": order_type,
+                "goodTilBlockBeforeOrAt": good_til_block_before_or_at,
+                "goodTilBlockTimeBeforeOrAt": good_til_block_time_before_or_at,
+                "returnLatestOrders": return_latest_orders
             }
         )
