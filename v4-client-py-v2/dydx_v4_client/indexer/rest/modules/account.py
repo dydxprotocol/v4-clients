@@ -460,3 +460,33 @@ class AccountClient(RestClient):
                 "createdBeforeOrAt": created_before_or_at
             }
         )
+
+    async def get_parent_transfers(
+        self,
+        address: str,
+        subaccount_number: int,
+        limit: Optional[int] = None,
+        created_before_or_at_height: Optional[int] = None,
+        created_before_or_at: Optional[str] = None
+    ):
+        """
+        Query for transfers between subaccounts associated with a parent subaccount.
+
+        Args:
+            address (str): The address of parent.
+            subaccount_number (int): The subaccount number of the address.
+            limit (Optional[int]): The maximum number of aggregated transfer information to retrieve.
+            created_before_or_at_height (Optional[int]): The block height filter for transfers created before or at.
+            created_before_or_at (Optional[str]): The timestamp filter for transfers created before or at.
+        """
+        uri = "/v4/transfers/parentSubaccountNumber"
+        return await self.get(
+            uri,
+            params={
+                "address": address,
+                "parentSubaccountNumber": subaccount_number,
+                "limit": limit,
+                "createdBeforeOrAtHeight": created_before_or_at_height,
+                "createdBeforeOrAt": created_before_or_at
+            }
+        )

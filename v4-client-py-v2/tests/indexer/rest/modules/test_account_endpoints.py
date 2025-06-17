@@ -187,3 +187,9 @@ async def test_historical_trading_rewards_aggregated(indexer_rest_client, test_a
 async def test_get_transfer_between(indexer_rest_client, test_address):
     response = await indexer_rest_client.account.get_transfer_between(test_address, 0, test_address, 1)
     assert response['transfersSubset'] is not None
+
+@pytest.mark.asyncio
+@retry_on_forbidden(max_retries=3, delay=1, skip=True)
+async def test_get_parent_transfers(indexer_rest_client, test_address):
+    response = await indexer_rest_client.account.get_parent_transfers(test_address, 0)
+    assert response['transfers'] is not None
