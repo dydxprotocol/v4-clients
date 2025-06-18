@@ -434,7 +434,7 @@ class AccountClient(RestClient):
         recipient_subaccount_number: int,
         created_before_or_at_height: Optional[int] = None,
         created_before_or_at: Optional[str] = None,
-    ):
+    ) -> Any:
         """
         Query and retrieve transfer information between two subaccounts
 
@@ -447,7 +447,7 @@ class AccountClient(RestClient):
             created_before_or_at (Optional[str]): The timestamp filter for rewards created before or at.
 
         Returns:
-            Any: The aggregated transfer data between to accounts.
+            Any: The aggregated transfer data between two accounts.
         """
 
         uri = f"/v4/transfers/between"
@@ -470,7 +470,7 @@ class AccountClient(RestClient):
         limit: Optional[int] = None,
         created_before_or_at_height: Optional[int] = None,
         created_before_or_at: Optional[str] = None,
-    ):
+    ) -> Any:
         """
         Query for transfers between subaccounts associated with a parent subaccount.
 
@@ -508,7 +508,7 @@ class AccountClient(RestClient):
         good_til_block_before_or_at: Optional[int] = None,
         good_til_block_time_before_or_at: Optional[str] = None,
         return_latest_orders: Optional[bool] = None,
-    ):
+    ) -> Any:
         """
         Query for orders filtered by order params of a parent subaccount.
 
@@ -549,11 +549,11 @@ class AccountClient(RestClient):
         address: str,
         subaccount_number: int,
         limit: Optional[int] = None,
-        created_before_or_at_height: Optional[int] = None,
-        created_before_or_at: Optional[str] = None,
         market: Optional[str] = None,
         market_type: Optional[TickerType] = None,
-    ):
+        created_before_or_at_height: Optional[int] = None,
+        created_before_or_at: Optional[str] = None,
+    ) -> Any:
         """
         Query for fills (i.e. filled orders data).
 
@@ -561,8 +561,8 @@ class AccountClient(RestClient):
             address (str): The account address.
             subaccount_number (int): The subaccount number
             limit (Optional[int]): The maximum number of fills to retrieve.
-            ticker (Optional[str]): The ticker filter.
-            market_type (TickerType): The market type filter.
+            market (Optional[str]): The ticker filter.
+            market_type (Optional[TickerType]): The market type filter.
             created_before_or_at_height (Optional[int]): The block height filter for fills created before or at.
             created_before_or_at (Optional[str]): The timestamp filter for fills created before or at.
 
