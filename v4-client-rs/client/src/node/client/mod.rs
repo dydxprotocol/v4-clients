@@ -36,6 +36,11 @@ use dydx_proto::{
     },
     dydxprotocol::{
         accountplus::query_client::QueryClient as AccountPlusClient,
+        affiliates::{
+            query_client::QueryClient as AffiliatesClient, AffiliateInfoRequest,
+            AffiliateInfoResponse, AffiliateTiers, AffiliateWhitelist, AffiliateWhitelistRequest,
+            AllAffiliateTiersRequest, ReferredByRequest,
+        },
         bridge::query_client::QueryClient as BridgeClient,
         clob::{
             query_client::QueryClient as ClobClient, MsgBatchCancel, MsgCancelOrder, MsgPlaceOrder,
@@ -90,6 +95,8 @@ pub type TxHash = String;
 pub struct Routes {
     /// Smart account features, includes authenticators.
     pub accountplus: AccountPlusClient<Timeout<Channel>>,
+    // Affiliates
+    pub affiliates: AffiliatesClient<Timeout<Channel>>,
     /// Authentication of accounts and transactions for Cosmos SDK applications.
     pub auth: AuthClient<Timeout<Channel>>,
     /// Token transfer functionalities.
@@ -125,6 +132,7 @@ impl Routes {
     pub fn new(channel: Timeout<Channel>) -> Self {
         Self {
             accountplus: AccountPlusClient::new(channel.clone()),
+            affiliates: AffiliatesClient::new(channel.clone()),
             auth: AuthClient::new(channel.clone()),
             bank: BankClient::new(channel.clone()),
             base: BaseClient::new(channel.clone()),
@@ -728,5 +736,71 @@ impl NodeClient {
             Err(NodeError::Broadcast(err)) if err.get_collateral_reason().is_some() => Ok(None),
             Err(err) => Err(err.into()),
         }
+    }
+
+    /// Query the affiliate info for the given address.
+    ///
+    /// Check [the example](https://github.com/dydxprotocol/v4-clients/blob/main/v4-client-rs/client/examples/validator_get.rs).
+    pub async fn get_affiliate_info(
+        &mut self,
+        address: &Address,
+    ) -> Result<AffiliateInfoResponse, Error> {
+        let request = AffiliateInfoRequest {
+            address: address.to_string(),
+        };
+
+        let response = self.affiliates.affiliate_info(request).await?;
+
+        Ok(response.into_inner())
+    }
+
+    /// Query the affiliate that referred the given address.
+    ///
+    /// Check [the example](https://github.com/dydxprotocol/v4-clients/blob/main/v4-client-rs/client/examples/validator_get.rs).
+    pub async fn get_referred_by(&mut self, address: Address) -> Result<Address, Error> {
+        let req = ReferredByRequest {
+            address: address.into(),
+        };
+        let affiliate = self
+            .affiliates
+            .referred_by(req)
+            .await?
+            .into_inner()
+            .affiliate_address;
+        Ok(affiliate.into())
+    }
+
+    /// Query for the affiliate tiers.
+    ///
+    /// Check [the example](https://github.com/dydxprotocol/v4-clients/blob/main/v4-client-rs/client/examples/validator_get.rs).
+    pub async fn get_all_affiliate_tiers(&mut self) -> Result<AffiliateTiers, Error> {
+        let req = AllAffiliateTiersRequest {};
+        let tiers = self
+            .affiliates
+            .all_affiliate_tiers(req)
+            .await?
+            .into_inner()
+            .tiers
+            .ok_or_else(|| {
+                err!("AllAffiliateTiers query response does not contain affiliate list")
+            })?;
+        Ok(tiers)
+    }
+
+    /// Query for the whitelisted affiliates.
+    /// If an address is in the whitelist, then the affiliate fee share in
+    /// this object will override fee share from the regular affiliate tiers.
+    ///
+    /// Check [the example](https://github.com/dydxprotocol/v4-clients/blob/main/v4-client-rs/client/examples/validator_get.rs).
+    pub async fn get_affiliate_whitelist(&mut self) -> Result<AffiliateWhitelist, Error> {
+        let req = AffiliateWhitelistRequest {};
+        let whitelist = self
+            .affiliates
+            .affiliate_whitelist(req)
+            .await?
+            .into_inner()
+            .whitelist
+            .ok_or_else(|| err!("AffiliateWhiteList query response does not contain whitelist"))?;
+        Ok(whitelist)
     }
 }
