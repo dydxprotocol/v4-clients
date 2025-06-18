@@ -39,6 +39,7 @@ where
 }
 
 /// Token.
+#[derive(Debug, Clone)]
 pub enum Token {
     /// USDC.
     Usdc(Usdc),

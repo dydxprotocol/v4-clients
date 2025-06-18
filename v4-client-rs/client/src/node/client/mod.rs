@@ -1,9 +1,11 @@
 mod authenticators;
 pub mod error;
+mod governance;
 mod megavault;
 mod methods;
 
 pub use self::authenticators::Authenticator;
+pub use self::governance::Governance;
 use self::{authenticators::Authenticators, megavault::MegaVault};
 use super::{
     builder::TxBuilder, config::NodeConfig, order::*, sequencer::*, utils::*, wallet::Account,
@@ -11,6 +13,7 @@ use super::{
 pub use crate::indexer::{
     Address, ClientId, Height, OrderFlags, Subaccount, Ticker, Tokenized, Usdc,
 };
+
 use anyhow::{anyhow as err, Error, Result};
 use bigdecimal::{
     num_bigint::{BigInt, Sign},
@@ -28,6 +31,8 @@ use dydx_proto::{
             abci::v1beta1::GasInfo,
             tendermint::v1beta1::service_client::ServiceClient as BaseClient,
         },
+        distribution::v1beta1::query_client::QueryClient as DistributionClient,
+        gov::v1::query_client::QueryClient as GovClient,
         staking::v1beta1::query_client::QueryClient as StakingClient,
         tx::v1beta1::{
             service_client::ServiceClient as TxClient, BroadcastMode, BroadcastTxRequest,
@@ -107,6 +112,8 @@ pub struct Routes {
     pub bridge: BridgeClient<Timeout<Channel>>,
     /// dYdX orderbook
     pub clob: ClobClient<Timeout<Channel>>,
+    /// dYdX distribution
+    pub distribution: DistributionClient<Timeout<Channel>>,
     /// dYdX fees
     pub feetiers: FeeTiersClient<Timeout<Channel>>,
     /// dYdX perpetuals
@@ -115,6 +122,8 @@ pub struct Routes {
     pub prices: PricesClient<Timeout<Channel>>,
     /// dYdX rewards
     pub rewards: RewardsClient<Timeout<Channel>>,
+    /// dYdX governance
+    pub governance: GovClient<Timeout<Channel>>,
     /// Proof-of-Stake layer for public blockchains.
     pub staking: StakingClient<Timeout<Channel>>,
     /// dYdX stats
@@ -138,10 +147,12 @@ impl Routes {
             base: BaseClient::new(channel.clone()),
             bridge: BridgeClient::new(channel.clone()),
             clob: ClobClient::new(channel.clone()),
+            distribution: DistributionClient::new(channel.clone()),
             feetiers: FeeTiersClient::new(channel.clone()),
             perpetuals: PerpetualsClient::new(channel.clone()),
             prices: PricesClient::new(channel.clone()),
             rewards: RewardsClient::new(channel.clone()),
+            governance: GovClient::new(channel.clone()),
             staking: StakingClient::new(channel.clone()),
             stats: StatsClient::new(channel.clone()),
             subaccounts: SubaccountsClient::new(channel.clone()),
@@ -545,6 +556,11 @@ impl NodeClient {
     /// Access the vaults requests dispatcher
     pub fn megavault(&mut self) -> MegaVault {
         MegaVault::new(self)
+    }
+
+    /// Access the governance requests dispatcher
+    pub fn governance(&mut self) -> Governance {
+        Governance::new(self)
     }
 
     /// Access the authenticators/permissioned keys requests dispatcher.
