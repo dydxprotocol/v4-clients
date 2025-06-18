@@ -51,9 +51,9 @@ class AccountClient(RestClient):
         return await self.get(uri)
 
     async def get_parent_subaccount(
-            self,
-            address: str,
-            subaccount_number: int,
+        self,
+        address: str,
+        subaccount_number: int,
     ) -> Any:
         """
         Query for the parent subaccount, its child subaccounts, equity, collateral and margin.
@@ -105,13 +105,13 @@ class AccountClient(RestClient):
         )
 
     async def get_parent_subaccount_positions(
-            self,
-            address: str,
-            subaccount_number: int,
-            status: Optional[PositionStatus] = None,
-            limit: Optional[int] = None,
-            created_before_or_at_height: Optional[int] = None,
-            created_before_or_at: Optional[str] = None,
+        self,
+        address: str,
+        subaccount_number: int,
+        status: Optional[PositionStatus] = None,
+        limit: Optional[int] = None,
+        created_before_or_at_height: Optional[int] = None,
+        created_before_or_at: Optional[str] = None,
     ):
         """
         List all positions of a parent subaccount.
@@ -175,7 +175,6 @@ class AccountClient(RestClient):
                 "createdBeforeOrAt": created_before_or_at,
             },
         )
-
 
     async def get_parent_subaccount_asset_positions(
         self,
@@ -434,7 +433,7 @@ class AccountClient(RestClient):
         recipient_address: str,
         recipient_subaccount_number: int,
         created_before_or_at_height: Optional[int] = None,
-        created_before_or_at: Optional[str] = None
+        created_before_or_at: Optional[str] = None,
     ):
         """
         Query and retrieve transfer information between two subaccounts
@@ -460,8 +459,8 @@ class AccountClient(RestClient):
                 "recipientAddress": recipient_address,
                 "recipientSubaccountNumber": recipient_subaccount_number,
                 "createdBeforeOrAtHeight": created_before_or_at_height,
-                "createdBeforeOrAt": created_before_or_at
-            }
+                "createdBeforeOrAt": created_before_or_at,
+            },
         )
 
     async def get_parent_transfers(
@@ -470,7 +469,7 @@ class AccountClient(RestClient):
         subaccount_number: int,
         limit: Optional[int] = None,
         created_before_or_at_height: Optional[int] = None,
-        created_before_or_at: Optional[str] = None
+        created_before_or_at: Optional[str] = None,
     ):
         """
         Query for transfers between subaccounts associated with a parent subaccount.
@@ -493,8 +492,8 @@ class AccountClient(RestClient):
                 "parentSubaccountNumber": subaccount_number,
                 "limit": limit,
                 "createdBeforeOrAtHeight": created_before_or_at_height,
-                "createdBeforeOrAt": created_before_or_at
-            }
+                "createdBeforeOrAt": created_before_or_at,
+            },
         )
 
     async def list_parent_orders(
@@ -508,7 +507,7 @@ class AccountClient(RestClient):
         order_type: Optional[OrderType] = None,
         good_til_block_before_or_at: Optional[int] = None,
         good_til_block_time_before_or_at: Optional[str] = None,
-        return_latest_orders: Optional[bool] = None
+        return_latest_orders: Optional[bool] = None,
     ):
         """
         Query for orders filtered by order params of a parent subaccount.
@@ -528,7 +527,7 @@ class AccountClient(RestClient):
         Returns:
             Any: The aggregated list of parent orders.
         """
-        uri=f"/v4/orders/parentSubaccountNumber"
+        uri = f"/v4/orders/parentSubaccountNumber"
         return await self.get(
             uri,
             params={
@@ -541,8 +540,8 @@ class AccountClient(RestClient):
                 "type": order_type,
                 "goodTilBlockBeforeOrAt": good_til_block_before_or_at,
                 "goodTilBlockTimeBeforeOrAt": good_til_block_time_before_or_at,
-                "returnLatestOrders": return_latest_orders
-            }
+                "returnLatestOrders": return_latest_orders,
+            },
         )
 
     async def get_parent_fills(
@@ -619,6 +618,6 @@ class AccountClient(RestClient):
                 "createdBeforeOrAtHeight": created_before_or_at_height,
                 "createdBeforeOrAt": created_before_or_at,
                 "createdOnOrAfterHeight": created_on_or_after_height,
-                "createdOnOrAfter": created_on_or_after
+                "createdOnOrAfter": created_on_or_after,
             },
         )
