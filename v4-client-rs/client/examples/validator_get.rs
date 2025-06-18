@@ -116,6 +116,9 @@ async fn main() -> Result<()> {
     let reward_params = getter.client.get_rewards_params().await?;
     tracing::info!("Get reward params: {reward_params:?}");
 
+    let capacity_by_denom = getter.client.capacity_by_denom("adv4tnt".parse()?).await?;
+    tracing::info!("Get capacity by denom: {capacity_by_denom:?}");
+
     let affiliate_info = getter.client.get_affiliate_info(&address).await?;
     tracing::info!("Get affiliate info: {affiliate_info:?}");
 

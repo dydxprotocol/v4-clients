@@ -55,6 +55,7 @@ use dydx_proto::{
         listing::MsgCreateMarketPermissionless,
         perpetuals::query_client::QueryClient as PerpetualsClient,
         prices::query_client::QueryClient as PricesClient,
+        ratelimit::query_client::QueryClient as RatelimitClient,
         rewards::query_client::QueryClient as RewardsClient,
         sending::{MsgCreateTransfer, MsgDepositToSubaccount, MsgWithdrawFromSubaccount, Transfer},
         stats::query_client::QueryClient as StatsClient,
@@ -120,6 +121,8 @@ pub struct Routes {
     pub perpetuals: PerpetualsClient<Timeout<Channel>>,
     /// dYdX prices
     pub prices: PricesClient<Timeout<Channel>>,
+    /// dYdX ratelimit
+    pub ratelimit: RatelimitClient<Timeout<Channel>>,
     /// dYdX rewards
     pub rewards: RewardsClient<Timeout<Channel>>,
     /// dYdX governance
@@ -151,6 +154,7 @@ impl Routes {
             feetiers: FeeTiersClient::new(channel.clone()),
             perpetuals: PerpetualsClient::new(channel.clone()),
             prices: PricesClient::new(channel.clone()),
+            ratelimit: RatelimitClient::new(channel.clone()),
             rewards: RewardsClient::new(channel.clone()),
             governance: GovClient::new(channel.clone()),
             staking: StakingClient::new(channel.clone()),
