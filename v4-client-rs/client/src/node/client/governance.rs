@@ -6,9 +6,14 @@ use dydx_proto::{
     },
     dydxprotocol::affiliates::MsgRegisterAffiliate,
 };
-use ibc_proto::cosmos::{distribution::v1beta1::{QueryDelegationTotalRewardsRequest, QueryDelegationTotalRewardsResponse}, gov::v1::{Proposal, QueryProposalsRequest}};
-use ibc_proto::cosmos::gov::v1::ProposalStatus;
 use ibc_proto::cosmos::base::query::v1beta1::PageRequest;
+use ibc_proto::cosmos::gov::v1::ProposalStatus;
+use ibc_proto::cosmos::{
+    distribution::v1beta1::{
+        QueryDelegationTotalRewardsRequest, QueryDelegationTotalRewardsResponse,
+    },
+    gov::v1::{Proposal, QueryProposalsRequest},
+};
 
 /// [`NodeClient`] Governance requests dispatcher.
 pub struct Governance<'a> {
@@ -117,7 +122,13 @@ impl<'a> Governance<'a> {
             pagination,
         };
 
-        let proposals = self.client.governance.proposals(req).await?.into_inner().proposals;
+        let proposals = self
+            .client
+            .governance
+            .proposals(req)
+            .await?
+            .into_inner()
+            .proposals;
 
         Ok(proposals)
     }

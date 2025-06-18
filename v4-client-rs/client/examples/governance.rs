@@ -49,7 +49,11 @@ impl GovernanceExample {
             let validator = validators.first().unwrap();
             tracing::info!(
                 "First validator: {} ({})",
-                validator.description.as_ref().map(|d| &d.moniker).unwrap_or(&"Unknown".to_string()),
+                validator
+                    .description
+                    .as_ref()
+                    .map(|d| &d.moniker)
+                    .unwrap_or(&"Unknown".to_string()),
                 validator.operator_address
             );
 
@@ -65,12 +69,17 @@ impl GovernanceExample {
                 .node
                 .get_delegator_unbonding_delegations(address.clone(), None)
                 .await?;
-            tracing::info!("Current unbonding delegations: {}", unbonding_delegations.len());
+            tracing::info!(
+                "Current unbonding delegations: {}",
+                unbonding_delegations.len()
+            );
         }
 
         // Example 3: Delegate and undelegate (small amount for demo)
         if !validators.is_empty() {
-            let validator_with_least_undelegations = self.find_validator_with_least_undelegations(&validators, &address).await?;
+            let validator_with_least_undelegations = self
+                .find_validator_with_least_undelegations(&validators, &address)
+                .await?;
 
             if let Some(validator_address) = validator_with_least_undelegations {
                 tracing::info!("=== Delegation example ===");
@@ -95,7 +104,9 @@ impl GovernanceExample {
                         tracing::info!("Delegation submitted - tx hash: {}", tx_hash);
                         match self.node.query_transaction_result(tx_res).await {
                             Ok(_) => tracing::info!("Delegation confirmed"),
-                            Err(e) => tracing::warn!("Delegation failed during confirmation: {}", e),
+                            Err(e) => {
+                                tracing::warn!("Delegation failed during confirmation: {}", e)
+                            }
                         }
                     }
                     Err(e) => tracing::warn!("Delegation failed: {}", e),
@@ -119,7 +130,9 @@ impl GovernanceExample {
                         tracing::info!("Undelegation submitted - tx hash: {}", tx_hash);
                         match self.node.query_transaction_result(tx_res).await {
                             Ok(_) => tracing::info!("Undelegation confirmed"),
-                            Err(e) => tracing::warn!("Undelegation failed during confirmation: {}", e),
+                            Err(e) => {
+                                tracing::warn!("Undelegation failed during confirmation: {}", e)
+                            }
                         }
                     }
                     Err(e) => tracing::warn!("Undelegation failed: {}", e),
@@ -144,7 +157,9 @@ impl GovernanceExample {
                     tracing::info!("Reward withdrawal submitted - tx hash: {}", tx_hash);
                     match self.node.query_transaction_result(tx_res).await {
                         Ok(_) => tracing::info!("Reward withdrawal confirmed"),
-                        Err(e) => tracing::warn!("Reward withdrawal failed during confirmation: {}", e),
+                        Err(e) => {
+                            tracing::warn!("Reward withdrawal failed during confirmation: {}", e)
+                        }
                     }
                 }
                 Err(e) => tracing::warn!("Reward withdrawal failed: {}", e),
@@ -168,7 +183,9 @@ impl GovernanceExample {
                 tracing::info!("Affiliate registration submitted - tx hash: {}", tx_hash);
                 match self.node.query_transaction_result(tx_res).await {
                     Ok(_) => tracing::info!("Affiliate registration confirmed"),
-                    Err(e) => tracing::warn!("Affiliate registration failed during confirmation: {}", e),
+                    Err(e) => {
+                        tracing::warn!("Affiliate registration failed during confirmation: {}", e)
+                    }
                 }
             }
             Err(e) => {

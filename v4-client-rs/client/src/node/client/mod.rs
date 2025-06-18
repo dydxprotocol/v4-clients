@@ -31,13 +31,13 @@ use dydx_proto::{
             abci::v1beta1::GasInfo,
             tendermint::v1beta1::service_client::ServiceClient as BaseClient,
         },
+        distribution::v1beta1::query_client::QueryClient as DistributionClient,
         gov::v1::query_client::QueryClient as GovClient,
         staking::v1beta1::query_client::QueryClient as StakingClient,
         tx::v1beta1::{
             service_client::ServiceClient as TxClient, BroadcastMode, BroadcastTxRequest,
             GetTxRequest, SimulateRequest,
         },
-        distribution::v1beta1::query_client::QueryClient as DistributionClient,
     },
     dydxprotocol::{
         accountplus::query_client::QueryClient as AccountPlusClient,
