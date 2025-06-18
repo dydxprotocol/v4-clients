@@ -38,5 +38,8 @@ async fn main() -> Result<()> {
     let screen = indexer.utility().get_screen(address).await?;
     tracing::info!("Screen for address {address}: {screen:?}");
 
+    let compliance_screen = indexer.utility().get_compliance_screen(address).await?;
+    tracing::info!("Compliance screen for address {address}: {compliance_screen:?}");
+
     Ok(())
 }

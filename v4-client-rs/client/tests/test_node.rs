@@ -387,3 +387,49 @@ async fn test_node_capacity_by_denom() -> Result<(), Error> {
 
     Ok(())
 }
+
+#[serial]
+async fn test_affiliates_get_affiliate_info() -> Result<(), Error> {
+    let env = TestEnv::testnet().await?;
+    let mut node = env.node;
+    let account = env.account;
+
+    let subaccount = account.subaccount(0)?;
+
+    let _affiliate_info = node.get_affiliate_info(&subaccount.address).await?;
+
+    Ok(())
+}
+
+#[tokio::test]
+#[serial]
+async fn test_affiliates_get_affiliate_tiers() -> Result<(), Error> {
+    let env = TestEnv::testnet().await?;
+    let mut node = env.node;
+
+    let _affiliate_tiers = node.get_all_affiliate_tiers().await?;
+
+    Ok(())
+}
+
+#[tokio::test]
+#[serial]
+async fn test_affiliates_get_affiliate_whitelist() -> Result<(), Error> {
+    let env = TestEnv::testnet().await?;
+    let mut node = env.node;
+
+    let _affiliate_whitelist = node.get_affiliate_whitelist().await?;
+
+    Ok(())
+}
+
+#[tokio::test]
+#[serial]
+async fn test_affiliates_get_referred_by() -> Result<(), Error> {
+    let env = TestEnv::testnet().await?;
+    let mut node = env.node;
+
+    let _referred_by = node.get_referred_by(env.account.address().clone()).await?;
+
+    Ok(())
+}
