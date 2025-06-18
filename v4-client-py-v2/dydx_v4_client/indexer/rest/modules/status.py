@@ -36,3 +36,16 @@ class StatusClient(RestClient):
         """
         uri = "/v4/screen"
         return await self.get(uri, params={"address": address})
+
+    async def compliance_screen(self, address: str) -> Dict[str, bool]:
+        """
+        Screen an address to see if it is restricted.
+
+        Args:
+            address (str): The EVM or dYdX address to screen.
+
+        Returns:
+            Dict[str, bool]: A dictionary indicating whether the specified address is restricted.
+        """
+        uri = f"/v4/compliance/screen/{address}"
+        return await self.get(uri)
