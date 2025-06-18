@@ -112,7 +112,7 @@ class AccountClient(RestClient):
         limit: Optional[int] = None,
         created_before_or_at_height: Optional[int] = None,
         created_before_or_at: Optional[str] = None,
-    ):
+    ) -> Any:
         """
         List all positions of a parent subaccount.
 
