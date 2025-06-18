@@ -117,6 +117,52 @@ pub struct ComplianceResponse {
     pub reason: Option<String>,
 }
 
+/// Compliance status.
+#[derive(Deserialize, Debug, Clone)]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
+pub enum ComplianceStatus {
+    /// Compliant.
+    Compliant,
+    /// First strike close only.
+    FirstStrikeCloseOnly,
+    /// First strike.
+    FirstStrike,
+    /// Close only.
+    CloseOnly,
+    /// Blocked.
+    Blocked,
+}
+
+/// Compliance reason.
+#[derive(Deserialize, Debug, Clone)]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
+pub enum ComplianceReason {
+    /// Manual.
+    Manual,
+    /// US geo.
+    UsGeo,
+    /// CA geo.
+    CaGeo,
+    /// GB geo.
+    GbGeo,
+    /// Sanctioned geo.
+    SanctionedGeo,
+    /// Compliance provider.
+    ComplianceProvider,
+}
+
+/// Compliance response v2.
+#[derive(Deserialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct ComplianceV2Response {
+    /// Status.
+    pub status: ComplianceStatus,
+    /// Reason.
+    pub reason: Option<ComplianceReason>,
+    /// Updated at.
+    pub updated_at: Option<DateTime<Utc>>,
+}
+
 /// Address response.
 #[derive(Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
