@@ -1,9 +1,11 @@
 mod authenticators;
 pub mod error;
+mod governance;
 mod megavault;
 mod methods;
 
 pub use self::authenticators::Authenticator;
+pub use self::governance::Governance;
 use self::{authenticators::Authenticators, megavault::MegaVault};
 use super::{
     builder::TxBuilder, config::NodeConfig, order::*, sequencer::*, utils::*, wallet::Account,
@@ -11,6 +13,7 @@ use super::{
 pub use crate::indexer::{
     Address, ClientId, Height, OrderFlags, Subaccount, Ticker, Tokenized, Usdc,
 };
+
 use anyhow::{anyhow as err, Error, Result};
 use bigdecimal::{
     num_bigint::{BigInt, Sign},
@@ -21,24 +24,29 @@ use chrono::{TimeDelta, Utc};
 use cosmrs::tx::{self, Tx};
 use derive_more::{Deref, DerefMut};
 use dydx_proto::{
-    cosmos_sdk_proto::{
-        cosmos::{
-            auth::v1beta1::query_client::QueryClient as AuthClient,
-            bank::v1beta1::{query_client::QueryClient as BankClient, MsgSend},
-            base::{
-                abci::v1beta1::GasInfo,
-                tendermint::v1beta1::service_client::ServiceClient as BaseClient,
-            },
-            staking::v1beta1::query_client::QueryClient as StakingClient,
-            tx::v1beta1::{
-                service_client::ServiceClient as TxClient, BroadcastMode, BroadcastTxRequest,
-                GetTxRequest, SimulateRequest,
-            },
+    cosmos_sdk_proto::cosmos::{
+        auth::v1beta1::query_client::QueryClient as AuthClient,
+        bank::v1beta1::{query_client::QueryClient as BankClient, MsgSend},
+        base::{
+            abci::v1beta1::GasInfo,
+            tendermint::v1beta1::service_client::ServiceClient as BaseClient,
         },
-        traits::Message,
+        distribution::v1beta1::query_client::QueryClient as DistributionClient,
+        gov::v1::query_client::QueryClient as GovClient,
+        staking::v1beta1::query_client::QueryClient as StakingClient,
+        tx::v1beta1::{
+            service_client::ServiceClient as TxClient, BroadcastMode, BroadcastTxRequest,
+            GetTxRequest, SimulateRequest,
+        },
     },
+    cosmos_sdk_proto::traits::Message,
     dydxprotocol::{
         accountplus::query_client::QueryClient as AccountPlusClient,
+        affiliates::{
+            query_client::QueryClient as AffiliatesClient, AffiliateInfoRequest,
+            AffiliateInfoResponse, AffiliateTiers, AffiliateWhitelist, AffiliateWhitelistRequest,
+            AllAffiliateTiersRequest, ReferredByRequest,
+        },
         bridge::query_client::QueryClient as BridgeClient,
         clob::{
             query_client::QueryClient as ClobClient, MsgBatchCancel, MsgCancelOrder, MsgPlaceOrder,
@@ -48,6 +56,7 @@ use dydx_proto::{
         listing::MsgCreateMarketPermissionless,
         perpetuals::query_client::QueryClient as PerpetualsClient,
         prices::query_client::QueryClient as PricesClient,
+        ratelimit::query_client::QueryClient as RatelimitClient,
         rewards::query_client::QueryClient as RewardsClient,
         sending::{MsgCreateTransfer, MsgDepositToSubaccount, MsgWithdrawFromSubaccount, Transfer},
         stats::query_client::QueryClient as StatsClient,
@@ -96,6 +105,8 @@ pub type TxHash = String;
 pub struct Routes {
     /// Smart account features, includes authenticators.
     pub accountplus: AccountPlusClient<Timeout<Channel>>,
+    // Affiliates
+    pub affiliates: AffiliatesClient<Timeout<Channel>>,
     /// Authentication of accounts and transactions for Cosmos SDK applications.
     pub auth: AuthClient<Timeout<Channel>>,
     /// Token transfer functionalities.
@@ -106,14 +117,20 @@ pub struct Routes {
     pub bridge: BridgeClient<Timeout<Channel>>,
     /// dYdX orderbook
     pub clob: ClobClient<Timeout<Channel>>,
+    /// dYdX distribution
+    pub distribution: DistributionClient<Timeout<Channel>>,
     /// dYdX fees
     pub feetiers: FeeTiersClient<Timeout<Channel>>,
     /// dYdX perpetuals
     pub perpetuals: PerpetualsClient<Timeout<Channel>>,
     /// dYdX prices
     pub prices: PricesClient<Timeout<Channel>>,
+    /// dYdX ratelimit
+    pub ratelimit: RatelimitClient<Timeout<Channel>>,
     /// dYdX rewards
     pub rewards: RewardsClient<Timeout<Channel>>,
+    /// dYdX governance
+    pub governance: GovClient<Timeout<Channel>>,
     /// Proof-of-Stake layer for public blockchains.
     pub staking: StakingClient<Timeout<Channel>>,
     /// dYdX stats
@@ -133,15 +150,19 @@ impl Routes {
     pub fn new(channel: Timeout<Channel>) -> Self {
         Self {
             accountplus: AccountPlusClient::new(channel.clone()),
+            affiliates: AffiliatesClient::new(channel.clone()),
             auth: AuthClient::new(channel.clone()),
             bank: BankClient::new(channel.clone()),
             base: BaseClient::new(channel.clone()),
             bridge: BridgeClient::new(channel.clone()),
             clob: ClobClient::new(channel.clone()),
+            distribution: DistributionClient::new(channel.clone()),
             feetiers: FeeTiersClient::new(channel.clone()),
             perpetuals: PerpetualsClient::new(channel.clone()),
             prices: PricesClient::new(channel.clone()),
+            ratelimit: RatelimitClient::new(channel.clone()),
             rewards: RewardsClient::new(channel.clone()),
+            governance: GovClient::new(channel.clone()),
             staking: StakingClient::new(channel.clone()),
             stats: StatsClient::new(channel.clone()),
             subaccounts: SubaccountsClient::new(channel.clone()),
@@ -548,6 +569,11 @@ impl NodeClient {
         MegaVault::new(self)
     }
 
+    /// Access the governance requests dispatcher
+    pub fn governance(&mut self) -> Governance {
+        Governance::new(self)
+    }
+
     /// Access the authenticators/permissioned keys requests dispatcher.
     ///
     /// See the [example](https://github.com/dydxprotocol/v4-clients/blob/main/v4-client-rs/client/examples/authenticator.rs).
@@ -761,5 +787,71 @@ impl NodeClient {
             Err(NodeError::Broadcast(err)) if err.get_collateral_reason().is_some() => Ok(None),
             Err(err) => Err(err.into()),
         }
+    }
+
+    /// Query the affiliate info for the given address.
+    ///
+    /// Check [the example](https://github.com/dydxprotocol/v4-clients/blob/main/v4-client-rs/client/examples/validator_get.rs).
+    pub async fn get_affiliate_info(
+        &mut self,
+        address: &Address,
+    ) -> Result<AffiliateInfoResponse, Error> {
+        let request = AffiliateInfoRequest {
+            address: address.to_string(),
+        };
+
+        let response = self.affiliates.affiliate_info(request).await?;
+
+        Ok(response.into_inner())
+    }
+
+    /// Query the affiliate that referred the given address.
+    ///
+    /// Check [the example](https://github.com/dydxprotocol/v4-clients/blob/main/v4-client-rs/client/examples/validator_get.rs).
+    pub async fn get_referred_by(&mut self, address: Address) -> Result<Address, Error> {
+        let req = ReferredByRequest {
+            address: address.into(),
+        };
+        let affiliate = self
+            .affiliates
+            .referred_by(req)
+            .await?
+            .into_inner()
+            .affiliate_address;
+        Ok(affiliate.into())
+    }
+
+    /// Query for the affiliate tiers.
+    ///
+    /// Check [the example](https://github.com/dydxprotocol/v4-clients/blob/main/v4-client-rs/client/examples/validator_get.rs).
+    pub async fn get_all_affiliate_tiers(&mut self) -> Result<AffiliateTiers, Error> {
+        let req = AllAffiliateTiersRequest {};
+        let tiers = self
+            .affiliates
+            .all_affiliate_tiers(req)
+            .await?
+            .into_inner()
+            .tiers
+            .ok_or_else(|| {
+                err!("AllAffiliateTiers query response does not contain affiliate list")
+            })?;
+        Ok(tiers)
+    }
+
+    /// Query for the whitelisted affiliates.
+    /// If an address is in the whitelist, then the affiliate fee share in
+    /// this object will override fee share from the regular affiliate tiers.
+    ///
+    /// Check [the example](https://github.com/dydxprotocol/v4-clients/blob/main/v4-client-rs/client/examples/validator_get.rs).
+    pub async fn get_affiliate_whitelist(&mut self) -> Result<AffiliateWhitelist, Error> {
+        let req = AffiliateWhitelistRequest {};
+        let whitelist = self
+            .affiliates
+            .affiliate_whitelist(req)
+            .await?
+            .into_inner()
+            .whitelist
+            .ok_or_else(|| err!("AffiliateWhiteList query response does not contain whitelist"))?;
+        Ok(whitelist)
     }
 }
