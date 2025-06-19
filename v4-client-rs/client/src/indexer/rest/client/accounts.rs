@@ -517,4 +517,36 @@ impl<'a> Accounts<'a> {
             .rewards;
         Ok(aggregated)
     }
+
+    /// Query for transfers between subaccounts.
+    ///
+    /// [Reference](https://docs.dydx.xyz/indexer-client/http#get-transfers-between)
+    pub async fn get_transfers_between(
+        &self,
+        source_subaccount: &Subaccount,
+        recipient_subaccount: &Subaccount,
+        opts: Option<GetTransfersBetweenOpts>,
+    ) -> Result<TransferBetweenResponse, Error> {
+        let rest = &self.rest;
+        const URI: &str = "/v4/transfers/between";
+        let url = format!("{}{URI}", rest.config.endpoint);
+        let query = GetTransfersBetweenQuery  {
+            source_address: &source_subaccount.address,
+            source_subaccount_number: &source_subaccount.number,
+            recipient_address: &recipient_subaccount.address,
+            recipient_subaccount_number: &recipient_subaccount.number,
+        };
+        let transfers = rest
+            .client
+            .get(url)
+            .query(&query)
+            .query(&opts)
+            .send()
+            .await?
+            .error_for_status()?
+            .json::<TransferBetweenResponse>()
+            .await?;
+
+        Ok(transfers)
+    }
 }

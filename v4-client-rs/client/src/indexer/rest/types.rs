@@ -159,12 +159,41 @@ pub struct PerpetualPositionResponse {
     pub positions: Vec<PerpetualPositionResponseObject>,
 }
 
+/// Pagination response.
+#[derive(Deserialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct PaginationResponse {
+    /// Page size.
+    pub page_size: Option<u32>,
+    /// Total results.
+    pub total_results: Option<u32>,
+    /// Offset.
+    pub offset: Option<u32>,
+}
+
 /// Transfers response.
 #[derive(Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct TransferResponse {
     /// List of transfers.
     pub transfers: Vec<TransferResponseObject>,
+    /// Pagination.
+    #[serde(flatten)]
+    pub pagination: PaginationResponse,
+}
+
+
+/// Transfer between response.
+#[derive(Deserialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct TransferBetweenResponse {
+    /// List of transfers.
+    pub transfers_subset: Vec<TransferResponseObject>,
+    /// Total net transfers.
+    pub total_net_transfers: BigDecimal,
+    /// Pagination.
+    #[serde(flatten)]
+    pub pagination: PaginationResponse,
 }
 
 /// Transfer response.
