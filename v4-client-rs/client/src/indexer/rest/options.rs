@@ -70,6 +70,22 @@ pub struct ListPositionsOpts {
 pub struct GetTransfersOpts {
     /// Limit.
     pub limit: Option<u32>,
+    /// Page.
+    pub page: Option<u32>,
+    /// Block height.
+    pub created_before_or_at_height: Option<Height>,
+    /// Time.
+    pub created_before_or_at: Option<DateTime<Utc>>,
+}
+
+/// Filter options for transfers between subaccounts.
+#[derive(Serialize, Default)]
+#[serde(rename_all = "camelCase")]
+pub struct GetTransfersBetweenOpts {
+    /// Limit.
+    pub limit: Option<u32>,
+    /// Page.
+    pub page: Option<u32>,
     /// Block height.
     pub created_before_or_at_height: Option<Height>,
     /// Time.

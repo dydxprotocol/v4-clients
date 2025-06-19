@@ -14,6 +14,8 @@ use dydx::{
 
 const TEST_MNEMONIC: &str = "mirror actor skill push coach wait confirm orchard lunch mobile athlete gossip awake miracle matter bus reopen team ladder lazy list timber render wait";
 
+const TEST_MNEMONIC_2: &str = "movie yard still copper exile wear brisk chest ride dizzy novel future menu finish radar lunar claim hub middle force turtle mouse frequent embark";
+
 pub enum TestEnv {}
 
 #[allow(dead_code)]
@@ -56,6 +58,11 @@ pub struct TestnetEnv {
     pub address: Address,
     pub subaccount: Subaccount,
     pub ticker: Ticker,
+
+    pub wallet_2: Wallet,
+    pub account_2: Account,
+    pub address_2: Address,
+    pub subaccount_2: Subaccount,
 }
 
 #[allow(dead_code)]
@@ -79,6 +86,12 @@ impl TestnetEnv {
         let ticker = Ticker::from("ETH-USD");
         let address = account.address().clone();
         let subaccount = account.subaccount(0)?;
+
+        let wallet_2 = Wallet::from_mnemonic(TEST_MNEMONIC_2)?;
+        let account_2 = wallet_2.account(0, &mut node).await?;
+        let address_2 = account_2.address().clone();
+        let subaccount_2 = account_2.subaccount(0)?;
+
         Ok(Self {
             node,
             indexer,
@@ -91,6 +104,10 @@ impl TestnetEnv {
             address,
             subaccount,
             ticker,
+            wallet_2,
+            account_2,
+            address_2,
+            subaccount_2,
         })
     }
 

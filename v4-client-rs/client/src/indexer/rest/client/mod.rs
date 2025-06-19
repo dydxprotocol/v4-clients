@@ -27,6 +27,15 @@ struct QueryParent<'t> {
     parent_subaccount_number: &'t ParentSubaccountNumber,
 }
 
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+struct GetTransfersBetweenQuery<'t> {
+    source_address: &'t Address,
+    source_subaccount_number: &'t SubaccountNumber,
+    recipient_address: &'t Address,
+    recipient_subaccount_number: &'t SubaccountNumber,
+}
+
 /// REST client to Indexer.
 #[derive(Debug)]
 pub(crate) struct RestClient {
