@@ -39,6 +39,7 @@ use dydx_proto::{
             GetTxRequest, SimulateRequest,
         },
     },
+    cosmos_sdk_proto::traits::Message,
     dydxprotocol::{
         accountplus::query_client::QueryClient as AccountPlusClient,
         affiliates::{
@@ -72,7 +73,10 @@ use ibc_proto::{
 };
 use std::iter;
 use tokio::time::{sleep, Duration};
+use tokio_tungstenite::tungstenite::http::uri::PathAndQuery;
+use tonic::codec::ProstCodec;
 use tonic::{
+    client::Grpc,
     transport::{Channel, ClientTlsConfig},
     Code,
 };
@@ -135,6 +139,8 @@ pub struct Routes {
     pub subaccounts: SubaccountsClient<Timeout<Channel>>,
     /// Tx utilities for the Cosmos SDK.
     pub tx: TxClient<Timeout<Channel>>,
+    /// Query client
+    pub query: Grpc<Timeout<Channel>>,
     /// Vaults
     pub vault: VaultClient<Timeout<Channel>>,
 }
@@ -161,6 +167,7 @@ impl Routes {
             stats: StatsClient::new(channel.clone()),
             subaccounts: SubaccountsClient::new(channel.clone()),
             tx: TxClient::new(channel.clone()),
+            query: Grpc::new(channel.clone()),
             vault: VaultClient::new(channel),
         }
     }
@@ -706,6 +713,30 @@ impl NodeClient {
                 message: response.raw_log,
             }))
         }
+    }
+
+    /// Generic query method.
+    ///
+    /// Note: specify the return type explicitly, to avoid warnings.
+    ///
+    /// Check [the example](https://github.com/dydxprotocol/v4-clients/blob/main/v4-client-rs/client/examples/validator_get.rs).
+    pub async fn send_query<I, O>(&mut self, msg: I, method: &'static str) -> Result<O, Error>
+    where
+        I: 'static + ToAny,
+        O: Message + Default + 'static,
+    {
+        let path = PathAndQuery::from_static(method);
+        let req = tonic::Request::new(msg);
+
+        self.query
+            .ready()
+            .await
+            .map_err(|e| err!("Service was not ready: {e}"))?;
+
+        let response: tonic::Response<O> =
+            self.query.unary(req, path, ProstCodec::default()).await?;
+
+        Ok(response.into_inner())
     }
 
     /// Query the network for a transaction
