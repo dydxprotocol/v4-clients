@@ -236,4 +236,12 @@ async def test():
         print("Error in get_referred_by:")
         print(f"Error: {e}")
 
+    try:
+        affiliate_tiers = await node_client.get_all_affiliate_tiers()
+        print("Get All Affiliate Tiers:")
+        print(affiliate_tiers)
+    except Exception as e:
+        print("Error in get_all_affiliate_tiers:")
+        print(f"Error: {e}")
+
 asyncio.run(test())

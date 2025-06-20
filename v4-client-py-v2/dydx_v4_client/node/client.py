@@ -533,6 +533,17 @@ class QueryNodeClient:
             affiliate_query.ReferredByRequest(address=address)
         )
 
+    async def get_all_affiliate_tiers(self) -> affiliate_query.AllAffiliateTiersResponse:
+        """
+        Query all affiliate tiers
+
+        Returns:
+            affiliate_query.AllAffiliateTiersResponse: All affiliate tiers
+        """
+        return affiliate_query_grpc.QueryStub(self.channel).AllAffiliateTiers(
+            affiliate_query.AllAffiliateTiersRequest()
+        )
+
 class SequenceManager:
     def __init__(self, query_node_client: QueryNodeClient):
         self.query_node_client = query_node_client
