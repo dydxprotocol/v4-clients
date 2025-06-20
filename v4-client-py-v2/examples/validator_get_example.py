@@ -188,5 +188,13 @@ async def test():
         print("Error in get_rewards_params:")
         print(f"Error: {e}")
 
+    try:
+        node = await node_client.get_node_info()
+        print("Get node info:")
+        print(node)
+    except Exception as e:
+        print("Error in get_node_info")
+        print(f"Error: {e}")
+
 
 asyncio.run(test())

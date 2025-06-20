@@ -443,6 +443,17 @@ class QueryNodeClient:
             accountplus_query.GetAuthenticatorsRequest(account=address)
         )
 
+    async def get_node_info(self) -> tendermint_query.GetNodeInfoResponse:
+        """
+        Query for node info.
+
+        Returns:
+            tendermint_query.GetNodeInfoResponse: The response containing the node information.
+        """
+        return tendermint_query_grpc.ServiceStub(self.channel).GetNodeInfo(
+            tendermint_query.GetNodeInfoRequest()
+        )
+
 
 class SequenceManager:
     def __init__(self, query_node_client: QueryNodeClient):
