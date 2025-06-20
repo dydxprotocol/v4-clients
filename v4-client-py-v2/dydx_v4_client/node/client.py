@@ -16,6 +16,7 @@ from v4_proto.cosmos.base.tendermint.v1beta1 import query_pb2 as tendermint_quer
 from v4_proto.cosmos.base.tendermint.v1beta1 import (
     query_pb2_grpc as tendermint_query_grpc,
 )
+from v4_proto.cosmos.base.query.v1beta1 import pagination_pb2 as pagination_query
 from v4_proto.cosmos.staking.v1beta1 import query_pb2 as staking_query
 from v4_proto.cosmos.staking.v1beta1 import query_pb2_grpc as staking_query_grpc
 from v4_proto.cosmos.distribution.v1beta1 import query_pb2 as distribution_query
@@ -26,6 +27,8 @@ from v4_proto.cosmos.tx.v1beta1.service_pb2 import (
     BroadcastTxRequest,
     SimulateRequest,
 )
+from v4_proto.cosmos.gov.v1 import query_pb2 as gov_query
+from v4_proto.cosmos.gov.v1 import query_pb2_grpc as gov_query_grpc
 from v4_proto.cosmos.tx.v1beta1.tx_pb2 import Tx
 from v4_proto.dydxprotocol.accountplus import query_pb2 as accountplus_query
 from v4_proto.dydxprotocol.accountplus import query_pb2_grpc as accountplus_query_grpc
@@ -472,6 +475,46 @@ class QueryNodeClient:
         """
         return distribution_query_grpc.QueryStub(self.channel).DelegationTotalRewards(
             distribution_query.QueryDelegationTotalRewardsRequest(delegator_address=address)
+        )
+
+    async def get_all_gov_proposals(
+        self,
+        proposal_status: Optional[str] = None,
+        voter: Optional[str] = None,
+        depositor: Optional[str] = None,
+        key: Optional[bytes] = None,
+        offset: Optional[int] = None,
+        limit: Optional[int] = None,
+        count_total: Optional[bool] = False,
+        reverse: Optional[bool] = False,
+
+    ) -> gov_query.QueryProposalsResponse:
+        """
+        Query all gov proposals
+
+        Args:
+            proposal_status (ProposalStatus): Status of the proposal to filter by.
+            voter (str): Voter to filter by.
+            depositor (str): Depositor to filter by.
+            key (byte): Key to filter by.
+            offset (int): Offset number.
+            limit (int): Number of items to retrieve.
+            count_total (bool): Filter to return total count or not
+            reverse (bool): Direction of the list
+        """
+        return gov_query_grpc.QueryStub(self.channel).Proposals(
+            gov_query.QueryProposalsRequest(
+                proposal_status=proposal_status,
+                voter=voter,
+                depositor=depositor,
+                pagination = pagination_query.PageRequest(
+                    key=key,
+                    offset=offset,
+                    limit=limit,
+                    count_total=count_total,
+                    reverse=reverse
+                )
+            )
         )
 
     async def get_withdrawal_and_transfer_gating_status(

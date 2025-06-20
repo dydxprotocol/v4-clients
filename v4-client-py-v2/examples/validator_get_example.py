@@ -205,6 +205,14 @@ async def test():
         print(f"Error: {e}")
 
     try:
+        gov_proposals = await node_client.get_all_gov_proposals()
+        print("Get All Gov Proposals:")
+        print(gov_proposals)
+    except Exception as e:
+        print("Error in get_all_gov_proposals:")
+        print(f"Error: {e}")
+
+    try:
         status = await node_client.get_withdrawal_and_transfer_gating_status(0)
         print("Get Withdrawal And Transfer Gating Status:")
         print(status)
@@ -213,7 +221,7 @@ async def test():
         print(f"Error: {e}")
 
     try:
-        withdraw_capacity = await node_client.get_withdrawal_capacity_by_denom("USDC")
+        withdraw_capacity = await node_client.get_withdrawal_capacity_by_denom("ibc/8E27BA2D5493AF5636760E354E46004562C46AB7EC0CC4C1CA14E9E20E2545B5")
         print("Get Withdrawal Capacity By Denom:")
         print(withdraw_capacity)
     except Exception as e:
