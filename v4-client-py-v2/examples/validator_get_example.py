@@ -193,8 +193,15 @@ async def test():
         print("Get node info:")
         print(node)
     except Exception as e:
-        print("Error in get_node_info")
+        print("Error in get_node_info:")
         print(f"Error: {e}")
 
+    try:
+        delegation_total_rewards = await node_client.get_delegation_total_rewards(TEST_ADDRESS)
+        print("Get Delegation Total Rewards:")
+        print(delegation_total_rewards)
+    except Exception as e:
+        print("Error in get_delegation_total_rewards:")
+        print(f"Error: {e}")
 
 asyncio.run(test())

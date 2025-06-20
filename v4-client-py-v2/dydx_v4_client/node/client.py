@@ -18,6 +18,8 @@ from v4_proto.cosmos.base.tendermint.v1beta1 import (
 )
 from v4_proto.cosmos.staking.v1beta1 import query_pb2 as staking_query
 from v4_proto.cosmos.staking.v1beta1 import query_pb2_grpc as staking_query_grpc
+from v4_proto.cosmos.distribution.v1beta1 import query_pb2 as distribution_query
+from v4_proto.cosmos.distribution.v1beta1 import query_pb2_grpc as distribution_query_grpc
 from v4_proto.cosmos.tx.v1beta1 import service_pb2_grpc
 from v4_proto.cosmos.tx.v1beta1.service_pb2 import (
     BroadcastMode,
@@ -27,7 +29,6 @@ from v4_proto.cosmos.tx.v1beta1.service_pb2 import (
 from v4_proto.cosmos.tx.v1beta1.tx_pb2 import Tx
 from v4_proto.dydxprotocol.accountplus import query_pb2 as accountplus_query
 from v4_proto.dydxprotocol.accountplus import query_pb2_grpc as accountplus_query_grpc
-from v4_proto.dydxprotocol.accountplus import tx_pb2 as accountplus_tx
 from v4_proto.dydxprotocol.bridge import query_pb2 as bridge_query
 from v4_proto.dydxprotocol.bridge import query_pb2_grpc as bridge_query_grpc
 from v4_proto.dydxprotocol.clob import clob_pair_pb2 as clob_pair_type
@@ -452,6 +453,20 @@ class QueryNodeClient:
         """
         return tendermint_query_grpc.ServiceStub(self.channel).GetNodeInfo(
             tendermint_query.GetNodeInfoRequest()
+        )
+
+    async def get_delegation_total_rewards(self, address: str) -> distribution_query.QueryDelegationTotalRewardsResponse:
+        """
+        Get all unbonding delegations from a delegator.
+
+        Args:
+            address (str): The delegator address
+
+        Returns:
+            distribution_query.QueryDelegationTotalRewardsResponse: All unbonding delegations from a delegator.
+        """
+        return distribution_query_grpc.QueryStub(self.channel).DelegationTotalRewards(
+            distribution_query.QueryDelegationTotalRewardsRequest(delegator_address=address)
         )
 
 
