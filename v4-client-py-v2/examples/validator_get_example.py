@@ -220,4 +220,12 @@ async def test():
         print("Error in get_withdrawal_capacity_by_denom:")
         print(f"Error: {e}")
 
+    try:
+        affiliate_info = await node_client.get_affiliate_info(TEST_ADDRESS)
+        print("Get Affiliate Info:")
+        print(affiliate_info)
+    except Exception as e:
+        print("Error in get_affiliate_info:")
+        print(f"Error: {e}")
+
 asyncio.run(test())

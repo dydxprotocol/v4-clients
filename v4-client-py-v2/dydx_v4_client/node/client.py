@@ -74,6 +74,8 @@ from v4_proto.dydxprotocol.subaccounts.subaccount_pb2 import SubaccountId
 from v4_proto.dydxprotocol.clob.tx_pb2 import OrderBatch
 from v4_proto.dydxprotocol.ratelimit import query_pb2 as rate_query
 from v4_proto.dydxprotocol.ratelimit import query_pb2_grpc as rate_query_grpc
+from v4_proto.dydxprotocol.affiliates import query_pb2 as affiliate_query
+from v4_proto.dydxprotocol.affiliates import query_pb2_grpc as affiliate_query_grpc
 
 from dydx_v4_client.network import NodeConfig
 from dydx_v4_client.node.authenticators import Authenticator, validate_authenticator
@@ -501,6 +503,20 @@ class QueryNodeClient:
         """
         return rate_query_grpc.QueryStub(self.channel).CapacityByDenom(
             rate_query.QueryCapacityByDenomRequest(denom=denom)
+        )
+
+    async def get_affiliate_info(self, address: str) ->affiliate_query.AffiliateInfoResponse:
+        """
+        Query affiliate information of an address
+
+        Args:
+            address (str): Address to get affiliate information of
+
+        Returns:
+            affiliate_query.AffiliateInfoResponse: Affiliate information of the address
+        """
+        return affiliate_query_grpc.QueryStub(self.channel).AffiliateInfo(
+            affiliate_query.AffiliateInfoRequest(address=address)
         )
 
 class SequenceManager:
