@@ -20,7 +20,9 @@ from v4_proto.cosmos.base.query.v1beta1 import pagination_pb2 as pagination_quer
 from v4_proto.cosmos.staking.v1beta1 import query_pb2 as staking_query
 from v4_proto.cosmos.staking.v1beta1 import query_pb2_grpc as staking_query_grpc
 from v4_proto.cosmos.distribution.v1beta1 import query_pb2 as distribution_query
-from v4_proto.cosmos.distribution.v1beta1 import query_pb2_grpc as distribution_query_grpc
+from v4_proto.cosmos.distribution.v1beta1 import (
+    query_pb2_grpc as distribution_query_grpc,
+)
 from v4_proto.cosmos.tx.v1beta1 import service_pb2_grpc
 from v4_proto.cosmos.tx.v1beta1.service_pb2 import (
     BroadcastMode,
@@ -463,7 +465,9 @@ class QueryNodeClient:
             tendermint_query.GetNodeInfoRequest()
         )
 
-    async def get_delegation_total_rewards(self, address: str) -> distribution_query.QueryDelegationTotalRewardsResponse:
+    async def get_delegation_total_rewards(
+        self, address: str
+    ) -> distribution_query.QueryDelegationTotalRewardsResponse:
         """
         Get all unbonding delegations from a delegator.
 
@@ -474,7 +478,9 @@ class QueryNodeClient:
             distribution_query.QueryDelegationTotalRewardsResponse: All unbonding delegations from a delegator.
         """
         return distribution_query_grpc.QueryStub(self.channel).DelegationTotalRewards(
-            distribution_query.QueryDelegationTotalRewardsRequest(delegator_address=address)
+            distribution_query.QueryDelegationTotalRewardsRequest(
+                delegator_address=address
+            )
         )
 
     async def get_all_gov_proposals(
@@ -487,39 +493,37 @@ class QueryNodeClient:
         limit: Optional[int] = None,
         count_total: Optional[bool] = False,
         reverse: Optional[bool] = False,
-
     ) -> gov_query.QueryProposalsResponse:
         """
         Query all gov proposals
 
         Args:
-            proposal_status (ProposalStatus): Status of the proposal to filter by.
-            voter (str): Voter to filter by.
-            depositor (str): Depositor to filter by.
-            key (byte): Key to filter by.
-            offset (int): Offset number.
-            limit (int): Number of items to retrieve.
-            count_total (bool): Filter to return total count or not
-            reverse (bool): Direction of the list
+            proposal_status (Optional[ProposalStatus]): Status of the proposal to filter by.
+            voter (Optional[str]): Voter to filter by.
+            depositor (Optional[str]): Depositor to filter by.
+            key (Optional[byte]): Key to filter by.
+            offset (Optional[int]): Offset number.
+            limit (Optional[int]): Number of items to retrieve.
+            count_total (Optional[bool]): Filter to return total count or not
+            reverse (Optional[bool]): Direction of the list
         """
         return gov_query_grpc.QueryStub(self.channel).Proposals(
             gov_query.QueryProposalsRequest(
                 proposal_status=proposal_status,
                 voter=voter,
                 depositor=depositor,
-                pagination = pagination_query.PageRequest(
+                pagination=pagination_query.PageRequest(
                     key=key,
                     offset=offset,
                     limit=limit,
                     count_total=count_total,
-                    reverse=reverse
-                )
+                    reverse=reverse,
+                ),
             )
         )
 
     async def get_withdrawal_and_transfer_gating_status(
-        self,
-        perpetual_id: int
+        self, perpetual_id: int
     ) -> subaccount_query.QueryGetWithdrawalAndTransfersBlockedInfoResponse:
         """
         Query the status of the withdrawal and transfer gating
@@ -530,11 +534,17 @@ class QueryNodeClient:
         Returns:
             subaccount_query.QueryGetWithdrawalAndTransfersBlockedInfoResponse: Withdrawal and transfer gating status of the perpetual id
         """
-        return subaccounts_query_grpc.QueryStub(self.channel).GetWithdrawalAndTransfersBlockedInfo(
-            subaccount_query.QueryGetWithdrawalAndTransfersBlockedInfoRequest(perpetual_id=perpetual_id)
+        return subaccounts_query_grpc.QueryStub(
+            self.channel
+        ).GetWithdrawalAndTransfersBlockedInfo(
+            subaccount_query.QueryGetWithdrawalAndTransfersBlockedInfoRequest(
+                perpetual_id=perpetual_id
+            )
         )
 
-    async def get_withdrawal_capacity_by_denom(self, denom: str) -> rate_query.QueryCapacityByDenomResponse:
+    async def get_withdrawal_capacity_by_denom(
+        self, denom: str
+    ) -> rate_query.QueryCapacityByDenomResponse:
         """
         Query withdrawal capacity by denomination value
 
@@ -548,7 +558,9 @@ class QueryNodeClient:
             rate_query.QueryCapacityByDenomRequest(denom=denom)
         )
 
-    async def get_affiliate_info(self, address: str) ->affiliate_query.AffiliateInfoResponse:
+    async def get_affiliate_info(
+        self, address: str
+    ) -> affiliate_query.AffiliateInfoResponse:
         """
         Query affiliate information of an address
 
@@ -576,7 +588,9 @@ class QueryNodeClient:
             affiliate_query.ReferredByRequest(address=address)
         )
 
-    async def get_all_affiliate_tiers(self) -> affiliate_query.AllAffiliateTiersResponse:
+    async def get_all_affiliate_tiers(
+        self,
+    ) -> affiliate_query.AllAffiliateTiersResponse:
         """
         Query all affiliate tiers
 
@@ -587,7 +601,9 @@ class QueryNodeClient:
             affiliate_query.AllAffiliateTiersRequest()
         )
 
-    async def get_affiliate_whitelist(self) -> affiliate_query.AffiliateWhitelistResponse:
+    async def get_affiliate_whitelist(
+        self,
+    ) -> affiliate_query.AffiliateWhitelistResponse:
         """
         Query whitelisted affiliate information
 
@@ -597,6 +613,7 @@ class QueryNodeClient:
         return affiliate_query_grpc.QueryStub(self.channel).AffiliateWhitelist(
             affiliate_query.AffiliateWhitelistRequest()
         )
+
 
 class SequenceManager:
     def __init__(self, query_node_client: QueryNodeClient):

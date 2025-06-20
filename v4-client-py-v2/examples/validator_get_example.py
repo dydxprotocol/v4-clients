@@ -197,7 +197,9 @@ async def test():
         print(f"Error: {e}")
 
     try:
-        delegation_total_rewards = await node_client.get_delegation_total_rewards(TEST_ADDRESS)
+        delegation_total_rewards = await node_client.get_delegation_total_rewards(
+            TEST_ADDRESS
+        )
         print("Get Delegation Total Rewards:")
         print(delegation_total_rewards)
     except Exception as e:
@@ -213,7 +215,7 @@ async def test():
         print(f"Error: {e}")
 
     try:
-        status = await node_client.get_withdrawal_and_transfer_gating_status(0)
+        status = await node_client.get_withdrawal_and_transfer_gating_status(1)
         print("Get Withdrawal And Transfer Gating Status:")
         print(status)
     except Exception as e:
@@ -221,7 +223,9 @@ async def test():
         print(f"Error: {e}")
 
     try:
-        withdraw_capacity = await node_client.get_withdrawal_capacity_by_denom("ibc/8E27BA2D5493AF5636760E354E46004562C46AB7EC0CC4C1CA14E9E20E2545B5")
+        withdraw_capacity = await node_client.get_withdrawal_capacity_by_denom(
+            "ibc/8E27BA2D5493AF5636760E354E46004562C46AB7EC0CC4C1CA14E9E20E2545B5"
+        )
         print("Get Withdrawal Capacity By Denom:")
         print(withdraw_capacity)
     except Exception as e:
@@ -259,5 +263,6 @@ async def test():
     except Exception as e:
         print("Error in get_affiliate_whitelist:")
         print(f"Error: {e}")
+
 
 asyncio.run(test())
