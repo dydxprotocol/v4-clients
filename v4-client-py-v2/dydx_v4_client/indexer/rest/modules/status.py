@@ -45,7 +45,7 @@ class StatusClient(RestClient):
             address (str): The EVM or dYdX address to screen.
 
         Returns:
-            Dict[str, bool]: A dictionary indicating whether the specified address is restricted.
+            Any: Returns whether the specified address is restricted.
         """
         uri = f"/v4/compliance/screen/{address}"
         return await self.get(uri)
