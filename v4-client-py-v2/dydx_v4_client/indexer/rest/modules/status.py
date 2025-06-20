@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, Any
 
 from dydx_v4_client.indexer.rest.shared.rest import RestClient
 
@@ -36,3 +36,16 @@ class StatusClient(RestClient):
         """
         uri = "/v4/screen"
         return await self.get(uri, params={"address": address})
+
+    async def compliance_screen(self, address: str) -> Any:
+        """
+        Screen an address to see if it is restricted.
+
+        Args:
+            address (str): The EVM or dYdX address to screen.
+
+        Returns:
+            Any: Returns whether the specified address is restricted.
+        """
+        uri = f"/v4/compliance/screen/{address}"
+        return await self.get(uri)
