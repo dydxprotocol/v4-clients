@@ -212,4 +212,12 @@ async def test():
         print("Error in get_withdrawal_and_transfer_gating_status:")
         print(f"Error: {e}")
 
+    try:
+        withdraw_capacity = await node_client.get_withdrawal_capacity_by_denom("USDC")
+        print("Get Withdrawal Capacity By Denom:")
+        print(withdraw_capacity)
+    except Exception as e:
+        print("Error in get_withdrawal_capacity_by_denom:")
+        print(f"Error: {e}")
+
 asyncio.run(test())

@@ -72,6 +72,8 @@ from v4_proto.dydxprotocol.subaccounts.query_pb2 import (
 )
 from v4_proto.dydxprotocol.subaccounts.subaccount_pb2 import SubaccountId
 from v4_proto.dydxprotocol.clob.tx_pb2 import OrderBatch
+from v4_proto.dydxprotocol.ratelimit import query_pb2 as rate_query
+from v4_proto.dydxprotocol.ratelimit import query_pb2_grpc as rate_query_grpc
 
 from dydx_v4_client.network import NodeConfig
 from dydx_v4_client.node.authenticators import Authenticator, validate_authenticator
@@ -485,6 +487,20 @@ class QueryNodeClient:
         """
         return subaccounts_query_grpc.QueryStub(self.channel).GetWithdrawalAndTransfersBlockedInfo(
             subaccount_query.QueryGetWithdrawalAndTransfersBlockedInfoRequest(perpetual_id=perpetual_id)
+        )
+
+    async def get_withdrawal_capacity_by_denom(self, denom: str) -> rate_query.QueryCapacityByDenomResponse:
+        """
+        Query withdrawal capacity by denomination value
+
+        Args:
+            denom (str): Denomination identifier
+
+        Returns:
+            rate_query.QueryCapacityByDenomResponse: Return withdraw capacity
+        """
+        return rate_query_grpc.QueryStub(self.channel).CapacityByDenom(
+            rate_query.QueryCapacityByDenomRequest(denom=denom)
         )
 
 class SequenceManager:
