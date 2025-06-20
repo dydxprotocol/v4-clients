@@ -228,4 +228,12 @@ async def test():
         print("Error in get_affiliate_info:")
         print(f"Error: {e}")
 
+    try:
+        referred_by = await node_client.get_referred_by(TEST_ADDRESS)
+        print("Get Referred By:")
+        print(referred_by)
+    except Exception as e:
+        print("Error in get_referred_by:")
+        print(f"Error: {e}")
+
 asyncio.run(test())

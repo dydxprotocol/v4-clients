@@ -519,6 +519,20 @@ class QueryNodeClient:
             affiliate_query.AffiliateInfoRequest(address=address)
         )
 
+    async def get_referred_by(self, address: str) -> affiliate_query.ReferredByResponse:
+        """
+        Query to referrence information by address
+
+        Args:
+            address (str): Addess to get referred by information
+
+        Returns:
+            affiliate_query.ReferredByResponse: Referred by information
+        """
+        return affiliate_query_grpc.QueryStub(self.channel).ReferredBy(
+            affiliate_query.ReferredByRequest(address=address)
+        )
+
 class SequenceManager:
     def __init__(self, query_node_client: QueryNodeClient):
         self.query_node_client = query_node_client
