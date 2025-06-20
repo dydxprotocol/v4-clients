@@ -244,4 +244,12 @@ async def test():
         print("Error in get_all_affiliate_tiers:")
         print(f"Error: {e}")
 
+    try:
+        whitelisted_affiliate = await node_client.get_affiliate_whitelist()
+        print("Get All Whitelisted Affiliate:")
+        print(whitelisted_affiliate)
+    except Exception as e:
+        print("Error in get_affiliate_whitelist:")
+        print(f"Error: {e}")
+
 asyncio.run(test())

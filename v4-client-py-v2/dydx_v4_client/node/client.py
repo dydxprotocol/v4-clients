@@ -544,6 +544,17 @@ class QueryNodeClient:
             affiliate_query.AllAffiliateTiersRequest()
         )
 
+    async def get_affiliate_whitelist(self) -> affiliate_query.AffiliateWhitelistResponse:
+        """
+        Query whitelisted affiliate information
+
+        Returns:
+            affiliate_query.AffiliateWhitelistResponse: List of whitelisted affiliate
+        """
+        return affiliate_query_grpc.QueryStub(self.channel).AffiliateWhitelist(
+            affiliate_query.AffiliateWhitelistRequest()
+        )
+
 class SequenceManager:
     def __init__(self, query_node_client: QueryNodeClient):
         self.query_node_client = query_node_client
