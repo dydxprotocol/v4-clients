@@ -62,6 +62,7 @@ from v4_proto.dydxprotocol.rewards import query_pb2 as rewards_query
 from v4_proto.dydxprotocol.rewards import query_pb2_grpc as rewards_query_grpc
 from v4_proto.dydxprotocol.stats import query_pb2 as stats_query
 from v4_proto.dydxprotocol.stats import query_pb2_grpc as stats_query_grpc
+from v4_proto.dydxprotocol.subaccounts import query_pb2 as subaccount_query
 from v4_proto.dydxprotocol.subaccounts import query_pb2_grpc as subaccounts_query_grpc
 from v4_proto.dydxprotocol.subaccounts import subaccount_pb2 as subaccount_type
 from v4_proto.dydxprotocol.subaccounts.query_pb2 import (
@@ -469,6 +470,22 @@ class QueryNodeClient:
             distribution_query.QueryDelegationTotalRewardsRequest(delegator_address=address)
         )
 
+    async def get_withdrawal_and_transfer_gating_status(
+        self,
+        perpetual_id: int
+    ) -> subaccount_query.QueryGetWithdrawalAndTransfersBlockedInfoResponse:
+        """
+        Query the status of the withdrawal and transfer gating
+
+        Args:
+            perpetual_id (int): The perpetual ID.
+
+        Returns:
+            subaccount_query.QueryGetWithdrawalAndTransfersBlockedInfoResponse: Withdrawal and transfer gating status of the perpetual id
+        """
+        return subaccounts_query_grpc.QueryStub(self.channel).GetWithdrawalAndTransfersBlockedInfo(
+            subaccount_query.QueryGetWithdrawalAndTransfersBlockedInfoRequest(perpetual_id=perpetual_id)
+        )
 
 class SequenceManager:
     def __init__(self, query_node_client: QueryNodeClient):

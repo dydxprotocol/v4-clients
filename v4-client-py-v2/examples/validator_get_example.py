@@ -204,4 +204,12 @@ async def test():
         print("Error in get_delegation_total_rewards:")
         print(f"Error: {e}")
 
+    try:
+        status = await node_client.get_withdrawal_and_transfer_gating_status(0)
+        print("Get Withdrawal And Transfer Gating Status:")
+        print(status)
+    except Exception as e:
+        print("Error in get_withdrawal_and_transfer_gating_status:")
+        print(f"Error: {e}")
+
 asyncio.run(test())
