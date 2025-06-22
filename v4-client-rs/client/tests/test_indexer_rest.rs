@@ -336,12 +336,11 @@ async fn test_perpetual_market_quantization() -> Result<()> {
 async fn test_indexer_account_get_transfers_between() -> Result<()> {
     let env = TestEnv::testnet().await?;
 
-    let transfers = env.indexer
+    let _transfers = env
+        .indexer
         .accounts()
         .get_transfers_between(&env.subaccount, &env.subaccount_2, None)
         .await?;
-
-    println!("{:?}", transfers);
 
     Ok(())
 }

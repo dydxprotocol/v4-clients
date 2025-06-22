@@ -62,9 +62,15 @@ async fn main() -> Result<()> {
     };
     let transfers = indexer
         .accounts()
-        .get_transfers(&subaccount, Some(trf_opts))
+        .get_transfers(&subaccount, Some(trf_opts.clone()))
         .await?;
     tracing::info!("Transfers response: {:?}", transfers);
+
+    let transfers_between = indexer
+        .accounts()
+        .get_transfers_between(&subaccount, &subaccount, Some(trf_opts))
+        .await?;
+    tracing::info!("Transfers between response: {:?}", transfers_between);
 
     let ord_opts = ListOrdersOpts {
         ticker: Some(Ticker::from("ETH-USD")),

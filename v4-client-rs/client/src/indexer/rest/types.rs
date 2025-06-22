@@ -182,7 +182,6 @@ pub struct TransferResponse {
     pub pagination: PaginationResponse,
 }
 
-
 /// Transfer between response.
 #[derive(Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]

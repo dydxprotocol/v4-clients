@@ -530,7 +530,7 @@ impl<'a> Accounts<'a> {
         let rest = &self.rest;
         const URI: &str = "/v4/transfers/between";
         let url = format!("{}{URI}", rest.config.endpoint);
-        let query = GetTransfersBetweenQuery  {
+        let query = GetTransfersBetweenQuery {
             source_address: &source_subaccount.address,
             source_subaccount_number: &source_subaccount.number,
             recipient_address: &recipient_subaccount.address,
