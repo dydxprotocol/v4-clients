@@ -5,7 +5,7 @@ use anyhow::{anyhow as err, Error};
 use bigdecimal::{num_traits::cast::ToPrimitive, BigDecimal, One};
 use chrono::{TimeDelta, Utc};
 use dydx::{
-    indexer::{OrderExecution, Ticker, Token},
+    indexer::{Denom, OrderExecution, Ticker, Token},
     node::*,
 };
 use dydx_proto::dydxprotocol::{
@@ -13,6 +13,7 @@ use dydx_proto::dydxprotocol::{
         order::{self, ConditionType, Side, TimeInForce},
         Order, OrderBatch, OrderId,
     },
+    ratelimit::{QueryCapacityByDenomRequest, QueryCapacityByDenomResponse},
     subaccounts::SubaccountId,
 };
 use rand::{rng, Rng};
@@ -385,6 +386,79 @@ async fn test_node_withdrawal_and_transfers_blocked_info() -> Result<(), Error> 
     let _withdrawal_and_transfers_blocked_info = node
         .withdrawal_and_transfers_blocked_info(ETH_USD_PAIR_ID)
         .await?;
+
+    Ok(())
+}
+
+async fn test_node_send_query() -> Result<(), Error> {
+    let env = TestEnv::testnet().await?;
+    let mut node = env.node;
+
+    let _tx_res: QueryCapacityByDenomResponse = node
+        .send_query(
+            QueryCapacityByDenomRequest {
+                denom: "adv4tnt".parse()?,
+            },
+            "/dydxprotocol.ratelimit.Query/CapacityByDenom",
+        )
+        .await?;
+
+    Ok(())
+}
+
+async fn test_node_capacity_by_denom() -> Result<(), Error> {
+    let env = TestEnv::testnet().await?;
+    let mut node = env.node;
+
+    let capacity = node.capacity_by_denom(Denom::Usdc).await?;
+
+    assert!(!capacity.is_empty());
+
+    Ok(())
+}
+
+#[serial]
+async fn test_affiliates_get_affiliate_info() -> Result<(), Error> {
+    let env = TestEnv::testnet().await?;
+    let mut node = env.node;
+    let account = env.account;
+
+    let subaccount = account.subaccount(0)?;
+
+    let _affiliate_info = node.get_affiliate_info(&subaccount.address).await?;
+
+    Ok(())
+}
+
+#[tokio::test]
+#[serial]
+async fn test_affiliates_get_affiliate_tiers() -> Result<(), Error> {
+    let env = TestEnv::testnet().await?;
+    let mut node = env.node;
+
+    let _affiliate_tiers = node.get_all_affiliate_tiers().await?;
+
+    Ok(())
+}
+
+#[tokio::test]
+#[serial]
+async fn test_affiliates_get_affiliate_whitelist() -> Result<(), Error> {
+    let env = TestEnv::testnet().await?;
+    let mut node = env.node;
+
+    let _affiliate_whitelist = node.get_affiliate_whitelist().await?;
+
+    Ok(())
+}
+
+#[tokio::test]
+#[serial]
+async fn test_affiliates_get_referred_by() -> Result<(), Error> {
+    let env = TestEnv::testnet().await?;
+    let mut node = env.node;
+
+    let _referred_by = node.get_referred_by(env.account.address().clone()).await?;
 
     Ok(())
 }

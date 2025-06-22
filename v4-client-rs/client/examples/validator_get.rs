@@ -2,6 +2,9 @@ mod support;
 use anyhow::{Error, Result};
 use dydx::config::ClientConfig;
 use dydx::node::{NodeClient, Wallet};
+use dydx_proto::dydxprotocol::ratelimit::{
+    QueryCapacityByDenomRequest, QueryCapacityByDenomResponse,
+};
 use support::constants::TEST_MNEMONIC;
 
 const ETH_USD_PAIR_ID: u32 = 1;
@@ -123,6 +126,32 @@ async fn main() -> Result<()> {
     tracing::info!(
         "Get withdrawal and transfers blocked info: {withdrawal_and_transfers_blocked_info:?}"
     );
+
+    let rewards_params: QueryCapacityByDenomResponse = getter
+        .client
+        .send_query(
+            QueryCapacityByDenomRequest {
+                denom: "adv4tnt".parse()?,
+            },
+            "/dydxprotocol.ratelimit.Query/CapacityByDenom",
+        )
+        .await?;
+    tracing::info!("Capacity by denom request (using send_query): {rewards_params:?}");
+
+    let capacity_by_denom = getter.client.capacity_by_denom("adv4tnt".parse()?).await?;
+    tracing::info!("Get capacity by denom: {capacity_by_denom:?}");
+
+    let affiliate_info = getter.client.get_affiliate_info(&address).await?;
+    tracing::info!("Get affiliate info: {affiliate_info:?}");
+
+    let affiliate_tiers = getter.client.get_all_affiliate_tiers().await?;
+    tracing::info!("Get affiliate tiers: {affiliate_tiers:?}");
+
+    let affiliate_whitelist = getter.client.get_affiliate_whitelist().await?;
+    tracing::info!("Get affiliate whitelist: {affiliate_whitelist:?}");
+
+    let referred_by = getter.client.get_referred_by(address).await?;
+    tracing::info!("Get referred by: {referred_by:?}");
 
     Ok(())
 }
