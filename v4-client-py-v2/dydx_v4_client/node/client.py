@@ -576,10 +576,10 @@ class QueryNodeClient:
 
     async def get_referred_by(self, address: str) -> affiliate_query.ReferredByResponse:
         """
-        Query to referrence information by address
+        Query to reference information by address
 
         Args:
-            address (str): Addess to get referred by information
+            address (str): Address to get referred by information
 
         Returns:
             affiliate_query.ReferredByResponse: Referred by information
