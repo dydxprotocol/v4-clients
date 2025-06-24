@@ -30,6 +30,13 @@ from v4_proto.dydxprotocol.rewards.query_pb2 import QueryParamsResponse
 from v4_proto.dydxprotocol.stats.query_pb2 import QueryUserStatsResponse
 from v4_proto.dydxprotocol.subaccounts.query_pb2 import QuerySubaccountAllResponse
 from v4_proto.dydxprotocol.subaccounts.subaccount_pb2 import Subaccount
+from v4_proto.cosmos.base.tendermint.v1beta1 import query_pb2 as tendermint_query
+from v4_proto.cosmos.distribution.v1beta1 import query_pb2 as distribution_query
+from v4_proto.cosmos.gov.v1 import query_pb2 as gov_query
+from v4_proto.dydxprotocol.subaccounts import query_pb2 as subaccount_query
+from v4_proto.dydxprotocol.ratelimit import query_pb2 as rate_query
+from v4_proto.dydxprotocol.affiliates import query_pb2 as affiliate_query
+from tests.conftest import TEST_ADDRESS
 
 
 @pytest.mark.asyncio
@@ -174,3 +181,57 @@ async def test_get_user_fee_tier(node_client, test_address):
 async def test_get_rewards_params(node_client):
     rewards_params = await node_client.get_rewards_params()
     assert isinstance(rewards_params, QueryParamsResponse)
+
+@pytest.mark.asyncio
+async def test_get_node_info(node_client):
+    node_info = await node_client.get_node_info()
+    assert node_info is not None
+    assert isinstance(node_info, tendermint_query.GetNodeInfoResponse)
+
+@pytest.mark.asyncio
+async def test_get_delegation_total_rewards(node_client):
+    total_rewards = await node_client.get_delegation_total_rewards(TEST_ADDRESS)
+    assert total_rewards is not None
+    assert isinstance(total_rewards, distribution_query.QueryDelegationTotalRewardsResponse)
+
+@pytest.mark.asyncio
+async def test_get_all_gov_proposals(node_client):
+    gov_proposals = await node_client.get_all_gov_proposals()
+    assert gov_proposals is not None
+    assert isinstance(gov_proposals, gov_query.QueryProposalsResponse)
+
+@pytest.mark.asyncio
+async def test_get_withdrawal_and_transfer_gating_status(node_client):
+    gating_status = await node_client.get_withdrawal_and_transfer_gating_status(0)
+    assert gating_status is not None
+    assert isinstance(gating_status, subaccount_query.QueryGetWithdrawalAndTransfersBlockedInfoResponse)
+
+@pytest.mark.asyncio
+async def test_get_withdrawal_capacity_by_denom(node_client):
+    withdrawal_capacity = await node_client.get_withdrawal_capacity_by_denom("usdc")
+    assert withdrawal_capacity is not None
+    assert isinstance(withdrawal_capacity, rate_query.QueryCapacityByDenomResponse)
+
+@pytest.mark.asyncio
+async def test_get_affiliate_info(node_client):
+    affiliate_info = await node_client.get_affiliate_info(TEST_ADDRESS)
+    assert affiliate_info is not None
+    assert isinstance(affiliate_info, affiliate_query.AffiliateInfoResponse)
+
+@pytest.mark.asyncio
+async def test_get_referred_by(node_client):
+    referred_by = await node_client.get_referred_by(TEST_ADDRESS)
+    assert referred_by is not None
+    assert isinstance(referred_by, affiliate_query.ReferredByResponse)
+
+@pytest.mark.asyncio
+async def test_get_all_affiliate_tiers(node_client):
+    all_affiliate_tiers = await node_client.get_all_affiliate_tiers()
+    assert all_affiliate_tiers is not None
+    assert isinstance(all_affiliate_tiers, affiliate_query.AllAffiliateTiersResponse)
+
+@pytest.mark.asyncio
+async def test_get_affiliate_whitelist(node_client):
+    affiliate_whitelist = await node_client.get_affiliate_whitelist()
+    assert affiliate_whitelist is not None
+    assert isinstance(affiliate_whitelist, affiliate_query.AffiliateWhitelistResponse)
