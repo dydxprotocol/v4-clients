@@ -207,5 +207,11 @@ async fn main() -> Result<()> {
         .await?;
     tracing::info!("Historical PnLs response (parent subaccount): {:?}", pnls);
 
+    let trader_search = indexer
+        .accounts()
+        .search_trader(address.to_string().as_str())
+        .await?;
+    tracing::info!("Trader search response: {:?}", trader_search);
+
     Ok(())
 }

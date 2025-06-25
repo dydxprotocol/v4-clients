@@ -228,6 +228,28 @@ pub struct TransferResponse {
     pub pagination: PaginationResponse,
 }
 
+/// Trader search response.
+#[derive(Deserialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct TraderSearchResponse {
+    /// Result.
+    pub result: Option<TraderSearchResponseObject>,
+}
+
+/// Trader search response object.
+#[derive(Deserialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct TraderSearchResponseObject {
+    /// Address.
+    pub address: Address,
+    /// Subaccount number.
+    pub subaccount_number: SubaccountNumber,
+    /// Subaccount id.
+    pub subaccount_id: SubaccountId,
+    /// Username.
+    pub username: String,
+}
+
 /// Transfer between response.
 #[derive(Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
