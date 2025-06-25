@@ -571,7 +571,7 @@ impl<'a> Accounts<'a> {
 
     /// Query for funding payments.
     ///
-    /// [Reference](todo!).
+    /// [Reference](https://docs.dydx.xyz/indexer-client/http#get-funding-payments).
     pub async fn get_funding_payments(
         &self,
         subaccount: &Subaccount,
@@ -600,7 +600,7 @@ impl<'a> Accounts<'a> {
 
     /// Query for funding payments for a parent subaccount.
     ///
-    /// [Reference](todo!).
+    /// [Reference](https://docs.dydx.xyz/indexer-client/http#get-funding-payments-for-parent-subaccount).
     pub async fn get_funding_payments_for_parent_subaccount(
         &self,
         subaccount: &ParentSubaccount,
