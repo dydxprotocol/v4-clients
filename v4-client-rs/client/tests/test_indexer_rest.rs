@@ -341,3 +341,16 @@ async fn test_perpetual_market_quantization() -> Result<()> {
     assert_eq!(quantized, expected);
     Ok(())
 }
+
+#[tokio::test]
+async fn test_indexer_account_get_transfers_between() -> Result<()> {
+    let env = TestEnv::testnet().await?;
+
+    let _transfers = env
+        .indexer
+        .accounts()
+        .get_transfers_between(&env.subaccount, &env.subaccount_2, None)
+        .await?;
+
+    Ok(())
+}
