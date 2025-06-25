@@ -6,7 +6,7 @@ use cosmrs::{AccountId, Denom as CosmosDenom};
 use derive_more::{Add, Deref, DerefMut, Display, Div, From, Mul, Sub};
 use dydx_proto::dydxprotocol::subaccounts::SubaccountId as ProtoSubaccountId;
 use rand::{rng, Rng};
-use serde::{Deserialize, Serialize};
+use serde::{Deserialize, Deserializer, Serialize};
 use serde_with::{serde_as, DisplayFromStr};
 use std::collections::HashMap;
 use std::convert::TryFrom;
@@ -441,8 +441,44 @@ impl From<Subaccount> for ProtoSubaccountId {
 }
 
 /// Subaccount number.
-#[derive(Serialize, Deserialize, Debug, Clone, Display, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Serialize, Debug, Clone, Display, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct SubaccountNumber(pub(crate) u32);
+
+impl<'de> Deserialize<'de> for SubaccountNumber {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        struct SubaccountVisitor;
+
+        impl<'de> serde::de::Visitor<'de> for SubaccountVisitor {
+            type Value = SubaccountNumber;
+
+            fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+                formatter.write_str("a u32 or a string containing a u32")
+            }
+
+            fn visit_u64<E>(self, value: u64) -> Result<Self::Value, E>
+            where
+                E: serde::de::Error,
+            {
+                Ok(SubaccountNumber(value as u32))
+            }
+
+            fn visit_str<E>(self, value: &str) -> Result<Self::Value, E>
+            where
+                E: serde::de::Error,
+            {
+                value
+                    .parse::<u32>()
+                    .map(SubaccountNumber)
+                    .map_err(|_| E::custom(format!("invalid u32 in string: {}", value)))
+            }
+        }
+
+        deserializer.deserialize_any(SubaccountVisitor)
+    }
+}
 
 impl SubaccountNumber {
     /// Get the subaccount number value.
@@ -465,6 +501,20 @@ impl TryFrom<&u32> for SubaccountNumber {
     type Error = Error;
     fn try_from(number: &u32) -> Result<Self, Error> {
         Self::try_from(*number)
+    }
+}
+
+impl TryFrom<String> for SubaccountNumber {
+    type Error = Error;
+    fn try_from(number: String) -> Result<Self, Error> {
+        Self::try_from(number.parse::<u32>()?)
+    }
+}
+
+impl TryFrom<&str> for SubaccountNumber {
+    type Error = Error;
+    fn try_from(number: &str) -> Result<Self, Error> {
+        Self::try_from(number.parse::<u32>()?)
     }
 }
 

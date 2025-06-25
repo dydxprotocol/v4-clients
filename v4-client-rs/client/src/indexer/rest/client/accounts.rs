@@ -549,4 +549,62 @@ impl<'a> Accounts<'a> {
 
         Ok(transfers)
     }
+
+    /// Query for funding payments.
+    ///
+    /// [Reference](todo!).
+    pub async fn get_funding_payments(
+        &self,
+        subaccount: &Subaccount,
+        opts: Option<GetFundingPaymentsOpts>,
+    ) -> Result<FundingPaymentResponse, Error> {
+        let rest = &self.rest;
+        const URI: &str = "/v4/fundingPayments";
+        let url = format!("{}{URI}", rest.config.endpoint);
+        let query = Query {
+            address: &subaccount.address,
+            subaccount_number: &subaccount.number,
+        };
+        let options = opts.unwrap_or_default();
+        let funding_payments = rest
+            .client
+            .get(url)
+            .query(&query)
+            .query(&options)
+            .send()
+            .await?
+            .error_for_status()?
+            .json::<FundingPaymentResponse>()
+            .await?;
+        Ok(funding_payments)
+    }
+
+    /// Query for funding payments for a parent subaccount.
+    ///
+    /// [Reference](todo!).
+    pub async fn get_funding_payments_for_parent_subaccount(
+        &self,
+        subaccount: &ParentSubaccount,
+        opts: Option<GetFundingPaymentsOpts>,
+    ) -> Result<FundingPaymentResponse, Error> {
+        let rest = &self.rest;
+        const URI: &str = "/v4/fundingPayments";
+        let url = format!("{}{URI}/parentSubaccount", rest.config.endpoint);
+        let query = QueryParent {
+            address: &subaccount.address,
+            parent_subaccount_number: &subaccount.number,
+        };
+        let options = opts.unwrap_or_default();
+        let funding_payments = rest
+            .client
+            .get(url)
+            .query(&query)
+            .query(&options)
+            .send()
+            .await?
+            .error_for_status()?
+            .json::<FundingPaymentResponse>()
+            .await?;
+        Ok(funding_payments)
+    }
 }
