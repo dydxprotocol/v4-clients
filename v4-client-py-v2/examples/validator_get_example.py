@@ -188,5 +188,81 @@ async def test():
         print("Error in get_rewards_params:")
         print(f"Error: {e}")
 
+    try:
+        node = await node_client.get_node_info()
+        print("Get node info:")
+        print(node)
+    except Exception as e:
+        print("Error in get_node_info:")
+        print(f"Error: {e}")
+
+    try:
+        delegation_total_rewards = await node_client.get_delegation_total_rewards(
+            TEST_ADDRESS
+        )
+        print("Get Delegation Total Rewards:")
+        print(delegation_total_rewards)
+    except Exception as e:
+        print("Error in get_delegation_total_rewards:")
+        print(f"Error: {e}")
+
+    try:
+        gov_proposals = await node_client.get_all_gov_proposals()
+        print("Get All Gov Proposals:")
+        print(gov_proposals)
+    except Exception as e:
+        print("Error in get_all_gov_proposals:")
+        print(f"Error: {e}")
+
+    try:
+        status = await node_client.get_withdrawal_and_transfer_gating_status(1)
+        print("Get Withdrawal And Transfer Gating Status:")
+        print(status)
+    except Exception as e:
+        print("Error in get_withdrawal_and_transfer_gating_status:")
+        print(f"Error: {e}")
+
+    try:
+        withdraw_capacity = await node_client.get_withdrawal_capacity_by_denom(
+            "ibc/8E27BA2D5493AF5636760E354E46004562C46AB7EC0CC4C1CA14E9E20E2545B5"
+        )
+        print("Get Withdrawal Capacity By Denom:")
+        print(withdraw_capacity)
+    except Exception as e:
+        print("Error in get_withdrawal_capacity_by_denom:")
+        print(f"Error: {e}")
+
+    try:
+        affiliate_info = await node_client.get_affiliate_info(TEST_ADDRESS)
+        print("Get Affiliate Info:")
+        print(affiliate_info)
+    except Exception as e:
+        print("Error in get_affiliate_info:")
+        print(f"Error: {e}")
+
+    try:
+        referred_by = await node_client.get_referred_by(TEST_ADDRESS)
+        print("Get Referred By:")
+        print(referred_by)
+    except Exception as e:
+        print("Error in get_referred_by:")
+        print(f"Error: {e}")
+
+    try:
+        affiliate_tiers = await node_client.get_all_affiliate_tiers()
+        print("Get All Affiliate Tiers:")
+        print(affiliate_tiers)
+    except Exception as e:
+        print("Error in get_all_affiliate_tiers:")
+        print(f"Error: {e}")
+
+    try:
+        whitelisted_affiliate = await node_client.get_affiliate_whitelist()
+        print("Get All Whitelisted Affiliate:")
+        print(whitelisted_affiliate)
+    except Exception as e:
+        print("Error in get_affiliate_whitelist:")
+        print(f"Error: {e}")
+
 
 asyncio.run(test())

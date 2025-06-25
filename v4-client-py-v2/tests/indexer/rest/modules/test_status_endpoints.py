@@ -27,3 +27,11 @@ async def test_screen_address(indexer_rest_client, test_address):
     response = await indexer_rest_client.utility.screen(test_address)
     restricted = response.get("restricted")
     assert restricted is not None
+
+
+@pytest.mark.asyncio
+@retry_on_forbidden(max_retries=3, delay=1)
+async def test_compliacne_screen_address(indexer_rest_client, test_address):
+    response = await indexer_rest_client.utility.compliance_screen(test_address)
+    status = response.get("status")
+    assert status is not None
