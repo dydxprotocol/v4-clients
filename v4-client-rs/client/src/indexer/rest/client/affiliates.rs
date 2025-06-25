@@ -1,6 +1,8 @@
 use super::*;
 use anyhow::Error;
 
+const URI: &str = "/v4/affiliates/metadata";
+
 /// Affiliates dispatcher.
 ///
 /// Check [the example](todo!).
@@ -20,8 +22,7 @@ impl<'a> Affiliates<'a> {
         address: &Address,
     ) -> Result<AffiliateMetadataResponse, Error> {
         let rest = &self.rest;
-        const URI: &str = "/v4/affiliates/metadata";
-        let url = format!("{}{URI}", rest.config.endpoint);
+        let url = format!("{}{URI}/metadata", rest.config.endpoint);
         let resp = rest
             .client
             .get(url)
@@ -40,8 +41,7 @@ impl<'a> Affiliates<'a> {
         referral_code: &str,
     ) -> Result<AffiliateAddressResponse, Error> {
         let rest = &self.rest;
-        const URI: &str = "/v4/affiliates/address";
-        let url = format!("{}{URI}", rest.config.endpoint);
+        let url = format!("{}{URI}/address", rest.config.endpoint);
         let resp = rest
             .client
             .get(url)
@@ -62,8 +62,7 @@ impl<'a> Affiliates<'a> {
         pagination: Option<PaginationRequest>,
     ) -> Result<AffiliateSnapshotResponse, Error> {
         let rest = &self.rest;
-        const URI: &str = "/v4/affiliates/snapshot";
-        let url = format!("{}{URI}", rest.config.endpoint);
+        let url = format!("{}{URI}/snapshot", rest.config.endpoint);
         let pagination = pagination.unwrap_or_default();
         let sort_by_affiliate_earnings = sort_by_affiliate_earnings.unwrap_or(false);
 
@@ -101,8 +100,7 @@ impl<'a> Affiliates<'a> {
         address: &Address,
     ) -> Result<AffiliateTotalVolumeResponse, Error> {
         let rest = &self.rest;
-        const URI: &str = "/v4/affiliates/total_volume";
-        let url = format!("{}{URI}", rest.config.endpoint);
+        let url = format!("{}{URI}/totalVolume", rest.config.endpoint);
         let resp = rest
             .client
             .get(url)
