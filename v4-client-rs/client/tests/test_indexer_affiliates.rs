@@ -29,7 +29,7 @@ async fn test_indexer_affiliates_get_snapshot() -> Result<()> {
     let env = TestEnv::testnet().await?;
     env.indexer
         .affiliates()
-        .get_snapshot(&[env.address], None, None)
+        .get_snapshot(&[&env.address], None, None)
         .await?;
     Ok(())
 }

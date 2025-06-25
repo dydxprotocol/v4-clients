@@ -57,7 +57,7 @@ impl<'a> Affiliates<'a> {
     /// Get affiliate snapshot.
     pub async fn get_snapshot(
         &self,
-        address_filter: &[Address],
+        address_filter: Option<&[&Address]>,
         sort_by_affiliate_earnings: Option<bool>,
         pagination: Option<PaginationRequest>,
     ) -> Result<AffiliateSnapshotResponse, Error> {
@@ -66,21 +66,22 @@ impl<'a> Affiliates<'a> {
         let url = format!("{}{URI}", rest.config.endpoint);
         let pagination = pagination.unwrap_or_default();
         let sort_by_affiliate_earnings = sort_by_affiliate_earnings.unwrap_or(false);
+
+        let mut query = vec![];
+
+        if sort_by_affiliate_earnings {
+            query.push(("sortByAffiliateEarnings", "true".to_string()));
+        }
+
+        if let Some(address_filter) = address_filter {
+            let address_filter = address_filter.iter().map(|a| a.to_string()).collect::<Vec<String>>().join(",");
+            query.push(("addressFilter", address_filter));
+        }
+
         let resp = rest
             .client
             .get(url)
-            .query(&[(
-                "addressFilter",
-                address_filter
-                    .iter()
-                    .map(|a| a.to_string())
-                    .collect::<Vec<String>>()
-                    .join(","),
-            )])
-            .query(&[(
-                "sortByAffiliateEarnings",
-                sort_by_affiliate_earnings.to_string(),
-            )])
+            .query(&query)
             .query(&pagination)
             .send()
             .await?
