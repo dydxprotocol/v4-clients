@@ -390,6 +390,8 @@ async fn test_node_withdrawal_and_transfers_blocked_info() -> Result<(), Error> 
     Ok(())
 }
 
+#[tokio::test]
+#[serial]
 async fn test_node_send_query() -> Result<(), Error> {
     let env = TestEnv::testnet().await?;
     let mut node = env.node;
@@ -406,6 +408,8 @@ async fn test_node_send_query() -> Result<(), Error> {
     Ok(())
 }
 
+#[tokio::test]
+#[serial]
 async fn test_node_capacity_by_denom() -> Result<(), Error> {
     let env = TestEnv::testnet().await?;
     let mut node = env.node;
@@ -417,6 +421,7 @@ async fn test_node_capacity_by_denom() -> Result<(), Error> {
     Ok(())
 }
 
+#[tokio::test]
 #[serial]
 async fn test_affiliates_get_affiliate_info() -> Result<(), Error> {
     let env = TestEnv::testnet().await?;
