@@ -1,7 +1,7 @@
 use super::*;
 use anyhow::Error;
 
-const URI: &str = "/v4/affiliates/metadata";
+const URI: &str = "/v4/affiliates";
 
 /// Affiliates dispatcher.
 ///
@@ -100,7 +100,7 @@ impl<'a> Affiliates<'a> {
         address: &Address,
     ) -> Result<AffiliateTotalVolumeResponse, Error> {
         let rest = &self.rest;
-        let url = format!("{}{URI}/totalVolume", rest.config.endpoint);
+        let url = format!("{}{URI}/total_volume", rest.config.endpoint);
         let resp = rest
             .client
             .get(url)
