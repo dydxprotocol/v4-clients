@@ -74,7 +74,11 @@ impl<'a> Affiliates<'a> {
         }
 
         if let Some(address_filter) = address_filter {
-            let address_filter = address_filter.iter().map(|a| a.to_string()).collect::<Vec<String>>().join(",");
+            let address_filter = address_filter
+                .iter()
+                .map(|a| a.to_string())
+                .collect::<Vec<String>>()
+                .join(",");
             query.push(("addressFilter", address_filter));
         }
 
