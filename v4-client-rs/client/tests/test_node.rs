@@ -378,6 +378,20 @@ async fn test_node_create_market_permissionless() -> Result<(), Error> {
 }
 
 #[tokio::test]
+#[serial]
+async fn test_node_withdrawal_and_transfers_blocked_info() -> Result<(), Error> {
+    let env = TestEnv::testnet().await?;
+    let mut node = env.node;
+
+    let _withdrawal_and_transfers_blocked_info = node
+        .withdrawal_and_transfers_blocked_info(ETH_USD_PAIR_ID)
+        .await?;
+
+    Ok(())
+}
+
+#[tokio::test]
+#[serial]
 async fn test_node_send_query() -> Result<(), Error> {
     let env = TestEnv::testnet().await?;
     let mut node = env.node;
@@ -394,6 +408,8 @@ async fn test_node_send_query() -> Result<(), Error> {
     Ok(())
 }
 
+#[tokio::test]
+#[serial]
 async fn test_node_capacity_by_denom() -> Result<(), Error> {
     let env = TestEnv::testnet().await?;
     let mut node = env.node;
@@ -405,6 +421,7 @@ async fn test_node_capacity_by_denom() -> Result<(), Error> {
     Ok(())
 }
 
+#[tokio::test]
 #[serial]
 async fn test_affiliates_get_affiliate_info() -> Result<(), Error> {
     let env = TestEnv::testnet().await?;

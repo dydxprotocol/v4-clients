@@ -60,7 +60,11 @@ use dydx_proto::{
         rewards::query_client::QueryClient as RewardsClient,
         sending::{MsgCreateTransfer, MsgDepositToSubaccount, MsgWithdrawFromSubaccount, Transfer},
         stats::query_client::QueryClient as StatsClient,
-        subaccounts::{query_client::QueryClient as SubaccountsClient, SubaccountId},
+        subaccounts::{
+            query_client::QueryClient as SubaccountsClient,
+            QueryGetWithdrawalAndTransfersBlockedInfoRequest,
+            QueryGetWithdrawalAndTransfersBlockedInfoResponse, SubaccountId,
+        },
         vault::query_client::QueryClient as VaultClient,
     },
     ToAny,
@@ -787,6 +791,26 @@ impl NodeClient {
             Err(NodeError::Broadcast(err)) if err.get_collateral_reason().is_some() => Ok(None),
             Err(err) => Err(err.into()),
         }
+    }
+
+    /// Query the withrawal and transfer gating status.
+    /// Information about whether withdrawals and transfers are blocked for
+    /// a collateral pool associated with the passed in perpetual ID.
+    ///
+    /// Check [the example](https://github.com/dydxprotocol/v4-clients/blob/main/v4-client-rs/client/examples/validator_get.rs).
+    pub async fn withdrawal_and_transfers_blocked_info(
+        &mut self,
+        perpetual_id: u32,
+    ) -> Result<QueryGetWithdrawalAndTransfersBlockedInfoResponse, Error> {
+        let req = QueryGetWithdrawalAndTransfersBlockedInfoRequest { perpetual_id };
+
+        let info = self
+            .subaccounts
+            .get_withdrawal_and_transfers_blocked_info(req)
+            .await?
+            .into_inner();
+
+        Ok(info)
     }
 
     /// Query the affiliate info for the given address.
