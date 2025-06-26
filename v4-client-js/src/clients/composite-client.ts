@@ -1204,7 +1204,7 @@ export class CompositeClient {
             subaccount.wallet,
             cancelPayload.subaccountNumber,
           );
-          return await this.validatorClient.post.cancelOrderMsg(
+          return this.validatorClient.post.cancelOrderMsg(
             cancelSubaccount.address,
             cancelSubaccount.subaccountNumber,
             cancelPayload.clientId,
