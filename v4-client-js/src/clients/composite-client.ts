@@ -1169,13 +1169,12 @@ export class CompositeClient {
             subaccount.wallet,
             transferToSubaccountPayload?.sourceSubaccountNumber,
           );
-          const transferMsg = this.transferToSubaccountMessage(
+          return this.transferToSubaccountMessage(
             transferSubaccount,
             transferSubaccount.address,
             transferToSubaccountPayload.recipientSubaccountNumber,
             transferToSubaccountPayload.transferAmount,
           );
-          return transferMsg;
         })();
 
         const placeOrderMsgPromises = placeOrderPayloads.map((placePayload) => {
