@@ -1142,72 +1142,74 @@ export class CompositeClient {
       undefined,
     );
 
+    const msgs: Promise<EncodeObject[]> = (async () => {
+      const cancelMsgPromises = cancelOrderPayloads.map(async (cancelPayload) => {
+        const cancelSubaccount = new SubaccountInfo(
+          subaccount.wallet,
+          cancelPayload.subaccountNumber,
+        );
+        return this.validatorClient.post.cancelOrderMsg(
+          cancelSubaccount.address,
+          cancelSubaccount.subaccountNumber,
+          cancelPayload.clientId,
+          cancelPayload.orderFlags,
+          cancelPayload.clobPairId,
+          cancelPayload.goodTilBlock,
+          cancelPayload.goodTilBlockTime,
+        );
+      });
+
+      const transferMsg = (() => {
+        if (transferToSubaccountPayload == null) {
+          return undefined;
+        }
+        const transferSubaccount = new SubaccountInfo(
+          subaccount.wallet,
+          transferToSubaccountPayload?.sourceSubaccountNumber,
+        );
+        return this.transferToSubaccountMessage(
+          transferSubaccount,
+          transferSubaccount.address,
+          transferToSubaccountPayload.recipientSubaccountNumber,
+          transferToSubaccountPayload.transferAmount,
+        );
+      })();
+
+      const placeOrderMsgPromises = placeOrderPayloads.map((placePayload) => {
+        const placeSubaccount = new SubaccountInfo(
+          subaccount.wallet,
+          placePayload.subaccountNumber,
+        );
+        return this.placeOrderMessage(
+          placeSubaccount,
+          placePayload.marketId,
+          placePayload.type,
+          placePayload.side,
+          placePayload.price,
+          placePayload.size,
+          placePayload.clientId,
+          placePayload.timeInForce,
+          placePayload.goodTilTimeInSeconds,
+          placePayload.execution,
+          placePayload.postOnly,
+          placePayload.reduceOnly,
+          placePayload.triggerPrice,
+          placePayload.marketInfo,
+          placePayload.currentHeight,
+          placePayload.goodTilBlock,
+        );
+      });
+
+      return Promise.all([
+        ...cancelMsgPromises,
+        ...(transferMsg != null ? [transferMsg] : []),
+        ...placeOrderMsgPromises,
+      ]);
+    })();
+
     return this.send(
       subaccount.wallet,
-      async () => {
-        const cancelMsgPromises = cancelOrderPayloads.map(async (cancelPayload) => {
-          const cancelSubaccount = new SubaccountInfo(
-            subaccount.wallet,
-            cancelPayload.subaccountNumber,
-          );
-          return this.validatorClient.post.cancelOrderMsg(
-            cancelSubaccount.address,
-            cancelSubaccount.subaccountNumber,
-            cancelPayload.clientId,
-            cancelPayload.orderFlags,
-            cancelPayload.clobPairId,
-            cancelPayload.goodTilBlock,
-            cancelPayload.goodTilBlockTime,
-          );
-        });
-
-        const transferMsg = (() => {
-          if (transferToSubaccountPayload == null) {
-            return undefined;
-          }
-          const transferSubaccount = new SubaccountInfo(
-            subaccount.wallet,
-            transferToSubaccountPayload?.sourceSubaccountNumber,
-          );
-          return this.transferToSubaccountMessage(
-            transferSubaccount,
-            transferSubaccount.address,
-            transferToSubaccountPayload.recipientSubaccountNumber,
-            transferToSubaccountPayload.transferAmount,
-          );
-        })();
-
-        const placeOrderMsgPromises = placeOrderPayloads.map((placePayload) => {
-          const placeSubaccount = new SubaccountInfo(
-            subaccount.wallet,
-            placePayload.subaccountNumber,
-          );
-          return this.placeOrderMessage(
-            placeSubaccount,
-            placePayload.marketId,
-            placePayload.type,
-            placePayload.side,
-            placePayload.price,
-            placePayload.size,
-            placePayload.clientId,
-            placePayload.timeInForce,
-            placePayload.goodTilTimeInSeconds,
-            placePayload.execution,
-            placePayload.postOnly,
-            placePayload.reduceOnly,
-            placePayload.triggerPrice,
-            placePayload.marketInfo,
-            placePayload.currentHeight,
-            placePayload.goodTilBlock,
-          );
-        });
-
-        return Promise.all([
-          ...cancelMsgPromises,
-          ...(transferMsg != null ? [transferMsg] : []),
-          ...placeOrderMsgPromises,
-        ]);
-      },
+      () => msgs,
       true,
       undefined,
       memo,
