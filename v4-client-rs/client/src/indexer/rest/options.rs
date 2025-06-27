@@ -78,6 +78,20 @@ pub struct GetTransfersOpts {
     pub created_before_or_at: Option<DateTime<Utc>>,
 }
 
+/// Filter options for funding payments.
+#[derive(Serialize, Default)]
+#[serde(rename_all = "camelCase")]
+pub struct GetFundingPaymentsOpts {
+    /// Limit.
+    pub limit: Option<u32>,
+    /// Ticker.
+    pub ticker: Option<Ticker>,
+    /// After or at.
+    pub after_or_at: Option<DateTime<Utc>>,
+    /// Page.
+    pub page: Option<u32>,
+}
+
 /// Filter options for transfers between subaccounts.
 ///
 /// ## Dev Note

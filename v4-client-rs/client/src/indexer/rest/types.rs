@@ -241,6 +241,55 @@ pub struct TransferBetweenResponse {
     pub pagination: PaginationResponse,
 }
 
+/// Funding payment response.
+#[derive(Deserialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct FundingPaymentResponse {
+    /// List of funding payments.
+    pub funding_payments: Vec<FundingPaymentResponseObject>,
+    /// Pagination.
+    #[serde(flatten)]
+    pub pagination: PaginationResponse,
+}
+
+/// Funding payment response object.
+#[derive(Deserialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct FundingPaymentResponseObject {
+    /// Time (UTC).
+    pub created_at: DateTime<Utc>,
+    /// Block height.
+    pub created_at_height: Height,
+    /// Perpetual id.
+    pub perpetual_id: String,
+    /// Ticker.
+    pub ticker: Ticker,
+    /// Oracle price.
+    pub oracle_price: BigDecimal,
+    /// Size.
+    pub size: BigDecimal,
+    /// Side.
+    pub side: FundingOrderSide,
+    /// Rate.
+    pub rate: BigDecimal,
+    /// Payment.
+    pub payment: BigDecimal,
+    /// Subaccount number.
+    pub subaccount_number: SubaccountNumber,
+    /// Funding index.
+    pub funding_index: String,
+}
+
+/// Funding order side.
+#[derive(Deserialize, Debug, Clone)]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
+pub enum FundingOrderSide {
+    /// Long.
+    Long,
+    /// Short.
+    Short,
+}
+
 /// Transfer response.
 #[derive(Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]

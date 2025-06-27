@@ -354,3 +354,23 @@ async fn test_indexer_account_get_transfers_between() -> Result<()> {
 
     Ok(())
 }
+
+#[tokio::test]
+async fn test_indexer_account_get_funding_payments() -> Result<()> {
+    let env = TestEnv::testnet().await?;
+    env.indexer
+        .accounts()
+        .get_funding_payments(&env.subaccount, None)
+        .await?;
+    Ok(())
+}
+
+#[tokio::test]
+async fn test_indexer_account_get_funding_payments_for_parent_subaccount() -> Result<()> {
+    let env = TestEnv::testnet().await?;
+    env.indexer
+        .accounts()
+        .get_funding_payments_for_parent_subaccount(&env.subaccount.parent(), None)
+        .await?;
+    Ok(())
+}

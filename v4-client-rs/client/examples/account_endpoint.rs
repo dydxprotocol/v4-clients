@@ -207,5 +207,20 @@ async fn main() -> Result<()> {
         .await?;
     tracing::info!("Historical PnLs response (parent subaccount): {:?}", pnls);
 
+    let funding_payments = indexer
+        .accounts()
+        .get_funding_payments(&subaccount, None)
+        .await?;
+    tracing::info!("Funding payments response: {:?}", funding_payments);
+
+    let funding_payments = indexer
+        .accounts()
+        .get_funding_payments_for_parent_subaccount(&parent_subaccount, None)
+        .await?;
+    tracing::info!(
+        "Funding payments response (parent subaccount): {:?}",
+        funding_payments
+    );
+
     Ok(())
 }
