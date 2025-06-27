@@ -550,6 +550,25 @@ impl<'a> Accounts<'a> {
         Ok(transfers)
     }
 
+    /// Search trader by query string (address, subaccount id, username, etc).
+    ///
+    /// [Reference](https://docs.dydx.xyz/indexer-client/http#search-traders)
+    pub async fn search_trader(&self, search_param: &str) -> Result<TraderSearchResponse, Error> {
+        let rest = &self.rest;
+        const URI: &str = "/v4/trader/search";
+        let url = format!("{}{URI}", rest.config.endpoint);
+        let trader = rest
+            .client
+            .get(url)
+            .query(&[("searchParam", search_param)])
+            .send()
+            .await?
+            .error_for_status()?
+            .json::<TraderSearchResponse>()
+            .await?;
+        Ok(trader)
+    }
+
     /// Query for funding payments.
     ///
     /// [Reference](todo!).

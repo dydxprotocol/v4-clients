@@ -356,6 +356,34 @@ async fn test_indexer_account_get_transfers_between() -> Result<()> {
 }
 
 #[tokio::test]
+async fn test_indexer_account_search_trader() -> Result<()> {
+    const ADDRESS: &str = "dydx14zzueazeh0hj67cghhf9jypslcf9sh2n5k6art";
+    const USERNAME: &str = "NoisyPlumPOX";
+    const SUBACCOUNT_ID: &str = "8586bcf6-1f58-5ec9-a0bc-e53db273e7b0";
+    const SUBACCOUNT_NUMBER: u32 = 0;
+
+    let env = TestEnv::testnet().await?;
+    let query_strings = vec![ADDRESS, USERNAME];
+
+    for query in query_strings {
+        let TraderSearchResponse { result } = env.indexer.accounts().search_trader(query).await?;
+        let result = result.ok_or_else(|| err!("Trader not found"))?;
+
+        assert_eq!(result.address, Address::from_str(ADDRESS)?);
+        assert_eq!(
+            result.subaccount_number,
+            SubaccountNumber::try_from(SUBACCOUNT_NUMBER)?
+        );
+        assert_eq!(result.username, USERNAME);
+        assert_eq!(
+            result.subaccount_id,
+            SubaccountId(SUBACCOUNT_ID.to_string())
+        );
+    }
+    Ok(())
+}
+
+#[tokio::test]
 async fn test_indexer_account_get_funding_payments() -> Result<()> {
     let env = TestEnv::testnet().await?;
     env.indexer
