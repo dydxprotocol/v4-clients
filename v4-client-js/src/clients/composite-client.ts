@@ -104,6 +104,12 @@ export type CancelRawOrderPayload = {
   goodTilBlockTime?: number;
 };
 
+export type TransferToSubaccountPayload = {
+  sourceSubaccountNumber: number;
+  recipientSubaccountNumber: number;
+  transferAmount: string;
+};
+
 export class CompositeClient {
   public readonly network: Network;
   public gasDenom: SelectedGasDenom = SelectedGasDenom.USDC;
@@ -1108,71 +1114,11 @@ export class CompositeClient {
     return Buffer.from(signature).toString('base64');
   }
 
-  async transferToSubaccountAndPlaceStatefulOrder(
-    sourceSubaccount: SubaccountInfo,
-    recipientSubaccountNumber: number,
-    transferAmount: string,
-    placeOrderPayload: Omit<PlaceOrderPayload, 'subaccountNumber'>,
-    memo?: string,
-    broadcastMode?: BroadcastMode,
-  ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
-    const orderFlags = calculateOrderFlags(placeOrderPayload.type, placeOrderPayload.timeInForce);
-    if (orderFlags === OrderFlags.SHORT_TERM) {
-      throw new Error('SHORT_TERM orders cannot be batched with transfers');
-    }
-
-    const recipientSubaccount = new SubaccountInfo(
-      sourceSubaccount.wallet,
-      recipientSubaccountNumber,
-    );
-
-    const account: Promise<Account> = this.validatorClient.post.account(
-      recipientSubaccount.address,
-      orderFlags,
-    );
-
-    return this.send(
-      sourceSubaccount.wallet,
-      async () => {
-        const transferMsg = this.transferToSubaccountMessage(
-          sourceSubaccount,
-          recipientSubaccount.address,
-          recipientSubaccountNumber,
-          transferAmount,
-        );
-
-        const placeOrderMsg = await this.placeOrderMessage(
-          recipientSubaccount,
-          placeOrderPayload.marketId,
-          placeOrderPayload.type,
-          placeOrderPayload.side,
-          placeOrderPayload.price,
-          placeOrderPayload.size,
-          placeOrderPayload.clientId,
-          placeOrderPayload.timeInForce,
-          placeOrderPayload.goodTilTimeInSeconds,
-          placeOrderPayload.execution,
-          placeOrderPayload.postOnly,
-          placeOrderPayload.reduceOnly,
-          placeOrderPayload.triggerPrice,
-          placeOrderPayload.marketInfo,
-          placeOrderPayload.currentHeight,
-          placeOrderPayload.goodTilBlock,
-        );
-
-        return [transferMsg, placeOrderMsg];
-      },
-      true,
-      undefined,
-      memo,
-      broadcastMode ?? Method.BroadcastTxCommit,
-      () => account,
-    );
-  }
-
-  async bulkCancelAndPlaceStatefulOrders(
+  async bulkCancelAndTransferAndPlaceStatefulOrders(
     subaccount: SubaccountInfo,
+    // these are executed in this order, all in one block, and all succeed or all fail
     cancelOrderPayloads: CancelRawOrderPayload[],
+    transferToSubaccountPayload: TransferToSubaccountPayload | undefined,
     placeOrderPayloads: PlaceOrderPayload[],
     memo?: string,
     broadcastMode?: BroadcastMode,
@@ -1215,6 +1161,23 @@ export class CompositeClient {
           );
         });
 
+        const transferMsg = (() => {
+          if (transferToSubaccountPayload == null) {
+            return undefined;
+          }
+          const transferSubaccount = new SubaccountInfo(
+            subaccount.wallet,
+            transferToSubaccountPayload?.sourceSubaccountNumber,
+          );
+          const transferMsg = this.transferToSubaccountMessage(
+            transferSubaccount,
+            transferSubaccount.address,
+            transferToSubaccountPayload.recipientSubaccountNumber,
+            transferToSubaccountPayload.transferAmount,
+          );
+          return transferMsg;
+        })();
+
         const placeOrderMsgPromises = placeOrderPayloads.map((placePayload) => {
           const placeSubaccount = new SubaccountInfo(
             subaccount.wallet,
@@ -1240,7 +1203,11 @@ export class CompositeClient {
           );
         });
 
-        return Promise.all([...cancelMsgPromises, ...placeOrderMsgPromises]);
+        return Promise.all([
+          ...cancelMsgPromises,
+          ...(transferMsg != null ? [transferMsg] : []),
+          ...placeOrderMsgPromises,
+        ]);
       },
       true,
       undefined,
