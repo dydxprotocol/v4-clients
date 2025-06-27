@@ -380,6 +380,25 @@ async fn test_indexer_account_search_trader() -> Result<()> {
             SubaccountId(SUBACCOUNT_ID.to_string())
         );
     }
+    Ok(())
+}
 
+#[tokio::test]
+async fn test_indexer_account_get_funding_payments() -> Result<()> {
+    let env = TestEnv::testnet().await?;
+    env.indexer
+        .accounts()
+        .get_funding_payments(&env.subaccount, None)
+        .await?;
+    Ok(())
+}
+
+#[tokio::test]
+async fn test_indexer_account_get_funding_payments_for_parent_subaccount() -> Result<()> {
+    let env = TestEnv::testnet().await?;
+    env.indexer
+        .accounts()
+        .get_funding_payments_for_parent_subaccount(&env.subaccount.parent(), None)
+        .await?;
     Ok(())
 }

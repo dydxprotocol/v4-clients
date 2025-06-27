@@ -76,6 +76,34 @@ export interface PermissionedKeysAccountAuth {
   accountForOrder: SubaccountInfo;
 }
 
+export type PlaceOrderPayload = {
+  subaccountNumber: number;
+  marketId: string;
+  type: OrderType;
+  side: OrderSide;
+  price: number;
+  size: number;
+  clientId: number;
+  timeInForce?: OrderTimeInForce;
+  goodTilTimeInSeconds?: number;
+  execution?: OrderExecution;
+  postOnly?: boolean;
+  reduceOnly?: boolean;
+  triggerPrice?: number;
+  marketInfo?: MarketInfo;
+  currentHeight?: number;
+  goodTilBlock?: number;
+};
+
+export type CancelRawOrderPayload = {
+  subaccountNumber: number;
+  clientId: number;
+  orderFlags: OrderFlags;
+  clobPairId: number;
+  goodTilBlock?: number;
+  goodTilBlockTime?: number;
+};
+
 export class CompositeClient {
   public readonly network: Network;
   public gasDenom: SelectedGasDenom = SelectedGasDenom.USDC;
@@ -476,7 +504,6 @@ export class CompositeClient {
     type: OrderType,
     side: OrderSide,
     price: number,
-    // trigger_price: number,   // not used for MARKET and LIMIT
     size: number,
     clientId: number,
     timeInForce?: OrderTimeInForce,
@@ -1081,6 +1108,148 @@ export class CompositeClient {
     return Buffer.from(signature).toString('base64');
   }
 
+  async transferToSubaccountAndPlaceStatefulOrder(
+    sourceSubaccount: SubaccountInfo,
+    recipientSubaccountNumber: number,
+    transferAmount: string,
+    placeOrderPayload: Omit<PlaceOrderPayload, 'subaccountNumber'>,
+    memo?: string,
+    broadcastMode?: BroadcastMode,
+  ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
+    const orderFlags = calculateOrderFlags(placeOrderPayload.type, placeOrderPayload.timeInForce);
+    if (orderFlags === OrderFlags.SHORT_TERM) {
+      throw new Error('SHORT_TERM orders cannot be batched with transfers');
+    }
+
+    const recipientSubaccount = new SubaccountInfo(
+      sourceSubaccount.wallet,
+      recipientSubaccountNumber,
+    );
+
+    const account: Promise<Account> = this.validatorClient.post.account(
+      recipientSubaccount.address,
+      orderFlags,
+    );
+
+    return this.send(
+      sourceSubaccount.wallet,
+      async () => {
+        const transferMsg = this.transferToSubaccountMessage(
+          sourceSubaccount,
+          recipientSubaccount.address,
+          recipientSubaccountNumber,
+          transferAmount,
+        );
+
+        const placeOrderMsg = await this.placeOrderMessage(
+          recipientSubaccount,
+          placeOrderPayload.marketId,
+          placeOrderPayload.type,
+          placeOrderPayload.side,
+          placeOrderPayload.price,
+          placeOrderPayload.size,
+          placeOrderPayload.clientId,
+          placeOrderPayload.timeInForce,
+          placeOrderPayload.goodTilTimeInSeconds,
+          placeOrderPayload.execution,
+          placeOrderPayload.postOnly,
+          placeOrderPayload.reduceOnly,
+          placeOrderPayload.triggerPrice,
+          placeOrderPayload.marketInfo,
+          placeOrderPayload.currentHeight,
+          placeOrderPayload.goodTilBlock,
+        );
+
+        return [transferMsg, placeOrderMsg];
+      },
+      true,
+      undefined,
+      memo,
+      broadcastMode ?? Method.BroadcastTxCommit,
+      () => account,
+    );
+  }
+
+  async bulkCancelAndPlaceStatefulOrders(
+    subaccount: SubaccountInfo,
+    cancelOrderPayloads: CancelRawOrderPayload[],
+    placeOrderPayloads: PlaceOrderPayload[],
+    memo?: string,
+    broadcastMode?: BroadcastMode,
+  ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
+    if (cancelOrderPayloads.some((c) => c.orderFlags === OrderFlags.SHORT_TERM)) {
+      throw new Error('SHORT_TERM cancels cannot be batched');
+    }
+
+    if (
+      placeOrderPayloads.some(
+        (placePayload) =>
+          calculateOrderFlags(placePayload.type, placePayload.timeInForce) ===
+          OrderFlags.SHORT_TERM,
+      )
+    ) {
+      throw new Error('SHORT_TERM orders cannot be batched');
+    }
+
+    const account: Promise<Account> = this.validatorClient.post.account(
+      subaccount.address,
+      undefined,
+    );
+
+    return this.send(
+      subaccount.wallet,
+      async () => {
+        const cancelMsgPromises = cancelOrderPayloads.map(async (cancelPayload) => {
+          const cancelSubaccount = new SubaccountInfo(
+            subaccount.wallet,
+            cancelPayload.subaccountNumber,
+          );
+          return this.validatorClient.post.cancelOrderMsg(
+            cancelSubaccount.address,
+            cancelSubaccount.subaccountNumber,
+            cancelPayload.clientId,
+            cancelPayload.orderFlags,
+            cancelPayload.clobPairId,
+            cancelPayload.goodTilBlock,
+            cancelPayload.goodTilBlockTime,
+          );
+        });
+
+        const placeOrderMsgPromises = placeOrderPayloads.map((placePayload) => {
+          const placeSubaccount = new SubaccountInfo(
+            subaccount.wallet,
+            placePayload.subaccountNumber,
+          );
+          return this.placeOrderMessage(
+            placeSubaccount,
+            placePayload.marketId,
+            placePayload.type,
+            placePayload.side,
+            placePayload.price,
+            placePayload.size,
+            placePayload.clientId,
+            placePayload.timeInForce,
+            placePayload.goodTilTimeInSeconds,
+            placePayload.execution,
+            placePayload.postOnly,
+            placePayload.reduceOnly,
+            placePayload.triggerPrice,
+            placePayload.marketInfo,
+            placePayload.currentHeight,
+            placePayload.goodTilBlock,
+          );
+        });
+
+        return Promise.all([...cancelMsgPromises, ...placeOrderMsgPromises]);
+      },
+      true,
+      undefined,
+      memo,
+      broadcastMode ?? Method.BroadcastTxCommit,
+      () => account,
+    );
+  }
+
   // vaults
 
   async depositToMegavault(
@@ -1302,7 +1471,7 @@ export class CompositeClient {
 
     // The top-level authenticator must pass validation
     if (!checkAuthenticator(authenticator)) {
-      return false
+      return false;
     }
 
     return true;

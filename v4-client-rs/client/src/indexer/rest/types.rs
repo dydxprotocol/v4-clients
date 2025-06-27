@@ -205,6 +205,84 @@ pub struct PerpetualPositionResponse {
     pub positions: Vec<PerpetualPositionResponseObject>,
 }
 
+/// Pagination request.
+#[derive(Serialize, Default, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct PaginationRequest {
+    /// Limit.
+    pub limit: Option<u32>,
+    /// Offset.
+    pub offset: Option<u32>,
+}
+
+/// Affiliate metadata response.
+#[derive(Deserialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct AffiliateMetadataResponse {
+    /// Referral code.
+    pub referral_code: String,
+    /// Is volume eligible.
+    pub is_volume_eligible: bool,
+    /// Is affiliate.
+    pub is_affiliate: bool,
+}
+
+/// Affiliate address response.
+#[derive(Deserialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct AffiliateAddressResponse {
+    /// Address.
+    pub address: Address,
+}
+
+/// Affiliate snapshot response.
+#[derive(Deserialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct AffiliateSnapshotResponse {
+    /// Affiliate list.
+    pub affiliate_list: Vec<AffiliateSnapshotResponseObject>,
+    /// Total.
+    pub total: u32,
+    /// Current offset.
+    pub current_offset: u32,
+}
+
+/// Affiliate snapshot response object.
+#[derive(Deserialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct AffiliateSnapshotResponseObject {
+    /// Affiliate address.
+    pub affiliate_address: Address,
+    /// Affiliate referral code.
+    pub affiliate_referral_code: String,
+    /// Affiliate earnings.
+    pub affiliate_earnings: BigDecimal,
+    /// Affiliate referred trades.
+    pub affiliate_referred_trades: u32,
+    /// Affiliate total referred fees.
+    pub affiliate_total_referred_fees: BigDecimal,
+    /// Affiliate referred users.
+    pub affiliate_referred_users: u32,
+    /// Affiliate referred net protocol earnings.
+    pub affiliate_referred_net_protocol_earnings: BigDecimal,
+    /// Affiliate referred total volume.
+    pub affiliate_referred_total_volume: BigDecimal,
+    /// Affiliate referred maker fees.
+    pub affiliate_referred_maker_fees: BigDecimal,
+    /// Affiliate referred taker fees.
+    pub affiliate_referred_taker_fees: BigDecimal,
+    /// Affiliate referred maker rebates.
+    pub affiliate_referred_maker_rebates: BigDecimal,
+}
+
+/// Affiliate total volume response.
+#[derive(Deserialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct AffiliateTotalVolumeResponse {
+    /// Total volume.
+    pub total_volume: Option<BigDecimal>,
+}
+
 /// Pagination response.
 #[derive(Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
@@ -261,6 +339,55 @@ pub struct TransferBetweenResponse {
     /// Pagination.
     #[serde(flatten)]
     pub pagination: PaginationResponse,
+}
+
+/// Funding payment response.
+#[derive(Deserialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct FundingPaymentResponse {
+    /// List of funding payments.
+    pub funding_payments: Vec<FundingPaymentResponseObject>,
+    /// Pagination.
+    #[serde(flatten)]
+    pub pagination: PaginationResponse,
+}
+
+/// Funding payment response object.
+#[derive(Deserialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct FundingPaymentResponseObject {
+    /// Time (UTC).
+    pub created_at: DateTime<Utc>,
+    /// Block height.
+    pub created_at_height: Height,
+    /// Perpetual id.
+    pub perpetual_id: String,
+    /// Ticker.
+    pub ticker: Ticker,
+    /// Oracle price.
+    pub oracle_price: BigDecimal,
+    /// Size.
+    pub size: BigDecimal,
+    /// Side.
+    pub side: FundingOrderSide,
+    /// Rate.
+    pub rate: BigDecimal,
+    /// Payment.
+    pub payment: BigDecimal,
+    /// Subaccount number.
+    pub subaccount_number: SubaccountNumber,
+    /// Funding index.
+    pub funding_index: String,
+}
+
+/// Funding order side.
+#[derive(Deserialize, Debug, Clone)]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
+pub enum FundingOrderSide {
+    /// Long.
+    Long,
+    /// Short.
+    Short,
 }
 
 /// Transfer response.
