@@ -5,6 +5,7 @@ from .modules.account import AccountClient
 from .modules.markets import MarketsClient
 from .modules.status import StatusClient
 from .modules.vaults import MegaVaultClient
+from .modules.affiliate import AffiliateClient
 
 
 class IndexerClient:
@@ -18,6 +19,7 @@ class IndexerClient:
         self._account = AccountClient(host, api_timeout)
         self._status = StatusClient(host, api_timeout)
         self._megavault = MegaVaultClient(host, api_timeout)
+        self._affiliates = AffiliateClient(host, api_timeout)
 
     @property
     def markets(self) -> MarketsClient:
@@ -52,3 +54,10 @@ class IndexerClient:
         Get the megavault module
         """
         return self._megavault
+
+    @property
+    def affiliate(self) -> AffiliateClient:
+        """
+        Get the affiliate module
+        """
+        return self._affiliates
