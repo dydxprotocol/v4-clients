@@ -14,4 +14,10 @@ async def test_affiliate():
     except Exception as e:
         print(f"Error: {e}")
 
+    try:
+        response = await indexer.affiliate.get_address("NoisyPlumPOX")
+        print(f"Address: {response['address']}")
+    except Exception as e:
+        print(f"Error: {e}")
+
 asyncio.run(test_affiliate())

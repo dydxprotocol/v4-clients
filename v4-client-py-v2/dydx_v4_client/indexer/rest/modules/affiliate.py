@@ -22,3 +22,22 @@ class AffiliateClient(RestClient):
                 "address": address
             }
         )
+
+    async def get_address(self, referral_code: str) -> Any:
+        """
+        Get affiliate address
+
+        Args:
+            referral_code (str): Referral code
+
+        Returns:
+            Any: Affiliate address of the referral code
+        """
+        uri = "/v4/affiliates/address"
+
+        return await self.get(
+            uri,
+            params={
+                "referralCode": referral_code
+            }
+        )
