@@ -633,12 +633,7 @@ class AccountClient(RestClient):
             Any: The trader information
         """
         uri = "/v4/trader/search"
-        return await self.get(
-            uri,
-            params={
-                "searchParam": search_param
-            }
-        )
+        return await self.get(uri, params={"searchParam": search_param})
 
     async def get_funding_payments(
         self,
@@ -647,7 +642,7 @@ class AccountClient(RestClient):
         limit: Optional[int] = None,
         ticker: Optional[str] = None,
         after_or_at: Optional[str] = None,
-        page: Optional[int] = None
+        page: Optional[int] = None,
     ) -> Any:
         """
         Query for funding payments.
@@ -669,6 +664,39 @@ class AccountClient(RestClient):
                 "limit": limit,
                 "ticker": ticker,
                 "afterOrAt": after_or_at,
-                "page": page
-            }
+                "page": page,
+            },
+        )
+
+    async def get_funding_payments_for_parent_subaccount(
+        self,
+        address: str,
+        subaccount_id: int,
+        limit: Optional[int] = None,
+        ticker: Optional[str] = None,
+        after_or_at: Optional[str] = None,
+        page: Optional[int] = None,
+    ) -> Any:
+        """
+        Query for funding payments for a parent subaccount.
+
+        Args:
+            address (str): Address of the parent account
+            subaccount_id (int): Subaccount number
+            limit (Optinal[int]): Maximum number of result to fetch
+            ticker (Optional[str]): Ticker filter
+            after_or_at (Optional[str]): Filter result after or at specified time
+            page (Optional[int]): Number of page filter
+        """
+        uri = "/v4/fundingPayments/parentSubaccount"
+        return await self.get(
+            uri,
+            params={
+                "address": address,
+                "parentSubaccountNumber": subaccount_id,
+                "limit": limit,
+                "ticker": ticker,
+                "afterOrAt": after_or_at,
+                "page": page,
+            },
         )

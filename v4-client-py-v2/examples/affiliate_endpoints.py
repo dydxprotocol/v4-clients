@@ -4,6 +4,7 @@ from dydx_v4_client.indexer.rest.indexer_client import IndexerClient
 from dydx_v4_client.network import TESTNET
 from tests.conftest import TEST_ADDRESS
 
+
 async def test_affiliate():
     indexer = IndexerClient(TESTNET.rest_indexer)
     test_address = TEST_ADDRESS
@@ -31,5 +32,6 @@ async def test_affiliate():
         print(f"Total volume: {response['totalVolume']}")
     except Exception as e:
         print(f"Error: {e}")
+
 
 asyncio.run(test_affiliate())

@@ -238,6 +238,7 @@ async def test_get_parent_historical_pnl(indexer_rest_client, test_address):
         assert response["historicalPnl"][0] is not None
         assert response["historicalPnl"][0]["equity"] is not None
 
+
 @pytest.mark.asyncio
 @retry_on_forbidden(max_retries=3, delay=1, skip=True)
 async def test_search_traders(indexer_rest_client, test_address):
@@ -248,18 +249,36 @@ async def test_search_traders(indexer_rest_client, test_address):
     for search_param in search_params:
         response = await indexer_rest_client.account.search_traders(search_param)
         assert response is not None
-        assert response['result'] is not None
-        assert response['result']['address'] is not None
-        assert response['result']['address'] == address
-        assert response['result']['subaccountId'] is not None
-        assert response['result']['subaccountId'] == subaccount_id
-        assert response['result']['username'] is not None
-        assert response['result']['username'] == user_name
+        assert response["result"] is not None
+        assert response["result"]["address"] is not None
+        assert response["result"]["address"] == address
+        assert response["result"]["subaccountId"] is not None
+        assert response["result"]["subaccountId"] == subaccount_id
+        assert response["result"]["username"] is not None
+        assert response["result"]["username"] == user_name
+
 
 @pytest.mark.asyncio
 @retry_on_forbidden(max_retries=3, delay=1, skip=True)
 async def test_get_funding_payments(indexer_rest_client, test_address):
-    response = await indexer_rest_client.account.get_funding_payments(test_address, 0, limit=10)
+    response = await indexer_rest_client.account.get_funding_payments(
+        test_address, 0, limit=10
+    )
     assert response is not None
-    assert response['fundingPayments'] is not None
-    assert len(response['fundingPayments']) <= 10
+    assert response["fundingPayments"] is not None
+    assert len(response["fundingPayments"]) <= 10
+
+
+@pytest.mark.asyncio
+@retry_on_forbidden(max_retries=3, delay=1, skip=True)
+async def test_get_funding_payments_for_parent_subaccount(
+    indexer_rest_client, test_address
+):
+    response = (
+        await indexer_rest_client.account.get_funding_payments_for_parent_subaccount(
+            test_address, 0, limit=10
+        )
+    )
+    assert response is not None
+    assert response["fundingPayments"] is not None
+    assert len(response["fundingPayments"]) <= 10
