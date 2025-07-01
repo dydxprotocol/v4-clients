@@ -41,3 +41,33 @@ class AffiliateClient(RestClient):
                 "referralCode": referral_code
             }
         )
+
+    async def get_snapshot(self,
+        address_filter: Optional[str] = None,
+        sort_by_affiliate_earnings: Optional[bool] = False,
+        limit: Optional[int] = 10,
+        offset: Optional[int] = 0,
+    ) -> Any:
+        """
+        Get affiliate snapshot
+
+        Args:
+            address_filter (Optional[str]): Address to filter the snapshot
+            sort_by_affiliate_earnings (Optional[bool]): Sorting criteria based on affiliate earning
+            limit (Optional[int]): Number of maximum result
+            offset (Optional[int]): Offset filter
+
+        Returns:
+            Any: Snapshot based on the filters
+        """
+        uri = "/v4/affiliates/snapshot"
+
+        return await self.get(
+            uri,
+            params={
+                "addressFilter": address_filter,
+                "sortByAffiliateEarnings": sort_by_affiliate_earnings,
+                "limit": limit,
+                "offset": offset
+            }
+        )

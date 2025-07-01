@@ -20,4 +20,10 @@ async def test_affiliate():
     except Exception as e:
         print(f"Error: {e}")
 
+    try:
+        response = await indexer.affiliate.get_snapshot()
+        print(f"snapshot: {response}")
+    except Exception as e:
+        print(f"Error: {e}")
+
 asyncio.run(test_affiliate())
