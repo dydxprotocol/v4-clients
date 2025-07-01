@@ -33,5 +33,9 @@ async def test_get_snapshot(indexer_rest_client, test_address):
                 assert response['affiliateList'] is not None
                 assert len(response['affiliateList']) <= limit
 
-
-
+@pytest.mark.asyncio
+@retry_on_forbidden(max_retries=3, delay=1, skip=True)
+async def test_get_total_volume(indexer_rest_client, test_address):
+    response = await indexer_rest_client.affiliate.get_total_volume(test_address)
+    assert response is not None
+    assert response['totalVolume'] is not None

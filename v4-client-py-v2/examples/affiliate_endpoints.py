@@ -26,4 +26,10 @@ async def test_affiliate():
     except Exception as e:
         print(f"Error: {e}")
 
+    try:
+        response = await indexer.affiliate.get_total_volume(test_address)
+        print(f"Total volume: {response['totalVolume']}")
+    except Exception as e:
+        print(f"Error: {e}")
+
 asyncio.run(test_affiliate())

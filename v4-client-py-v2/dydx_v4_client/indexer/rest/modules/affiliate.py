@@ -71,3 +71,21 @@ class AffiliateClient(RestClient):
                 "offset": offset
             }
         )
+
+    async def get_total_volume(self, address: str) -> Any:
+        """
+        Get affiliate total volume.
+
+        Args:
+            address (str): The address
+
+        Returns:
+            Any: Total affiliate volume of the address associated account
+        """
+        uri = "/v4/affiliates/total_volume"
+        return await self.get(
+            uri,
+            params={
+                "address": address
+            }
+        )
