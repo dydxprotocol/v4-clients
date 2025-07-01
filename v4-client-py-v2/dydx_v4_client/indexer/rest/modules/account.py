@@ -621,3 +621,21 @@ class AccountClient(RestClient):
                 "createdOnOrAfter": created_on_or_after,
             },
         )
+
+    async def search_traders(self, search_param: str) -> Any:
+        """
+        Search trader by query string (address, username, etc).
+
+        Args:
+            search_param (str): Query string (address, username etc)
+
+        Returns:
+            Any: The trader information
+        """
+        uri = "/v4/trader/search"
+        return await self.get(
+            uri,
+            params={
+                "searchParam": search_param
+            }
+        )
