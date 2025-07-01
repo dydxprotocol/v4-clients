@@ -194,6 +194,12 @@ async def test_account():
     except Exception as e:
         print(f"Error: {e}")
 
+    try:
+        response = await indexer.account.get_funding_payments(test_address, 0, limit=10)
+        print(f"Funding payments: {response['fundingPayments']}")
+    except Exception as e:
+        print(f"Error: {e}")
+
 
 
 asyncio.run(test_account())

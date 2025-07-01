@@ -639,3 +639,36 @@ class AccountClient(RestClient):
                 "searchParam": search_param
             }
         )
+
+    async def get_funding_payments(
+        self,
+        address: str,
+        subaccount_id: int,
+        limit: Optional[int] = None,
+        ticker: Optional[str] = None,
+        after_or_at: Optional[str] = None,
+        page: Optional[int] = None
+    ) -> Any:
+        """
+        Query for funding payments.
+
+        Args:
+            address (str): Address of the account
+            subaccount_id (int): Subaccount number
+            limit (Optinal[int]): Maximum number of result to fetch
+            ticker (Optional[str]): Ticker filter
+            after_or_at (Optional[str]): Filter result after or at specified time
+            page (Optional[int]): Number of page filter
+        """
+        uri = "/v4/fundingPayments"
+        return await self.get(
+            uri,
+            params={
+                "address": address,
+                "subaccountNumber": subaccount_id,
+                "limit": limit,
+                "ticker": ticker,
+                "afterOrAt": after_or_at,
+                "page": page
+            }
+        )

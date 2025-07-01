@@ -255,3 +255,11 @@ async def test_search_traders(indexer_rest_client, test_address):
         assert response['result']['subaccountId'] == subaccount_id
         assert response['result']['username'] is not None
         assert response['result']['username'] == user_name
+
+@pytest.mark.asyncio
+@retry_on_forbidden(max_retries=3, delay=1, skip=True)
+async def test_get_funding_payments(indexer_rest_client, test_address):
+    response = await indexer_rest_client.account.get_funding_payments(test_address, 0, limit=10)
+    assert response is not None
+    assert response['fundingPayments'] is not None
+    assert len(response['fundingPayments']) <= 10
