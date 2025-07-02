@@ -621,3 +621,82 @@ class AccountClient(RestClient):
                 "createdOnOrAfter": created_on_or_after,
             },
         )
+
+    async def search_traders(self, search_param: str) -> Any:
+        """
+        Search trader by query string (address, username, etc).
+
+        Args:
+            search_param (str): Query string (address, username etc)
+
+        Returns:
+            Any: The trader information
+        """
+        uri = "/v4/trader/search"
+        return await self.get(uri, params={"searchParam": search_param})
+
+    async def get_funding_payments(
+        self,
+        address: str,
+        subaccount_id: int,
+        limit: Optional[int] = None,
+        ticker: Optional[str] = None,
+        after_or_at: Optional[str] = None,
+        page: Optional[int] = None,
+    ) -> Any:
+        """
+        Query for funding payments.
+
+        Args:
+            address (str): Address of the account
+            subaccount_id (int): Subaccount number
+            limit (Optinal[int]): Maximum number of result to fetch
+            ticker (Optional[str]): Ticker filter
+            after_or_at (Optional[str]): Filter result after or at specified time
+            page (Optional[int]): Number of page filter
+        """
+        uri = "/v4/fundingPayments"
+        return await self.get(
+            uri,
+            params={
+                "address": address,
+                "subaccountNumber": subaccount_id,
+                "limit": limit,
+                "ticker": ticker,
+                "afterOrAt": after_or_at,
+                "page": page,
+            },
+        )
+
+    async def get_funding_payments_for_parent_subaccount(
+        self,
+        address: str,
+        subaccount_id: int,
+        limit: Optional[int] = None,
+        ticker: Optional[str] = None,
+        after_or_at: Optional[str] = None,
+        page: Optional[int] = None,
+    ) -> Any:
+        """
+        Query for funding payments for a parent subaccount.
+
+        Args:
+            address (str): Address of the parent account
+            subaccount_id (int): Subaccount number
+            limit (Optinal[int]): Maximum number of result to fetch
+            ticker (Optional[str]): Ticker filter
+            after_or_at (Optional[str]): Filter result after or at specified time
+            page (Optional[int]): Number of page filter
+        """
+        uri = "/v4/fundingPayments/parentSubaccount"
+        return await self.get(
+            uri,
+            params={
+                "address": address,
+                "parentSubaccountNumber": subaccount_id,
+                "limit": limit,
+                "ticker": ticker,
+                "afterOrAt": after_or_at,
+                "page": page,
+            },
+        )
