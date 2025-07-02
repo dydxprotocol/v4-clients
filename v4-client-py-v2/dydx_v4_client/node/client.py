@@ -16,18 +16,24 @@ from v4_proto.cosmos.base.tendermint.v1beta1 import query_pb2 as tendermint_quer
 from v4_proto.cosmos.base.tendermint.v1beta1 import (
     query_pb2_grpc as tendermint_query_grpc,
 )
+from v4_proto.cosmos.base.query.v1beta1 import pagination_pb2 as pagination_query
 from v4_proto.cosmos.staking.v1beta1 import query_pb2 as staking_query
 from v4_proto.cosmos.staking.v1beta1 import query_pb2_grpc as staking_query_grpc
+from v4_proto.cosmos.distribution.v1beta1 import query_pb2 as distribution_query
+from v4_proto.cosmos.distribution.v1beta1 import (
+    query_pb2_grpc as distribution_query_grpc,
+)
 from v4_proto.cosmos.tx.v1beta1 import service_pb2_grpc
 from v4_proto.cosmos.tx.v1beta1.service_pb2 import (
     BroadcastMode,
     BroadcastTxRequest,
     SimulateRequest,
 )
+from v4_proto.cosmos.gov.v1 import query_pb2 as gov_query
+from v4_proto.cosmos.gov.v1 import query_pb2_grpc as gov_query_grpc
 from v4_proto.cosmos.tx.v1beta1.tx_pb2 import Tx
 from v4_proto.dydxprotocol.accountplus import query_pb2 as accountplus_query
 from v4_proto.dydxprotocol.accountplus import query_pb2_grpc as accountplus_query_grpc
-from v4_proto.dydxprotocol.accountplus import tx_pb2 as accountplus_tx
 from v4_proto.dydxprotocol.bridge import query_pb2 as bridge_query
 from v4_proto.dydxprotocol.bridge import query_pb2_grpc as bridge_query_grpc
 from v4_proto.dydxprotocol.clob import clob_pair_pb2 as clob_pair_type
@@ -61,6 +67,7 @@ from v4_proto.dydxprotocol.rewards import query_pb2 as rewards_query
 from v4_proto.dydxprotocol.rewards import query_pb2_grpc as rewards_query_grpc
 from v4_proto.dydxprotocol.stats import query_pb2 as stats_query
 from v4_proto.dydxprotocol.stats import query_pb2_grpc as stats_query_grpc
+from v4_proto.dydxprotocol.subaccounts import query_pb2 as subaccount_query
 from v4_proto.dydxprotocol.subaccounts import query_pb2_grpc as subaccounts_query_grpc
 from v4_proto.dydxprotocol.subaccounts import subaccount_pb2 as subaccount_type
 from v4_proto.dydxprotocol.subaccounts.query_pb2 import (
@@ -70,6 +77,10 @@ from v4_proto.dydxprotocol.subaccounts.query_pb2 import (
 )
 from v4_proto.dydxprotocol.subaccounts.subaccount_pb2 import SubaccountId
 from v4_proto.dydxprotocol.clob.tx_pb2 import OrderBatch
+from v4_proto.dydxprotocol.ratelimit import query_pb2 as rate_query
+from v4_proto.dydxprotocol.ratelimit import query_pb2_grpc as rate_query_grpc
+from v4_proto.dydxprotocol.affiliates import query_pb2 as affiliate_query
+from v4_proto.dydxprotocol.affiliates import query_pb2_grpc as affiliate_query_grpc
 
 from dydx_v4_client.network import NodeConfig
 from dydx_v4_client.node.authenticators import Authenticator, validate_authenticator
@@ -441,6 +452,166 @@ class QueryNodeClient:
         stub = accountplus_query_grpc.QueryStub(self.channel)
         return stub.GetAuthenticators(
             accountplus_query.GetAuthenticatorsRequest(account=address)
+        )
+
+    async def get_node_info(self) -> tendermint_query.GetNodeInfoResponse:
+        """
+        Query for node info.
+
+        Returns:
+            tendermint_query.GetNodeInfoResponse: The response containing the node information.
+        """
+        return tendermint_query_grpc.ServiceStub(self.channel).GetNodeInfo(
+            tendermint_query.GetNodeInfoRequest()
+        )
+
+    async def get_delegation_total_rewards(
+        self, address: str
+    ) -> distribution_query.QueryDelegationTotalRewardsResponse:
+        """
+        Get all unbonding delegations from a delegator.
+
+        Args:
+            address (str): The delegator address
+
+        Returns:
+            distribution_query.QueryDelegationTotalRewardsResponse: All unbonding delegations from a delegator.
+        """
+        return distribution_query_grpc.QueryStub(self.channel).DelegationTotalRewards(
+            distribution_query.QueryDelegationTotalRewardsRequest(
+                delegator_address=address
+            )
+        )
+
+    async def get_all_gov_proposals(
+        self,
+        proposal_status: Optional[str] = None,
+        voter: Optional[str] = None,
+        depositor: Optional[str] = None,
+        key: Optional[bytes] = None,
+        offset: Optional[int] = None,
+        limit: Optional[int] = None,
+        count_total: Optional[bool] = False,
+        reverse: Optional[bool] = False,
+    ) -> gov_query.QueryProposalsResponse:
+        """
+        Query all gov proposals
+
+        Args:
+            proposal_status (Optional[ProposalStatus]): Status of the proposal to filter by.
+            voter (Optional[str]): Voter to filter by.
+            depositor (Optional[str]): Depositor to filter by.
+            key (Optional[byte]): Key to filter by.
+            offset (Optional[int]): Offset number.
+            limit (Optional[int]): Number of items to retrieve.
+            count_total (Optional[bool]): Filter to return total count or not
+            reverse (Optional[bool]): Direction of the list
+        """
+        return gov_query_grpc.QueryStub(self.channel).Proposals(
+            gov_query.QueryProposalsRequest(
+                proposal_status=proposal_status,
+                voter=voter,
+                depositor=depositor,
+                pagination=pagination_query.PageRequest(
+                    key=key,
+                    offset=offset,
+                    limit=limit,
+                    count_total=count_total,
+                    reverse=reverse,
+                ),
+            )
+        )
+
+    async def get_withdrawal_and_transfer_gating_status(
+        self, perpetual_id: int
+    ) -> subaccount_query.QueryGetWithdrawalAndTransfersBlockedInfoResponse:
+        """
+        Query the status of the withdrawal and transfer gating
+
+        Args:
+            perpetual_id (int): The perpetual ID.
+
+        Returns:
+            subaccount_query.QueryGetWithdrawalAndTransfersBlockedInfoResponse: Withdrawal and transfer gating status of the perpetual id
+        """
+        return subaccounts_query_grpc.QueryStub(
+            self.channel
+        ).GetWithdrawalAndTransfersBlockedInfo(
+            subaccount_query.QueryGetWithdrawalAndTransfersBlockedInfoRequest(
+                perpetual_id=perpetual_id
+            )
+        )
+
+    async def get_withdrawal_capacity_by_denom(
+        self, denom: str
+    ) -> rate_query.QueryCapacityByDenomResponse:
+        """
+        Query withdrawal capacity by denomination value
+
+        Args:
+            denom (str): Denomination identifier
+
+        Returns:
+            rate_query.QueryCapacityByDenomResponse: Return withdraw capacity
+        """
+        return rate_query_grpc.QueryStub(self.channel).CapacityByDenom(
+            rate_query.QueryCapacityByDenomRequest(denom=denom)
+        )
+
+    async def get_affiliate_info(
+        self, address: str
+    ) -> affiliate_query.AffiliateInfoResponse:
+        """
+        Query affiliate information of an address
+
+        Args:
+            address (str): Address to get affiliate information of
+
+        Returns:
+            affiliate_query.AffiliateInfoResponse: Affiliate information of the address
+        """
+        return affiliate_query_grpc.QueryStub(self.channel).AffiliateInfo(
+            affiliate_query.AffiliateInfoRequest(address=address)
+        )
+
+    async def get_referred_by(self, address: str) -> affiliate_query.ReferredByResponse:
+        """
+        Query to reference information by address
+
+        Args:
+            address (str): Address to get referred by information
+
+        Returns:
+            affiliate_query.ReferredByResponse: Referred by information
+        """
+        return affiliate_query_grpc.QueryStub(self.channel).ReferredBy(
+            affiliate_query.ReferredByRequest(address=address)
+        )
+
+    async def get_all_affiliate_tiers(
+        self,
+    ) -> affiliate_query.AllAffiliateTiersResponse:
+        """
+        Query all affiliate tiers
+
+        Returns:
+            affiliate_query.AllAffiliateTiersResponse: All affiliate tiers
+        """
+        return affiliate_query_grpc.QueryStub(self.channel).AllAffiliateTiers(
+            affiliate_query.AllAffiliateTiersRequest()
+        )
+
+    async def get_affiliate_whitelist(
+        self,
+    ) -> affiliate_query.AffiliateWhitelistResponse:
+        """
+        Query whitelisted affiliate information
+
+        Returns:
+            affiliate_query.AffiliateWhitelistResponse: List of whitelisted affiliate
+        """
+        return affiliate_query_grpc.QueryStub(self.channel).AffiliateWhitelist(
+            affiliate_query.AffiliateWhitelistRequest()
         )
 
 

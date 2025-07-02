@@ -9,6 +9,7 @@ pub use options::*;
 pub use types::*;
 
 pub use client::accounts::Accounts;
+pub use client::affiliates::Affiliates;
 pub use client::markets::Markets;
 pub use client::utility::Utility;
 pub use client::vaults::Vaults;

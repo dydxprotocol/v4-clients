@@ -100,6 +100,16 @@ async fn test_indexer_utility_get_screen() -> Result<()> {
 }
 
 #[tokio::test]
+async fn test_indexer_utility_get_compliance_screen() -> Result<()> {
+    let env = TestEnv::testnet().await?;
+    env.indexer
+        .utility()
+        .get_compliance_screen(&env.address)
+        .await?;
+    Ok(())
+}
+
+#[tokio::test]
 async fn test_indexer_account_get_subaccounts() -> Result<()> {
     let env = TestEnv::testnet().await?;
     env.indexer.accounts().get_subaccounts(&env.address).await?;
@@ -329,5 +339,66 @@ async fn test_perpetual_market_quantization() -> Result<()> {
     let quantized = params.quantize_quantity(size);
     let expected = BigDecimal::from_str("4321123000000")?;
     assert_eq!(quantized, expected);
+    Ok(())
+}
+
+#[tokio::test]
+async fn test_indexer_account_get_transfers_between() -> Result<()> {
+    let env = TestEnv::testnet().await?;
+
+    let _transfers = env
+        .indexer
+        .accounts()
+        .get_transfers_between(&env.subaccount, &env.subaccount_2, None)
+        .await?;
+
+    Ok(())
+}
+
+#[tokio::test]
+async fn test_indexer_account_search_trader() -> Result<()> {
+    const ADDRESS: &str = "dydx14zzueazeh0hj67cghhf9jypslcf9sh2n5k6art";
+    const USERNAME: &str = "NoisyPlumPOX";
+    const SUBACCOUNT_ID: &str = "8586bcf6-1f58-5ec9-a0bc-e53db273e7b0";
+    const SUBACCOUNT_NUMBER: u32 = 0;
+
+    let env = TestEnv::testnet().await?;
+    let query_strings = vec![ADDRESS, USERNAME];
+
+    for query in query_strings {
+        let TraderSearchResponse { result } = env.indexer.accounts().search_trader(query).await?;
+        let result = result.ok_or_else(|| err!("Trader not found"))?;
+
+        assert_eq!(result.address, Address::from_str(ADDRESS)?);
+        assert_eq!(
+            result.subaccount_number,
+            SubaccountNumber::try_from(SUBACCOUNT_NUMBER)?
+        );
+        assert_eq!(result.username, USERNAME);
+        assert_eq!(
+            result.subaccount_id,
+            SubaccountId(SUBACCOUNT_ID.to_string())
+        );
+    }
+    Ok(())
+}
+
+#[tokio::test]
+async fn test_indexer_account_get_funding_payments() -> Result<()> {
+    let env = TestEnv::testnet().await?;
+    env.indexer
+        .accounts()
+        .get_funding_payments(&env.subaccount, None)
+        .await?;
+    Ok(())
+}
+
+#[tokio::test]
+async fn test_indexer_account_get_funding_payments_for_parent_subaccount() -> Result<()> {
+    let env = TestEnv::testnet().await?;
+    env.indexer
+        .accounts()
+        .get_funding_payments_for_parent_subaccount(&env.subaccount.parent(), None)
+        .await?;
     Ok(())
 }

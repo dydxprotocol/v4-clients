@@ -1,11 +1,15 @@
 pub mod accounts;
+pub mod affiliates;
 pub mod markets;
 pub mod utility;
 pub mod vaults;
 
 use super::config::RestConfig;
 use super::options::*;
-use crate::indexer::{rest::types::*, types::*};
+use crate::indexer::{
+    rest::{client::affiliates::Affiliates, types::*},
+    types::*,
+};
 use accounts::Accounts;
 use markets::Markets;
 use reqwest::Client;
@@ -25,6 +29,15 @@ struct Query<'t> {
 struct QueryParent<'t> {
     address: &'t Address,
     parent_subaccount_number: &'t ParentSubaccountNumber,
+}
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+struct GetTransfersBetweenQuery<'t> {
+    source_address: &'t Address,
+    source_subaccount_number: &'t SubaccountNumber,
+    recipient_address: &'t Address,
+    recipient_subaccount_number: &'t SubaccountNumber,
 }
 
 /// REST client to Indexer.
@@ -61,5 +74,10 @@ impl RestClient {
     /// Get vaults query dispatcher.
     pub(crate) fn vaults(&self) -> Vaults<'_> {
         Vaults::new(self)
+    }
+
+    /// Get affiliates query dispatcher.
+    pub(crate) fn affiliates(&self) -> Affiliates<'_> {
+        Affiliates::new(self)
     }
 }

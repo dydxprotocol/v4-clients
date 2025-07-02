@@ -18,6 +18,17 @@ async def test_subaccounts(indexer_rest_client, test_address):
 
 @pytest.mark.asyncio
 @retry_on_forbidden(max_retries=3, delay=1, skip=True)
+async def test_parent_subaccounts(indexer_rest_client, test_address):
+    response = await indexer_rest_client.account.get_parent_subaccount(test_address, 0)
+    assert response["subaccount"] is not None
+    assert len(response["subaccount"]) > 0
+    assert response["subaccount"]["address"] is not None
+    assert response["subaccount"]["childSubaccounts"] is not None
+    assert len(response["subaccount"]["childSubaccounts"]) > 0
+
+
+@pytest.mark.asyncio
+@retry_on_forbidden(max_retries=3, delay=1, skip=True)
 async def test_subaccount_0(indexer_rest_client, test_address):
     response = await indexer_rest_client.account.get_subaccount(test_address, 0)
     subaccount = response["subaccount"]
@@ -42,8 +53,36 @@ async def test_asset_positions(indexer_rest_client, test_address):
 
 @pytest.mark.asyncio
 @retry_on_forbidden(max_retries=3, delay=1, skip=True)
+async def test_parent_subaccount_asset_positions(indexer_rest_client, test_address):
+    response = await indexer_rest_client.account.get_parent_subaccount_asset_positions(
+        test_address, 0
+    )
+    assert response is not None
+    positions = response["positions"]
+    assert positions is not None
+    if len(positions) > 0:
+        position = positions[0]
+        assert position is not None
+
+
+@pytest.mark.asyncio
+@retry_on_forbidden(max_retries=3, delay=1, skip=True)
 async def test_perpetual_positions(indexer_rest_client, test_address):
     response = await indexer_rest_client.account.get_subaccount_perpetual_positions(
+        test_address, 0
+    )
+    assert response is not None
+    positions = response["positions"]
+    assert positions is not None
+    if len(positions) > 0:
+        position = positions[0]
+        assert position is not None
+
+
+@pytest.mark.asyncio
+@retry_on_forbidden(max_retries=3, delay=1, skip=True)
+async def test_parent_subaccount_positions(indexer_rest_client, test_address):
+    response = await indexer_rest_client.account.get_parent_subaccount_positions(
         test_address, 0
     )
     assert response is not None
@@ -146,3 +185,55 @@ async def test_historical_trading_rewards_aggregated(indexer_rest_client, test_a
         assert "endedAt" in aggregation
         assert "startedAtHeight" in aggregation
         assert "endedAtHeight" in aggregation
+
+
+@pytest.mark.asyncio
+@retry_on_forbidden(max_retries=3, delay=1, skip=True)
+async def test_get_transfer_between(indexer_rest_client, test_address):
+    response = await indexer_rest_client.account.get_transfer_between(
+        test_address, 0, test_address, 1
+    )
+    assert response["transfersSubset"] is not None
+
+
+@pytest.mark.asyncio
+@retry_on_forbidden(max_retries=3, delay=1, skip=True)
+async def test_get_parent_transfers(indexer_rest_client, test_address):
+    response = await indexer_rest_client.account.get_parent_transfers(test_address, 0)
+    assert response["transfers"] is not None
+
+
+@pytest.mark.asyncio
+@retry_on_forbidden(max_retries=3, delay=1, skip=True)
+async def test_list_parent_orders(indexer_rest_client, test_address):
+    response = await indexer_rest_client.account.list_parent_orders(test_address, 0)
+    assert response is not None
+    if len(response) > 0:
+        assert response[0] is not None
+        assert response[0]["id"] is not None
+
+
+@pytest.mark.asyncio
+@retry_on_forbidden(max_retries=3, delay=1, skip=True)
+async def test_parent_fills(indexer_rest_client, test_address):
+    response = await indexer_rest_client.account.get_parent_fills(test_address, 0)
+    assert response is not None
+    fills = response["fills"]
+    assert fills is not None
+    if len(fills) > 0:
+        fill = fills[0]
+        assert fill is not None
+        assert fill["id"] is not None
+
+
+@pytest.mark.asyncio
+@retry_on_forbidden(max_retries=3, delay=1, skip=True)
+async def test_get_parent_historical_pnl(indexer_rest_client, test_address):
+    response = await indexer_rest_client.account.get_parent_historical_pnls(
+        test_address, 0
+    )
+    assert response is not None
+    assert response["historicalPnl"] is not None
+    if len(response["historicalPnl"]) > 0:
+        assert response["historicalPnl"][0] is not None
+        assert response["historicalPnl"][0]["equity"] is not None

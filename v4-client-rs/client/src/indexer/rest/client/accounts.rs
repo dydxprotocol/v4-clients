@@ -517,4 +517,113 @@ impl<'a> Accounts<'a> {
             .rewards;
         Ok(aggregated)
     }
+
+    /// Query for transfers between subaccounts.
+    ///
+    /// [Reference](https://docs.dydx.xyz/indexer-client/http#get-transfers-between)
+    pub async fn get_transfers_between(
+        &self,
+        source_subaccount: &Subaccount,
+        recipient_subaccount: &Subaccount,
+        opts: Option<GetTransfersBetweenOpts>,
+    ) -> Result<TransferBetweenResponse, Error> {
+        let rest = &self.rest;
+        const URI: &str = "/v4/transfers/between";
+        let url = format!("{}{URI}", rest.config.endpoint);
+        let query = GetTransfersBetweenQuery {
+            source_address: &source_subaccount.address,
+            source_subaccount_number: &source_subaccount.number,
+            recipient_address: &recipient_subaccount.address,
+            recipient_subaccount_number: &recipient_subaccount.number,
+        };
+        let transfers = rest
+            .client
+            .get(url)
+            .query(&query)
+            .query(&opts)
+            .send()
+            .await?
+            .error_for_status()?
+            .json::<TransferBetweenResponse>()
+            .await?;
+
+        Ok(transfers)
+    }
+
+    /// Search trader by query string (address, subaccount id, username, etc).
+    ///
+    /// [Reference](https://docs.dydx.xyz/indexer-client/http#search-traders)
+    pub async fn search_trader(&self, search_param: &str) -> Result<TraderSearchResponse, Error> {
+        let rest = &self.rest;
+        const URI: &str = "/v4/trader/search";
+        let url = format!("{}{URI}", rest.config.endpoint);
+        let trader = rest
+            .client
+            .get(url)
+            .query(&[("searchParam", search_param)])
+            .send()
+            .await?
+            .error_for_status()?
+            .json::<TraderSearchResponse>()
+            .await?;
+        Ok(trader)
+    }
+
+    /// Query for funding payments.
+    ///
+    /// [Reference](todo!).
+    pub async fn get_funding_payments(
+        &self,
+        subaccount: &Subaccount,
+        opts: Option<GetFundingPaymentsOpts>,
+    ) -> Result<FundingPaymentResponse, Error> {
+        let rest = &self.rest;
+        const URI: &str = "/v4/fundingPayments";
+        let url = format!("{}{URI}", rest.config.endpoint);
+        let query = Query {
+            address: &subaccount.address,
+            subaccount_number: &subaccount.number,
+        };
+        let options = opts.unwrap_or_default();
+        let funding_payments = rest
+            .client
+            .get(url)
+            .query(&query)
+            .query(&options)
+            .send()
+            .await?
+            .error_for_status()?
+            .json::<FundingPaymentResponse>()
+            .await?;
+        Ok(funding_payments)
+    }
+
+    /// Query for funding payments for a parent subaccount.
+    ///
+    /// [Reference](todo!).
+    pub async fn get_funding_payments_for_parent_subaccount(
+        &self,
+        subaccount: &ParentSubaccount,
+        opts: Option<GetFundingPaymentsOpts>,
+    ) -> Result<FundingPaymentResponse, Error> {
+        let rest = &self.rest;
+        const URI: &str = "/v4/fundingPayments";
+        let url = format!("{}{URI}/parentSubaccount", rest.config.endpoint);
+        let query = QueryParent {
+            address: &subaccount.address,
+            parent_subaccount_number: &subaccount.number,
+        };
+        let options = opts.unwrap_or_default();
+        let funding_payments = rest
+            .client
+            .get(url)
+            .query(&query)
+            .query(&options)
+            .send()
+            .await?
+            .error_for_status()?
+            .json::<FundingPaymentResponse>()
+            .await?;
+        Ok(funding_payments)
+    }
 }

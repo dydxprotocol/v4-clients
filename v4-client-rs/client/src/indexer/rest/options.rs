@@ -65,16 +65,39 @@ pub struct ListPositionsOpts {
 }
 
 /// Filter options for transfers.
-#[derive(Serialize, Default)]
+#[derive(Serialize, Default, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct GetTransfersOpts {
     /// Limit.
     pub limit: Option<u32>,
+    /// Page.
+    pub page: Option<u32>,
     /// Block height.
     pub created_before_or_at_height: Option<Height>,
     /// Time.
     pub created_before_or_at: Option<DateTime<Utc>>,
 }
+
+/// Filter options for funding payments.
+#[derive(Serialize, Default)]
+#[serde(rename_all = "camelCase")]
+pub struct GetFundingPaymentsOpts {
+    /// Limit.
+    pub limit: Option<u32>,
+    /// Ticker.
+    pub ticker: Option<Ticker>,
+    /// After or at.
+    pub after_or_at: Option<DateTime<Utc>>,
+    /// Page.
+    pub page: Option<u32>,
+}
+
+/// Filter options for transfers between subaccounts.
+///
+/// ## Dev Note
+/// This is the same as GetTransfersOpts, but it's named differently to allow
+/// for future changes to the GetTransfersBetweenOpts struct.
+pub type GetTransfersBetweenOpts = GetTransfersOpts;
 
 /// Filter options for orders.
 #[derive(Serialize, Default)]

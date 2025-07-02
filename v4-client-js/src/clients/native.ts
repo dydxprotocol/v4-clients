@@ -265,6 +265,22 @@ export async function getPerpetualMarkets(): Promise<string> {
   }
 }
 
+export async function isWalletConnected(): Promise<string> {
+  try {
+    const client = globalThis.client;
+    if (client === undefined) {
+      throw new UserError('client is not connected. Call connectClient() first');
+    }
+    const wallet = globalThis.wallet;
+    if (wallet === undefined) {
+      throw new UserError('wallet is not set. Call connectWallet() first');
+    }
+    return await encodeJson( { "result": true } );
+  } catch (e) {
+    return wrappedError(e);
+  }
+}
+
 export async function placeOrder(payload: string): Promise<string> {
   try {
     const client = globalThis.client;

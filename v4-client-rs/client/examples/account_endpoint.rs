@@ -62,9 +62,15 @@ async fn main() -> Result<()> {
     };
     let transfers = indexer
         .accounts()
-        .get_transfers(&subaccount, Some(trf_opts))
+        .get_transfers(&subaccount, Some(trf_opts.clone()))
         .await?;
     tracing::info!("Transfers response: {:?}", transfers);
+
+    let transfers_between = indexer
+        .accounts()
+        .get_transfers_between(&subaccount, &subaccount, Some(trf_opts))
+        .await?;
+    tracing::info!("Transfers between response: {:?}", transfers_between);
 
     let ord_opts = ListOrdersOpts {
         ticker: Some(Ticker::from("ETH-USD")),
@@ -200,6 +206,27 @@ async fn main() -> Result<()> {
         .get_parent_historical_pnl(&parent_subaccount, Some(pnl_opts))
         .await?;
     tracing::info!("Historical PnLs response (parent subaccount): {:?}", pnls);
+
+    let trader_search = indexer
+        .accounts()
+        .search_trader(address.to_string().as_str())
+        .await?;
+    tracing::info!("Trader search response: {:?}", trader_search);
+
+    let funding_payments = indexer
+        .accounts()
+        .get_funding_payments(&subaccount, None)
+        .await?;
+    tracing::info!("Funding payments response: {:?}", funding_payments);
+
+    let funding_payments = indexer
+        .accounts()
+        .get_funding_payments_for_parent_subaccount(&parent_subaccount, None)
+        .await?;
+    tracing::info!(
+        "Funding payments response (parent subaccount): {:?}",
+        funding_payments
+    );
 
     Ok(())
 }

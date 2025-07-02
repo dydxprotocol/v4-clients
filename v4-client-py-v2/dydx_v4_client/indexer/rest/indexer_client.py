@@ -4,6 +4,7 @@ from .constants import DEFAULT_API_TIMEOUT
 from .modules.account import AccountClient
 from .modules.markets import MarketsClient
 from .modules.status import StatusClient
+from .modules.vaults import MegaVaultClient
 
 
 class IndexerClient:
@@ -16,6 +17,7 @@ class IndexerClient:
         self._markets = MarketsClient(host, api_timeout)
         self._account = AccountClient(host, api_timeout)
         self._status = StatusClient(host, api_timeout)
+        self._megavault = MegaVaultClient(host, api_timeout)
 
     @property
     def markets(self) -> MarketsClient:
@@ -43,3 +45,10 @@ class IndexerClient:
         Get the status module, used for interacting with non-market public endpoints.
         """
         return self._status
+
+    @property
+    def megavault(self) -> MegaVaultClient:
+        """
+        Get the megavault module
+        """
+        return self._megavault

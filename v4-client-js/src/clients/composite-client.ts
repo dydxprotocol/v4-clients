@@ -76,6 +76,40 @@ export interface PermissionedKeysAccountAuth {
   accountForOrder: SubaccountInfo;
 }
 
+export type PlaceOrderPayload = {
+  subaccountNumber: number;
+  marketId: string;
+  type: OrderType;
+  side: OrderSide;
+  price: number;
+  size: number;
+  clientId: number;
+  timeInForce?: OrderTimeInForce;
+  goodTilTimeInSeconds?: number;
+  execution?: OrderExecution;
+  postOnly?: boolean;
+  reduceOnly?: boolean;
+  triggerPrice?: number;
+  marketInfo?: MarketInfo;
+  currentHeight?: number;
+  goodTilBlock?: number;
+};
+
+export type CancelRawOrderPayload = {
+  subaccountNumber: number;
+  clientId: number;
+  orderFlags: OrderFlags;
+  clobPairId: number;
+  goodTilBlock?: number;
+  goodTilBlockTime?: number;
+};
+
+export type TransferToSubaccountPayload = {
+  sourceSubaccountNumber: number;
+  recipientSubaccountNumber: number;
+  transferAmount: string;
+};
+
 export class CompositeClient {
   public readonly network: Network;
   public gasDenom: SelectedGasDenom = SelectedGasDenom.USDC;
@@ -476,7 +510,6 @@ export class CompositeClient {
     type: OrderType,
     side: OrderSide,
     price: number,
-    // trigger_price: number,   // not used for MARKET and LIMIT
     size: number,
     clientId: number,
     timeInForce?: OrderTimeInForce,
@@ -1081,6 +1114,110 @@ export class CompositeClient {
     return Buffer.from(signature).toString('base64');
   }
 
+  async bulkCancelAndTransferAndPlaceStatefulOrders(
+    subaccount: SubaccountInfo,
+    // these are executed in this order, all in one block, and all succeed or all fail
+    cancelOrderPayloads: CancelRawOrderPayload[],
+    transferToSubaccountPayload: TransferToSubaccountPayload | undefined,
+    placeOrderPayloads: PlaceOrderPayload[],
+    memo?: string,
+    broadcastMode?: BroadcastMode,
+  ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
+    if (cancelOrderPayloads.some((c) => c.orderFlags === OrderFlags.SHORT_TERM)) {
+      throw new Error('SHORT_TERM cancels cannot be batched');
+    }
+
+    if (
+      placeOrderPayloads.some(
+        (placePayload) =>
+          calculateOrderFlags(placePayload.type, placePayload.timeInForce) ===
+          OrderFlags.SHORT_TERM,
+      )
+    ) {
+      throw new Error('SHORT_TERM orders cannot be batched');
+    }
+
+    const account: Promise<Account> = this.validatorClient.post.account(
+      subaccount.address,
+      undefined,
+    );
+
+    const msgs: Promise<EncodeObject[]> = (async () => {
+      const cancelMsgPromises = cancelOrderPayloads.map(async (cancelPayload) => {
+        const cancelSubaccount = new SubaccountInfo(
+          subaccount.wallet,
+          cancelPayload.subaccountNumber,
+        );
+        return this.validatorClient.post.cancelOrderMsg(
+          cancelSubaccount.address,
+          cancelSubaccount.subaccountNumber,
+          cancelPayload.clientId,
+          cancelPayload.orderFlags,
+          cancelPayload.clobPairId,
+          cancelPayload.goodTilBlock,
+          cancelPayload.goodTilBlockTime,
+        );
+      });
+
+      const transferMsg = (() => {
+        if (transferToSubaccountPayload == null) {
+          return undefined;
+        }
+        const transferSubaccount = new SubaccountInfo(
+          subaccount.wallet,
+          transferToSubaccountPayload?.sourceSubaccountNumber,
+        );
+        return this.transferToSubaccountMessage(
+          transferSubaccount,
+          transferSubaccount.address,
+          transferToSubaccountPayload.recipientSubaccountNumber,
+          transferToSubaccountPayload.transferAmount,
+        );
+      })();
+
+      const placeOrderMsgPromises = placeOrderPayloads.map((placePayload) => {
+        const placeSubaccount = new SubaccountInfo(
+          subaccount.wallet,
+          placePayload.subaccountNumber,
+        );
+        return this.placeOrderMessage(
+          placeSubaccount,
+          placePayload.marketId,
+          placePayload.type,
+          placePayload.side,
+          placePayload.price,
+          placePayload.size,
+          placePayload.clientId,
+          placePayload.timeInForce,
+          placePayload.goodTilTimeInSeconds,
+          placePayload.execution,
+          placePayload.postOnly,
+          placePayload.reduceOnly,
+          placePayload.triggerPrice,
+          placePayload.marketInfo,
+          placePayload.currentHeight,
+          placePayload.goodTilBlock,
+        );
+      });
+
+      return Promise.all([
+        ...cancelMsgPromises,
+        ...(transferMsg != null ? [transferMsg] : []),
+        ...placeOrderMsgPromises,
+      ]);
+    })();
+
+    return this.send(
+      subaccount.wallet,
+      () => msgs,
+      true,
+      undefined,
+      memo,
+      broadcastMode ?? Method.BroadcastTxCommit,
+      () => account,
+    );
+  }
+
   // vaults
 
   async depositToMegavault(
@@ -1302,7 +1439,7 @@ export class CompositeClient {
 
     // The top-level authenticator must pass validation
     if (!checkAuthenticator(authenticator)) {
-      return false
+      return false;
     }
 
     return true;

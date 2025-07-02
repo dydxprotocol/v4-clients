@@ -68,4 +68,25 @@ impl<'a> Utility<'a> {
             .await?;
         Ok(resp)
     }
+
+    /// Screens an address to determine if it is restricted.
+    ///
+    /// [Reference](https://docs.dydx.exchange/api_integration-indexer/indexer_api#compliance-screen).
+    pub async fn get_compliance_screen(
+        &self,
+        address: &Address,
+    ) -> Result<ComplianceV2Response, Error> {
+        let rest = &self.rest;
+        const URI: &str = "/v4/compliance/screen";
+        let url = format!("{}{URI}/{address}", rest.config.endpoint);
+        let resp = rest
+            .client
+            .get(url)
+            .send()
+            .await?
+            .error_for_status()?
+            .json()
+            .await?;
+        Ok(resp)
+    }
 }

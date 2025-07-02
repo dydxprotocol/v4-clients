@@ -117,6 +117,52 @@ pub struct ComplianceResponse {
     pub reason: Option<String>,
 }
 
+/// Compliance status.
+#[derive(Deserialize, Debug, Clone)]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
+pub enum ComplianceStatus {
+    /// Compliant.
+    Compliant,
+    /// First strike close only.
+    FirstStrikeCloseOnly,
+    /// First strike.
+    FirstStrike,
+    /// Close only.
+    CloseOnly,
+    /// Blocked.
+    Blocked,
+}
+
+/// Compliance reason.
+#[derive(Deserialize, Debug, Clone)]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
+pub enum ComplianceReason {
+    /// Manual.
+    Manual,
+    /// US geo.
+    UsGeo,
+    /// CA geo.
+    CaGeo,
+    /// GB geo.
+    GbGeo,
+    /// Sanctioned geo.
+    SanctionedGeo,
+    /// Compliance provider.
+    ComplianceProvider,
+}
+
+/// Compliance response v2.
+#[derive(Deserialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct ComplianceV2Response {
+    /// Status.
+    pub status: ComplianceStatus,
+    /// Reason.
+    pub reason: Option<ComplianceReason>,
+    /// Updated at.
+    pub updated_at: Option<DateTime<Utc>>,
+}
+
 /// Address response.
 #[derive(Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
@@ -159,12 +205,189 @@ pub struct PerpetualPositionResponse {
     pub positions: Vec<PerpetualPositionResponseObject>,
 }
 
+/// Pagination request.
+#[derive(Serialize, Default, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct PaginationRequest {
+    /// Limit.
+    pub limit: Option<u32>,
+    /// Offset.
+    pub offset: Option<u32>,
+}
+
+/// Affiliate metadata response.
+#[derive(Deserialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct AffiliateMetadataResponse {
+    /// Referral code.
+    pub referral_code: String,
+    /// Is volume eligible.
+    pub is_volume_eligible: bool,
+    /// Is affiliate.
+    pub is_affiliate: bool,
+}
+
+/// Affiliate address response.
+#[derive(Deserialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct AffiliateAddressResponse {
+    /// Address.
+    pub address: Address,
+}
+
+/// Affiliate snapshot response.
+#[derive(Deserialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct AffiliateSnapshotResponse {
+    /// Affiliate list.
+    pub affiliate_list: Vec<AffiliateSnapshotResponseObject>,
+    /// Total.
+    pub total: u32,
+    /// Current offset.
+    pub current_offset: u32,
+}
+
+/// Affiliate snapshot response object.
+#[derive(Deserialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct AffiliateSnapshotResponseObject {
+    /// Affiliate address.
+    pub affiliate_address: Address,
+    /// Affiliate referral code.
+    pub affiliate_referral_code: String,
+    /// Affiliate earnings.
+    pub affiliate_earnings: BigDecimal,
+    /// Affiliate referred trades.
+    pub affiliate_referred_trades: u32,
+    /// Affiliate total referred fees.
+    pub affiliate_total_referred_fees: BigDecimal,
+    /// Affiliate referred users.
+    pub affiliate_referred_users: u32,
+    /// Affiliate referred net protocol earnings.
+    pub affiliate_referred_net_protocol_earnings: BigDecimal,
+    /// Affiliate referred total volume.
+    pub affiliate_referred_total_volume: BigDecimal,
+    /// Affiliate referred maker fees.
+    pub affiliate_referred_maker_fees: BigDecimal,
+    /// Affiliate referred taker fees.
+    pub affiliate_referred_taker_fees: BigDecimal,
+    /// Affiliate referred maker rebates.
+    pub affiliate_referred_maker_rebates: BigDecimal,
+}
+
+/// Affiliate total volume response.
+#[derive(Deserialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct AffiliateTotalVolumeResponse {
+    /// Total volume.
+    pub total_volume: Option<BigDecimal>,
+}
+
+/// Pagination response.
+#[derive(Deserialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct PaginationResponse {
+    /// Page size.
+    pub page_size: Option<u32>,
+    /// Total results.
+    pub total_results: Option<u32>,
+    /// Offset.
+    pub offset: Option<u32>,
+}
+
 /// Transfers response.
 #[derive(Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct TransferResponse {
     /// List of transfers.
     pub transfers: Vec<TransferResponseObject>,
+    /// Pagination.
+    #[serde(flatten)]
+    pub pagination: PaginationResponse,
+}
+
+/// Trader search response.
+#[derive(Deserialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct TraderSearchResponse {
+    /// Result.
+    pub result: Option<TraderSearchResponseObject>,
+}
+
+/// Trader search response object.
+#[derive(Deserialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct TraderSearchResponseObject {
+    /// Address.
+    pub address: Address,
+    /// Subaccount number.
+    pub subaccount_number: SubaccountNumber,
+    /// Subaccount id.
+    pub subaccount_id: SubaccountId,
+    /// Username.
+    pub username: String,
+}
+
+/// Transfer between response.
+#[derive(Deserialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct TransferBetweenResponse {
+    /// List of transfers.
+    pub transfers_subset: Vec<TransferResponseObject>,
+    /// Total net transfers.
+    pub total_net_transfers: BigDecimal,
+    /// Pagination.
+    #[serde(flatten)]
+    pub pagination: PaginationResponse,
+}
+
+/// Funding payment response.
+#[derive(Deserialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct FundingPaymentResponse {
+    /// List of funding payments.
+    pub funding_payments: Vec<FundingPaymentResponseObject>,
+    /// Pagination.
+    #[serde(flatten)]
+    pub pagination: PaginationResponse,
+}
+
+/// Funding payment response object.
+#[derive(Deserialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct FundingPaymentResponseObject {
+    /// Time (UTC).
+    pub created_at: DateTime<Utc>,
+    /// Block height.
+    pub created_at_height: Height,
+    /// Perpetual id.
+    pub perpetual_id: String,
+    /// Ticker.
+    pub ticker: Ticker,
+    /// Oracle price.
+    pub oracle_price: BigDecimal,
+    /// Size.
+    pub size: BigDecimal,
+    /// Side.
+    pub side: FundingOrderSide,
+    /// Rate.
+    pub rate: BigDecimal,
+    /// Payment.
+    pub payment: BigDecimal,
+    /// Subaccount number.
+    pub subaccount_number: SubaccountNumber,
+    /// Funding index.
+    pub funding_index: String,
+}
+
+/// Funding order side.
+#[derive(Deserialize, Debug, Clone)]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
+pub enum FundingOrderSide {
+    /// Long.
+    Long,
+    /// Short.
+    Short,
 }
 
 /// Transfer response.
@@ -250,10 +473,6 @@ pub struct HistoricalPnlResponse {
 #[derive(Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct PnlTicksResponseObject {
-    /// Report id.
-    pub id: PnlTickId,
-    /// Subaccount id.
-    pub subaccount_id: SubaccountId,
     /// Block height.
     pub block_height: Height,
     /// Time (UTC).

@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 use strum::{AsRefStr, Display};
 
 /// [Chain ID](https://docs.dydx.exchange/infrastructure_providers-network/network_constants#chain-id)
-/// serves as a unique chain identificator to prevent replay attacks.
+/// serves as a unique chain identifier to prevent replay attacks.
 ///
 /// See also [Cosmos ecosystem](https://cosmos.directory/).
 #[derive(Debug, Eq, PartialEq, Clone, Display, AsRefStr, Deserialize, Serialize)]
