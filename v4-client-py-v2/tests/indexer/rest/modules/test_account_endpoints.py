@@ -237,3 +237,48 @@ async def test_get_parent_historical_pnl(indexer_rest_client, test_address):
     if len(response["historicalPnl"]) > 0:
         assert response["historicalPnl"][0] is not None
         assert response["historicalPnl"][0]["equity"] is not None
+
+
+@pytest.mark.asyncio
+@retry_on_forbidden(max_retries=3, delay=1, skip=True)
+async def test_search_traders(indexer_rest_client, test_address):
+    address = "dydx14zzueazeh0hj67cghhf9jypslcf9sh2n5k6art"
+    subaccount_id = "8586bcf6-1f58-5ec9-a0bc-e53db273e7b0"
+    user_name = "NoisyPlumPOX"
+    search_params = [address, user_name]
+    for search_param in search_params:
+        response = await indexer_rest_client.account.search_traders(search_param)
+        assert response is not None
+        assert response["result"] is not None
+        assert response["result"]["address"] is not None
+        assert response["result"]["address"] == address
+        assert response["result"]["subaccountId"] is not None
+        assert response["result"]["subaccountId"] == subaccount_id
+        assert response["result"]["username"] is not None
+        assert response["result"]["username"] == user_name
+
+
+@pytest.mark.asyncio
+@retry_on_forbidden(max_retries=3, delay=1, skip=True)
+async def test_get_funding_payments(indexer_rest_client, test_address):
+    response = await indexer_rest_client.account.get_funding_payments(
+        test_address, 0, limit=10
+    )
+    assert response is not None
+    assert response["fundingPayments"] is not None
+    assert len(response["fundingPayments"]) <= 10
+
+
+@pytest.mark.asyncio
+@retry_on_forbidden(max_retries=3, delay=1, skip=True)
+async def test_get_funding_payments_for_parent_subaccount(
+    indexer_rest_client, test_address
+):
+    response = (
+        await indexer_rest_client.account.get_funding_payments_for_parent_subaccount(
+            test_address, 0, limit=10
+        )
+    )
+    assert response is not None
+    assert response["fundingPayments"] is not None
+    assert len(response["fundingPayments"]) <= 10
