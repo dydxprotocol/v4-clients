@@ -1055,31 +1055,20 @@ class NodeClient(MutatingNodeClient):
         Returns:
             Tx: Returns transaction information
         """
-        transaction = self.__create_base_transaction(wallet, message)
         if self.sequence_manager:
             self.sequence_manager.before_send(wallet)
+
+        transaction = self.builder.build(wallet, message)
         simulated_response = self.simulate(transaction)
 
         response = self.build_transaction(
             wallet=wallet,
-            messages=[message],
+            messages=transaction.body.messages,
             fee=self.builder.calculate_fee(simulated_response.gas_info.gas_used)
         )
         if self.sequence_manager:
             self.sequence_manager.after_send(wallet)
         return response
-
-    async def __create_base_transaction(self, wallet: Wallet, message: Message) -> Any:
-        authenticators = self.get_authenticators(wallet.address)
-        return self.builder.build_transaction(
-            wallet=wallet,
-            messages=[message],
-            tx_options=TxOptions(
-                authenticators=[authenticators.account_authenticators[-1].id] if authenticators is not None and len(authenticators) > 0 else [],
-                sequence=wallet.sequence,
-                account_number=wallet.account_number
-            )
-        )
 
     async def query_transaction(self, tx_hash: str) -> Tx:
         """
