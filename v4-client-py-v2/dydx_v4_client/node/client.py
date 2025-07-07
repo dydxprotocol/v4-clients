@@ -83,6 +83,7 @@ from v4_proto.dydxprotocol.ratelimit import query_pb2 as rate_query
 from v4_proto.dydxprotocol.ratelimit import query_pb2_grpc as rate_query_grpc
 from v4_proto.dydxprotocol.affiliates import query_pb2 as affiliate_query
 from v4_proto.dydxprotocol.affiliates import query_pb2_grpc as affiliate_query_grpc
+from v4_proto.dydxprotocol.listing.tx_pb2 import MsgCreateMarketPermissionless
 
 from dydx_v4_client.network import NodeConfig
 from dydx_v4_client.node.authenticators import Authenticator, validate_authenticator
@@ -1109,7 +1110,7 @@ class NodeClient(MutatingNodeClient):
         Fetch account's number and sequence number from the network.
 
         Args:
-            address: Account address
+            address (str): Account address
 
         Returns:
             (int,int): Tuple of account number and sequence number
@@ -1118,3 +1119,29 @@ class NodeClient(MutatingNodeClient):
         if account is None:
             raise Exception(f"No account found with associated {address}")
         return (account.account_number, account.sequence)
+
+    async def create_market_permissionless(
+        self,
+        wallet: Wallet,
+        ticker: str,
+        address: str,
+        subaccount_id: int
+    ) -> Any:
+        """
+        Create a market permissionless
+
+        Args:
+            wallet (Wallet): Wallet
+            ticker (str): The market identifier
+            address (str): Subaccount address
+            subaccount_id (int): Subaccount number
+        """
+        msg = MsgCreateMarketPermissionless(
+            ticker=ticker,
+            subaccountId = SubaccountId(
+                owner=address,
+                number=subaccount_id
+            )
+        )
+        tx_raw = self.send_message(wallet=wallet, message=msg)
+        return await self.broadcast(tx_raw)
