@@ -83,6 +83,7 @@ from v4_proto.dydxprotocol.ratelimit import query_pb2 as rate_query
 from v4_proto.dydxprotocol.ratelimit import query_pb2_grpc as rate_query_grpc
 from v4_proto.dydxprotocol.affiliates import query_pb2 as affiliate_query
 from v4_proto.dydxprotocol.affiliates import query_pb2_grpc as affiliate_query_grpc
+from v4_proto.dydxprotocol.affiliates.tx_pb2 import MsgRegisterAffiliate
 from v4_proto.dydxprotocol.listing.tx_pb2 import MsgCreateMarketPermissionless
 
 from dydx_v4_client.network import NodeConfig
@@ -1142,6 +1143,27 @@ class NodeClient(MutatingNodeClient):
                 owner=address,
                 number=subaccount_id
             )
+        )
+        tx_raw = self.send_message(wallet=wallet, message=msg)
+        return await self.broadcast(tx_raw)
+
+    async def register_affiliate(
+        self,
+        wallet: Wallet,
+        referee: str,
+        affiliate: str
+    ) -> Any:
+        """
+        Register a referee-affiliate relationship.
+
+        Args:
+            wallet (Wallet): The Wallet
+            referee (str): Affiliate referee address
+            affiliate (str): Affiliate address
+        """
+        msg = MsgRegisterAffiliate(
+            referee=referee,
+            affiliate=affiliate
         )
         tx_raw = self.send_message(wallet=wallet, message=msg)
         return await self.broadcast(tx_raw)
