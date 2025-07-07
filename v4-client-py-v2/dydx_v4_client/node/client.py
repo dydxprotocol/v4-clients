@@ -35,7 +35,6 @@ from v4_proto.cosmos.tx.v1beta1.service_pb2 import (
 from v4_proto.cosmos.gov.v1 import query_pb2 as gov_query
 from v4_proto.cosmos.gov.v1 import query_pb2_grpc as gov_query_grpc
 from v4_proto.cosmos.tx.v1beta1.tx_pb2 import Tx
-from v4_proto.cosmos.staking.v1beta1 import tx_pb2
 from v4_proto.dydxprotocol.accountplus import query_pb2 as accountplus_query
 from v4_proto.dydxprotocol.accountplus import query_pb2_grpc as accountplus_query_grpc
 from v4_proto.dydxprotocol.bridge import query_pb2 as bridge_query
@@ -103,7 +102,8 @@ from dydx_v4_client.node.message import (
     create_market_permissionless,
     register_affiliate,
     withdraw_delegator_reward,
-    undelegate
+    undelegate,
+    delegate
 )
 from dydx_v4_client.wallet import Wallet
 
@@ -1133,41 +1133,29 @@ class NodeClient(MutatingNodeClient):
         msg = create_market_permissionless(ticker=ticker, address=address, subaccount_id=subaccount_id)
         return await self.send_message(wallet=wallet, message=msg)
 
-    async def register_affiliate(
-        self,
-        wallet: Wallet,
-        referee: str,
-        affiliate: str
-    ) -> Any:
-        """
-        Register a referee-affiliate relationship.
-
-        Args:
-            wallet (Wallet): The Wallet
-            referee (str): Affiliate referee address
-            affiliate (str): Affiliate address
-        """
-        msg = register_affiliate(referee=referee, affiliate=affiliate)
-        return await self.send_message(wallet=wallet, message=msg)
-
-    async def withdraw_delegate_reward(
+    async def delegate(
         self,
         wallet: Wallet,
         delegator: str,
-        validator: str
-    ) -> Any:
+        validator: str,
+        quamtums: int,
+        denomination: str
+    ):
         """
-        Delegation withdrawal to a delegator from a validator.
+        Delegate coins from a delegator to a validator.
 
         Args:
-            wallet (Wallet): The wallet info
-            delegator (str): The delegator address
-            validator (str): The validator address
-
-        Returns:
-            Any: withdrawal delegate reward
+            wallet (Wallet): The wallet
+            delegator (str): Delegator address
+            validator (str): Validator address
+            quantums (int): amount
+            denomination (str): Denomination
         """
-        msg = withdraw_delegator_reward(delegator=delegator, validator=validator)
+        msg = delegate(
+            delegator_address=delegator,
+            validator_address=validator,
+            amount=Coin(amount=str(quamtums), denomination=denomination)
+        )
         return await self.send_message(wallet, msg)
 
     async def undelegate(
@@ -1194,3 +1182,40 @@ class NodeClient(MutatingNodeClient):
             amount=Coin(amount=str(quamtums), denomination=denomination)
         )
         return await self.send_message(wallet, msg)
+
+    async def withdraw_delegate_reward(
+        self,
+        wallet: Wallet,
+        delegator: str,
+        validator: str
+    ) -> Any:
+        """
+        Delegation withdrawal to a delegator from a validator.
+
+        Args:
+            wallet (Wallet): The wallet info
+            delegator (str): The delegator address
+            validator (str): The validator address
+
+        Returns:
+            Any: withdrawal delegate reward
+        """
+        msg = withdraw_delegator_reward(delegator=delegator, validator=validator)
+        return await self.send_message(wallet, msg)
+
+    async def register_affiliate(
+        self,
+        wallet: Wallet,
+        referee: str,
+        affiliate: str
+    ) -> Any:
+        """
+        Register a referee-affiliate relationship.
+
+        Args:
+            wallet (Wallet): The Wallet
+            referee (str): Affiliate referee address
+            affiliate (str): Affiliate address
+        """
+        msg = register_affiliate(referee=referee, affiliate=affiliate)
+        return await self.send_message(wallet=wallet, message=msg)

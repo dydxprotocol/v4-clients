@@ -3,7 +3,7 @@ from typing import List
 from v4_proto.cosmos.bank.v1beta1.tx_pb2 import MsgSend
 from v4_proto.cosmos.base.v1beta1.coin_pb2 import Coin
 from v4_proto.cosmos.distribution.v1beta1.tx_pb2 import MsgWithdrawDelegatorReward
-from v4_proto.cosmos.staking.v1beta1.tx_pb2 import MsgUndelegate
+from v4_proto.cosmos.staking.v1beta1.tx_pb2 import MsgUndelegate, MsgDelegate
 from v4_proto.dydxprotocol.affiliates.tx_pb2 import MsgRegisterAffiliate
 from v4_proto.dydxprotocol.clob.order_pb2 import Order, OrderId
 from v4_proto.dydxprotocol.clob.tx_pb2 import MsgCancelOrder, MsgPlaceOrder
@@ -217,6 +217,13 @@ def withdraw_delegator_reward(delegator: str, validator: str):
 
 def undelegate(delegator: str, validator: str, quantums: int, denomination: str):
     return MsgUndelegate(
+        delegator_address=delegator,
+        validator_address=validator,
+        amount=Coin(amount=str(quantums), denom=denomination)
+    )
+
+def delegate(delegator: str, validator: str, quantums: int, denomination: str):
+    return MsgDelegate(
         delegator_address=delegator,
         validator_address=validator,
         amount=Coin(amount=str(quantums), denom=denomination)
