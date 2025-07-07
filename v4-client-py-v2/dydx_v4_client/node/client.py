@@ -1,3 +1,4 @@
+import asyncio
 import base64
 import json
 from dataclasses import dataclass
@@ -28,6 +29,7 @@ from v4_proto.cosmos.tx.v1beta1.service_pb2 import (
     BroadcastMode,
     BroadcastTxRequest,
     SimulateRequest,
+    GetTxRequest,
 )
 from v4_proto.cosmos.gov.v1 import query_pb2 as gov_query
 from v4_proto.cosmos.gov.v1 import query_pb2_grpc as gov_query_grpc
@@ -99,6 +101,8 @@ from dydx_v4_client.node.message import (
 )
 from dydx_v4_client.wallet import Wallet
 
+DEFAULT_QUERY_TIMEOUT_SECS = 15
+DEFAULT_QUERY_INTERVAL_SECS = 2
 
 class CustomJSONDecoder:
     def __init__(self):
@@ -1075,3 +1079,27 @@ class NodeClient(MutatingNodeClient):
             )
         )
 
+    async def query_transaction(self, tx_hash: str) -> Tx:
+        """
+        Query the network for a transaction
+
+        Args:
+             tx_hash (str): Transaction hash
+
+        Returns:
+              Any: Transaction information
+        """
+        attempts = DEFAULT_QUERY_TIMEOUT_SECS // DEFAULT_QUERY_INTERVAL_SECS
+        for _ in range(attempts):
+            try:
+                response = service_pb2_grpc.ServiceStub(self.channel).GetTx(GetTxRequest(tx_hash))
+                tx_response = response['tx_response']
+                if tx_response is None:
+                    raise Exception("Tx not present in broadcast response")
+                tx_data = response['tx']
+                if tx_data is None:
+                    raise Exception("TxResponse does not contain Tx bytes!")
+                return tx_data['value']
+            except:
+                await asyncio.sleep(DEFAULT_QUERY_INTERVAL_SECS)
+        raise Exception(f"Error querying Tx: {tx_hash}")
