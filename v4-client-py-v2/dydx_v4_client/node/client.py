@@ -1037,3 +1037,41 @@ class NodeClient(MutatingNodeClient):
             wallet,
             remove_authenticator_msg,
         )
+
+    async def create_transaction(self, wallet: Wallet, message: Message) -> Tx:
+        """
+        Create a transaction
+
+        Args:
+            wallet: Wallet information
+            message: Transaction message
+
+        Returns:
+            Tx: Returns transaction information
+        """
+        transaction = self.__create_base_transaction(wallet, message)
+        if self.sequence_manager:
+            self.sequence_manager.before_send(wallet)
+        simulated_response = self.simulate(transaction)
+
+        response = self.build_transaction(
+            wallet=wallet,
+            messages=[message],
+            fee=self.builder.calculate_fee(simulated_response.gas_info.gas_used)
+        )
+        if self.sequence_manager:
+            self.sequence_manager.after_send(wallet)
+        return response
+
+    async def __create_base_transaction(self, wallet: Wallet, message: Message) -> Any:
+        authenticators = self.get_authenticators(wallet.address)
+        return self.builder.build_transaction(
+            wallet=wallet,
+            messages=[message],
+            tx_options=TxOptions(
+                authenticators=[authenticators.account_authenticators[-1].id] if authenticators is not None and len(authenticators) > 0 else [],
+                sequence=wallet.sequence,
+                account_number=wallet.account_number
+            )
+        )
+
