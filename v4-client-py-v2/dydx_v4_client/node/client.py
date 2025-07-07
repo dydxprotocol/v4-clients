@@ -23,6 +23,7 @@ from v4_proto.cosmos.staking.v1beta1 import query_pb2_grpc as staking_query_grpc
 from v4_proto.cosmos.distribution.v1beta1 import query_pb2 as distribution_query
 from v4_proto.cosmos.distribution.v1beta1 import (
     query_pb2_grpc as distribution_query_grpc,
+    tx_pb2
 )
 from v4_proto.cosmos.tx.v1beta1 import service_pb2_grpc
 from v4_proto.cosmos.tx.v1beta1.service_pb2 import (
@@ -1133,8 +1134,7 @@ class NodeClient(MutatingNodeClient):
                 number=subaccount_id
             )
         )
-        tx_raw = self.send_message(wallet=wallet, message=msg)
-        return await self.broadcast(tx_raw)
+        return await self.send_message(wallet=wallet, message=msg)
 
     async def register_affiliate(
         self,
@@ -1154,5 +1154,28 @@ class NodeClient(MutatingNodeClient):
             referee=referee,
             affiliate=affiliate
         )
-        tx_raw = self.send_message(wallet=wallet, message=msg)
-        return await self.broadcast(tx_raw)
+        return await self.send_message(wallet=wallet, message=msg)
+
+    async def withdraw_delegate_reward(
+        self,
+        wallet: Wallet,
+        delegator: str,
+        validator: str
+    ) -> Any:
+        """
+        Delegation withdrawal to a delegator from a validator.
+
+        Args:
+            wallet (Wallet): The wallet info
+            delegator (str): The delegator address
+            validator (str): The validator address
+
+        Returns:
+            Any: withdrawal delegate reward
+        """
+        msg = tx_pb2.MsgWithdrawDelegatorReward(
+            delegator_address=delegator,
+            validator_address=validator
+        )
+        return await self.send_message(wallet, msg)
+
