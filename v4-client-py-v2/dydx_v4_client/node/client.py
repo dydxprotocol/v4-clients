@@ -1103,3 +1103,18 @@ class NodeClient(MutatingNodeClient):
             except:
                 await asyncio.sleep(DEFAULT_QUERY_INTERVAL_SECS)
         raise Exception(f"Error querying Tx: {tx_hash}")
+
+    async def query_address(self, address: str) -> (int, int):
+        """
+        Fetch account's number and sequence number from the network.
+
+        Args:
+            address: Account address
+
+        Returns:
+            (int,int): Tuple of account number and sequence number
+        """
+        account = self.get_account(address)
+        if account is None:
+            raise Exception(f"No account found with associated {address}")
+        return (account.account_number, account.sequence)
