@@ -35,6 +35,7 @@ from v4_proto.cosmos.tx.v1beta1.service_pb2 import (
 from v4_proto.cosmos.gov.v1 import query_pb2 as gov_query
 from v4_proto.cosmos.gov.v1 import query_pb2_grpc as gov_query_grpc
 from v4_proto.cosmos.tx.v1beta1.tx_pb2 import Tx
+from v4_proto.cosmos.staking.v1beta1 import tx_pb2
 from v4_proto.dydxprotocol.accountplus import query_pb2 as accountplus_query
 from v4_proto.dydxprotocol.accountplus import query_pb2_grpc as accountplus_query_grpc
 from v4_proto.dydxprotocol.bridge import query_pb2 as bridge_query
@@ -84,8 +85,6 @@ from v4_proto.dydxprotocol.ratelimit import query_pb2 as rate_query
 from v4_proto.dydxprotocol.ratelimit import query_pb2_grpc as rate_query_grpc
 from v4_proto.dydxprotocol.affiliates import query_pb2 as affiliate_query
 from v4_proto.dydxprotocol.affiliates import query_pb2_grpc as affiliate_query_grpc
-from v4_proto.dydxprotocol.affiliates.tx_pb2 import MsgRegisterAffiliate
-from v4_proto.dydxprotocol.listing.tx_pb2 import MsgCreateMarketPermissionless
 
 from dydx_v4_client.network import NodeConfig
 from dydx_v4_client.node.authenticators import Authenticator, validate_authenticator
@@ -101,6 +100,10 @@ from dydx_v4_client.node.message import (
     batch_cancel,
     add_authenticator,
     remove_authenticator,
+    create_market_permissionless,
+    register_affiliate,
+    withdraw_delegator_reward,
+    undelegate
 )
 from dydx_v4_client.wallet import Wallet
 
@@ -1127,13 +1130,7 @@ class NodeClient(MutatingNodeClient):
             address (str): Subaccount address
             subaccount_id (int): Subaccount number
         """
-        msg = MsgCreateMarketPermissionless(
-            ticker=ticker,
-            subaccountId = SubaccountId(
-                owner=address,
-                number=subaccount_id
-            )
-        )
+        msg = create_market_permissionless(ticker=ticker, address=address, subaccount_id=subaccount_id)
         return await self.send_message(wallet=wallet, message=msg)
 
     async def register_affiliate(
@@ -1150,10 +1147,7 @@ class NodeClient(MutatingNodeClient):
             referee (str): Affiliate referee address
             affiliate (str): Affiliate address
         """
-        msg = MsgRegisterAffiliate(
-            referee=referee,
-            affiliate=affiliate
-        )
+        msg = register_affiliate(referee=referee, affiliate=affiliate)
         return await self.send_message(wallet=wallet, message=msg)
 
     async def withdraw_delegate_reward(
@@ -1173,9 +1167,30 @@ class NodeClient(MutatingNodeClient):
         Returns:
             Any: withdrawal delegate reward
         """
-        msg = tx_pb2.MsgWithdrawDelegatorReward(
-            delegator_address=delegator,
-            validator_address=validator
-        )
+        msg = withdraw_delegator_reward(delegator=delegator, validator=validator)
         return await self.send_message(wallet, msg)
 
+    async def undelegate(
+        self,
+        wallet: Wallet,
+        delegator: str,
+        validator: str,
+        quamtums: int,
+        denomination: str
+    ):
+        """
+        Undelegate coins from a delegator to a validator.
+
+        Args:
+            wallet (Wallet): The wallet
+            delegator (str): Delegator address
+            validator (str): Validator address
+            quantums (int): amount
+            denomination (str): Denomination
+        """
+        msg = undelegate(
+            delegator_address=delegator,
+            validator_address=validator,
+            amount=Coin(amount=str(quamtums), denomination=denomination)
+        )
+        return await self.send_message(wallet, msg)

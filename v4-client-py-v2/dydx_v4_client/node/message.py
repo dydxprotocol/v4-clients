@@ -2,8 +2,12 @@ from typing import List
 
 from v4_proto.cosmos.bank.v1beta1.tx_pb2 import MsgSend
 from v4_proto.cosmos.base.v1beta1.coin_pb2 import Coin
+from v4_proto.cosmos.distribution.v1beta1.tx_pb2 import MsgWithdrawDelegatorReward
+from v4_proto.cosmos.staking.v1beta1.tx_pb2 import MsgUndelegate
+from v4_proto.dydxprotocol.affiliates.tx_pb2 import MsgRegisterAffiliate
 from v4_proto.dydxprotocol.clob.order_pb2 import Order, OrderId
 from v4_proto.dydxprotocol.clob.tx_pb2 import MsgCancelOrder, MsgPlaceOrder
+from v4_proto.dydxprotocol.listing.tx_pb2 import MsgCreateMarketPermissionless
 from v4_proto.dydxprotocol.sending.transfer_pb2 import (
     MsgDepositToSubaccount,
     MsgWithdrawFromSubaccount,
@@ -23,17 +27,17 @@ PY_V2_CLIENT_ID = 2
 
 
 def order(
-    order_id: OrderId,
-    side: Order.Side,
-    quantums: int,
-    subticks: int,
-    time_in_force: Order.TimeInForce,
-    reduce_only: bool,
-    good_til_block: int = None,
-    good_til_block_time: int = None,
-    client_metadata: int = 0,
-    condition_type: Order.ConditionType = Order.ConditionType.CONDITION_TYPE_UNSPECIFIED,
-    conditional_order_trigger_subticks: int = 0,
+        order_id: OrderId,
+        side: Order.Side,
+        quantums: int,
+        subticks: int,
+        time_in_force: Order.TimeInForce,
+        reduce_only: bool,
+        good_til_block: int = None,
+        good_til_block_time: int = None,
+        client_metadata: int = 0,
+        condition_type: Order.ConditionType = Order.ConditionType.CONDITION_TYPE_UNSPECIFIED,
+        conditional_order_trigger_subticks: int = 0,
 ):
     return Order(
         order_id=order_id,
@@ -51,11 +55,11 @@ def order(
 
 
 def order_id(
-    address: str,
-    subaccount_number: int,
-    client_id: int,
-    clob_pair_id: int,
-    order_flags: int,
+        address: str,
+        subaccount_number: int,
+        client_id: int,
+        clob_pair_id: int,
+        order_flags: int,
 ) -> OrderId:
     return OrderId(
         subaccount_id=subaccount(owner=address, number=subaccount_number),
@@ -74,9 +78,9 @@ def place_order(order: Order):
 
 
 def cancel_order(
-    order_id: OrderId,
-    good_til_block: int = None,
-    good_til_block_time: int = None,
+        order_id: OrderId,
+        good_til_block: int = None,
+        good_til_block_time: int = None,
 ):
     message = MsgCancelOrder(
         order_id=order_id,
@@ -87,9 +91,9 @@ def cancel_order(
 
 
 def batch_cancel(
-    subaccount_id: SubaccountId,
-    short_term_cancels: List[OrderBatch],
-    good_til_block: int,
+        subaccount_id: SubaccountId,
+        short_term_cancels: List[OrderBatch],
+        good_til_block: int,
 ):
     message = MsgBatchCancel(
         subaccount_id=subaccount_id,
@@ -100,12 +104,11 @@ def batch_cancel(
 
 
 def transfer(
-    sender_subaccount: SubaccountId,
-    recipient_subaccount: SubaccountId,
-    asset_id: int,
-    amount: int,
+        sender_subaccount: SubaccountId,
+        recipient_subaccount: SubaccountId,
+        asset_id: int,
+        amount: int,
 ):
-
     msg = Transfer(
         sender=sender_subaccount,
         recipient=recipient_subaccount,
@@ -117,10 +120,10 @@ def transfer(
 
 
 def deposit(
-    sender: str,
-    recipient_subaccount: SubaccountId,
-    asset_id: int,
-    quantums: int,
+        sender: str,
+        recipient_subaccount: SubaccountId,
+        asset_id: int,
+        quantums: int,
 ):
     message = MsgDepositToSubaccount(
         sender=sender,
@@ -132,10 +135,10 @@ def deposit(
 
 
 def withdraw(
-    sender_subaccount: SubaccountId,
-    recipient: str,
-    asset_id: int,
-    quantums: int,
+        sender_subaccount: SubaccountId,
+        recipient: str,
+        asset_id: int,
+        quantums: int,
 ):
     message = MsgWithdrawFromSubaccount(
         sender=sender_subaccount,
@@ -187,3 +190,34 @@ def convert_nested_config_to_base64(config: bytes):
         return config_modified.encode()
     except:
         return config
+
+
+def create_market_permissionless(ticker: str, address: str, subaccount_id: int):
+    return MsgCreateMarketPermissionless(
+        ticker=ticker,
+        subaccountId=SubaccountId(
+            owner=address,
+            number=subaccount_id
+        )
+    )
+
+
+def register_affiliate(referee: str, affiliate: str):
+    return MsgRegisterAffiliate(
+            referee=referee,
+            affiliate=affiliate
+        )
+
+
+def withdraw_delegator_reward(delegator: str, validator: str):
+    return MsgWithdrawDelegatorReward(
+        delegator_address=delegator,
+        validator_address=validator
+    )
+
+def undelegate(delegator: str, validator: str, quantums: int, denomination: str):
+    return MsgUndelegate(
+        delegator_address=delegator,
+        validator_address=validator,
+        amount=Coin(amount=str(quantums), denom=denomination)
+    )
