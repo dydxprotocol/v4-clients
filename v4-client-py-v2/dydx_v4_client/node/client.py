@@ -23,7 +23,7 @@ from v4_proto.cosmos.staking.v1beta1 import query_pb2_grpc as staking_query_grpc
 from v4_proto.cosmos.distribution.v1beta1 import query_pb2 as distribution_query
 from v4_proto.cosmos.distribution.v1beta1 import (
     query_pb2_grpc as distribution_query_grpc,
-    tx_pb2
+    tx_pb2,
 )
 from v4_proto.cosmos.tx.v1beta1 import service_pb2_grpc
 from v4_proto.cosmos.tx.v1beta1.service_pb2 import (
@@ -103,12 +103,13 @@ from dydx_v4_client.node.message import (
     register_affiliate,
     withdraw_delegator_reward,
     undelegate,
-    delegate
+    delegate,
 )
 from dydx_v4_client.wallet import Wallet
 
 DEFAULT_QUERY_TIMEOUT_SECS = 15
 DEFAULT_QUERY_INTERVAL_SECS = 2
+
 
 class CustomJSONDecoder:
     def __init__(self):
@@ -1060,18 +1061,18 @@ class NodeClient(MutatingNodeClient):
             Tx: Returns transaction information
         """
         if self.sequence_manager:
-            self.sequence_manager.before_send(wallet)
+            await self.sequence_manager.before_send(wallet)
 
         transaction = self.builder.build(wallet, message)
-        simulated_response = self.simulate(transaction)
+        simulated_response = await self.simulate(transaction)
 
-        response = self.build_transaction(
+        response = self.builder.build_transaction(
             wallet=wallet,
             messages=transaction.body.messages,
-            fee=self.builder.calculate_fee(simulated_response.gas_info.gas_used)
+            fee=self.builder.calculate_fee(simulated_response.gas_info.gas_used),
         )
         if self.sequence_manager:
-            self.sequence_manager.after_send(wallet)
+            await self.sequence_manager.after_send(wallet)
         return response
 
     async def query_transaction(self, tx_hash: str) -> Tx:
@@ -1087,14 +1088,16 @@ class NodeClient(MutatingNodeClient):
         attempts = DEFAULT_QUERY_TIMEOUT_SECS // DEFAULT_QUERY_INTERVAL_SECS
         for _ in range(attempts):
             try:
-                response = service_pb2_grpc.ServiceStub(self.channel).GetTx(GetTxRequest(tx_hash))
-                tx_response = response['tx_response']
+                response = service_pb2_grpc.ServiceStub(self.channel).GetTx(
+                    GetTxRequest(tx_hash)
+                )
+                tx_response = response["tx_response"]
                 if tx_response is None:
                     raise Exception("Tx not present in broadcast response")
-                tx_data = response['tx']
+                tx_data = response["tx"]
                 if tx_data is None:
                     raise Exception("TxResponse does not contain Tx bytes!")
-                return tx_data['value']
+                return tx_data["value"]
             except:
                 await asyncio.sleep(DEFAULT_QUERY_INTERVAL_SECS)
         raise Exception(f"Error querying Tx: {tx_hash}")
@@ -1115,11 +1118,7 @@ class NodeClient(MutatingNodeClient):
         return (account.account_number, account.sequence)
 
     async def create_market_permissionless(
-        self,
-        wallet: Wallet,
-        ticker: str,
-        address: str,
-        subaccount_id: int
+        self, wallet: Wallet, ticker: str, address: str, subaccount_id: int
     ) -> Any:
         """
         Create a market permissionless
@@ -1130,7 +1129,9 @@ class NodeClient(MutatingNodeClient):
             address (str): Subaccount address
             subaccount_id (int): Subaccount number
         """
-        msg = create_market_permissionless(ticker=ticker, address=address, subaccount_id=subaccount_id)
+        msg = create_market_permissionless(
+            ticker=ticker, address=address, subaccount_id=subaccount_id
+        )
         return await self.send_message(wallet=wallet, message=msg)
 
     async def delegate(
@@ -1139,7 +1140,7 @@ class NodeClient(MutatingNodeClient):
         delegator: str,
         validator: str,
         quamtums: int,
-        denomination: str
+        denomination: str,
     ):
         """
         Delegate coins from a delegator to a validator.
@@ -1154,7 +1155,7 @@ class NodeClient(MutatingNodeClient):
         msg = delegate(
             delegator_address=delegator,
             validator_address=validator,
-            amount=Coin(amount=str(quamtums), denomination=denomination)
+            amount=Coin(amount=str(quamtums), denomination=denomination),
         )
         return await self.send_message(wallet, msg)
 
@@ -1164,7 +1165,7 @@ class NodeClient(MutatingNodeClient):
         delegator: str,
         validator: str,
         quamtums: int,
-        denomination: str
+        denomination: str,
     ):
         """
         Undelegate coins from a delegator to a validator.
@@ -1179,15 +1180,12 @@ class NodeClient(MutatingNodeClient):
         msg = undelegate(
             delegator_address=delegator,
             validator_address=validator,
-            amount=Coin(amount=str(quamtums), denomination=denomination)
+            amount=Coin(amount=str(quamtums), denomination=denomination),
         )
         return await self.send_message(wallet, msg)
 
     async def withdraw_delegate_reward(
-        self,
-        wallet: Wallet,
-        delegator: str,
-        validator: str
+        self, wallet: Wallet, delegator: str, validator: str
     ) -> Any:
         """
         Delegation withdrawal to a delegator from a validator.
@@ -1204,10 +1202,7 @@ class NodeClient(MutatingNodeClient):
         return await self.send_message(wallet, msg)
 
     async def register_affiliate(
-        self,
-        wallet: Wallet,
-        referee: str,
-        affiliate: str
+        self, wallet: Wallet, referee: str, affiliate: str
     ) -> Any:
         """
         Register a referee-affiliate relationship.
