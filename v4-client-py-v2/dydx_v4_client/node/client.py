@@ -1086,19 +1086,17 @@ class NodeClient(MutatingNodeClient):
               Any: Transaction information
         """
         attempts = DEFAULT_QUERY_TIMEOUT_SECS // DEFAULT_QUERY_INTERVAL_SECS
-        for _ in range(attempts):
+        for _ in range(1):
             try:
                 response = service_pb2_grpc.ServiceStub(self.channel).GetTx(
-                    GetTxRequest(tx_hash)
+                    GetTxRequest(hash=tx_hash)
                 )
-                tx_response = response["tx_response"]
-                if tx_response is None:
+
+                if response is None or response.tx is None:
                     raise Exception("Tx not present in broadcast response")
-                tx_data = response["tx"]
-                if tx_data is None:
-                    raise Exception("TxResponse does not contain Tx bytes!")
-                return tx_data["value"]
-            except:
+                return response.tx
+            except Exception as e:
+                print(f"Error: {e}")
                 await asyncio.sleep(DEFAULT_QUERY_INTERVAL_SECS)
         raise Exception(f"Error querying Tx: {tx_hash}")
 
@@ -1112,7 +1110,7 @@ class NodeClient(MutatingNodeClient):
         Returns:
             (int,int): Tuple of account number and sequence number
         """
-        account = self.get_account(address)
+        account = await self.get_account(address)
         if account is None:
             raise Exception(f"No account found with associated {address}")
         return (account.account_number, account.sequence)
@@ -1153,9 +1151,10 @@ class NodeClient(MutatingNodeClient):
             denomination (str): Denomination
         """
         msg = delegate(
-            delegator_address=delegator,
-            validator_address=validator,
-            amount=Coin(amount=str(quamtums), denomination=denomination),
+            delegator=delegator,
+            validator=validator,
+            quantums=quamtums,
+            denomination=denomination
         )
         return await self.send_message(wallet, msg)
 
@@ -1178,9 +1177,10 @@ class NodeClient(MutatingNodeClient):
             denomination (str): Denomination
         """
         msg = undelegate(
-            delegator_address=delegator,
-            validator_address=validator,
-            amount=Coin(amount=str(quamtums), denomination=denomination),
+            delegator=delegator,
+            validator=validator,
+            quantums=quamtums,
+            denomination=denomination
         )
         return await self.send_message(wallet, msg)
 

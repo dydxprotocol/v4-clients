@@ -194,7 +194,7 @@ def convert_nested_config_to_base64(config: bytes):
 
 def create_market_permissionless(ticker: str, address: str, subaccount_id: int):
     return MsgCreateMarketPermissionless(
-        ticker=ticker, subaccountId=SubaccountId(owner=address, number=subaccount_id)
+        ticker=ticker, subaccount_id=SubaccountId(owner=address, number=subaccount_id)
     )
 
 
