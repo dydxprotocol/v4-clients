@@ -28,6 +28,7 @@ DYDX_TEST_MNEMONIC = (
     "mirror actor skill push coach wait confirm orchard lunch mobile athlete gossip awake "
     "miracle matter bus reopen team ladder lazy list timber render wait"
 )
+
 DYDX_TEST_PUBLIC_KEY = (
     "03f0be763f781b5b59ebc37d721beda913148a539425baa720b97d4820f652ed75"
 )

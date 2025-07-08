@@ -1086,7 +1086,7 @@ class NodeClient(MutatingNodeClient):
               Any: Transaction information
         """
         attempts = DEFAULT_QUERY_TIMEOUT_SECS // DEFAULT_QUERY_INTERVAL_SECS
-        for _ in range(1):
+        for _ in range(attempts):
             try:
                 response = service_pb2_grpc.ServiceStub(self.channel).GetTx(
                     GetTxRequest(hash=tx_hash)
@@ -1154,7 +1154,7 @@ class NodeClient(MutatingNodeClient):
             delegator=delegator,
             validator=validator,
             quantums=quamtums,
-            denomination=denomination
+            denomination=denomination,
         )
         return await self.send_message(wallet, msg)
 
@@ -1180,7 +1180,7 @@ class NodeClient(MutatingNodeClient):
             delegator=delegator,
             validator=validator,
             quantums=quamtums,
-            denomination=denomination
+            denomination=denomination,
         )
         return await self.send_message(wallet, msg)
 
