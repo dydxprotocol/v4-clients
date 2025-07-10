@@ -14,7 +14,7 @@
 
 <div align="center">
 
-### 📘 [Documentation](https://docs.dydx.exchange) 
+### 📘 [Documentation](https://docs.dydx.xyz/) 
 ### 📦 [Other implementations](https://github.com/dydxprotocol/v4-clients)
 
 </div>

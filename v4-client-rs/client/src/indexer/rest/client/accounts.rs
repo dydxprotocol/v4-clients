@@ -18,7 +18,7 @@ impl<'a> Accounts<'a> {
     ///
     /// Compare with [`Self::get_subaccount`].
     ///
-    /// [Reference](https://docs.dydx.exchange/api_integration-indexer/indexer_api#getaddress).
+    /// [Reference](https://docs.dydx.xyz/indexer-client/http#accounts).
     pub async fn get_subaccounts(&self, address: &Address) -> Result<AddressResponse, Error> {
         let rest = &self.rest;
         const URI: &str = "/v4/addresses";
@@ -36,7 +36,7 @@ impl<'a> Accounts<'a> {
 
     /// Query for the subaccount, its current perpetual and asset positions, margin and collateral.
     ///
-    /// [Reference](https://docs.dydx.exchange/api_integration-indexer/indexer_api#getsubaccount).
+    /// [Reference](https://docs.dydx.xyz/indexer-client/http#get-subaccount).
     pub async fn get_subaccount(
         &self,
         subaccount: &Subaccount,
@@ -63,7 +63,7 @@ impl<'a> Accounts<'a> {
 
     /// Query for the parent subaccount, its child subaccounts, equity, collateral and margin.
     ///
-    /// [Reference](https://docs.dydx.exchange/api_integration-indexer/indexer_api#getparentsubaccount).
+    /// [Reference](https://docs.dydx.xyz/indexer-client/http#get-parent-subaccount).
     pub async fn get_parent_subaccount(
         &self,
         subaccount: &ParentSubaccount,
@@ -90,7 +90,7 @@ impl<'a> Accounts<'a> {
 
     /// Check [the example](https://github.com/dydxprotocol/v4-clients/blob/main/v4-client-rs/client/examples/close_all_positions.rs).
     ///
-    /// [Reference](https://docs.dydx.exchange/api_integration-indexer/indexer_api#listpositions).
+    /// [Reference](https://docs.dydx.xyz/indexer-client/http#list-positions).
     pub async fn list_positions(
         &self,
         subaccount: &Subaccount,
@@ -120,7 +120,7 @@ impl<'a> Accounts<'a> {
 
     /// List all positions of a parent subaccount.
     ///
-    /// [Reference](https://docs.dydx.exchange/api_integration-indexer/indexer_api#listpositionsforparentsubaccount).
+    /// [Reference](https://docs.dydx.xyz/indexer-client/http#list-parent-positions).
     pub async fn list_parent_positions(
         &self,
         subaccount: &ParentSubaccount,
@@ -150,7 +150,7 @@ impl<'a> Accounts<'a> {
 
     /// Query for asset positions (size, buy/sell etc).
     ///
-    /// [Reference](https://docs.dydx.exchange/api_integration-indexer/indexer_api#getassetpositions).
+    /// [Reference](https://docs.dydx.xyz/indexer-client/http#get-asset-positions).
     pub async fn get_asset_positions(
         &self,
         subaccount: &Subaccount,
@@ -177,7 +177,7 @@ impl<'a> Accounts<'a> {
 
     /// Query for asset positions (size, buy/sell etc) for a parent subaccount.
     ///
-    /// [Reference](https://docs.dydx.exchange/api_integration-indexer/indexer_api#getassetpositionsforparentsubaccount).
+    /// [Reference](https://docs.dydx.xyz/indexer-client/http#get-parent-asset-positions).
     pub async fn get_parent_asset_positions(
         &self,
         subaccount: &ParentSubaccount,
@@ -206,7 +206,7 @@ impl<'a> Accounts<'a> {
     ///
     /// See also [`crate::node::NodeClient::transfer`].
     ///
-    /// [Reference](https://docs.dydx.exchange/api_integration-indexer/indexer_api#gettransfers).
+    /// [Reference](https://docs.dydx.xyz/indexer-client/http#get-transfers).
     pub async fn get_transfers(
         &self,
         subaccount: &Subaccount,
@@ -238,7 +238,7 @@ impl<'a> Accounts<'a> {
     ///
     /// See also [`crate::node::NodeClient::transfer`].
     ///
-    /// [Reference](https://docs.dydx.exchange/api_integration-indexer/indexer_api#gettransfersforparentsubaccount).
+    /// [Reference](https://docs.dydx.xyz/indexer-client/http#get-parent-transfers).
     pub async fn get_parent_transfers(
         &self,
         subaccount: &ParentSubaccount,
@@ -268,7 +268,7 @@ impl<'a> Accounts<'a> {
 
     /// Query for orders filtered by order params.
     ///
-    /// [Reference](https://docs.dydx.exchange/api_integration-indexer/indexer_api#listorders).
+    /// [Reference](https://docs.dydx.xyz/indexer-client/http#list-orders).
     pub async fn list_orders(
         &self,
         subaccount: &Subaccount,
@@ -297,7 +297,7 @@ impl<'a> Accounts<'a> {
 
     /// Query for orders filtered by order params of a parent subaccount.
     ///
-    /// [Reference](https://docs.dydx.exchange/api_integration-indexer/indexer_api#listordersforparentsubaccount).
+    /// [Reference](https://docs.dydx.xyz/indexer-client/http#list-parent-orders).
     pub async fn list_parent_orders(
         &self,
         subaccount: &ParentSubaccount,
@@ -326,7 +326,7 @@ impl<'a> Accounts<'a> {
 
     /// Query for the order.
     ///
-    /// [Reference](https://docs.dydx.exchange/api_integration-indexer/indexer_api#getorder).
+    /// [Reference](https://docs.dydx.xyz/indexer-client/http#get-order).
     pub async fn get_order(&self, order_id: &OrderId) -> Result<OrderResponseObject, Error> {
         let rest = &self.rest;
         const URI: &str = "/v4/orders";
@@ -344,7 +344,7 @@ impl<'a> Accounts<'a> {
 
     /// Query for fills (i.e. filled orders data).
     ///
-    /// [Reference](https://docs.dydx.exchange/api_integration-indexer/indexer_api#getfills).
+    /// [Reference](https://docs.dydx.xyz/indexer-client/http#get-fills).
     pub async fn get_fills(
         &self,
         subaccount: &Subaccount,
@@ -374,7 +374,7 @@ impl<'a> Accounts<'a> {
 
     /// Query for fills (i.e. filled orders data) for a parent subaccount.
     ///
-    /// [Reference](https://docs.dydx.exchange/api_integration-indexer/indexer_api#getfillsforparentsubaccount).
+    /// [Reference](https://docs.dydx.xyz/indexer-client/http#get-parent-fills).
     pub async fn get_parent_fills(
         &self,
         subaccount: &ParentSubaccount,
@@ -404,7 +404,7 @@ impl<'a> Accounts<'a> {
 
     /// Query for profit and loss report for the specified time/block range.
     ///
-    /// [Reference](https://docs.dydx.exchange/api_integration-indexer/indexer_api#gethistoricalpnl).
+    /// [Reference](https://docs.dydx.xyz/indexer-client/http#get-historical-pnl).
     pub async fn get_historical_pnl(
         &self,
         subaccount: &Subaccount,
@@ -434,7 +434,7 @@ impl<'a> Accounts<'a> {
 
     /// Query for profit and loss report for the specified time/block range of a parent subaccount.
     ///
-    /// [Reference](https://docs.dydx.exchange/api_integration-indexer/indexer_api#gethistoricalpnlforparentsubaccount).
+    /// [Reference](https://docs.dydx.xyz/indexer-client/http#get-parent-historical-pnl).
     pub async fn get_parent_historical_pnl(
         &self,
         subaccount: &ParentSubaccount,
@@ -464,9 +464,9 @@ impl<'a> Accounts<'a> {
 
     /// Get trader's rewards.
     ///
-    /// See also [Trading Rewards](https://docs.dydx.exchange/concepts-trading/rewards_fees_and_parameters#trading-rewards).
+    /// See also [Trading Rewards](https://docs.dydx.xyz/interaction/data/market#trading-rewards).
     ///
-    /// [Reference](https://docs.dydx.exchange/api_integration-indexer/indexer_api#gettradingrewards).
+    /// [Reference](https://docs.dydx.xyz/indexer-client/http#get-rewards).
     pub async fn get_rewards(
         &self,
         address: &Address,
@@ -493,7 +493,7 @@ impl<'a> Accounts<'a> {
     ///
     /// See also [`Self::get_rewards`].
     ///
-    /// [Reference](https://docs.dydx.exchange/api_integration-indexer/indexer_api#getaggregations).
+    /// [Reference](https://docs.dydx.xyz/indexer-client/http#get-rewards-aggregated).
     pub async fn get_rewards_aggregated(
         &self,
         address: &Address,
