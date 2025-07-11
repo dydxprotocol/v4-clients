@@ -1211,6 +1211,9 @@ class NodeClient(MutatingNodeClient):
             wallet (Wallet): The Wallet
             referee (str): Affiliate referee address
             affiliate (str): Affiliate address
+
+        Returns:
+            Any: Register affiliate
         """
         msg = register_affiliate(referee=referee, affiliate=affiliate)
         return await self.send_message(wallet=wallet, message=msg)

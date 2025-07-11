@@ -1,8 +1,9 @@
 import time
 import grpc
 import pytest
+import asyncio
 
-from dydx_v4_client.node.message import subaccount
+from dydx_v4_client.node.message import subaccount, send_token
 from tests.conftest import get_wallet, assert_successful_broadcast
 
 
@@ -77,7 +78,7 @@ async def test_order(
         # codespace: "sdk"\n  code: 32\n  raw_log: "account sequence mismatch, expected 1460, got 1459: incorrect account sequence"
         # If the time is too long the result is:
         # codespace: "clob"\n  code:...hj67cghhf9jypslcf9sh2n5k6art Number:0} ClientId:13850897 OrderFlags:64 ClobPairId:0}: Stateful order does not exist"
-        time.sleep(1.5)
+        time.sleep(2)
 
         wallet = await get_wallet(node_client, key_pair, test_address)
 
@@ -109,7 +110,7 @@ async def test_order_cancel(
         # codespace: "sdk"\n  code: 32\n  raw_log: "account sequence mismatch, expected 1460, got 1459: incorrect account sequence"
         # If the time is too long the result is:
         # codespace: "clob"\n  code:...hj67cghhf9jypslcf9sh2n5k6art Number:0} ClientId:13850897 OrderFlags:64 ClobPairId:0}: Stateful order does not exist"
-        time.sleep(1.5)
+        time.sleep(2)
 
         wallet = await get_wallet(node_client, key_pair, test_address)
 
@@ -143,3 +144,98 @@ async def test_transfer(node_client, wallet, test_address, recipient):
             pytest.skip("Subaccount is undercollateralized. Skipping the test.")
         else:
             raise e
+
+
+
+@pytest.mark.asyncio
+async def test_create_transaction_and_query_transaction(node_client, test_address, wallet, recipient):
+    send_token_msg = send_token(test_address, recipient, 10000000, "adv4tnt")
+    tx = await node_client.create_transaction(wallet, send_token_msg)
+    assert tx is not None
+    assert tx.body is not None
+    assert tx.auth_info is not None
+    assert tx.signatures is not None
+    broadcast_response = await node_client.broadcast(tx)
+    assert broadcast_response is not None
+    assert broadcast_response.tx_response is not None
+    await asyncio.sleep(5)
+    tx_send_message = await node_client.query_transaction(broadcast_response.tx_response.txhash)
+    assert tx_send_message == tx
+
+
+@pytest.mark.asyncio
+async def test_query_address(node_client, test_address):
+    response = await node_client.query_address(test_address)
+    assert response is not None
+    assert isinstance(response, tuple)
+
+
+@pytest.mark.asyncio
+async def test_create_market_permissionless(node_client, wallet, test_address):
+    ticker = "ETH-USD"
+    try:
+        response = await node_client.create_market_permissionless(
+            wallet, ticker, test_address, 0
+        )
+        assert response is not None
+        assert response.tx_response is not None
+        assert response.tx_response.txhash is not None
+    except Exception as e:
+        assert f"{ticker}: Market params pair already exists" in str(e)
+
+@pytest.mark.asyncio
+async def test_delegate_undelegate(node_client, wallet, test_address):
+    validator = await node_client.get_all_validators()
+    assert validator is not None
+    assert len(validator.validators) > 0
+    undelgations = await node_client.get_delegator_unbonding_delegations(test_address)
+    assert undelgations is not None
+    validator_to_num_of_undelegations = {v.operator_address: 0 for v in validator.validators}
+    for u in undelgations.unbonding_responses:
+        validator_to_num_of_undelegations[u.validator_address] += 1
+    validator_address_with_least_undelegations = min(
+        validator_to_num_of_undelegations.items(), key=lambda item: item[1]
+    )[0]
+    delegate_response = await node_client.delegate(
+        wallet,
+        test_address,
+        validator_address_with_least_undelegations,
+        100000,
+        "adv4tnt",
+    )
+    await asyncio.sleep(5)
+    await node_client.query_transaction(delegate_response.tx_response.txhash)
+
+    undelegate_response = await node_client.undelegate(wallet, test_address, validator_address_with_least_undelegations, 100000, "adv4tnt")
+    assert undelegate_response is not None
+    assert undelegate_response.tx_response is not None
+    await asyncio.sleep(5)
+    await node_client.query_transaction(undelegate_response.tx_response.txhash)
+
+
+@pytest.mark.asyncio
+async def test_withdraw_delegate_reward(node_client, wallet, test_address):
+    validator = await node_client.get_all_validators()
+    assert validator is not None
+    assert len(validator.validators) > 0
+    response = await node_client.withdraw_delegate_reward(
+        wallet, test_address, validator.validators[0].operator_address
+    )
+    assert response is not None
+    assert response.tx_response is not None
+    assert response.tx_response.txhash is not None
+    await asyncio.sleep(5)
+    await node_client.query_transaction(response.tx_response.txhash)
+
+
+@pytest.mark.asyncio
+async def test_register_affiliate(node_client, wallet, test_address, recipient):
+    try:
+        response = await node_client.register_affiliate(wallet, test_address, recipient)
+        assert response is not None
+        assert response.tx_response is not None
+        assert response.tx_response.txhash is not None
+        await asyncio.sleep(5)
+        await node_client.query_transaction(response.tx_response.txhash)
+    except Exception as e:
+        assert "Affiliate already exists for referee" in str(e)
