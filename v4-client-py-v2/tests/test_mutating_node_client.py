@@ -146,9 +146,10 @@ async def test_transfer(node_client, wallet, test_address, recipient):
             raise e
 
 
-
 @pytest.mark.asyncio
-async def test_create_transaction_and_query_transaction(node_client, test_address, wallet, recipient):
+async def test_create_transaction_and_query_transaction(
+    node_client, test_address, wallet, recipient
+):
     send_token_msg = send_token(test_address, recipient, 10000000, "adv4tnt")
     tx = await node_client.create_transaction(wallet, send_token_msg)
     assert tx is not None
@@ -159,7 +160,9 @@ async def test_create_transaction_and_query_transaction(node_client, test_addres
     assert broadcast_response is not None
     assert broadcast_response.tx_response is not None
     await asyncio.sleep(5)
-    tx_send_message = await node_client.query_transaction(broadcast_response.tx_response.txhash)
+    tx_send_message = await node_client.query_transaction(
+        broadcast_response.tx_response.txhash
+    )
     assert tx_send_message == tx
 
 
@@ -183,6 +186,7 @@ async def test_create_market_permissionless(node_client, wallet, test_address):
     except Exception as e:
         assert f"{ticker}: Market params pair already exists" in str(e)
 
+
 @pytest.mark.asyncio
 async def test_delegate_undelegate(node_client, wallet, test_address):
     validator = await node_client.get_all_validators()
@@ -190,7 +194,9 @@ async def test_delegate_undelegate(node_client, wallet, test_address):
     assert len(validator.validators) > 0
     undelgations = await node_client.get_delegator_unbonding_delegations(test_address)
     assert undelgations is not None
-    validator_to_num_of_undelegations = {v.operator_address: 0 for v in validator.validators}
+    validator_to_num_of_undelegations = {
+        v.operator_address: 0 for v in validator.validators
+    }
     for u in undelgations.unbonding_responses:
         validator_to_num_of_undelegations[u.validator_address] += 1
     validator_address_with_least_undelegations = min(
@@ -206,7 +212,13 @@ async def test_delegate_undelegate(node_client, wallet, test_address):
     await asyncio.sleep(5)
     await node_client.query_transaction(delegate_response.tx_response.txhash)
 
-    undelegate_response = await node_client.undelegate(wallet, test_address, validator_address_with_least_undelegations, 100000, "adv4tnt")
+    undelegate_response = await node_client.undelegate(
+        wallet,
+        test_address,
+        validator_address_with_least_undelegations,
+        100000,
+        "adv4tnt",
+    )
     assert undelegate_response is not None
     assert undelegate_response.tx_response is not None
     await asyncio.sleep(5)
