@@ -1,3 +1,4 @@
+import asyncio
 import base64
 import json
 from dataclasses import dataclass
@@ -22,12 +23,14 @@ from v4_proto.cosmos.staking.v1beta1 import query_pb2_grpc as staking_query_grpc
 from v4_proto.cosmos.distribution.v1beta1 import query_pb2 as distribution_query
 from v4_proto.cosmos.distribution.v1beta1 import (
     query_pb2_grpc as distribution_query_grpc,
+    tx_pb2,
 )
 from v4_proto.cosmos.tx.v1beta1 import service_pb2_grpc
 from v4_proto.cosmos.tx.v1beta1.service_pb2 import (
     BroadcastMode,
     BroadcastTxRequest,
     SimulateRequest,
+    GetTxRequest,
 )
 from v4_proto.cosmos.gov.v1 import query_pb2 as gov_query
 from v4_proto.cosmos.gov.v1 import query_pb2_grpc as gov_query_grpc
@@ -96,8 +99,16 @@ from dydx_v4_client.node.message import (
     batch_cancel,
     add_authenticator,
     remove_authenticator,
+    create_market_permissionless,
+    register_affiliate,
+    withdraw_delegator_reward,
+    undelegate,
+    delegate,
 )
 from dydx_v4_client.wallet import Wallet
+
+DEFAULT_QUERY_TIMEOUT_SECS = 15
+DEFAULT_QUERY_INTERVAL_SECS = 2
 
 
 class CustomJSONDecoder:
@@ -1037,3 +1048,172 @@ class NodeClient(MutatingNodeClient):
             wallet,
             remove_authenticator_msg,
         )
+
+    async def create_transaction(self, wallet: Wallet, message: Message) -> Tx:
+        """
+        Create a transaction
+
+        Args:
+            wallet: Wallet information
+            message: Transaction message
+
+        Returns:
+            Tx: Returns transaction information
+        """
+        if self.sequence_manager:
+            await self.sequence_manager.before_send(wallet)
+
+        transaction = self.builder.build(wallet, message)
+        simulated_response = await self.simulate(transaction)
+
+        response = self.builder.build_transaction(
+            wallet=wallet,
+            messages=transaction.body.messages,
+            fee=self.builder.calculate_fee(simulated_response.gas_info.gas_used),
+        )
+        if self.sequence_manager:
+            await self.sequence_manager.after_send(wallet)
+        return response
+
+    async def query_transaction(self, tx_hash: str) -> Tx:
+        """
+        Query the network for a transaction
+
+        Args:
+             tx_hash (str): Transaction hash
+
+        Returns:
+              Any: Transaction information
+        """
+        attempts = DEFAULT_QUERY_TIMEOUT_SECS // DEFAULT_QUERY_INTERVAL_SECS
+        for _ in range(attempts):
+            try:
+                response = service_pb2_grpc.ServiceStub(self.channel).GetTx(
+                    GetTxRequest(hash=tx_hash)
+                )
+
+                if response is None or response.tx is None:
+                    raise Exception("Tx not present in broadcast response")
+                return response.tx
+            except Exception as e:
+                print(f"Error: {e}")
+                await asyncio.sleep(DEFAULT_QUERY_INTERVAL_SECS)
+        raise Exception(f"Error querying Tx: {tx_hash}")
+
+    async def query_address(self, address: str) -> (int, int):
+        """
+        Fetch account's number and sequence number from the network.
+
+        Args:
+            address (str): Account address
+
+        Returns:
+            (int,int): Tuple of account number and sequence number
+        """
+        account = await self.get_account(address)
+        if account is None:
+            raise Exception(f"No account found with associated {address}")
+        return (account.account_number, account.sequence)
+
+    async def create_market_permissionless(
+        self, wallet: Wallet, ticker: str, address: str, subaccount_id: int
+    ) -> Any:
+        """
+        Create a market permissionless
+
+        Args:
+            wallet (Wallet): Wallet
+            ticker (str): The market identifier
+            address (str): Subaccount address
+            subaccount_id (int): Subaccount number
+        """
+        msg = create_market_permissionless(
+            ticker=ticker, address=address, subaccount_id=subaccount_id
+        )
+        return await self.send_message(wallet=wallet, message=msg)
+
+    async def delegate(
+        self,
+        wallet: Wallet,
+        delegator: str,
+        validator: str,
+        quamtums: int,
+        denomination: str,
+    ):
+        """
+        Delegate coins from a delegator to a validator.
+
+        Args:
+            wallet (Wallet): The wallet
+            delegator (str): Delegator address
+            validator (str): Validator address
+            quantums (int): amount
+            denomination (str): Denomination
+        """
+        msg = delegate(
+            delegator=delegator,
+            validator=validator,
+            quantums=quamtums,
+            denomination=denomination,
+        )
+        return await self.send_message(wallet, msg)
+
+    async def undelegate(
+        self,
+        wallet: Wallet,
+        delegator: str,
+        validator: str,
+        quamtums: int,
+        denomination: str,
+    ):
+        """
+        Undelegate coins from a delegator to a validator.
+
+        Args:
+            wallet (Wallet): The wallet
+            delegator (str): Delegator address
+            validator (str): Validator address
+            quantums (int): amount
+            denomination (str): Denomination
+        """
+        msg = undelegate(
+            delegator=delegator,
+            validator=validator,
+            quantums=quamtums,
+            denomination=denomination,
+        )
+        return await self.send_message(wallet, msg)
+
+    async def withdraw_delegate_reward(
+        self, wallet: Wallet, delegator: str, validator: str
+    ) -> Any:
+        """
+        Delegation withdrawal to a delegator from a validator.
+
+        Args:
+            wallet (Wallet): The wallet info
+            delegator (str): The delegator address
+            validator (str): The validator address
+
+        Returns:
+            Any: withdrawal delegate reward
+        """
+        msg = withdraw_delegator_reward(delegator=delegator, validator=validator)
+        return await self.send_message(wallet, msg)
+
+    async def register_affiliate(
+        self, wallet: Wallet, referee: str, affiliate: str
+    ) -> Any:
+        """
+        Register a referee-affiliate relationship.
+
+        Args:
+            wallet (Wallet): The Wallet
+            referee (str): Affiliate referee address
+            affiliate (str): Affiliate address
+
+        Returns:
+            Any: Register affiliate
+        """
+        msg = register_affiliate(referee=referee, affiliate=affiliate)
+        return await self.send_message(wallet=wallet, message=msg)
