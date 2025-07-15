@@ -242,7 +242,7 @@ def withdraw_from_megavault(
     address: str, subaccount_number: int, min_quantums: bytes, num_shares: bytes
 ):
     return MsgWithdrawFromMegavault(
-        subaccount_id=SubaccountId(owner=address, subaccount_number=subaccount_number),
+        subaccount_id=SubaccountId(owner=address, number=subaccount_number),
         min_quote_quantums=min_quantums,
         shares=NumShares(num_shares=num_shares),
     )

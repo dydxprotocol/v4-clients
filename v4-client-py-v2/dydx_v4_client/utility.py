@@ -47,17 +47,18 @@ def to_serializable_vec(bigint: int) -> bytes:
     Equivalent to a Rust-style serialization of BigInt.
     """
     if bigint == 0:
-        return b"\x00"
-    byte_length = (bigint.bit_length() + 7) // 8
-    return bigint.to_bytes(byte_length, byteorder="big", signed=True)
+        return bytes([0x02])
+
+    sign_byte = 0x02 if bigint >= 0 else 0x03
+    abs_bytes = bigint.to_bytes((bigint.bit_length() + 7) // 8, "big", signed=False)
+    return bytes([sign_byte]) + abs_bytes
 
 
 def convert_amount_to_quantums_vec(amount):
     try:
-        usdc = Usdc.from_quantums(amount)
+        usdc = Usdc(amount)
         quantized = usdc.quantize()
         bigint = int(quantized)
-
         # Simulate `.ok_or_else(...)?` by checking if conversion failed
         if bigint is None:
             raise ValueError("Failed converting USDC quantums to BigInt")

@@ -9,6 +9,7 @@ from dydx_v4_client.node.message import deposit_to_megavault, withdraw_from_mega
 from dydx_v4_client.utility import convert_amount_to_quantums_vec, to_serializable_vec
 from dydx_v4_client.wallet import Wallet
 from dydx_v4_client.node.client import NodeClient
+from v4_proto.dydxprotocol.vault.share_pb2 import NumShares
 
 
 @dataclass
@@ -89,7 +90,9 @@ class MegaVault:
         Returns:
             vault_query.QueryMegavaultOwnerSharesResponse: Fetch total shares of the address
         """
-        return vault_query_grpc.QueryStub.MegavaultOwnerShares(
+        return vault_query_grpc.QueryStub(
+            self.node_client.channel
+        ).MegavaultOwnerShares(
             vault_query.QueryMegavaultOwnerSharesRequest(address=address)
         )
 
@@ -105,8 +108,10 @@ class MegaVault:
         Returns:
             Any: Withdrawal info
         """
-        return vault_query_grpc.QueryStub.MegavaultWithdrawalInfo(
+        return vault_query_grpc.QueryStub(
+            self.node_client.channel
+        ).MegavaultWithdrawalInfo(
             vault_query.QueryMegavaultWithdrawalInfoRequest(
-                shares_to_withdraw=to_serializable_vec(shares)
+                shares_to_withdraw=NumShares(num_shares=to_serializable_vec(shares))
             )
         )
