@@ -1,15 +1,23 @@
-import time
 import random
+import time
+<<<<<<< HEAD
+import random
+=======
+
+>>>>>>> 0031167 (feat: Implementing close_position method)
 import grpc
 import pytest
 import asyncio
 
+<<<<<<< HEAD
 from dydx_v4_client import MAX_CLIENT_ID, OrderFlags
 from dydx_v4_client.indexer.rest.constants import OrderType, OrderSide
 from dydx_v4_client.node.market import Market
 from dydx_v4_client.node.message import order
 from dydx_v4_client.node.market import Market, since_now
 from dydx_v4_client.indexer.rest.constants import OrderType
+=======
+>>>>>>> 0031167 (feat: Implementing close_position method)
 from dydx_v4_client.node.market import Market
 from dydx_v4_client.node.message import subaccount, send_token
 from tests.conftest import get_wallet, assert_successful_broadcast
@@ -288,6 +296,7 @@ async def test_register_affiliate(node_client, wallet, test_address, recipient):
     except Exception as e:
         assert "Affiliate already exists for referee" in str(e)
 
+<<<<<<< HEAD
 
 @pytest.mark.asyncio
 async def test_place_order_with_builder_code(
@@ -572,3 +581,20 @@ async def close_open_positions(node_client, wallet, test_address, market):
         client_id=random.randint(0, MAX_CLIENT_ID),
         slippage_pct=5,
     )
+=======
+@pytest.mark.asyncio
+async def test_close_position(node_client, wallet, test_address, indexer_rest_client):
+    MARKET_ID = "ETH-USD"
+    market = Market(
+        (await indexer_rest_client.markets.get_perpetual_markets(MARKET_ID))["markets"][MARKET_ID]
+    )
+    response = await node_client.close_position(
+        wallet,
+        test_address,
+        0,
+        market,
+        None,
+        random.randint(0, 1000000000)
+    )
+    print(response)
+>>>>>>> 0031167 (feat: Implementing close_position method)

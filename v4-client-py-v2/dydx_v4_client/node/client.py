@@ -11,7 +11,8 @@ from google.protobuf.json_format import MessageToDict
 from typing_extensions import List, Optional, Self
 
 from dydx_v4_client import OrderFlags
-from dydx_v4_client.indexer.rest.constants import OrderType
+
+from dydx_v4_client.indexer.rest.constants import OrderSide, OrderType
 from dydx_v4_client.node.market import Market
 from v4_proto.cosmos.auth.v1beta1 import query_pb2_grpc as auth
 from v4_proto.cosmos.auth.v1beta1.auth_pb2 import BaseAccount
@@ -1289,6 +1290,29 @@ class NodeClient(MutatingNodeClient):
         order_id = market.order_id(
             address, subaccount_number, client_id, OrderFlags.SHORT_TERM
         )
+        print(f"Subaccount: {subaccount}")
+        quantum_value = None
+        order_side = None
+        try:
+            for pos in subaccount.perpetual_positions:
+                if pos.perpetual_id == int(market.market["clobPairId"]):
+                    print(f"pos: {pos}")
+                    quantum_value = int.from_bytes(pos.quantums[1:], byteorder="big", signed=False)
+                    if pos.quantums[0] == b'0x02':
+                        order_side = OrderSide.SELL
+                    else:
+                        order_side = OrderSide.BUY
+                else:
+                    print(f"No perpetual id is found")
+        except Exception as e:
+            raise e
+
+        if quantum_value is None or order_side is None:
+            raise Exception(f"Invalid quantums value")
+        order_size = quantum_value / 10**(-market.market["atomicResolution"])
+        if reduce_by is not None:
+            order_size -= reduce_by
+        order_id = market.order_id(address, subaccount_number, client_id, OrderFlags.LONG_TERM)
         current_height = await self.latest_block_height()
         new_order = market.order(
             order_id=order_id,
