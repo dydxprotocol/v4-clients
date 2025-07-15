@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List, Optional, Any
 
 import grpc
 from v4_proto.cosmos.auth.v1beta1 import query_pb2_grpc as auth

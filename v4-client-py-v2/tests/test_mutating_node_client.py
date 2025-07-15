@@ -1,9 +1,11 @@
 import time
+
 import grpc
 import pytest
 import asyncio
 
-from dydx_v4_client.node.message import subaccount, send_token, order
+from dydx_v4_client.node.message import order
+from dydx_v4_client.node.message import subaccount, send_token
 from tests.conftest import get_wallet, assert_successful_broadcast
 from v4_proto.dydxprotocol.clob.order_pb2 import BuilderCodeParameters
 from dydx_v4_client.indexer.rest.constants import OrderStatus
