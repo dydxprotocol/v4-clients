@@ -2,7 +2,7 @@ use cosmrs::tendermint::{chain::Id, error::Error};
 use serde::{Deserialize, Serialize};
 use strum::{AsRefStr, Display};
 
-/// [Chain ID](https://docs.dydx.exchange/infrastructure_providers-network/network_constants#chain-id)
+/// [Chain ID](https://docs.dydx.xyz/nodes/network-constants#chain-id)
 /// serves as a unique chain identifier to prevent replay attacks.
 ///
 /// See also [Cosmos ecosystem](https://cosmos.directory/).

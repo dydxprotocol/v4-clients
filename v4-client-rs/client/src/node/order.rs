@@ -27,7 +27,7 @@ pub const SHORT_TERM_ORDER_MAXIMUM_LIFETIME: u32 = 20;
 /// Value used to identify the Rust client.
 pub const DEFAULT_RUST_CLIENT_METADATA: u32 = 4;
 
-/// Order [expirations](https://docs.dydx.exchange/api_integration-trading/short_term_vs_stateful).
+/// Order [expirations](https://docs.dydx.xyz/concepts/trading/orders#comparison).
 #[derive(From, Clone, Debug)]
 pub enum OrderGoodUntil {
     /// Block expiratin is used for short-term orders.
@@ -144,7 +144,7 @@ impl From<PerpetualMarket> for OrderMarketParams {
 /// Note that the price input to the `OrderBuilder` is in the "common" units of the perpetual/currency, not the quantized/atomic value.
 ///
 /// Two main classes of orders in dYdX from persistence perspective are
-/// [short-term and long-term (stateful) orders](https://docs.dydx.exchange/api_integration-trading/short_term_vs_stateful).
+/// [short-term and long-term (stateful) orders](https://docs.dydx.xyz/concepts/trading/orders#short-term-vs-long-term).
 ///
 /// For different types of orders
 /// see also [Stop-Limit Versus Stop-Loss](https://dydx.exchange/crypto-learning/stop-limit-versus-stop-loss) and
@@ -325,7 +325,7 @@ impl OrderBuilder {
         self
     }
 
-    /// Set [time execution options](https://docs.dydx.exchange/api_integration-trading/order_types#time-in-force).
+    /// Set [time execution options](https://docs.dydx.xyz/types/time_in_force#time-in-force).
     ///
     /// Basically, it places of the order in the range between being
     /// a Taker order and a Maker order.
@@ -338,7 +338,7 @@ impl OrderBuilder {
         self
     }
 
-    /// Set an order as [reduce-only](https://docs.dydx.exchange/api_integration-trading/order_types#reduce-only-order-ro).
+    /// Set an order as [reduce-only](https://docs.dydx.xyz/concepts/trading/orders#types).
     pub fn reduce_only(mut self, reduce: impl Into<bool>) -> Self {
         self.reduce_only = Some(reduce.into());
         self
@@ -384,7 +384,7 @@ impl OrderBuilder {
     /* Builder */
     /// Build an [`Order`] and a corresponding [`OrderId`].
     ///
-    /// `client_id` [impacts](https://docs.dydx.exchange/api_integration-clients/validator_client#replacing-an-order) an order id.
+    /// `client_id` [impacts](https://docs.dydx.xyz/concepts/trading/limit-orderbook#replacements) an order id.
     /// So it is important to provide its uniqueness as otherwise some orders may overwrite others.
     pub fn build(self, client_id: impl Into<ClientId>) -> Result<(OrderId, Order), Error> {
         let side = self
@@ -528,7 +528,7 @@ impl OrderType {
         }
     }
 
-    /// Get [the condition type](https://docs.dydx.exchange/api_integration-trading/order_types#condition-types) for the order.
+    /// Get [the condition type](https://docs.dydx.xyz/concepts/trading/orders#types) for the order.
     pub fn condition_type(&self) -> Result<ConditionType, Error> {
         match self {
             OrderType::Limit | OrderType::Market => Ok(ConditionType::Unspecified),

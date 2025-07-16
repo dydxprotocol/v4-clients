@@ -4,7 +4,7 @@ This guide explains how to connect to different dYdX networks using the Python S
 
 #### Finding Network Endpoints
 
-> **Important:** For the most up-to-date list of publicly available endpoints, refer to our [network resources documentation](https://docs.dydx.exchange/infrastructure_providers-network/resources#networks-repositories).
+> **Important:** For the most up-to-date list of publicly available endpoints, refer to our [endpoints documentation](https://docs.dydx.xyz/interaction/endpoints#endpoints).
 
 #### Connecting to Mainnet
 
@@ -20,7 +20,7 @@ NETWORK = make_mainnet(
 )
 ```
 
-> Note the above are just an example of the mainnet endpoints. Always use the most recent endpoints from our [network resources documentation](https://docs.dydx.exchange/infrastructure_providers-network/resources#indexer-endpoints).
+> Note the above are just an example of the mainnet endpoints. Always use the most recent endpoints from our [endpoints documentation](https://docs.dydx.xyz/interaction/endpoints#mainnet).
 
 ⚠️ **Important:** When specifying `node_url`, do not include the `https://` prefix. This is a common mistake that can cause connection issues.
 
@@ -46,7 +46,7 @@ CUSTOM_TESTNET = make_testnet(
 )
 ```
 
-> Find the latest testnet endpoints in our [network resources documentation](https://docs.dydx.exchange/infrastructure_providers-network/resources#networks-repositories).
+> Find the latest testnet endpoints in our [endpoints documentation](https://docs.dydx.xyz/interaction/endpoints#testnet).
 
 #### Local Development
 
@@ -95,7 +95,7 @@ from dydx_v4_client import IndexerClient
 indexer = IndexerClient("https://your-indexer-url.com")
 ```
 
-Remember to always use the most recent endpoints from our [network resources documentation](https://docs.dydx.exchange/infrastructure_providers-network/resources#networks-repositories) when connecting to dYdX networks.
+Remember to always use the most recent endpoints from our [endpoints documentation](https://docs.dydx.xyz/interaction/endpoints#indexer) when connecting to dYdX networks.
 
 #### Using Non-SSL Connections
 The SDK supports both secure (SSL) and insecure (non-SSL) connections. By default, secure connections are used. However, for scenarios where you need to use a non-SSL node (e.g., local development), you can use the make_insecure function:

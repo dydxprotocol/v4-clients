@@ -16,7 +16,7 @@ impl<'a> Utility<'a> {
 
     /// Current server time (UTC) of Indexer.
     ///
-    /// [Reference](https://docs.dydx.exchange/api_integration-indexer/indexer_api#gettime).
+    /// [Reference](https://docs.dydx.xyz/indexer-client/http#get-time).
     pub async fn get_time(&self) -> Result<TimeResponse, Error> {
         let rest = &self.rest;
         const URI: &str = "/v4/time";
@@ -34,7 +34,7 @@ impl<'a> Utility<'a> {
 
     /// Current block height and block time (UTC) parsed by Indexer.
     ///
-    /// [Reference](https://docs.dydx.exchange/api_integration-indexer/indexer_api#getheight).
+    /// [Reference](https://docs.dydx.xyz/indexer-client/http#get-height).
     pub async fn get_height(&self) -> Result<HeightResponse, Error> {
         let rest = &self.rest;
         const URI: &str = "/v4/height";
@@ -52,7 +52,7 @@ impl<'a> Utility<'a> {
 
     /// Query for screening results (compliance) of the address.
     ///
-    /// [Reference](https://docs.dydx.exchange/api_integration-indexer/indexer_api#screen).
+    /// [Reference](https://docs.dydx.xyz/indexer-client/http#get-screen).
     pub async fn get_screen(&self, query: &Address) -> Result<ComplianceResponse, Error> {
         let rest = &self.rest;
         const URI: &str = "/v4/screen";
@@ -71,7 +71,7 @@ impl<'a> Utility<'a> {
 
     /// Screens an address to determine if it is restricted.
     ///
-    /// [Reference](https://docs.dydx.exchange/api_integration-indexer/indexer_api#compliance-screen).
+    /// [Reference](https://docs.dydx.xyz/indexer-client/http#get-compliance-screen).
     pub async fn get_compliance_screen(
         &self,
         address: &Address,

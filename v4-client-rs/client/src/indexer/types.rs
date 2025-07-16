@@ -59,7 +59,7 @@ pub enum ApiOrderStatus {
     BestEffort(BestEffortOpenedStatus),
 }
 
-/// [Time-in-Force](https://docs.dydx.exchange/api_integration-trading/order_types#time-in-force).
+/// [Time-in-Force](https://docs.dydx.xyz/types/time_in_force#time-in-force).
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum ApiTimeInForce {
@@ -125,7 +125,7 @@ pub struct AnyId;
 ///
 /// This value should be different for different orders.
 /// To update a specific previously submitted order, the new [`Order`](dydx_proto::dydxprotocol::clob::Order) must have the same client ID, and the same [`OrderId`].
-/// See also: [How can I replace an order?](https://docs.dydx.exchange/introduction-onboarding_faqs).
+/// See also: [Replacements](https://docs.dydx.xyz/concepts/trading/limit-orderbook#replacements).
 #[serde_as]
 #[derive(Deserialize, Debug, Clone, Display, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct ClientId(#[serde_as(as = "DisplayFromStr")] pub u32);
@@ -297,7 +297,7 @@ pub enum MarketType {
 pub enum PerpetualMarketType {
     /// Cross.
     Cross,
-    /// [Isolated](https://docs.dydx.exchange/api_integration-trading/isolated_markets).
+    /// [Isolated](https://docs.dydx.xyz/concepts/trading/isolated-markets#isolated-markets).
     Isolated,
 }
 
@@ -323,7 +323,7 @@ pub enum OrderStatus {
 
 /// When the order enters the execution phase
 ///
-/// See also [Time in force](https://docs.dydx.exchange/api_integration-indexer/indexer_api#apitimeinforce).
+/// See also [Time in force](https://docs.dydx.xyz/types/time_in_force#time-in-force).
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum OrderExecution {
@@ -377,7 +377,7 @@ pub enum OrderSide {
 
 /// Order types.
 ///
-/// See also [OrderType](https://docs.dydx.exchange/api_integration-indexer/indexer_api#ordertype).
+/// See also [OrderType](https://docs.dydx.xyz/types/order_type#ordertype).
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum OrderType {
@@ -527,7 +527,7 @@ impl From<ParentSubaccountNumber> for SubaccountNumber {
 /// Parent subaccount.
 ///
 /// A parent subaccount can have multiple positions opened and all posititions are cross-margined.
-/// See also [how isolated positions are handled in dYdX](https://docs.dydx.exchange/api_integration-guides/how_to_isolated#mapping-of-isolated-positions-to-subaccounts).
+/// See also [how isolated positions are handled in dYdX](https://docs.dydx.xyz/concepts/trading/isolated-positions#isolated-positions).
 #[derive(Deserialize, Debug, Clone, Eq, Hash, PartialOrd, Ord, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct ParentSubaccount {
@@ -660,7 +660,7 @@ impl Denom {
     pub fn gas_price(&self) -> Option<BigDecimal> {
         match self {
             // Defined dYdX micro USDC per Gas unit.
-            // As defined in [1](https://docs.dydx.exchange/infrastructure_providers-validators/required_node_configs#base-configuration) and [2](https://github.com/dydxprotocol/v4-chain/blob/ba731b00e3163f7c3ff553b4300d564c11eaa81f/protocol/cmd/dydxprotocold/cmd/config.go#L15).
+            // As defined in [1](https://docs.dydx.xyz/nodes/running-node/required-node-configs#node-configs) and [2](https://github.com/dydxprotocol/v4-chain/blob/ba731b00e3163f7c3ff553b4300d564c11eaa81f/protocol/cmd/dydxprotocold/cmd/config.go#L15).
             Self::Usdc => Some(BigDecimal::new(25.into(), 3)),
             // Defined dYdX native tokens per Gas unit. Recommended to be roughly the same in value as 0.025 micro USDC.
             // As defined in [1](https://github.com/dydxprotocol/v4-chain/blob/ba731b00e3163f7c3ff553b4300d564c11eaa81f/protocol/cmd/dydxprotocold/cmd/config.go#L21).
