@@ -1139,7 +1139,7 @@ class NodeClient(MutatingNodeClient):
         validator: str,
         quamtums: int,
         denomination: str,
-    ):
+    ) -> Any:
         """
         Delegate coins from a delegator to a validator.
 
@@ -1149,6 +1149,9 @@ class NodeClient(MutatingNodeClient):
             validator (str): Validator address
             quantums (int): amount
             denomination (str): Denomination
+
+        Returns:
+            Any: Delegate response
         """
         msg = delegate(
             delegator=delegator,
@@ -1165,7 +1168,7 @@ class NodeClient(MutatingNodeClient):
         validator: str,
         quamtums: int,
         denomination: str,
-    ):
+    ) -> Any:
         """
         Undelegate coins from a delegator to a validator.
 
@@ -1175,6 +1178,9 @@ class NodeClient(MutatingNodeClient):
             validator (str): Validator address
             quantums (int): amount
             denomination (str): Denomination
+
+        Returns:
+            Any: Undelegate response
         """
         msg = undelegate(
             delegator=delegator,
