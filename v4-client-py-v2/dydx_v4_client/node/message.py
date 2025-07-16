@@ -1,3 +1,4 @@
+from decimal import Decimal
 from typing import List
 
 from v4_proto.cosmos.bank.v1beta1.tx_pb2 import MsgSend
@@ -22,6 +23,12 @@ from v4_proto.dydxprotocol.accountplus.tx_pb2 import (
 )
 import json
 import base64
+
+from v4_proto.dydxprotocol.vault.share_pb2 import NumShares
+from v4_proto.dydxprotocol.vault.tx_pb2 import (
+    MsgDepositToMegavault,
+    MsgWithdrawFromMegavault,
+)
 
 PY_V2_CLIENT_ID = 2
 
@@ -221,4 +228,21 @@ def delegate(delegator: str, validator: str, quantums: int, denomination: str):
         delegator_address=delegator,
         validator_address=validator,
         amount=Coin(amount=str(quantums), denom=denomination),
+    )
+
+
+def deposit_to_megavault(address: str, subaccount_number: int, quantums: bytes):
+    return MsgDepositToMegavault(
+        subaccount_id=SubaccountId(owner=address, number=subaccount_number),
+        quote_quantums=quantums,
+    )
+
+
+def withdraw_from_megavault(
+    address: str, subaccount_number: int, min_quantums: bytes, num_shares: bytes
+):
+    return MsgWithdrawFromMegavault(
+        subaccount_id=SubaccountId(owner=address, number=subaccount_number),
+        min_quote_quantums=min_quantums,
+        shares=NumShares(num_shares=num_shares),
     )
