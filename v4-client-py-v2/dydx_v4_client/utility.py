@@ -26,7 +26,7 @@ class Usdc:
         Equivalent to multiplying by 10^6.
         """
         resolution = Decimal(10) ** abs(self.QUANTUMS_ATOMIC_RESOLUTION)
-        return self.value * resolution
+        return Decimal(self.value) * Decimal(resolution)
 
     def quantize_as_u64(self) -> int:
         """
@@ -50,7 +50,10 @@ def to_serializable_vec(bigint: int) -> bytes:
         return bytes([0x02])
 
     sign_byte = 0x02 if bigint >= 0 else 0x03
-    abs_bytes = bigint.to_bytes((bigint.bit_length() + 7) // 8, "big", signed=False)
+    unsigned_bigint = abs(bigint)
+    abs_bytes = unsigned_bigint.to_bytes(
+        (unsigned_bigint.bit_length() + 7) // 8, "big", signed=False
+    )
     return bytes([sign_byte]) + abs_bytes
 
 
