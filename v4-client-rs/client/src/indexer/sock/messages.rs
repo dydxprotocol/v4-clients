@@ -473,6 +473,7 @@ pub struct SubaccountsInitialMessage {
 /// Subaccount.
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
+#[serde(deny_unknown_fields)]
 pub struct SubaccountsInitialMessageContents {
     /// Subaccount.
     pub subaccount: SubaccountMessageObject,
@@ -498,6 +499,7 @@ pub struct ParentSubaccountsInitialMessage {
 /// Parent subaccount.
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
+#[serde(deny_unknown_fields)]
 pub struct ParentSubaccountsInitialMessageContents {
     /// Subaccount.
     pub subaccount: ParentSubaccountMessageObject,
@@ -619,6 +621,7 @@ generate_contents_deserialize_function!(
 /// Subaccount update contents.
 #[derive(Clone, Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
+#[serde(deny_unknown_fields)]
 pub struct SubaccountUpdateMessageContents {
     /// Perpetual position updates on the subaccount.
     pub perpetual_positions: Option<Vec<PerpetualPositionSubaccountMessageContents>>,
@@ -639,6 +642,7 @@ pub struct SubaccountUpdateMessageContents {
 /// Perpetual position on subaccount.
 #[derive(Clone, Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
+#[serde(deny_unknown_fields)]
 pub struct PerpetualPositionSubaccountMessageContents {
     /// Address.
     pub address: Address,
@@ -675,6 +679,7 @@ pub struct PerpetualPositionSubaccountMessageContents {
 /// Asset position per subaccount.
 #[derive(Clone, Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
+#[serde(deny_unknown_fields)]
 pub struct AssetPositionSubaccountMessageContents {
     /// Address.
     pub address: Address,
@@ -695,6 +700,7 @@ pub struct AssetPositionSubaccountMessageContents {
 /// Order per subaccount.
 #[derive(Clone, Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
+#[serde(deny_unknown_fields)]
 pub struct OrderSubaccountMessageContents {
     /// Id.
     pub id: String,
@@ -750,6 +756,7 @@ pub struct OrderSubaccountMessageContents {
 /// Fill per subaccount.
 #[derive(Clone, Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
+#[serde(deny_unknown_fields)]
 pub struct FillSubaccountMessageContents {
     /// Fill id.
     pub id: FillId,
@@ -789,6 +796,7 @@ pub struct FillSubaccountMessageContents {
 /// Transfer per subaccount.
 #[derive(Clone, Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
+#[serde(deny_unknown_fields)]
 pub struct TransferSubaccountMessageContents {
     /// Sender.
     pub sender: Account,
@@ -812,6 +820,7 @@ pub struct TransferSubaccountMessageContents {
 /// Trading reward.
 #[derive(Clone, Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
+#[serde(deny_unknown_fields)]
 pub struct TradingRewardSubaccountMessageContents {
     /// Trading reward.
     pub trading_reward: BigDecimal,
@@ -840,6 +849,7 @@ pub struct ParentSubaccountsUpdateMessage {
 /// Subaccount update contents.
 #[derive(Clone, Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
+#[serde(deny_unknown_fields)]
 pub struct ParentSubaccountUpdateMessageContents {
     /// Perpetual position updates on the subaccount.
     pub perpetual_positions: Option<Vec<PerpetualPositionSubaccountMessageContents>>,
@@ -944,6 +954,7 @@ generate_contents_deserialize_function!(deserialize_trades_contents, TradesUpdat
 /// Trades updates.
 #[derive(Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
+#[serde(deny_unknown_fields)]
 pub struct TradesUpdateMessageContents {
     /// Updates.
     pub trades: Vec<TradeUpdate>,
@@ -952,6 +963,7 @@ pub struct TradesUpdateMessageContents {
 /// Trade update.
 #[derive(Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
+#[serde(deny_unknown_fields)]
 pub struct TradeUpdate {
     /// Unique id of the trade, which is the taker fill id.
     pub id: TradeId,
@@ -986,6 +998,7 @@ generate_contents_deserialize_function!(deserialize_markets_contents, MarketsUpd
 /// Markets update.
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
+#[serde(deny_unknown_fields)]
 pub struct MarketsUpdateMessageContents {
     /// Trading.
     pub trading: Option<HashMap<Ticker, TradingPerpetualMarket>>,
@@ -996,6 +1009,7 @@ pub struct MarketsUpdateMessageContents {
 /// Perpetual market info.
 #[derive(Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
+#[serde(deny_unknown_fields)]
 pub struct TradingPerpetualMarket {
     /// Atomic resolution
     pub atomic_resolution: Option<i32>,
@@ -1049,6 +1063,7 @@ pub struct TradingPerpetualMarket {
 /// Oracle price for market.
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
+#[serde(deny_unknown_fields)]
 pub struct OraclePriceMarket {
     /// Oracle price.
     pub oracle_price: Price,
@@ -1098,6 +1113,7 @@ generate_contents_deserialize_function!(
 /// Block height update message contents.
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
+#[serde(deny_unknown_fields)]
 pub struct BlockHeightUpdateMessageContents {
     /// Block height.
     pub block_height: Height,

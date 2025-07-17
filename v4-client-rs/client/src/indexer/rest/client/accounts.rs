@@ -243,7 +243,7 @@ impl<'a> Accounts<'a> {
         &self,
         subaccount: &ParentSubaccount,
         opts: Option<GetTransfersOpts>,
-    ) -> Result<Vec<TransferResponseObject>, Error> {
+    ) -> Result<Vec<ParentSubaccountTransferResponseObject>, Error> {
         let rest = &self.rest;
         const URI: &str = "/v4/transfers";
         let url = format!("{}{URI}/parentSubaccountNumber", rest.config.endpoint);
@@ -260,7 +260,7 @@ impl<'a> Accounts<'a> {
             .send()
             .await?
             .error_for_status()?
-            .json::<TransferResponse>()
+            .json::<ParentSubaccountTransferResponse>()
             .await?
             .transfers;
         Ok(transfers)
