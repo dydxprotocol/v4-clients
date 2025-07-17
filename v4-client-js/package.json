@@ -25,7 +25,7 @@
     "coverage": "npm run test -- --coverage",
     "fix": "npm run lint -- --fix",
     "lint": "eslint --ext .ts,.js .",
-    "prepublishOnly": "npm run compile",
+    "prepublishOnly": "npm run build",
     "release": "semantic-release",
     "start": "node build/src/index.js",
     "test": "NODE_ENV=test jest --testPathIgnorePatterns=__tests__/modules/client/*",
