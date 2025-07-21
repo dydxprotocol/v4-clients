@@ -17,7 +17,7 @@ use std::{fmt, str::FromStr};
 /// A trader's account with a parent subaccount number.
 #[derive(Deserialize, Debug, Clone, Eq, Hash, PartialOrd, Ord, PartialEq)]
 #[serde(rename_all = "camelCase")]
-#[serde(deny_unknown_fields)]
+#[cfg_attr(any(test, feature = "strict-serde"), serde(deny_unknown_fields))]
 pub struct AccountWithParentSubaccountNumber {
     /// Address.
     pub address: Address,
@@ -28,7 +28,7 @@ pub struct AccountWithParentSubaccountNumber {
 /// A trader's account.
 #[derive(Deserialize, Debug, Clone, Eq, Hash, PartialOrd, Ord, PartialEq)]
 #[serde(rename_all = "camelCase")]
-#[serde(deny_unknown_fields)]
+#[cfg_attr(any(test, feature = "strict-serde"), serde(deny_unknown_fields))]
 pub struct Account {
     /// Address.
     pub address: Address,
@@ -420,7 +420,7 @@ pub enum OrderType {
 /// Subaccount.
 #[derive(Deserialize, Debug, Clone, Eq, Hash, PartialOrd, Ord, PartialEq)]
 #[serde(rename_all = "camelCase")]
-#[serde(deny_unknown_fields)]
+#[cfg_attr(any(test, feature = "strict-serde"), serde(deny_unknown_fields))]
 pub struct Subaccount {
     /// Address.
     pub address: Address,
@@ -545,7 +545,7 @@ impl From<ParentSubaccountNumber> for SubaccountNumber {
 /// See also [how isolated positions are handled in dYdX](https://docs.dydx.xyz/concepts/trading/isolated-positions#isolated-positions).
 #[derive(Deserialize, Debug, Clone, Eq, Hash, PartialOrd, Ord, PartialEq)]
 #[serde(rename_all = "camelCase")]
-#[serde(deny_unknown_fields)]
+#[cfg_attr(any(test, feature = "strict-serde"), serde(deny_unknown_fields))]
 pub struct ParentSubaccount {
     /// Address.
     pub address: Address,
@@ -731,7 +731,7 @@ impl TryFrom<Denom> for CosmosDenom {
 /// Parent subaccount response.
 #[derive(Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
-#[serde(deny_unknown_fields)]
+#[cfg_attr(any(test, feature = "strict-serde"), serde(deny_unknown_fields))]
 pub struct ParentSubaccountResponseObject {
     /// Address.
     pub address: Address,
@@ -748,7 +748,7 @@ pub struct ParentSubaccountResponseObject {
 /// Subaccount response.
 #[derive(Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
-#[serde(deny_unknown_fields)]
+#[cfg_attr(any(test, feature = "strict-serde"), serde(deny_unknown_fields))]
 pub struct SubaccountResponseObject {
     /// Address.
     pub address: Address,
@@ -773,7 +773,7 @@ pub struct SubaccountResponseObject {
 /// Asset position response.
 #[derive(Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
-#[serde(deny_unknown_fields)]
+#[cfg_attr(any(test, feature = "strict-serde"), serde(deny_unknown_fields))]
 pub struct AssetPositionResponseObject {
     /// Token symbol.
     pub symbol: Symbol,
@@ -790,7 +790,7 @@ pub struct AssetPositionResponseObject {
 /// Perpetual position response.
 #[derive(Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
-#[serde(deny_unknown_fields)]
+#[cfg_attr(any(test, feature = "strict-serde"), serde(deny_unknown_fields))]
 pub struct PerpetualPositionResponseObject {
     /// Market ticker.
     pub market: Ticker,
@@ -909,7 +909,7 @@ impl FromStr for Quantity {
 /// Orderbook price level.
 #[derive(Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
-#[serde(deny_unknown_fields)]
+#[cfg_attr(any(test, feature = "strict-serde"), serde(deny_unknown_fields))]
 pub struct OrderbookResponsePriceLevel {
     /// Price.
     pub price: Price,
@@ -920,7 +920,7 @@ pub struct OrderbookResponsePriceLevel {
 /// Orderbook response.
 #[derive(Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
-#[serde(deny_unknown_fields)]
+#[cfg_attr(any(test, feature = "strict-serde"), serde(deny_unknown_fields))]
 pub struct OrderBookResponseObject {
     /// Bids.
     pub bids: Vec<OrderbookResponsePriceLevel>,
@@ -931,7 +931,7 @@ pub struct OrderBookResponseObject {
 /// Order response.
 #[derive(Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
-#[serde(deny_unknown_fields)]
+#[cfg_attr(any(test, feature = "strict-serde"), serde(deny_unknown_fields))]
 pub struct OrderResponseObject {
     /// Client id.
     pub client_id: ClientId,
@@ -989,7 +989,7 @@ pub struct OrderResponseObject {
 /// Trade response.
 #[derive(Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
-#[serde(deny_unknown_fields)]
+#[cfg_attr(any(test, feature = "strict-serde"), serde(deny_unknown_fields))]
 pub struct TradeResponse {
     /// Trades.
     pub trades: Vec<TradeResponseObject>,
@@ -998,7 +998,7 @@ pub struct TradeResponse {
 /// Trade.
 #[derive(Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
-#[serde(deny_unknown_fields)]
+#[cfg_attr(any(test, feature = "strict-serde"), serde(deny_unknown_fields))]
 pub struct TradeResponseObject {
     /// Trade id.
     pub id: TradeId,
@@ -1020,7 +1020,7 @@ pub struct TradeResponseObject {
 /// Perpetual markets.
 #[derive(Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
-#[serde(deny_unknown_fields)]
+#[cfg_attr(any(test, feature = "strict-serde"), serde(deny_unknown_fields))]
 pub struct PerpetualMarketResponse {
     /// Perpetual markets.
     pub markets: HashMap<Ticker, PerpetualMarket>,
@@ -1029,7 +1029,7 @@ pub struct PerpetualMarketResponse {
 /// Perpetual market.
 #[derive(Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
-#[serde(deny_unknown_fields)]
+#[cfg_attr(any(test, feature = "strict-serde"), serde(deny_unknown_fields))]
 pub struct PerpetualMarket {
     /// Clob pair id.
     pub clob_pair_id: ClobPairId,
@@ -1100,7 +1100,7 @@ impl PerpetualMarket {
 /// Candle response.
 #[derive(Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
-#[serde(deny_unknown_fields)]
+#[cfg_attr(any(test, feature = "strict-serde"), serde(deny_unknown_fields))]
 pub struct CandleResponse {
     /// List of candles.
     pub candles: Vec<CandleResponseObject>,
@@ -1109,7 +1109,7 @@ pub struct CandleResponse {
 /// Candle response.
 #[derive(Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
-#[serde(deny_unknown_fields)]
+#[cfg_attr(any(test, feature = "strict-serde"), serde(deny_unknown_fields))]
 pub struct CandleResponseObject {
     /// Time(UTC).
     pub started_at: DateTime<Utc>,
@@ -1142,7 +1142,7 @@ pub struct CandleResponseObject {
 /// Block height parsed by Indexer.
 #[derive(Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
-#[serde(deny_unknown_fields)]
+#[cfg_attr(any(test, feature = "strict-serde"), serde(deny_unknown_fields))]
 pub struct HeightResponse {
     /// Block height.
     pub height: Height,

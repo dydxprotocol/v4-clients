@@ -9,7 +9,7 @@ use crate::indexer::types::*;
 /// REST Indexer response error.
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
-#[serde(deny_unknown_fields)]
+#[cfg_attr(any(test, feature = "strict-serde"), serde(deny_unknown_fields))]
 pub struct ResponseError {
     /// Errors.
     pub errors: Vec<ErrorMsg>,
@@ -18,7 +18,7 @@ pub struct ResponseError {
 /// REST Indexer error message.
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
-#[serde(deny_unknown_fields)]
+#[cfg_attr(any(test, feature = "strict-serde"), serde(deny_unknown_fields))]
 pub struct ErrorMsg {
     /// Message.
     pub msg: String,
@@ -75,7 +75,7 @@ pub enum SparklineTimePeriod {
 /// Fundings response.
 #[derive(Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
-#[serde(deny_unknown_fields)]
+#[cfg_attr(any(test, feature = "strict-serde"), serde(deny_unknown_fields))]
 pub struct HistoricalFundingResponse {
     /// List of fundings
     pub historical_funding: Vec<HistoricalFundingResponseObject>,
@@ -84,7 +84,7 @@ pub struct HistoricalFundingResponse {
 /// Funding response.
 #[derive(Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
-#[serde(deny_unknown_fields)]
+#[cfg_attr(any(test, feature = "strict-serde"), serde(deny_unknown_fields))]
 pub struct HistoricalFundingResponseObject {
     /// Market ticker.
     pub ticker: Ticker,
@@ -104,7 +104,7 @@ pub type SparklineResponseObject = HashMap<Ticker, Vec<BigDecimal>>;
 /// Indexer server time.
 #[derive(Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
-#[serde(deny_unknown_fields)]
+#[cfg_attr(any(test, feature = "strict-serde"), serde(deny_unknown_fields))]
 pub struct TimeResponse {
     /// Time (UTC).
     pub iso: DateTime<Utc>,
@@ -115,7 +115,7 @@ pub struct TimeResponse {
 /// Compliance response.
 #[derive(Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
-#[serde(deny_unknown_fields)]
+#[cfg_attr(any(test, feature = "strict-serde"), serde(deny_unknown_fields))]
 pub struct ComplianceResponse {
     /// Whether the address is restricted.
     pub restricted: bool,
@@ -160,7 +160,7 @@ pub enum ComplianceReason {
 /// Compliance response v2.
 #[derive(Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
-#[serde(deny_unknown_fields)]
+#[cfg_attr(any(test, feature = "strict-serde"), serde(deny_unknown_fields))]
 pub struct ComplianceV2Response {
     /// Status.
     pub status: ComplianceStatus,
@@ -173,7 +173,7 @@ pub struct ComplianceV2Response {
 /// Address response.
 #[derive(Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
-#[serde(deny_unknown_fields)]
+#[cfg_attr(any(test, feature = "strict-serde"), serde(deny_unknown_fields))]
 pub struct AddressResponse {
     /// List of all subaccounts.
     pub subaccounts: Vec<SubaccountResponseObject>,
@@ -184,7 +184,7 @@ pub struct AddressResponse {
 /// Subaccount response.
 #[derive(Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
-#[serde(deny_unknown_fields)]
+#[cfg_attr(any(test, feature = "strict-serde"), serde(deny_unknown_fields))]
 pub struct SubaccountResponse {
     /// Subaccount.
     pub subaccount: SubaccountResponseObject,
@@ -193,7 +193,7 @@ pub struct SubaccountResponse {
 /// Parent subaccount response.
 #[derive(Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
-#[serde(deny_unknown_fields)]
+#[cfg_attr(any(test, feature = "strict-serde"), serde(deny_unknown_fields))]
 pub struct ParentSubaccountResponse {
     /// Subaccount.
     pub subaccount: ParentSubaccountResponseObject,
@@ -202,7 +202,7 @@ pub struct ParentSubaccountResponse {
 /// Asset positions response.
 #[derive(Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
-#[serde(deny_unknown_fields)]
+#[cfg_attr(any(test, feature = "strict-serde"), serde(deny_unknown_fields))]
 pub struct AssetPositionResponse {
     /// Asset positions.
     pub positions: Vec<AssetPositionResponseObject>,
@@ -211,7 +211,7 @@ pub struct AssetPositionResponse {
 /// Perpetual positions response.
 #[derive(Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
-#[serde(deny_unknown_fields)]
+#[cfg_attr(any(test, feature = "strict-serde"), serde(deny_unknown_fields))]
 pub struct PerpetualPositionResponse {
     /// Perpetual positions.
     pub positions: Vec<PerpetualPositionResponseObject>,
@@ -220,7 +220,7 @@ pub struct PerpetualPositionResponse {
 /// Pagination request.
 #[derive(Serialize, Default, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
-#[serde(deny_unknown_fields)]
+#[cfg_attr(any(test, feature = "strict-serde"), serde(deny_unknown_fields))]
 pub struct PaginationRequest {
     /// Limit.
     pub limit: Option<u32>,
@@ -231,7 +231,7 @@ pub struct PaginationRequest {
 /// Affiliate metadata response.
 #[derive(Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
-#[serde(deny_unknown_fields)]
+#[cfg_attr(any(test, feature = "strict-serde"), serde(deny_unknown_fields))]
 pub struct AffiliateMetadataResponse {
     /// Referral code.
     pub referral_code: String,
@@ -244,7 +244,7 @@ pub struct AffiliateMetadataResponse {
 /// Affiliate address response.
 #[derive(Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
-#[serde(deny_unknown_fields)]
+#[cfg_attr(any(test, feature = "strict-serde"), serde(deny_unknown_fields))]
 pub struct AffiliateAddressResponse {
     /// Address.
     pub address: Address,
@@ -253,7 +253,7 @@ pub struct AffiliateAddressResponse {
 /// Affiliate snapshot response.
 #[derive(Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
-#[serde(deny_unknown_fields)]
+#[cfg_attr(any(test, feature = "strict-serde"), serde(deny_unknown_fields))]
 pub struct AffiliateSnapshotResponse {
     /// Affiliate list.
     pub affiliate_list: Vec<AffiliateSnapshotResponseObject>,
@@ -266,7 +266,7 @@ pub struct AffiliateSnapshotResponse {
 /// Affiliate snapshot response object.
 #[derive(Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
-#[serde(deny_unknown_fields)]
+#[cfg_attr(any(test, feature = "strict-serde"), serde(deny_unknown_fields))]
 pub struct AffiliateSnapshotResponseObject {
     /// Affiliate address.
     pub affiliate_address: Address,
@@ -295,7 +295,7 @@ pub struct AffiliateSnapshotResponseObject {
 /// Affiliate total volume response.
 #[derive(Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
-#[serde(deny_unknown_fields)]
+#[cfg_attr(any(test, feature = "strict-serde"), serde(deny_unknown_fields))]
 pub struct AffiliateTotalVolumeResponse {
     /// Total volume.
     pub total_volume: Option<BigDecimal>,
@@ -304,7 +304,7 @@ pub struct AffiliateTotalVolumeResponse {
 /// Pagination response.
 #[derive(Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
-#[serde(deny_unknown_fields)]
+#[cfg_attr(any(test, feature = "strict-serde"), serde(deny_unknown_fields))]
 pub struct PaginationResponse {
     /// Page size.
     pub page_size: Option<u32>,
@@ -317,7 +317,7 @@ pub struct PaginationResponse {
 /// Transfers response.
 #[derive(Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
-#[serde(deny_unknown_fields)]
+#[cfg_attr(any(test, feature = "strict-serde"), serde(deny_unknown_fields))]
 pub struct TransferResponse {
     /// List of transfers.
     pub transfers: Vec<TransferResponseObject>,
@@ -329,7 +329,7 @@ pub struct TransferResponse {
 /// Parent subaccount transfer response.
 #[derive(Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
-#[serde(deny_unknown_fields)]
+#[cfg_attr(any(test, feature = "strict-serde"), serde(deny_unknown_fields))]
 pub struct ParentSubaccountTransferResponse {
     /// List of transfers.
     pub transfers: Vec<ParentSubaccountTransferResponseObject>,
@@ -338,7 +338,7 @@ pub struct ParentSubaccountTransferResponse {
 /// Trader search response.
 #[derive(Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
-#[serde(deny_unknown_fields)]
+#[cfg_attr(any(test, feature = "strict-serde"), serde(deny_unknown_fields))]
 pub struct TraderSearchResponse {
     /// Result.
     pub result: Option<TraderSearchResponseObject>,
@@ -347,7 +347,7 @@ pub struct TraderSearchResponse {
 /// Trader search response object.
 #[derive(Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
-#[serde(deny_unknown_fields)]
+#[cfg_attr(any(test, feature = "strict-serde"), serde(deny_unknown_fields))]
 pub struct TraderSearchResponseObject {
     /// Address.
     pub address: Address,
@@ -362,7 +362,7 @@ pub struct TraderSearchResponseObject {
 /// Transfer between response.
 #[derive(Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
-#[serde(deny_unknown_fields)]
+#[cfg_attr(any(test, feature = "strict-serde"), serde(deny_unknown_fields))]
 pub struct TransferBetweenResponse {
     /// List of transfers.
     pub transfers_subset: Vec<TransferResponseObject>,
@@ -376,7 +376,7 @@ pub struct TransferBetweenResponse {
 /// Funding payment response.
 #[derive(Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
-#[serde(deny_unknown_fields)]
+#[cfg_attr(any(test, feature = "strict-serde"), serde(deny_unknown_fields))]
 pub struct FundingPaymentResponse {
     /// List of funding payments.
     pub funding_payments: Vec<FundingPaymentResponseObject>,
@@ -388,7 +388,7 @@ pub struct FundingPaymentResponse {
 /// Funding payment response object.
 #[derive(Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
-#[serde(deny_unknown_fields)]
+#[cfg_attr(any(test, feature = "strict-serde"), serde(deny_unknown_fields))]
 pub struct FundingPaymentResponseObject {
     /// Time (UTC).
     pub created_at: DateTime<Utc>,
@@ -428,7 +428,7 @@ pub enum FundingOrderSide {
 /// T is the type of the sender and recipient.
 #[derive(Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
-#[serde(deny_unknown_fields)]
+#[cfg_attr(any(test, feature = "strict-serde"), serde(deny_unknown_fields))]
 pub struct TransferResponseObject {
     /// Transfer id.
     pub id: TransferId,
@@ -454,7 +454,7 @@ pub struct TransferResponseObject {
 /// Parent subaccount transfer response object.
 #[derive(Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
-#[serde(deny_unknown_fields)]
+#[cfg_attr(any(test, feature = "strict-serde"), serde(deny_unknown_fields))]
 pub struct ParentSubaccountTransferResponseObject {
     /// Transfer id.
     pub id: TransferId,
@@ -483,7 +483,7 @@ pub type ListOrdersResponse = Vec<OrderResponseObject>;
 /// Fills response.
 #[derive(Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
-#[serde(deny_unknown_fields)]
+#[cfg_attr(any(test, feature = "strict-serde"), serde(deny_unknown_fields))]
 pub struct FillResponse {
     /// List of fills.
     pub fills: Vec<FillResponseObject>,
@@ -492,7 +492,7 @@ pub struct FillResponse {
 /// Fill response.
 #[derive(Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
-#[serde(deny_unknown_fields)]
+#[cfg_attr(any(test, feature = "strict-serde"), serde(deny_unknown_fields))]
 pub struct FillResponseObject {
     /// Fill id.
     pub id: FillId,
@@ -534,7 +534,7 @@ pub struct FillResponseObject {
 /// Profit and loss reports.
 #[derive(Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
-#[serde(deny_unknown_fields)]
+#[cfg_attr(any(test, feature = "strict-serde"), serde(deny_unknown_fields))]
 pub struct HistoricalPnlResponse {
     /// List of PnL reports.
     pub historical_pnl: Vec<PnlTicksResponseObject>,
@@ -543,7 +543,7 @@ pub struct HistoricalPnlResponse {
 /// Profit and loss report.
 #[derive(Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
-#[serde(deny_unknown_fields)]
+#[cfg_attr(any(test, feature = "strict-serde"), serde(deny_unknown_fields))]
 pub struct PnlTicksResponseObject {
     /// Block height.
     pub block_height: Height,
@@ -562,7 +562,7 @@ pub struct PnlTicksResponseObject {
 /// Trading rewards reports.
 #[derive(Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
-#[serde(deny_unknown_fields)]
+#[cfg_attr(any(test, feature = "strict-serde"), serde(deny_unknown_fields))]
 pub struct HistoricalBlockTradingRewardsResponse {
     /// List of reports.
     pub rewards: Vec<HistoricalBlockTradingReward>,
@@ -571,7 +571,7 @@ pub struct HistoricalBlockTradingRewardsResponse {
 /// Trading rewards report.
 #[derive(Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
-#[serde(deny_unknown_fields)]
+#[cfg_attr(any(test, feature = "strict-serde"), serde(deny_unknown_fields))]
 pub struct HistoricalBlockTradingReward {
     /// Trading reward amount.
     pub trading_reward: BigDecimal,
@@ -584,7 +584,7 @@ pub struct HistoricalBlockTradingReward {
 /// Trading rewards aggregation reports.
 #[derive(Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
-#[serde(deny_unknown_fields)]
+#[cfg_attr(any(test, feature = "strict-serde"), serde(deny_unknown_fields))]
 pub struct HistoricalTradingRewardAggregationsResponse {
     /// List of reports.
     pub rewards: Vec<HistoricalTradingRewardAggregation>,
@@ -593,7 +593,7 @@ pub struct HistoricalTradingRewardAggregationsResponse {
 /// Trading rewards aggregation report.
 #[derive(Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
-#[serde(deny_unknown_fields)]
+#[cfg_attr(any(test, feature = "strict-serde"), serde(deny_unknown_fields))]
 pub struct HistoricalTradingRewardAggregation {
     /// Trading reward amount.
     pub trading_reward: BigDecimal,
@@ -612,7 +612,7 @@ pub struct HistoricalTradingRewardAggregation {
 /// MegaVault Profit and loss reports.
 #[derive(Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
-#[serde(deny_unknown_fields)]
+#[cfg_attr(any(test, feature = "strict-serde"), serde(deny_unknown_fields))]
 pub struct MegaVaultHistoricalPnlResponse {
     /// List of PnL reports.
     pub megavault_pnl: Vec<PnlTicksResponseObject>,
@@ -621,7 +621,7 @@ pub struct MegaVaultHistoricalPnlResponse {
 /// MegaVault Profit and loss reports.
 #[derive(Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
-#[serde(deny_unknown_fields)]
+#[cfg_attr(any(test, feature = "strict-serde"), serde(deny_unknown_fields))]
 pub struct MegaVaultPositionResponse {
     /// List MegaVault positions.
     pub positions: Vec<VaultPosition>,
@@ -630,7 +630,7 @@ pub struct MegaVaultPositionResponse {
 /// Vaults profit and loss reports.
 #[derive(Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
-#[serde(deny_unknown_fields)]
+#[cfg_attr(any(test, feature = "strict-serde"), serde(deny_unknown_fields))]
 pub struct VaultsHistoricalPnLResponse {
     /// List of PnL reports.
     pub vaults_pnl: Vec<VaultHistoricalPnl>,
@@ -639,7 +639,7 @@ pub struct VaultsHistoricalPnLResponse {
 /// Vault Profit and loss reports.
 #[derive(Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
-#[serde(deny_unknown_fields)]
+#[cfg_attr(any(test, feature = "strict-serde"), serde(deny_unknown_fields))]
 pub struct VaultHistoricalPnl {
     /// Associated ticker.
     pub ticker: String,
@@ -650,7 +650,7 @@ pub struct VaultHistoricalPnl {
 /// Vault position.
 #[derive(Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
-#[serde(deny_unknown_fields)]
+#[cfg_attr(any(test, feature = "strict-serde"), serde(deny_unknown_fields))]
 pub struct VaultPosition {
     /// Associated ticker.
     pub ticker: String,

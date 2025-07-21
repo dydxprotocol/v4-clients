@@ -20,6 +20,8 @@ noble = [
 telemetry = [
     "dep:metrics",
 ]
+# Enables strict Serde deserialization by denying unknown fields in API response types.
+strict-serde = []
 
 [dependencies]
 anyhow.workspace = true
