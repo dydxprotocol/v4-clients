@@ -8,7 +8,7 @@ import "amino/amino.proto";
 import "gogoproto/gogo.proto";
 import "slinky/types/v1/currency_pair.proto";
 
-option go_package = "github.com/skip-mev/connect/v2/x/oracle/types";
+option go_package = "github.com/dydxprotocol/slinky/x/oracle/types";
 
 // Msg is the message service for the x/oracle module.
 service Msg {
