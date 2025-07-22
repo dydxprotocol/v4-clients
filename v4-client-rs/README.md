@@ -57,6 +57,16 @@ To generate the documentation, use the command
 cargo doc -p dydx
 ```
 
+### Features
+
+- `strict-serde`: Enables strict Serde deserialization by denying unknown fields in API response types. This is automatically enabled during tests via `cfg_attr`.
+
+To run tests with the feature explicitly:
+
+```sh
+cargo test --features strict-serde
+```
+
 ## Acknowledgements
 
 Built by Nethermind: [@v0-e](https://github.com/v0-e), [@therustmonk](https://github.com/therustmonk),  [@maksimryndin](https://github.com/maksimryndin)

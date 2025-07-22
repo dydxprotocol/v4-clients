@@ -19,7 +19,7 @@ use vaults::Vaults;
 
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
-#[serde(deny_unknown_fields)]
+#[cfg_attr(any(test, feature = "strict-serde"), serde(deny_unknown_fields))]
 struct Query<'t> {
     address: &'t Address,
     subaccount_number: &'t SubaccountNumber,
@@ -27,7 +27,7 @@ struct Query<'t> {
 
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
-#[serde(deny_unknown_fields)]
+#[cfg_attr(any(test, feature = "strict-serde"), serde(deny_unknown_fields))]
 struct QueryParent<'t> {
     address: &'t Address,
     parent_subaccount_number: &'t ParentSubaccountNumber,
@@ -35,7 +35,7 @@ struct QueryParent<'t> {
 
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
-#[serde(deny_unknown_fields)]
+#[cfg_attr(any(test, feature = "strict-serde"), serde(deny_unknown_fields))]
 struct GetTransfersBetweenQuery<'t> {
     source_address: &'t Address,
     source_subaccount_number: &'t SubaccountNumber,
