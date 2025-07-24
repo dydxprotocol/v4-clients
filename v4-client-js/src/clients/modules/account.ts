@@ -26,7 +26,7 @@ export default class AccountClient extends RestClient {
   }
 
   async getParentSubaccount(address: string, parentSubaccountNumber: number): Promise<Data> {
-    const uri = `/v4/addresses/${address}/subaccountNumber/${parentSubaccountNumber}`;
+    const uri = `/v4/addresses/${address}/parentSubaccountNumber/${parentSubaccountNumber}`;
     return this.get(uri);
   }
 
