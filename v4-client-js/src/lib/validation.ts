@@ -185,7 +185,7 @@ function verifyIsBech32(address: string): Error | undefined {
   try {
     decode(address);
   } catch (error) {
-    return error;
+    return error instanceof Error ? error : new Error(String(error));
   }
 
   return undefined;
