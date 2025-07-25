@@ -1084,7 +1084,7 @@ export class CompositeClient {
           console.log(err);
         });
     });
-    const signature = await this.sign(wallet, () => msgs, true);
+    const signature = await this.sign(subaccount.wallet, () => msgs, true);
 
     return Buffer.from(signature).toString('base64');
   }
