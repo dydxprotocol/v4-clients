@@ -1053,7 +1053,6 @@ export class CompositeClient {
     type: OrderType,
     side: OrderSide,
     price: number,
-    // trigger_price: number,   // not used for MARKET and LIMIT
     size: number,
     clientId: number,
     timeInForce: OrderTimeInForce,
@@ -1061,6 +1060,10 @@ export class CompositeClient {
     execution: OrderExecution,
     postOnly: boolean,
     reduceOnly: boolean,
+    // trigger_price: number,   // not used for MARKET and LIMIT
+    marketInfo?: MarketInfo,
+    currentHeight?: number,
+    goodTilBlock?: number,
   ): Promise<string> {
     const msgs: Promise<EncodeObject[]> = new Promise((resolve) => {
       const msg = this.placeOrderMessage(
@@ -1077,6 +1080,10 @@ export class CompositeClient {
         execution,
         postOnly,
         reduceOnly,
+        undefined,
+        marketInfo,
+        currentHeight,
+        goodTilBlock,
       );
       msg
         .then((it) => resolve([it]))
