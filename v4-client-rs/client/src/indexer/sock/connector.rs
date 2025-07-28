@@ -25,7 +25,6 @@ use crate::telemetry::{
 pub enum ControlMsg {
     Subscribe(Subscription, bool, ChannelSender),
     Unsubscribe(Subscription),
-    #[allow(dead_code)] // TODO remove after completion.
     Terminate,
 }
 
