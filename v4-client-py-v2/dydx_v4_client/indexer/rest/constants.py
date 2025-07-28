@@ -5,8 +5,8 @@ DELAYMSG_MODULE_ADDRESS = "dydx1mkkvp26dngu6n8rmalaxyp3gwkjuzztq5zx6tr"
 
 # Order Side
 class OrderSide:
-    BUY = "BUY"
-    SELL = "SELL"
+    BUY = "SIDE_BUY"
+    SELL = "SIDE_SELL"
 
 
 # Order Types
