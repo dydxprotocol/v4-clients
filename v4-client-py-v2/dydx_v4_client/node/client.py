@@ -1274,6 +1274,7 @@ class NodeClient(MutatingNodeClient):
         new_order = market.order(
             order_id=order_id,
             order_type=OrderType.MARKET,
+            time_in_force=None,
             side=order_side,
             size=order_size,
             price=0,
