@@ -573,4 +573,3 @@ async def close_open_positions(node_client, wallet, test_address, market):
         client_id=random.randint(0, MAX_CLIENT_ID),
         slippage_pct=5,
     )
-

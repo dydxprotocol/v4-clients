@@ -67,6 +67,7 @@ async def close_position_example():
         wallet, TEST_ADDRESS, 0, market, None, random.randint(0, 1000000000)
 =======
     response = await node_client.close_position(
+<<<<<<< HEAD
         wallet,
         TEST_ADDRESS,
         0,
@@ -74,6 +75,9 @@ async def close_position_example():
         None,
         random.randint(0, 1000000000)
 >>>>>>> 87f770a (feat: Added example)
+=======
+        wallet, TEST_ADDRESS, 0, market, None, random.randint(0, 1000000000)
+>>>>>>> 007cd8d (fix: Reformat)
     )
     print(response)
 
