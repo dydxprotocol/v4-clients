@@ -18,7 +18,6 @@ export default class RestClient {
     }
     this.apiTimeout = apiTimeout || DEFAULT_API_TIMEOUT;
     this.axiosInstance = axios.create({
-      baseURL: this.host,
       proxy,
     });
   }
