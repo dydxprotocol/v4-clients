@@ -1,8 +1,8 @@
 import { HttpsProxyAgent } from 'https-proxy-agent';
 import WebSocket, { ErrorEvent, MessageEvent } from 'ws';
 
-import { IndexerConfig } from './constants';
 import { getProxyAgent } from '../lib/utils';
+import { IndexerConfig } from './constants';
 
 enum OutgoingMessageTypes {
   SUBSCRIBE = 'subscribe',
