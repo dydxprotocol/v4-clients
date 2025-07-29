@@ -1230,7 +1230,7 @@ class NodeClient(MutatingNodeClient):
         subaccount_number: int,
         market: Market,
         reduce_by: Optional[Decimal],
-        client_id: int
+        client_id: int,
     ) -> Any:
         """
         Close position for a given market.
@@ -1252,8 +1252,10 @@ class NodeClient(MutatingNodeClient):
         try:
             for pos in subaccount.perpetual_positions:
                 if pos.perpetual_id == int(market.market["clobPairId"]):
-                    quantum_value = int.from_bytes(pos.quantums[1:], byteorder="big", signed=False)
-                    if pos.quantums[0] == b'0x02':
+                    quantum_value = int.from_bytes(
+                        pos.quantums[1:], byteorder="big", signed=False
+                    )
+                    if pos.quantums[0] == b"0x02":
                         order_side = OrderSide.SELL
                     else:
                         order_side = OrderSide.BUY
@@ -1263,10 +1265,12 @@ class NodeClient(MutatingNodeClient):
         if quantum_value is None:
             return
 
-        order_size = quantum_value / 10**(-market.market["atomicResolution"])
+        order_size = quantum_value / 10 ** (-market.market["atomicResolution"])
         if reduce_by is not None:
             order_size -= reduce_by
-        order_id = market.order_id(address, subaccount_number, client_id, OrderFlags.LONG_TERM)
+        order_id = market.order_id(
+            address, subaccount_number, client_id, OrderFlags.LONG_TERM
+        )
         current_height = await self.latest_block_height()
         new_order = market.order(
             order_id=order_id,
@@ -1276,6 +1280,6 @@ class NodeClient(MutatingNodeClient):
             size=order_size,
             price=0,
             reduce_only=False,
-            good_til_block=current_height + 10
+            good_til_block=current_height + 10,
         )
         return await self.place_order(wallet, new_order)

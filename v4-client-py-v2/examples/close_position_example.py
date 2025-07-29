@@ -22,12 +22,7 @@ async def close_position_example():
         (await indexer.markets.get_perpetual_markets(MARKET_ID))["markets"][MARKET_ID]
     )
     response = await node_client.close_position(
-        wallet,
-        TEST_ADDRESS,
-        0,
-        market,
-        None,
-        random.randint(0, 1000000000)
+        wallet, TEST_ADDRESS, 0, market, None, random.randint(0, 1000000000)
     )
     print(response)
 

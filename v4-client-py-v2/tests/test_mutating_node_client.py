@@ -255,18 +255,16 @@ async def test_register_affiliate(node_client, wallet, test_address, recipient):
     except Exception as e:
         assert "Affiliate already exists for referee" in str(e)
 
+
 @pytest.mark.asyncio
 async def test_close_position(node_client, wallet, test_address, indexer_rest_client):
     MARKET_ID = "ETH-USD"
     market = Market(
-        (await indexer_rest_client.markets.get_perpetual_markets(MARKET_ID))["markets"][MARKET_ID]
+        (await indexer_rest_client.markets.get_perpetual_markets(MARKET_ID))["markets"][
+            MARKET_ID
+        ]
     )
     response = await node_client.close_position(
-        wallet,
-        test_address,
-        0,
-        market,
-        None,
-        random.randint(0, 1000000000)
+        wallet, test_address, 0, market, None, random.randint(0, 1000000000)
     )
     print(response)
