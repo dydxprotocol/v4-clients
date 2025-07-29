@@ -1258,6 +1258,7 @@ class NodeClient(MutatingNodeClient):
             Any: The close position response
         """
         subaccount = await self.get_subaccount(address, 0)
+<<<<<<< HEAD
         quantum_value = None
         order_side = None
         price = None
@@ -1291,24 +1292,24 @@ class NodeClient(MutatingNodeClient):
             address, subaccount_number, client_id, OrderFlags.SHORT_TERM
         )
         print(f"Subaccount: {subaccount}")
+=======
+>>>>>>> 87f770a (feat: Added example)
         quantum_value = None
         order_side = None
         try:
             for pos in subaccount.perpetual_positions:
                 if pos.perpetual_id == int(market.market["clobPairId"]):
-                    print(f"pos: {pos}")
                     quantum_value = int.from_bytes(pos.quantums[1:], byteorder="big", signed=False)
                     if pos.quantums[0] == b'0x02':
                         order_side = OrderSide.SELL
                     else:
                         order_side = OrderSide.BUY
-                else:
-                    print(f"No perpetual id is found")
         except Exception as e:
             raise e
 
-        if quantum_value is None or order_side is None:
-            raise Exception(f"Invalid quantums value")
+        if quantum_value is None:
+            return
+
         order_size = quantum_value / 10**(-market.market["atomicResolution"])
         if reduce_by is not None:
             order_size -= reduce_by
