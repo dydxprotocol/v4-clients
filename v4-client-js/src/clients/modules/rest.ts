@@ -1,24 +1,30 @@
+import axios, { AxiosInstance, AxiosProxyConfig } from 'axios';
+
 import { DEFAULT_API_TIMEOUT } from '../constants';
 import { generateQueryPath } from '../helpers/request-helpers';
-import { RequestMethod, Response, request } from '../lib/axios';
+import { Response } from '../lib/axios';
 import { Data } from '../types';
 
 export default class RestClient {
   readonly host: string;
   readonly apiTimeout: Number;
+  readonly axiosInstance: AxiosInstance;
 
-  constructor(host: string, apiTimeout?: Number | null) {
+  constructor(host: string, apiTimeout?: Number | null, proxy?: AxiosProxyConfig) {
     if (host.endsWith('/')) {
       this.host = host.slice(0, -1);
     } else {
       this.host = host;
     }
     this.apiTimeout = apiTimeout || DEFAULT_API_TIMEOUT;
+    this.axiosInstance = axios.create({
+      proxy,
+    });
   }
 
   async get(requestPath: string, params: {} = {}): Promise<Data> {
     const url = `${this.host}${generateQueryPath(requestPath, params)}`;
-    const response = await request(url);
+    const response = await this.axiosInstance.get(url);
     return response.data;
   }
 
@@ -29,6 +35,6 @@ export default class RestClient {
     headers: {} = {},
   ): Promise<Response> {
     const url = `${this.host}${generateQueryPath(requestPath, params)}`;
-    return request(url, RequestMethod.POST, body, headers);
+    return this.axiosInstance.post(url, body, { headers });
   }
 }
