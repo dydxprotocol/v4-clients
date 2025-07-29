@@ -19,10 +19,10 @@ export class IndexerClient {
     this.config = config;
     this.apiTimeout = apiTimeout ?? DEFAULT_API_TIMEOUT;
 
-    this._markets = new MarketsClient(config.restEndpoint);
-    this._account = new AccountClient(config.restEndpoint);
-    this._utility = new UtilityClient(config.restEndpoint);
-    this._vault = new VaultClient(config.restEndpoint);
+    this._markets = new MarketsClient(config.restEndpoint, apiTimeout, config.proxy);
+    this._account = new AccountClient(config.restEndpoint, apiTimeout, config.proxy);
+    this._utility = new UtilityClient(config.restEndpoint, apiTimeout, config.proxy);
+    this._vault = new VaultClient(config.restEndpoint, apiTimeout, config.proxy);
   }
 
   /**

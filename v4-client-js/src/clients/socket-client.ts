@@ -1,6 +1,8 @@
+import { HttpsProxyAgent } from 'https-proxy-agent';
 import WebSocket, { ErrorEvent, MessageEvent } from 'ws';
 
 import { IndexerConfig } from './constants';
+import { getProxyAgent } from '../lib/utils';
 
 enum OutgoingMessageTypes {
   SUBSCRIBE = 'subscribe',
@@ -37,6 +39,7 @@ export enum CandlesResolution {
 export class SocketClient {
   private url: string;
   private ws?: WebSocket;
+  private proxyAgent?: HttpsProxyAgent<string>;
   private onOpenCallback?: () => void;
   private onCloseCallback?: () => void;
   private onMessageCallback?: (event: MessageEvent) => void;
@@ -51,6 +54,7 @@ export class SocketClient {
     onErrorCallback: (event: ErrorEvent) => void,
   ) {
     this.url = config.websocketEndpoint;
+    this.proxyAgent = config.proxy ? getProxyAgent(config.proxy) : undefined;
     this.onOpenCallback = onOpenCallback;
     this.onCloseCallback = onCloseCallback;
     this.onMessageCallback = onMessageCallback;
@@ -58,7 +62,9 @@ export class SocketClient {
   }
 
   connect(): void {
-    this.ws = new WebSocket(this.url);
+    this.ws = new WebSocket(this.url, {
+      agent: this.proxyAgent,
+    });
     this.ws.addEventListener('open', this.handleOpen.bind(this));
     this.ws.addEventListener('close', this.handleClose.bind(this));
     this.ws.addEventListener('message', this.handleMessage.bind(this));
