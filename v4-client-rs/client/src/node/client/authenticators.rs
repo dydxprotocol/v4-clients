@@ -43,7 +43,22 @@ impl<'a> Authenticators<'a> {
     /// Authenticators can be built using the [`AuthenticatorBuilder`] mechanism.
     ///
     /// Check [the example](https://github.com/dydxprotocol/v4-clients/blob/main/v4-client-rs/client/examples/authenticator.rs).
+    #[deprecated(since = "0.3.0", note = "Use `add_authenticator` instead")]
     pub async fn add(
+        &mut self,
+        account: &mut Account,
+        address: Address,
+        authenticator: Authenticator,
+    ) -> Result<TxHash, NodeError> {
+        self.add_authenticator(account, address, authenticator)
+            .await
+    }
+
+    /// Add an [`Authenticator`].
+    /// Authenticators can be built using the [`AuthenticatorBuilder`] mechanism.
+    ///
+    /// Check [the example](https://github.com/dydxprotocol/v4-clients/blob/main/v4-client-rs/client/examples/authenticator.rs).
+    pub async fn add_authenticator(
         &mut self,
         account: &mut Account,
         address: Address,
@@ -69,7 +84,20 @@ impl<'a> Authenticators<'a> {
     /// Remove an authenticator.
     ///
     /// Check [the example](https://github.com/dydxprotocol/v4-clients/blob/main/v4-client-rs/client/examples/authenticator.rs).
+    #[deprecated(since = "0.3.0", note = "Use `remove_authenticator` instead")]
     pub async fn remove(
+        &mut self,
+        account: &mut Account,
+        address: Address,
+        id: u64,
+    ) -> Result<TxHash, NodeError> {
+        self.remove_authenticator(account, address, id).await
+    }
+
+    /// Remove an authenticator.
+    ///
+    /// Check [the example](https://github.com/dydxprotocol/v4-clients/blob/main/v4-client-rs/client/examples/authenticator.rs).
+    pub async fn remove_authenticator(
         &mut self,
         account: &mut Account,
         address: Address,
@@ -90,7 +118,18 @@ impl<'a> Authenticators<'a> {
     /// List authenticators.
     ///
     /// Check [the example](https://github.com/dydxprotocol/v4-clients/blob/main/v4-client-rs/client/examples/authenticator.rs).
+    #[deprecated(since = "0.3.0", note = "Use `get_authenticators` instead")]
     pub async fn list(&mut self, address: Address) -> Result<Vec<AccountAuthenticator>, Error> {
+        self.get_authenticators(address).await
+    }
+
+    /// List authenticators.
+    ///
+    /// Check [the example](https://github.com/dydxprotocol/v4-clients/blob/main/v4-client-rs/client/examples/authenticator.rs).
+    pub async fn get_authenticators(
+        &mut self,
+        address: Address,
+    ) -> Result<Vec<AccountAuthenticator>, Error> {
         let client = &mut self.client;
 
         let req = GetAuthenticatorsRequest {

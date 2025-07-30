@@ -53,7 +53,15 @@ impl<'a> Utility<'a> {
     /// Query for screening results (compliance) of the address.
     ///
     /// [Reference](https://docs.dydx.xyz/indexer-client/http#get-screen).
+    #[deprecated(since = "0.3.0", note = "Use `screen` instead")]
     pub async fn get_screen(&self, query: &Address) -> Result<ComplianceResponse, Error> {
+        self.screen(query).await
+    }
+
+    /// Query for screening results (compliance) of the address.
+    ///
+    /// [Reference](https://docs.dydx.xyz/indexer-client/http#get-screen).
+    pub async fn screen(&self, query: &Address) -> Result<ComplianceResponse, Error> {
         let rest = &self.rest;
         const URI: &str = "/v4/screen";
         let url = format!("{}{URI}", rest.config.endpoint);
@@ -72,7 +80,7 @@ impl<'a> Utility<'a> {
     /// Screens an address to determine if it is restricted.
     ///
     /// [Reference](https://docs.dydx.xyz/indexer-client/http#get-compliance-screen).
-    pub async fn get_compliance_screen(
+    pub async fn compliance_screen(
         &self,
         address: &Address,
     ) -> Result<ComplianceV2Response, Error> {

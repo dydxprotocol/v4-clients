@@ -70,7 +70,7 @@ impl<'a> Governance<'a> {
     /// Delegation withdrawal to a delegator from a validator.
     ///
     /// Check [the example](https://github.com/dydxprotocol/v4-clients/blob/main/v4-client-rs/client/examples/governance.rs).
-    pub async fn withdraw_delegate_reward(
+    pub async fn withdraw_delegator_reward(
         &mut self,
         account: &mut Account,
         delegator: Address,
@@ -108,7 +108,7 @@ impl<'a> Governance<'a> {
     /// Query for the governance proposals.
     ///
     /// Check [the example](https://github.com/dydxprotocol/v4-clients/blob/main/v4-client-rs/client/examples/governance.rs).
-    pub async fn proposals(
+    pub async fn get_all_gov_proposals(
         &mut self,
         status: ProposalStatus,
         voter: Address,
@@ -136,7 +136,7 @@ impl<'a> Governance<'a> {
     /// Query the rewards accrued by a delegator.
     ///
     /// Check [the example](https://github.com/dydxprotocol/v4-clients/blob/main/v4-client-rs/client/examples/governance.rs).
-    pub async fn delegation_total_rewards(
+    pub async fn get_delegation_total_rewards(
         &mut self,
         delegator_address: Address,
     ) -> Result<QueryDelegationTotalRewardsResponse, Error> {

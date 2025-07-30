@@ -42,7 +42,10 @@ async fn main() -> Result<()> {
     let subaccount_resp = indexer.accounts().get_subaccount(&subaccount).await?;
     tracing::info!("Subaccount response: {:?}", subaccount_resp);
 
-    let asset_positions = indexer.accounts().get_asset_positions(&subaccount).await?;
+    let asset_positions = indexer
+        .accounts()
+        .get_subaccount_asset_positions(&subaccount)
+        .await?;
     tracing::info!("Asset positions response: {:?}", asset_positions);
 
     let pos_opts = ListPositionsOpts {
@@ -52,7 +55,7 @@ async fn main() -> Result<()> {
     };
     let positions = indexer
         .accounts()
-        .list_positions(&subaccount, Some(pos_opts))
+        .get_subaccount_perpetual_positions(&subaccount, Some(pos_opts))
         .await?;
     tracing::info!("Perpetual positions response: {:?}", positions);
 
@@ -62,7 +65,7 @@ async fn main() -> Result<()> {
     };
     let transfers = indexer
         .accounts()
-        .get_transfers(&subaccount, Some(trf_opts.clone()))
+        .get_subaccount_transfers(&subaccount, Some(trf_opts.clone()))
         .await?;
     tracing::info!("Transfers response: {:?}", transfers);
 
@@ -80,7 +83,7 @@ async fn main() -> Result<()> {
     };
     let orders = indexer
         .accounts()
-        .list_orders(&subaccount, Some(ord_opts))
+        .get_subaccount_orders(&subaccount, Some(ord_opts))
         .await?;
     tracing::info!("Orders response: {:?}", orders);
 
@@ -92,7 +95,7 @@ async fn main() -> Result<()> {
     };
     let fills = indexer
         .accounts()
-        .get_fills(&subaccount, Some(fill_opts))
+        .get_subaccount_fills(&subaccount, Some(fill_opts))
         .await?;
     tracing::info!("Fills response: {:?}", fills);
 
@@ -102,7 +105,7 @@ async fn main() -> Result<()> {
     };
     let pnls = indexer
         .accounts()
-        .get_historical_pnl(&subaccount, Some(pnl_opts))
+        .get_subaccount_historical_pnls(&subaccount, Some(pnl_opts))
         .await?;
     tracing::info!("Historical PnLs response: {:?}", pnls);
 
@@ -112,7 +115,7 @@ async fn main() -> Result<()> {
     };
     let rewards = indexer
         .accounts()
-        .get_rewards(account.address(), Some(rwds_opts))
+        .get_historical_block_trading_rewards(account.address(), Some(rwds_opts))
         .await?;
     tracing::info!("Trading rewards response: {:?}", rewards);
 
@@ -122,7 +125,7 @@ async fn main() -> Result<()> {
     };
     let aggregated = indexer
         .accounts()
-        .get_rewards_aggregated(
+        .get_historical_trading_rewards_aggregations(
             address,
             TradingRewardAggregationPeriod::Daily,
             Some(aggr_opts),
@@ -156,7 +159,7 @@ async fn main() -> Result<()> {
     };
     let positions = indexer
         .accounts()
-        .list_parent_positions(&parent_subaccount, Some(pos_opts))
+        .get_parent_subaccount_perpetual_positions(&parent_subaccount, Some(pos_opts))
         .await?;
     tracing::info!(
         "Perpetual positions response (parent subaccount): {:?}",
@@ -169,7 +172,7 @@ async fn main() -> Result<()> {
     };
     let transfers = indexer
         .accounts()
-        .get_parent_transfers(&parent_subaccount, Some(trf_opts))
+        .get_parent_subaccount_number_transfers(&parent_subaccount, Some(trf_opts))
         .await?;
     tracing::info!("Transfers response (parent subaccount): {:?}", transfers);
 
@@ -181,7 +184,7 @@ async fn main() -> Result<()> {
     };
     let orders = indexer
         .accounts()
-        .list_parent_orders(&parent_subaccount, Some(ord_opts))
+        .get_parent_subaccount_number_orders(&parent_subaccount, Some(ord_opts))
         .await?;
     tracing::info!("Orders response (parent subaccount): {:?}", orders);
 
@@ -193,7 +196,7 @@ async fn main() -> Result<()> {
     };
     let fills = indexer
         .accounts()
-        .get_parent_fills(&parent_subaccount, Some(fill_opts))
+        .get_parent_subaccount_number_fills(&parent_subaccount, Some(fill_opts))
         .await?;
     tracing::info!("Fills response (parent subaccount): {:?}", fills);
 
@@ -203,7 +206,7 @@ async fn main() -> Result<()> {
     };
     let pnls = indexer
         .accounts()
-        .get_parent_historical_pnl(&parent_subaccount, Some(pnl_opts))
+        .get_parent_subaccount_number_historical_pnl(&parent_subaccount, Some(pnl_opts))
         .await?;
     tracing::info!("Historical PnLs response (parent subaccount): {:?}", pnls);
 
