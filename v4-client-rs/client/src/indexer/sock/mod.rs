@@ -62,8 +62,10 @@ impl SockClient {
 
 impl Drop for SockClient {
     fn drop(&mut self) {
-        if let Err(e) = self.conn_tx.send(ControlMsg::Terminate) {
-            log::error!("Failed sending control Terminate to WebSocket connector: {e}");
+        if !self.conn_tx.is_closed() {
+            if let Err(e) = self.conn_tx.send(ControlMsg::Terminate) {
+                log::error!("Failed sending control Terminate to WebSocket connector: {e}");
+            }
         }
     }
 }
