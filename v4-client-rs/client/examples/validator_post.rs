@@ -55,7 +55,7 @@ async fn main() -> Result<()> {
     // Push some orders
     for id in &order_ids {
         // Short term orders have a maximum validity of 20 blocks
-        let til_height = placer.client.get_latest_block_height().await?.ahead(10).0;
+        let til_height = placer.client.latest_block_height().await?.ahead(10).0;
         let order = Order {
             order_id: Some(id.clone()),
             side: Side::Sell.into(),

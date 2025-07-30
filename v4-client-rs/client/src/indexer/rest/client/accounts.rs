@@ -91,7 +91,24 @@ impl<'a> Accounts<'a> {
     /// Check [the example](https://github.com/dydxprotocol/v4-clients/blob/main/v4-client-rs/client/examples/close_all_positions.rs).
     ///
     /// [Reference](https://docs.dydx.xyz/indexer-client/http#list-positions).
+    #[deprecated(
+        since = "0.3.0",
+        note = "Use `get_subaccount_perpetual_positions` instead"
+    )]
     pub async fn list_positions(
+        &self,
+        subaccount: &Subaccount,
+        opts: Option<ListPositionsOpts>,
+    ) -> Result<Vec<PerpetualPositionResponseObject>, Error> {
+        self.get_subaccount_perpetual_positions(subaccount, opts)
+            .await
+    }
+
+    // todo: update documentation
+    /// Check [the example](https://github.com/dydxprotocol/v4-clients/blob/main/v4-client-rs/client/examples/close_all_positions.rs).
+    ///
+    /// [Reference](https://docs.dydx.xyz/indexer-client/http#list-positions).
+    pub async fn get_subaccount_perpetual_positions(
         &self,
         subaccount: &Subaccount,
         opts: Option<ListPositionsOpts>,
@@ -121,7 +138,24 @@ impl<'a> Accounts<'a> {
     /// List all positions of a parent subaccount.
     ///
     /// [Reference](https://docs.dydx.xyz/indexer-client/http#list-parent-positions).
+    #[deprecated(
+        since = "0.3.0",
+        note = "Use `get_parent_subaccount_positions` instead"
+    )]
     pub async fn list_parent_positions(
+        &self,
+        subaccount: &ParentSubaccount,
+        opts: Option<ListPositionsOpts>,
+    ) -> Result<Vec<PerpetualPositionResponseObject>, Error> {
+        self.get_parent_subaccount_perpetual_positions(subaccount, opts)
+            .await
+    }
+
+    // todo: update documentation
+    /// List all positions of a parent subaccount.
+    ///
+    /// [Reference](https://docs.dydx.xyz/indexer-client/http#list-parent-positions).
+    pub async fn get_parent_subaccount_perpetual_positions(
         &self,
         subaccount: &ParentSubaccount,
         opts: Option<ListPositionsOpts>,
@@ -151,7 +185,19 @@ impl<'a> Accounts<'a> {
     /// Query for asset positions (size, buy/sell etc).
     ///
     /// [Reference](https://docs.dydx.xyz/indexer-client/http#get-asset-positions).
+    #[deprecated(since = "0.3.0", note = "Use `get_subaccount_asset_positions` instead")]
     pub async fn get_asset_positions(
+        &self,
+        subaccount: &Subaccount,
+    ) -> Result<Vec<AssetPositionResponseObject>, Error> {
+        self.get_subaccount_asset_positions(subaccount).await
+    }
+
+    // todo: update documentation
+    /// Query for asset positions (size, buy/sell etc).
+    ///
+    /// [Reference](https://docs.dydx.xyz/indexer-client/http#get-asset-positions).
+    pub async fn get_subaccount_asset_positions(
         &self,
         subaccount: &Subaccount,
     ) -> Result<Vec<AssetPositionResponseObject>, Error> {
@@ -207,7 +253,21 @@ impl<'a> Accounts<'a> {
     /// See also [`crate::node::NodeClient::transfer`].
     ///
     /// [Reference](https://docs.dydx.xyz/indexer-client/http#get-transfers).
+    #[deprecated(since = "0.3.0", note = "Use `get_subaccount_transfers` instead")]
     pub async fn get_transfers(
+        &self,
+        subaccount: &Subaccount,
+        opts: Option<GetTransfersOpts>,
+    ) -> Result<Vec<TransferResponseObject>, Error> {
+        self.get_subaccount_transfers(subaccount, opts).await
+    }
+
+    /// Query for transfers between subaccounts.
+    ///
+    /// See also [`crate::node::NodeClient::transfer`].
+    ///
+    /// [Reference](https://docs.dydx.xyz/indexer-client/http#get-transfers).
+    pub async fn get_subaccount_transfers(
         &self,
         subaccount: &Subaccount,
         opts: Option<GetTransfersOpts>,
@@ -239,7 +299,25 @@ impl<'a> Accounts<'a> {
     /// See also [`crate::node::NodeClient::transfer`].
     ///
     /// [Reference](https://docs.dydx.xyz/indexer-client/http#get-parent-transfers).
+    #[deprecated(
+        since = "0.3.0",
+        note = "Use `get_parent_subaccount_number_transfers` instead"
+    )]
     pub async fn get_parent_transfers(
+        &self,
+        subaccount: &ParentSubaccount,
+        opts: Option<GetTransfersOpts>,
+    ) -> Result<Vec<ParentSubaccountTransferResponseObject>, Error> {
+        self.get_parent_subaccount_number_transfers(subaccount, opts)
+            .await
+    }
+
+    /// Query for transfers between subaccounts associated with a parent subaccount.
+    ///
+    /// See also [`crate::node::NodeClient::transfer`].
+    ///
+    /// [Reference](https://docs.dydx.xyz/indexer-client/http#get-parent-transfers).
+    pub async fn get_parent_subaccount_number_transfers(
         &self,
         subaccount: &ParentSubaccount,
         opts: Option<GetTransfersOpts>,
@@ -269,7 +347,19 @@ impl<'a> Accounts<'a> {
     /// Query for orders filtered by order params.
     ///
     /// [Reference](https://docs.dydx.xyz/indexer-client/http#list-orders).
+    #[deprecated(since = "0.3.0", note = "Use `get_subaccount_orders` instead")]
     pub async fn list_orders(
+        &self,
+        subaccount: &Subaccount,
+        opts: Option<ListOrdersOpts>,
+    ) -> Result<ListOrdersResponse, Error> {
+        self.get_subaccount_orders(subaccount, opts).await
+    }
+
+    /// Query for orders filtered by order params.
+    ///
+    /// [Reference](https://docs.dydx.xyz/indexer-client/http#list-orders).
+    pub async fn get_subaccount_orders(
         &self,
         subaccount: &Subaccount,
         opts: Option<ListOrdersOpts>,
@@ -298,7 +388,23 @@ impl<'a> Accounts<'a> {
     /// Query for orders filtered by order params of a parent subaccount.
     ///
     /// [Reference](https://docs.dydx.xyz/indexer-client/http#list-parent-orders).
+    #[deprecated(
+        since = "0.3.0",
+        note = "Use `get_parent_subaccount_number_orders` instead"
+    )]
     pub async fn list_parent_orders(
+        &self,
+        subaccount: &ParentSubaccount,
+        opts: Option<ListOrdersOpts>,
+    ) -> Result<ListOrdersResponse, Error> {
+        self.get_parent_subaccount_number_orders(subaccount, opts)
+            .await
+    }
+
+    /// Query for orders filtered by order params of a parent subaccount.
+    ///
+    /// [Reference](https://docs.dydx.xyz/indexer-client/http#list-parent-orders).
+    pub async fn get_parent_subaccount_number_orders(
         &self,
         subaccount: &ParentSubaccount,
         opts: Option<ListOrdersOpts>,
@@ -345,7 +451,19 @@ impl<'a> Accounts<'a> {
     /// Query for fills (i.e. filled orders data).
     ///
     /// [Reference](https://docs.dydx.xyz/indexer-client/http#get-fills).
+    #[deprecated(since = "0.3.0", note = "Use `get_subaccount_fills` instead")]
     pub async fn get_fills(
+        &self,
+        subaccount: &Subaccount,
+        opts: Option<GetFillsOpts>,
+    ) -> Result<Vec<FillResponseObject>, Error> {
+        self.get_subaccount_fills(subaccount, opts).await
+    }
+
+    /// Query for fills (i.e. filled orders data).
+    ///
+    /// [Reference](https://docs.dydx.xyz/indexer-client/http#get-fills).
+    pub async fn get_subaccount_fills(
         &self,
         subaccount: &Subaccount,
         opts: Option<GetFillsOpts>,
@@ -375,7 +493,23 @@ impl<'a> Accounts<'a> {
     /// Query for fills (i.e. filled orders data) for a parent subaccount.
     ///
     /// [Reference](https://docs.dydx.xyz/indexer-client/http#get-parent-fills).
+    #[deprecated(
+        since = "0.3.0",
+        note = "Use `get_parent_subaccount_number_fills` instead"
+    )]
     pub async fn get_parent_fills(
+        &self,
+        subaccount: &ParentSubaccount,
+        opts: Option<GetFillsOpts>,
+    ) -> Result<Vec<FillResponseObject>, Error> {
+        self.get_parent_subaccount_number_fills(subaccount, opts)
+            .await
+    }
+
+    /// Query for fills (i.e. filled orders data) for a parent subaccount.
+    ///
+    /// [Reference](https://docs.dydx.xyz/indexer-client/http#get-parent-fills).
+    pub async fn get_parent_subaccount_number_fills(
         &self,
         subaccount: &ParentSubaccount,
         opts: Option<GetFillsOpts>,
@@ -405,7 +539,19 @@ impl<'a> Accounts<'a> {
     /// Query for profit and loss report for the specified time/block range.
     ///
     /// [Reference](https://docs.dydx.xyz/indexer-client/http#get-historical-pnl).
+    #[deprecated(since = "0.3.0", note = "Use `get_subaccount_historical_pnls` instead")]
     pub async fn get_historical_pnl(
+        &self,
+        subaccount: &Subaccount,
+        opts: Option<GetHistoricalPnlOpts>,
+    ) -> Result<Vec<PnlTicksResponseObject>, Error> {
+        self.get_subaccount_historical_pnls(subaccount, opts).await
+    }
+
+    /// Query for profit and loss report for the specified time/block range.
+    ///
+    /// [Reference](https://docs.dydx.xyz/indexer-client/http#get-historical-pnl).
+    pub async fn get_subaccount_historical_pnls(
         &self,
         subaccount: &Subaccount,
         opts: Option<GetHistoricalPnlOpts>,
@@ -435,7 +581,23 @@ impl<'a> Accounts<'a> {
     /// Query for profit and loss report for the specified time/block range of a parent subaccount.
     ///
     /// [Reference](https://docs.dydx.xyz/indexer-client/http#get-parent-historical-pnl).
+    #[deprecated(
+        since = "0.3.0",
+        note = "Use `get_parent_subaccount_number_historical_pnl` instead"
+    )]
     pub async fn get_parent_historical_pnl(
+        &self,
+        subaccount: &ParentSubaccount,
+        opts: Option<GetHistoricalPnlOpts>,
+    ) -> Result<Vec<PnlTicksResponseObject>, Error> {
+        self.get_parent_subaccount_number_historical_pnl(subaccount, opts)
+            .await
+    }
+
+    /// Query for profit and loss report for the specified time/block range of a parent subaccount.
+    ///
+    /// [Reference](https://docs.dydx.xyz/indexer-client/http#get-parent-historical-pnl).
+    pub async fn get_parent_subaccount_number_historical_pnl(
         &self,
         subaccount: &ParentSubaccount,
         opts: Option<GetHistoricalPnlOpts>,
@@ -467,7 +629,25 @@ impl<'a> Accounts<'a> {
     /// See also [Trading Rewards](https://docs.dydx.xyz/interaction/data/market#trading-rewards).
     ///
     /// [Reference](https://docs.dydx.xyz/indexer-client/http#get-rewards).
+    #[deprecated(
+        since = "0.3.0",
+        note = "Use `get_historical_block_trading_rewards` instead"
+    )]
     pub async fn get_rewards(
+        &self,
+        address: &Address,
+        opts: Option<GetTradingRewardsOpts>,
+    ) -> Result<Vec<HistoricalBlockTradingReward>, Error> {
+        self.get_historical_block_trading_rewards(address, opts)
+            .await
+    }
+
+    /// Get trader's rewards.
+    ///
+    /// See also [Trading Rewards](https://docs.dydx.xyz/interaction/data/market#trading-rewards).
+    ///
+    /// [Reference](https://docs.dydx.xyz/indexer-client/http#get-rewards).
+    pub async fn get_historical_block_trading_rewards(
         &self,
         address: &Address,
         opts: Option<GetTradingRewardsOpts>,
@@ -491,10 +671,29 @@ impl<'a> Accounts<'a> {
 
     /// Get trader's rewards aggregation.
     ///
-    /// See also [`Self::get_rewards`].
+    /// See also [`Self::get_historical_block_trading_rewards`].
     ///
     /// [Reference](https://docs.dydx.xyz/indexer-client/http#get-rewards-aggregated).
+    #[deprecated(
+        since = "0.3.0",
+        note = "Use `get_historical_trading_rewards_aggregations` instead"
+    )]
     pub async fn get_rewards_aggregated(
+        &self,
+        address: &Address,
+        period: TradingRewardAggregationPeriod,
+        opts: Option<GetAggregationsOpts>,
+    ) -> Result<Vec<HistoricalTradingRewardAggregation>, Error> {
+        self.get_historical_trading_rewards_aggregations(address, period, opts)
+            .await
+    }
+
+    /// Get trader's rewards aggregation.
+    ///
+    /// See also [`Self::get_historical_block_trading_rewards`].
+    ///
+    /// [Reference](https://docs.dydx.xyz/indexer-client/http#get-rewards-aggregated).
+    pub async fn get_historical_trading_rewards_aggregations(
         &self,
         address: &Address,
         period: TradingRewardAggregationPeriod,

@@ -60,7 +60,7 @@ impl BasicAdder {
         let ticker = Ticker::from("ETH-USD");
         let market = indexer
             .markets()
-            .list_perpetual_markets(Some(ListPerpetualMarketsOpts {
+            .get_perpetual_markets(Some(ListPerpetualMarketsOpts {
                 ticker: Some(ticker.clone()),
                 limit: None,
             }))
@@ -233,7 +233,7 @@ impl BasicAdder {
         price: Price,
         size: BigDecimal,
     ) -> Result<OrderId> {
-        let current_block = self.client.get_latest_block_height().await?;
+        let current_block = self.client.latest_block_height().await?;
         let (id, order) = self
             .generator
             .clone()
@@ -247,7 +247,7 @@ impl BasicAdder {
     }
 
     async fn cancel_order(&mut self, id: OrderId) -> Result<()> {
-        let current_block = self.client.get_latest_block_height().await?;
+        let current_block = self.client.latest_block_height().await?;
         let until = current_block.ahead(10);
         let c_id = id.client_id;
         let hash = self

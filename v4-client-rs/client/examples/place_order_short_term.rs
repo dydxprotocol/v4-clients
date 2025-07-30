@@ -45,7 +45,7 @@ async fn main() -> Result<()> {
         .get_perpetual_market(&ETH_USD_TICKER.into())
         .await?;
 
-    let current_block_height = placer.client.get_latest_block_height().await?;
+    let current_block_height = placer.client.latest_block_height().await?;
 
     let size = BigDecimal::from_str("0.02")?;
     let (_id, order) = OrderBuilder::new(market, subaccount)

@@ -16,7 +16,7 @@ async fn test_node_auth_list() -> Result<(), Error> {
     let account = env.account;
 
     node.authenticators()
-        .list(account.address().clone())
+        .get_authenticators(account.address().clone())
         .await?;
 
     Ok(())
@@ -38,14 +38,14 @@ async fn test_node_auth_add_allof_all_types() -> Result<(), Error> {
         Authenticator::ClobPairIdFilter("0,1".into()),
     ]);
     node.authenticators()
-        .add(&mut account, address, authenticator)
+        .add_authenticator(&mut account, address, authenticator)
         .await?;
 
     sleep(Duration::from_secs(3)).await;
 
     let list = node
         .authenticators()
-        .list(account.address().clone())
+        .get_authenticators(account.address().clone())
         .await?;
     assert!(!list.is_empty());
 
@@ -69,14 +69,14 @@ async fn test_node_auth_add_allof_nested_msgs() -> Result<(), Error> {
         ]),
     ]);
     node.authenticators()
-        .add(&mut account, address, authenticator)
+        .add_authenticator(&mut account, address, authenticator)
         .await?;
 
     sleep(Duration::from_secs(3)).await;
 
     let list = node
         .authenticators()
-        .list(account.address().clone())
+        .get_authenticators(account.address().clone())
         .await?;
     assert!(!list.is_empty());
 
@@ -94,14 +94,14 @@ async fn test_node_auth_add_single() -> Result<(), Error> {
 
     let authenticator = Authenticator::SignatureVerification(paccount.public_key().to_bytes());
     node.authenticators()
-        .add(&mut account, address, authenticator)
+        .add_authenticator(&mut account, address, authenticator)
         .await?;
 
     sleep(Duration::from_secs(3)).await;
 
     let list = node
         .authenticators()
-        .list(account.address().clone())
+        .get_authenticators(account.address().clone())
         .await?;
     assert!(!list.is_empty());
 
@@ -125,13 +125,16 @@ async fn test_node_auth_place_order_short_term() -> Result<(), Error> {
         Authenticator::MessageFilter("/dydxprotocol.clob.MsgPlaceOrder".into()),
     ]);
     node.authenticators()
-        .add(&mut account, address.clone(), authenticator)
+        .add_authenticator(&mut account, address.clone(), authenticator)
         .await?;
 
     sleep(Duration::from_secs(3)).await;
 
     // Grab last authenticator ID
-    let list = node.authenticators().list(address.clone()).await?;
+    let list = node
+        .authenticators()
+        .get_authenticators(address.clone())
+        .await?;
     let master = PublicAccount::updated(account.address().clone(), &mut node).await?;
     paccount
         .authenticators_mut()
@@ -158,11 +161,14 @@ async fn test_node_auth_remove() -> Result<(), Error> {
     let mut account = env.account;
     let address = account.address().clone();
 
-    let list = node.authenticators().list(address.clone()).await?;
+    let list = node
+        .authenticators()
+        .get_authenticators(address.clone())
+        .await?;
     // Lets take the opportunity here and remove a few
     for auth in list.iter().rev().take(5) {
         node.authenticators()
-            .remove(&mut account, address.clone(), auth.id)
+            .remove_authenticator(&mut account, address.clone(), auth.id)
             .await?;
         sleep(Duration::from_secs(3)).await;
     }
