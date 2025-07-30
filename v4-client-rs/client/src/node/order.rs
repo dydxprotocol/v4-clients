@@ -152,7 +152,6 @@ impl From<PerpetualMarket> for OrderMarketParams {
 #[derive(Clone, Debug)]
 pub struct OrderBuilder {
     market_params: OrderMarketParams,
-    #[allow(dead_code)] // TODO remove after completion
     subaccount_id: SubaccountId,
     flags: OrderFlags,
     side: Option<OrderSide>,

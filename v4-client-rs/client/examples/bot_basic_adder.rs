@@ -33,12 +33,9 @@ enum State {
 
 pub struct BasicAdder {
     client: NodeClient,
-    #[allow(dead_code)] // TODO remove after completion
     indexer: IndexerClient,
-    #[allow(dead_code)] // TODO remove after completion
     wallet: Wallet,
     account: Account,
-    #[allow(dead_code)] // TODO remove after completion
     market: PerpetualMarket,
     generator: OrderBuilder,
     trades_feed: Feed<TradesMessage>,

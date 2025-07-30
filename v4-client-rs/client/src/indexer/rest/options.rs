@@ -111,7 +111,6 @@ pub struct ListOrdersOpts {
     pub ticker: Option<Ticker>,
     /// Side (buy/sell).
     pub side: Option<OrderSide>,
-    // TODO: Arrays is supported
     /// Order status.
     pub status: Option<OrderStatus>,
     /// Order type.

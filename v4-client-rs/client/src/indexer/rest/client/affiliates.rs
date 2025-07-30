@@ -5,7 +5,7 @@ const URI: &str = "/v4/affiliates";
 
 /// Affiliates dispatcher.
 ///
-/// Check [the example](todo!).
+/// Check [the example](https://github.com/dydxprotocol/v4-clients/blob/main/v4-client-rs/client/examples/affiliates_endpoint.rs).
 pub struct Affiliates<'a> {
     rest: &'a RestClient,
 }
