@@ -206,7 +206,7 @@ async fn main() -> Result<()> {
     };
     let pnls = indexer
         .accounts()
-        .get_parent_subaccount_number_historical_pnl(&parent_subaccount, Some(pnl_opts))
+        .get_parent_subaccount_number_historical_pnls(&parent_subaccount, Some(pnl_opts))
         .await?;
     tracing::info!("Historical PnLs response (parent subaccount): {:?}", pnls);
 

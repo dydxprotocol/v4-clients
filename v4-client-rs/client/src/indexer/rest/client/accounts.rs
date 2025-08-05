@@ -140,7 +140,7 @@ impl<'a> Accounts<'a> {
     /// [Reference](https://docs.dydx.xyz/indexer-client/http#list-parent-positions).
     #[deprecated(
         since = "0.3.0",
-        note = "Use `get_parent_subaccount_positions` instead"
+        note = "Use `get_parent_subaccount_perpetual_positions` instead"
     )]
     pub async fn list_parent_positions(
         &self,
@@ -583,21 +583,21 @@ impl<'a> Accounts<'a> {
     /// [Reference](https://docs.dydx.xyz/indexer-client/http#get-parent-historical-pnl).
     #[deprecated(
         since = "0.3.0",
-        note = "Use `get_parent_subaccount_number_historical_pnl` instead"
+        note = "Use `get_parent_subaccount_number_historical_pnls` instead"
     )]
     pub async fn get_parent_historical_pnl(
         &self,
         subaccount: &ParentSubaccount,
         opts: Option<GetHistoricalPnlOpts>,
     ) -> Result<Vec<PnlTicksResponseObject>, Error> {
-        self.get_parent_subaccount_number_historical_pnl(subaccount, opts)
+        self.get_parent_subaccount_number_historical_pnls(subaccount, opts)
             .await
     }
 
     /// Query for profit and loss report for the specified time/block range of a parent subaccount.
     ///
     /// [Reference](https://docs.dydx.xyz/indexer-client/http#get-parent-historical-pnl).
-    pub async fn get_parent_subaccount_number_historical_pnl(
+    pub async fn get_parent_subaccount_number_historical_pnls(
         &self,
         subaccount: &ParentSubaccount,
         opts: Option<GetHistoricalPnlOpts>,

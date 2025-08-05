@@ -268,11 +268,11 @@ async fn test_indexer_account_get_subaccount_historical_pnls() -> Result<()> {
 }
 
 #[tokio::test]
-async fn test_indexer_account_get_parent_subaccount_number_historical_pnl() -> Result<()> {
+async fn test_indexer_account_get_parent_subaccount_number_historical_pnls() -> Result<()> {
     let env = TestEnv::testnet().await?;
     env.indexer
         .accounts()
-        .get_parent_subaccount_number_historical_pnl(&env.subaccount.parent(), None)
+        .get_parent_subaccount_number_historical_pnls(&env.subaccount.parent(), None)
         .await?;
     Ok(())
 }

@@ -30,7 +30,6 @@ from dydx_v4_client.node.builder import as_any
 from dydx_v4_client.key_pair import KeyPair
 from dydx_v4_client.wallet import Wallet
 
-
 class NobleClient:
     """
     A client for interacting with the Noble blockchain.
@@ -247,3 +246,21 @@ class NobleClient:
             ],
             gas_limit=gas_limit,
         )
+
+    async def send_token_ibc(self, sender, recipient, token, source_channel) -> Any:
+        """
+        Transfer a token asset between Cosmos blockchain networks.
+
+        Args:
+            sender: The sender address.
+            recipient: The recipient address.
+            token: The token to transfer.
+            source_channel: The source channel.
+
+        Returns:
+            Hash of the transaction
+        """
+
+        coin = token.coin()
+
+        
