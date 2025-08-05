@@ -7,9 +7,9 @@ use dydx::indexer::*;
 use std::str::FromStr;
 
 #[tokio::test]
-async fn test_indexer_markets_list_perpetual_markets() -> Result<()> {
+async fn test_indexer_markets_get_perpetual_markets() -> Result<()> {
     let env = TestEnv::testnet().await?;
-    env.indexer.markets().list_perpetual_markets(None).await?;
+    env.indexer.markets().get_perpetual_markets(None).await?;
 
     let opts = ListPerpetualMarketsOpts {
         ticker: Some(env.ticker),
@@ -17,7 +17,7 @@ async fn test_indexer_markets_list_perpetual_markets() -> Result<()> {
     };
     env.indexer
         .markets()
-        .list_perpetual_markets(Some(opts))
+        .get_perpetual_markets(Some(opts))
         .await?;
     Ok(())
 }
@@ -43,38 +43,44 @@ async fn test_indexer_markets_get_perpetual_market_orderbook() -> Result<()> {
 }
 
 #[tokio::test]
-async fn test_indexer_markets_get_trades() -> Result<()> {
+async fn test_indexer_markets_get_perpetual_market_trades() -> Result<()> {
     let env = TestEnv::testnet().await?;
-    env.indexer.markets().get_trades(&env.ticker, None).await?;
+    env.indexer
+        .markets()
+        .get_perpetual_market_trades(&env.ticker, None)
+        .await?;
     Ok(())
 }
 
 #[tokio::test]
-async fn test_indexer_markets_get_candles() -> Result<()> {
+async fn test_indexer_markets_get_perpetual_market_candles() -> Result<()> {
     let env = TestEnv::testnet().await?;
     let res = CandleResolution::M1;
     env.indexer
         .markets()
-        .get_candles(&env.ticker, res, None)
+        .get_perpetual_market_candles(&env.ticker, res, None)
         .await?;
     Ok(())
 }
 
 #[tokio::test]
-async fn test_indexer_markets_get_historical_funding() -> Result<()> {
+async fn test_indexer_markets_get_perpetual_market_historical_funding() -> Result<()> {
     let env = TestEnv::testnet().await?;
     env.indexer
         .markets()
-        .get_historical_funding(&env.ticker, None)
+        .get_perpetual_market_historical_funding(&env.ticker, None)
         .await?;
     Ok(())
 }
 
 #[tokio::test]
-async fn test_indexer_markets_get_sparklines() -> Result<()> {
+async fn test_indexer_markets_get_perpetual_market_sparklines() -> Result<()> {
     let env = TestEnv::testnet().await?;
     let period = SparklineTimePeriod::OneDay;
-    env.indexer.markets().get_sparklines(period).await?;
+    env.indexer
+        .markets()
+        .get_perpetual_market_sparklines(period)
+        .await?;
     Ok(())
 }
 
@@ -93,18 +99,18 @@ async fn test_indexer_utility_get_height() -> Result<()> {
 }
 
 #[tokio::test]
-async fn test_indexer_utility_get_screen() -> Result<()> {
+async fn test_indexer_utility_screen() -> Result<()> {
     let env = TestEnv::testnet().await?;
-    env.indexer.utility().get_screen(&env.address).await?;
+    env.indexer.utility().screen(&env.address).await?;
     Ok(())
 }
 
 #[tokio::test]
-async fn test_indexer_utility_get_compliance_screen() -> Result<()> {
+async fn test_indexer_utility_compliance_screen() -> Result<()> {
     let env = TestEnv::testnet().await?;
     env.indexer
         .utility()
-        .get_compliance_screen(&env.address)
+        .compliance_screen(&env.address)
         .await?;
     Ok(())
 }
@@ -137,31 +143,31 @@ async fn test_indexer_account_get_parent_subaccount() -> Result<()> {
 }
 
 #[tokio::test]
-async fn test_indexer_account_list_positions() -> Result<()> {
+async fn test_indexer_account_get_subaccount_perpetual_positions() -> Result<()> {
     let env = TestEnv::testnet().await?;
     env.indexer
         .accounts()
-        .list_positions(&env.subaccount, None)
+        .get_subaccount_perpetual_positions(&env.subaccount, None)
         .await?;
     Ok(())
 }
 
 #[tokio::test]
-async fn test_indexer_account_list_parent_positions() -> Result<()> {
+async fn test_indexer_account_get_parent_subaccount_perpetual_positions() -> Result<()> {
     let env = TestEnv::testnet().await?;
     env.indexer
         .accounts()
-        .list_parent_positions(&env.subaccount.parent(), None)
+        .get_parent_subaccount_perpetual_positions(&env.subaccount.parent(), None)
         .await?;
     Ok(())
 }
 
 #[tokio::test]
-async fn test_indexer_account_get_asset_positions() -> Result<()> {
+async fn test_indexer_account_get_subaccount_asset_positions() -> Result<()> {
     let env = TestEnv::testnet().await?;
     env.indexer
         .accounts()
-        .get_asset_positions(&env.subaccount)
+        .get_subaccount_asset_positions(&env.subaccount)
         .await?;
     Ok(())
 }
@@ -177,41 +183,41 @@ async fn test_indexer_account_get_parent_asset_positions() -> Result<()> {
 }
 
 #[tokio::test]
-async fn test_indexer_account_get_transfers() -> Result<()> {
+async fn test_indexer_account_get_subaccount_transfers() -> Result<()> {
     let env = TestEnv::testnet().await?;
     env.indexer
         .accounts()
-        .get_transfers(&env.subaccount, None)
+        .get_subaccount_transfers(&env.subaccount, None)
         .await?;
     Ok(())
 }
 
 #[tokio::test]
-async fn test_indexer_account_get_parent_transfers() -> Result<()> {
+async fn test_indexer_account_get_parent_subaccount_number_transfers() -> Result<()> {
     let env = TestEnv::testnet().await?;
     env.indexer
         .accounts()
-        .get_parent_transfers(&env.subaccount.parent(), None)
+        .get_parent_subaccount_number_transfers(&env.subaccount.parent(), None)
         .await?;
     Ok(())
 }
 
 #[tokio::test]
-async fn test_indexer_account_list_orders() -> Result<()> {
+async fn test_indexer_account_get_subaccount_orders() -> Result<()> {
     let env = TestEnv::testnet().await?;
     env.indexer
         .accounts()
-        .list_orders(&env.subaccount, None)
+        .get_subaccount_orders(&env.subaccount, None)
         .await?;
     Ok(())
 }
 
 #[tokio::test]
-async fn test_indexer_account_list_parent_orders() -> Result<()> {
+async fn test_indexer_account_get_parent_subaccount_number_orders() -> Result<()> {
     let env = TestEnv::testnet().await?;
     env.indexer
         .accounts()
-        .list_parent_orders(&env.subaccount.parent(), None)
+        .get_parent_subaccount_number_orders(&env.subaccount.parent(), None)
         .await?;
     Ok(())
 }
@@ -222,7 +228,7 @@ async fn test_indexer_account_get_order() -> Result<()> {
     let orders = env
         .indexer
         .accounts()
-        .list_orders(&env.subaccount, None)
+        .get_subaccount_orders(&env.subaccount, None)
         .await?;
     let order = orders
         .first()
@@ -232,62 +238,62 @@ async fn test_indexer_account_get_order() -> Result<()> {
 }
 
 #[tokio::test]
-async fn test_indexer_account_get_fills() -> Result<()> {
+async fn test_indexer_account_get_subaccount_fills() -> Result<()> {
     let env = TestEnv::testnet().await?;
     env.indexer
         .accounts()
-        .get_fills(&env.subaccount, None)
+        .get_subaccount_fills(&env.subaccount, None)
         .await?;
     Ok(())
 }
 
 #[tokio::test]
-async fn test_indexer_account_get_parent_fills() -> Result<()> {
+async fn test_indexer_account_get_parent_subaccount_number_fills() -> Result<()> {
     let env = TestEnv::testnet().await?;
     env.indexer
         .accounts()
-        .get_parent_fills(&env.subaccount.parent(), None)
+        .get_parent_subaccount_number_fills(&env.subaccount.parent(), None)
         .await?;
     Ok(())
 }
 
 #[tokio::test]
-async fn test_indexer_account_get_historical_pnl() -> Result<()> {
+async fn test_indexer_account_get_subaccount_historical_pnls() -> Result<()> {
     let env = TestEnv::testnet().await?;
     env.indexer
         .accounts()
-        .get_historical_pnl(&env.subaccount, None)
+        .get_subaccount_historical_pnls(&env.subaccount, None)
         .await?;
     Ok(())
 }
 
 #[tokio::test]
-async fn test_indexer_account_get_parent_historical_pnl() -> Result<()> {
+async fn test_indexer_account_get_parent_subaccount_number_historical_pnls() -> Result<()> {
     let env = TestEnv::testnet().await?;
     env.indexer
         .accounts()
-        .get_parent_historical_pnl(&env.subaccount.parent(), None)
+        .get_parent_subaccount_number_historical_pnls(&env.subaccount.parent(), None)
         .await?;
     Ok(())
 }
 
 #[tokio::test]
-async fn test_indexer_account_get_rewards() -> Result<()> {
+async fn test_indexer_account_get_historical_block_trading_rewards() -> Result<()> {
     let env = TestEnv::testnet().await?;
     env.indexer
         .accounts()
-        .get_rewards(&env.address, None)
+        .get_historical_block_trading_rewards(&env.address, None)
         .await?;
     Ok(())
 }
 
 #[tokio::test]
-async fn test_indexer_account_get_rewards_aggregated() -> Result<()> {
+async fn test_indexer_account_get_historical_trading_rewards_aggregations() -> Result<()> {
     let env = TestEnv::testnet().await?;
     let period = TradingRewardAggregationPeriod::Daily;
     env.indexer
         .accounts()
-        .get_rewards_aggregated(&env.address, period, None)
+        .get_historical_trading_rewards_aggregations(&env.address, period, None)
         .await?;
     Ok(())
 }
@@ -324,7 +330,7 @@ async fn test_indexer_vaults_get_megavault_positions() -> Result<()> {
 #[tokio::test]
 async fn test_perpetual_market_quantization() -> Result<()> {
     let env = TestEnv::testnet().await?;
-    let markets = env.indexer.markets().list_perpetual_markets(None).await?;
+    let markets = env.indexer.markets().get_perpetual_markets(None).await?;
     let params = markets
         .get(&env.ticker)
         .ok_or_else(|| err!("The ticker {} has not found!", env.ticker))?

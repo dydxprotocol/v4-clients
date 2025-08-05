@@ -323,7 +323,7 @@ async fn test_node_batch_cancel_orders() -> Result<(), Error> {
     };
     let cancels = vec![batch];
     let good_til = node
-        .get_latest_block_height()
+        .latest_block_height()
         .await?
         .ahead(SHORT_TERM_ORDER_MAXIMUM_LIFETIME);
 
@@ -385,12 +385,12 @@ async fn test_node_create_market_permissionless() -> Result<(), Error> {
 
 #[tokio::test]
 #[serial]
-async fn test_node_withdrawal_and_transfers_blocked_info() -> Result<(), Error> {
+async fn test_node_get_withdrawal_and_transfer_gating_status() -> Result<(), Error> {
     let env = TestEnv::testnet().await?;
     let mut node = env.node;
 
-    let _withdrawal_and_transfers_blocked_info = node
-        .withdrawal_and_transfers_blocked_info(ETH_USD_PAIR_ID)
+    let _get_withdrawal_and_transfer_gating_status = node
+        .get_withdrawal_and_transfer_gating_status(ETH_USD_PAIR_ID)
         .await?;
 
     Ok(())
@@ -416,11 +416,11 @@ async fn test_node_send_query() -> Result<(), Error> {
 
 #[tokio::test]
 #[serial]
-async fn test_node_capacity_by_denom() -> Result<(), Error> {
+async fn test_node_get_withdrawal_capacity_by_denom() -> Result<(), Error> {
     let env = TestEnv::testnet().await?;
     let mut node = env.node;
 
-    let capacity = node.capacity_by_denom(Denom::Usdc).await?;
+    let capacity = node.get_withdrawal_capacity_by_denom(Denom::Usdc).await?;
 
     assert!(!capacity.is_empty());
 
