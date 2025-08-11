@@ -1,4 +1,5 @@
 import { PageRequest } from '@dydxprotocol/v4-proto/src/codegen/cosmos/base/query/v1beta1/pagination';
+import { AxiosProxyConfig } from 'axios';
 import Long from 'long';
 
 import { BroadcastOptions, DenomConfig } from './types';
@@ -243,10 +244,12 @@ export const PAGE_REQUEST: PageRequest = {
 export class IndexerConfig {
   public restEndpoint: string;
   public websocketEndpoint: string;
+  public proxy?: AxiosProxyConfig;
 
-  constructor(restEndpoint: string, websocketEndpoint: string) {
+  constructor(restEndpoint: string, websocketEndpoint: string, proxy?: AxiosProxyConfig) {
     this.restEndpoint = restEndpoint;
     this.websocketEndpoint = websocketEndpoint;
+    this.proxy = proxy;
   }
 }
 

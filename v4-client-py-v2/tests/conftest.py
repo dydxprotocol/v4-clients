@@ -12,6 +12,7 @@ from dydx_v4_client.indexer.rest.noble_client import NobleClient
 from dydx_v4_client.indexer.socket.websocket import IndexerSocket
 from dydx_v4_client.network import TESTNET, TESTNET_FAUCET, TESTNET_NOBLE
 from dydx_v4_client.node.client import NodeClient
+from dydx_v4_client.node.mega_vault import MegaVault
 from dydx_v4_client.node.message import order, order_id
 from dydx_v4_client.wallet import Wallet
 from dydx_v4_client.key_pair import KeyPair
@@ -28,6 +29,7 @@ DYDX_TEST_MNEMONIC = (
     "mirror actor skill push coach wait confirm orchard lunch mobile athlete gossip awake "
     "miracle matter bus reopen team ladder lazy list timber render wait"
 )
+
 DYDX_TEST_PUBLIC_KEY = (
     "03f0be763f781b5b59ebc37d721beda913148a539425baa720b97d4820f652ed75"
 )
@@ -60,6 +62,12 @@ async def faucet_client() -> FaucetClient:
 @pytest.fixture
 async def node_client() -> NodeClient:
     return await NodeClient.connect(TESTNET.node)
+
+
+@pytest.fixture
+async def megavault() -> MegaVault:
+    node = await NodeClient.connect(TESTNET.node)
+    return MegaVault(node_client=node)
 
 
 @pytest.fixture

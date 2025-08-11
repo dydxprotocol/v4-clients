@@ -193,7 +193,7 @@ impl serde::Serialize for Authenticator {
             | Authenticator::ClobPairIdFilter(string) => string.clone().into_bytes(),
             Authenticator::AnyOf(auths) | Authenticator::AllOf(auths) => {
                 serde_json::to_string(auths)
-                    .map_err(|e| ser::Error::custom(format!("JSON serialization error: {}", e)))?
+                    .map_err(|e| ser::Error::custom(format!("JSON serialization error: {e}")))?
                     .into_bytes()
             }
         };

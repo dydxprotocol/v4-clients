@@ -1,5 +1,5 @@
 //! Permissioned keys/authenticators example.
-//! For more information see [the docs](https://docs.dydx.exchange/api_integration-guides/how_to_permissioned_keys).
+//! For more information see [the docs](https://docs.dydx.xyz/interaction/permissioned-keys).
 
 mod support;
 use anyhow::{Error, Result};

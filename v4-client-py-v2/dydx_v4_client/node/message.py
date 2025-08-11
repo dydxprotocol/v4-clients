@@ -1,9 +1,14 @@
+from decimal import Decimal
 from typing import List
 
 from v4_proto.cosmos.bank.v1beta1.tx_pb2 import MsgSend
 from v4_proto.cosmos.base.v1beta1.coin_pb2 import Coin
+from v4_proto.cosmos.distribution.v1beta1.tx_pb2 import MsgWithdrawDelegatorReward
+from v4_proto.cosmos.staking.v1beta1.tx_pb2 import MsgUndelegate, MsgDelegate
+from v4_proto.dydxprotocol.affiliates.tx_pb2 import MsgRegisterAffiliate
 from v4_proto.dydxprotocol.clob.order_pb2 import Order, OrderId
 from v4_proto.dydxprotocol.clob.tx_pb2 import MsgCancelOrder, MsgPlaceOrder
+from v4_proto.dydxprotocol.listing.tx_pb2 import MsgCreateMarketPermissionless
 from v4_proto.dydxprotocol.sending.transfer_pb2 import (
     MsgDepositToSubaccount,
     MsgWithdrawFromSubaccount,
@@ -18,6 +23,12 @@ from v4_proto.dydxprotocol.accountplus.tx_pb2 import (
 )
 import json
 import base64
+
+from v4_proto.dydxprotocol.vault.share_pb2 import NumShares
+from v4_proto.dydxprotocol.vault.tx_pb2 import (
+    MsgDepositToMegavault,
+    MsgWithdrawFromMegavault,
+)
 
 PY_V2_CLIENT_ID = 2
 
@@ -105,7 +116,6 @@ def transfer(
     asset_id: int,
     amount: int,
 ):
-
     msg = Transfer(
         sender=sender_subaccount,
         recipient=recipient_subaccount,
@@ -187,3 +197,52 @@ def convert_nested_config_to_base64(config: bytes):
         return config_modified.encode()
     except:
         return config
+
+
+def create_market_permissionless(ticker: str, address: str, subaccount_id: int):
+    return MsgCreateMarketPermissionless(
+        ticker=ticker, subaccount_id=SubaccountId(owner=address, number=subaccount_id)
+    )
+
+
+def register_affiliate(referee: str, affiliate: str):
+    return MsgRegisterAffiliate(referee=referee, affiliate=affiliate)
+
+
+def withdraw_delegator_reward(delegator: str, validator: str):
+    return MsgWithdrawDelegatorReward(
+        delegator_address=delegator, validator_address=validator
+    )
+
+
+def undelegate(delegator: str, validator: str, quantums: int, denomination: str):
+    return MsgUndelegate(
+        delegator_address=delegator,
+        validator_address=validator,
+        amount=Coin(amount=str(quantums), denom=denomination),
+    )
+
+
+def delegate(delegator: str, validator: str, quantums: int, denomination: str):
+    return MsgDelegate(
+        delegator_address=delegator,
+        validator_address=validator,
+        amount=Coin(amount=str(quantums), denom=denomination),
+    )
+
+
+def deposit_to_megavault(address: str, subaccount_number: int, quantums: bytes):
+    return MsgDepositToMegavault(
+        subaccount_id=SubaccountId(owner=address, number=subaccount_number),
+        quote_quantums=quantums,
+    )
+
+
+def withdraw_from_megavault(
+    address: str, subaccount_number: int, min_quantums: bytes, num_shares: bytes
+):
+    return MsgWithdrawFromMegavault(
+        subaccount_id=SubaccountId(owner=address, number=subaccount_number),
+        min_quote_quantums=min_quantums,
+        shares=NumShares(num_shares=num_shares),
+    )

@@ -11,10 +11,10 @@ pub struct FaucetConfig {
     pub endpoint: String,
 }
 
-/// [Faucet](https://docs.dydx.exchange/infrastructure_providers-network/faucet)
+/// [Faucet](https://docs.dydx.xyz/faucet-client)
 /// serves as a source of funds for test purposes.
 ///
-/// See also [What is a Crypto Faucet?](https://dydx.exchange/crypto-learning/crypto-faucet).
+/// See also [What is a Crypto Faucet?](https://www.dydx.xyz/crypto-learning/crypto-faucet).
 ///
 /// Check [the example](https://github.com/dydxprotocol/v4-clients/blob/main/v4-client-rs/client/examples/faucet_endpoint.rs).
 #[derive(Debug)]

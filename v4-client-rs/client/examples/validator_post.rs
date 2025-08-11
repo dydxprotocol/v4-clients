@@ -67,6 +67,8 @@ async fn main() -> Result<()> {
             condition_type: ConditionType::Unspecified.into(),
             conditional_order_trigger_subticks: 0u64,
             good_til_oneof: Some(GoodTilOneof::GoodTilBlock(til_height)),
+            builder_code_parameters: None,
+            twap_parameters: None,
         };
 
         let tx_hash = placer.client.place_order(&mut account, order).await?;

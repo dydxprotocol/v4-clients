@@ -17,7 +17,7 @@ impl<'a> Markets<'a> {
 
     /// Query for perpetual markets data.
     ///
-    /// [Reference](https://docs.dydx.exchange/api_integration-indexer/indexer_api#listperpetualmarkets).
+    /// [Reference](https://docs.dydx.xyz/indexer-client/http#get-perpetual-markets).
     pub async fn list_perpetual_markets(
         &self,
         opts: Option<ListPerpetualMarketsOpts>,
@@ -54,7 +54,7 @@ impl<'a> Markets<'a> {
 
     /// Query for bids-asks for the perpetual market.
     ///
-    /// [Reference](https://docs.dydx.exchange/api_integration-indexer/indexer_api#getperpetualmarket).
+    /// [Reference](https://docs.dydx.xyz/indexer-client/http#get-perpetual-market-orderbook).
     pub async fn get_perpetual_market_orderbook(
         &self,
         ticker: &Ticker,
@@ -75,7 +75,7 @@ impl<'a> Markets<'a> {
 
     /// Query for trades.
     ///
-    /// [Reference](https://docs.dydx.exchange/api_integration-indexer/indexer_api#gettrades).
+    /// [Reference](https://docs.dydx.xyz/indexer-client/http#get-trades).
     pub async fn get_trades(
         &self,
         ticker: &Ticker,
@@ -100,7 +100,7 @@ impl<'a> Markets<'a> {
 
     /// Query for [candles](https://dydx.exchange/crypto-learning/candlestick-patterns).
     ///
-    /// [Reference](https://docs.dydx.exchange/api_integration-indexer/indexer_api#getcandles).
+    /// [Reference](https://docs.dydx.xyz/indexer-client/http#get-candles).
     pub async fn get_candles(
         &self,
         ticker: &Ticker,
@@ -127,7 +127,7 @@ impl<'a> Markets<'a> {
 
     /// Query for funding till time/block specified.
     ///
-    /// [Reference](https://docs.dydx.exchange/api_integration-indexer/indexer_api#gethistoricalfunding).
+    /// [Reference](https://docs.dydx.xyz/indexer-client/http#get-historical-funding).
     pub async fn get_historical_funding(
         &self,
         ticker: &Ticker,
@@ -152,7 +152,7 @@ impl<'a> Markets<'a> {
 
     /// Query for [sparklines](https://en.wikipedia.org/wiki/Sparkline).
     ///
-    /// [Reference](https://docs.dydx.exchange/api_integration-indexer/indexer_api#get).
+    /// [Reference](https://docs.dydx.xyz/indexer-client/http#get-sparklines).
     pub async fn get_sparklines(
         &self,
         period: SparklineTimePeriod,

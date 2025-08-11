@@ -14,12 +14,26 @@ use std::{fmt, str::FromStr};
 
 // Shared types used by REST API, WS
 
+/// A trader's account with a parent subaccount number.
+#[derive(Deserialize, Debug, Clone, Eq, Hash, PartialOrd, Ord, PartialEq)]
+#[serde(rename_all = "camelCase")]
+#[cfg_attr(any(test, feature = "strict-serde"), serde(deny_unknown_fields))]
+pub struct AccountWithParentSubaccountNumber {
+    /// Address.
+    pub address: Address,
+    /// Parent subaccount number.
+    pub parent_subaccount_number: Option<ParentSubaccountNumber>,
+}
+
 /// A trader's account.
 #[derive(Deserialize, Debug, Clone, Eq, Hash, PartialOrd, Ord, PartialEq)]
 #[serde(rename_all = "camelCase")]
+#[cfg_attr(any(test, feature = "strict-serde"), serde(deny_unknown_fields))]
 pub struct Account {
     /// Address.
     pub address: Address,
+    /// Parent subaccount number.
+    pub subaccount_number: Option<SubaccountNumber>,
 }
 
 /// [Address](https://dydx.exchange/crypto-learning/what-is-a-wallet-address).
@@ -59,7 +73,7 @@ pub enum ApiOrderStatus {
     BestEffort(BestEffortOpenedStatus),
 }
 
-/// [Time-in-Force](https://docs.dydx.exchange/api_integration-trading/order_types#time-in-force).
+/// [Time-in-Force](https://docs.dydx.xyz/types/time_in_force#time-in-force).
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum ApiTimeInForce {
@@ -125,7 +139,7 @@ pub struct AnyId;
 ///
 /// This value should be different for different orders.
 /// To update a specific previously submitted order, the new [`Order`](dydx_proto::dydxprotocol::clob::Order) must have the same client ID, and the same [`OrderId`].
-/// See also: [How can I replace an order?](https://docs.dydx.exchange/introduction-onboarding_faqs).
+/// See also: [Replacements](https://docs.dydx.xyz/concepts/trading/limit-orderbook#replacements).
 #[serde_as]
 #[derive(Deserialize, Debug, Clone, Display, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct ClientId(#[serde_as(as = "DisplayFromStr")] pub u32);
@@ -297,7 +311,7 @@ pub enum MarketType {
 pub enum PerpetualMarketType {
     /// Cross.
     Cross,
-    /// [Isolated](https://docs.dydx.exchange/api_integration-trading/isolated_markets).
+    /// [Isolated](https://docs.dydx.xyz/concepts/trading/isolated-markets#isolated-markets).
     Isolated,
 }
 
@@ -323,7 +337,7 @@ pub enum OrderStatus {
 
 /// When the order enters the execution phase
 ///
-/// See also [Time in force](https://docs.dydx.exchange/api_integration-indexer/indexer_api#apitimeinforce).
+/// See also [Time in force](https://docs.dydx.xyz/types/time_in_force#time-in-force).
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum OrderExecution {
@@ -377,7 +391,7 @@ pub enum OrderSide {
 
 /// Order types.
 ///
-/// See also [OrderType](https://docs.dydx.exchange/api_integration-indexer/indexer_api#ordertype).
+/// See also [OrderType](https://docs.dydx.xyz/types/order_type#ordertype).
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum OrderType {
@@ -406,6 +420,7 @@ pub enum OrderType {
 /// Subaccount.
 #[derive(Deserialize, Debug, Clone, Eq, Hash, PartialOrd, Ord, PartialEq)]
 #[serde(rename_all = "camelCase")]
+#[cfg_attr(any(test, feature = "strict-serde"), serde(deny_unknown_fields))]
 pub struct Subaccount {
     /// Address.
     pub address: Address,
@@ -472,7 +487,7 @@ impl<'de> Deserialize<'de> for SubaccountNumber {
                 value
                     .parse::<u32>()
                     .map(SubaccountNumber)
-                    .map_err(|_| E::custom(format!("invalid u32 in string: {}", value)))
+                    .map_err(|_| E::custom(format!("invalid u32 in string: {value}")))
             }
         }
 
@@ -527,9 +542,10 @@ impl From<ParentSubaccountNumber> for SubaccountNumber {
 /// Parent subaccount.
 ///
 /// A parent subaccount can have multiple positions opened and all posititions are cross-margined.
-/// See also [how isolated positions are handled in dYdX](https://docs.dydx.exchange/api_integration-guides/how_to_isolated#mapping-of-isolated-positions-to-subaccounts).
+/// See also [how isolated positions are handled in dYdX](https://docs.dydx.xyz/concepts/trading/isolated-positions#isolated-positions).
 #[derive(Deserialize, Debug, Clone, Eq, Hash, PartialOrd, Ord, PartialEq)]
 #[serde(rename_all = "camelCase")]
+#[cfg_attr(any(test, feature = "strict-serde"), serde(deny_unknown_fields))]
 pub struct ParentSubaccount {
     /// Address.
     pub address: Address,
@@ -660,7 +676,7 @@ impl Denom {
     pub fn gas_price(&self) -> Option<BigDecimal> {
         match self {
             // Defined dYdX micro USDC per Gas unit.
-            // As defined in [1](https://docs.dydx.exchange/infrastructure_providers-validators/required_node_configs#base-configuration) and [2](https://github.com/dydxprotocol/v4-chain/blob/ba731b00e3163f7c3ff553b4300d564c11eaa81f/protocol/cmd/dydxprotocold/cmd/config.go#L15).
+            // As defined in [1](https://docs.dydx.xyz/nodes/running-node/required-node-configs#node-configs) and [2](https://github.com/dydxprotocol/v4-chain/blob/ba731b00e3163f7c3ff553b4300d564c11eaa81f/protocol/cmd/dydxprotocold/cmd/config.go#L15).
             Self::Usdc => Some(BigDecimal::new(25.into(), 3)),
             // Defined dYdX native tokens per Gas unit. Recommended to be roughly the same in value as 0.025 micro USDC.
             // As defined in [1](https://github.com/dydxprotocol/v4-chain/blob/ba731b00e3163f7c3ff553b4300d564c11eaa81f/protocol/cmd/dydxprotocold/cmd/config.go#L21).
@@ -715,6 +731,7 @@ impl TryFrom<Denom> for CosmosDenom {
 /// Parent subaccount response.
 #[derive(Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
+#[cfg_attr(any(test, feature = "strict-serde"), serde(deny_unknown_fields))]
 pub struct ParentSubaccountResponseObject {
     /// Address.
     pub address: Address,
@@ -724,8 +741,6 @@ pub struct ParentSubaccountResponseObject {
     pub equity: BigDecimal,
     /// Free collateral.
     pub free_collateral: BigDecimal,
-    /// Is margin enabled?
-    pub margin_enabled: Option<bool>,
     /// Associated child subaccounts.
     pub child_subaccounts: Vec<SubaccountResponseObject>,
 }
@@ -733,6 +748,7 @@ pub struct ParentSubaccountResponseObject {
 /// Subaccount response.
 #[derive(Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
+#[cfg_attr(any(test, feature = "strict-serde"), serde(deny_unknown_fields))]
 pub struct SubaccountResponseObject {
     /// Address.
     pub address: Address,
@@ -742,17 +758,22 @@ pub struct SubaccountResponseObject {
     pub equity: BigDecimal,
     /// Free collateral.
     pub free_collateral: BigDecimal,
-    /// Is margin enabled?
-    pub margin_enabled: Option<bool>,
-    /// Asset positions.
-    pub asset_positions: AssetPositionsMap,
     /// Opened perpetual positions.
     pub open_perpetual_positions: PerpetualPositionsMap,
+    /// Asset positions.
+    pub asset_positions: AssetPositionsMap,
+    /// Is margin enabled?
+    pub margin_enabled: bool,
+    /// Updated at height.
+    pub updated_at_height: Height,
+    /// Latest processed block height.
+    pub latest_processed_block_height: Height,
 }
 
 /// Asset position response.
 #[derive(Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
+#[cfg_attr(any(test, feature = "strict-serde"), serde(deny_unknown_fields))]
 pub struct AssetPositionResponseObject {
     /// Token symbol.
     pub symbol: Symbol,
@@ -769,6 +790,7 @@ pub struct AssetPositionResponseObject {
 /// Perpetual position response.
 #[derive(Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
+#[cfg_attr(any(test, feature = "strict-serde"), serde(deny_unknown_fields))]
 pub struct PerpetualPositionResponseObject {
     /// Market ticker.
     pub market: Ticker,
@@ -887,6 +909,7 @@ impl FromStr for Quantity {
 /// Orderbook price level.
 #[derive(Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
+#[cfg_attr(any(test, feature = "strict-serde"), serde(deny_unknown_fields))]
 pub struct OrderbookResponsePriceLevel {
     /// Price.
     pub price: Price,
@@ -897,6 +920,7 @@ pub struct OrderbookResponsePriceLevel {
 /// Orderbook response.
 #[derive(Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
+#[cfg_attr(any(test, feature = "strict-serde"), serde(deny_unknown_fields))]
 pub struct OrderBookResponseObject {
     /// Bids.
     pub bids: Vec<OrderbookResponsePriceLevel>,
@@ -907,6 +931,7 @@ pub struct OrderBookResponseObject {
 /// Order response.
 #[derive(Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
+#[cfg_attr(any(test, feature = "strict-serde"), serde(deny_unknown_fields))]
 pub struct OrderResponseObject {
     /// Client id.
     pub client_id: ClientId,
@@ -953,11 +978,18 @@ pub struct OrderResponseObject {
     pub updated_at: Option<DateTime<Utc>>,
     /// Block height.
     pub updated_at_height: Option<Height>,
+    /// Trigger price.
+    pub trigger_price: Option<Price>,
+    /// Builder fee.
+    pub builder_fee: Option<BigDecimal>,
+    /// Fee ppm.
+    pub fee_ppm: Option<BigDecimal>,
 }
 
 /// Trade response.
 #[derive(Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
+#[cfg_attr(any(test, feature = "strict-serde"), serde(deny_unknown_fields))]
 pub struct TradeResponse {
     /// Trades.
     pub trades: Vec<TradeResponseObject>,
@@ -966,6 +998,7 @@ pub struct TradeResponse {
 /// Trade.
 #[derive(Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
+#[cfg_attr(any(test, feature = "strict-serde"), serde(deny_unknown_fields))]
 pub struct TradeResponseObject {
     /// Trade id.
     pub id: TradeId,
@@ -987,6 +1020,7 @@ pub struct TradeResponseObject {
 /// Perpetual markets.
 #[derive(Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
+#[cfg_attr(any(test, feature = "strict-serde"), serde(deny_unknown_fields))]
 pub struct PerpetualMarketResponse {
     /// Perpetual markets.
     pub markets: HashMap<Ticker, PerpetualMarket>,
@@ -995,52 +1029,56 @@ pub struct PerpetualMarketResponse {
 /// Perpetual market.
 #[derive(Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
+#[cfg_attr(any(test, feature = "strict-serde"), serde(deny_unknown_fields))]
 pub struct PerpetualMarket {
-    /// Atomic resolution
-    pub atomic_resolution: i32,
-    /// Base open interest.
-    pub base_open_interest: BigDecimal,
     /// Clob pair id.
     pub clob_pair_id: ClobPairId,
-    /// Initial margin fraction.
-    pub initial_margin_fraction: BigDecimal,
-    /// Maintenance margin fraction.
-    pub maintenance_margin_fraction: BigDecimal,
-    /// Market type.
-    pub market_type: PerpetualMarketType,
-    /// Next funding rate.
-    pub next_funding_rate: BigDecimal,
-    /// Open interest.
-    pub open_interest: BigDecimal,
-    /// Open interest lower capitalization.
-    pub open_interest_lower_cap: Option<BigDecimal>,
-    /// Open interest upper capitalization.
-    pub open_interest_upper_cap: Option<BigDecimal>,
+    /// Market ticker.
+    pub ticker: Ticker,
+    /// Market status
+    pub status: PerpetualMarketStatus,
     /// Oracle price.
     pub oracle_price: Option<Price>,
     /// 24-h price change.
     #[serde(rename = "priceChange24H")]
     pub price_change_24h: BigDecimal,
-    /// Quantum conversion exponent.
-    pub quantum_conversion_exponent: i32,
-    /// Market status
-    pub status: PerpetualMarketStatus,
-    /// Step base quantums.
-    pub step_base_quantums: u64,
-    /// Step size.
-    pub step_size: BigDecimal,
-    /// Subticks per tick.
-    pub subticks_per_tick: u32,
-    /// Tick size.
-    pub tick_size: BigDecimal,
-    /// Market ticker.
-    pub ticker: Ticker,
-    /// 24-h number of trades.
-    #[serde(rename = "trades24H")]
-    pub trades_24h: u64,
     /// 24-h volume.
     #[serde(rename = "volume24H")]
     pub volume_24h: Quantity,
+    /// 24-h number of trades.
+    #[serde(rename = "trades24H")]
+    pub trades_24h: u64,
+    /// Next funding rate.
+    pub next_funding_rate: BigDecimal,
+    /// Initial margin fraction.
+    pub initial_margin_fraction: BigDecimal,
+    /// Maintenance margin fraction.
+    pub maintenance_margin_fraction: BigDecimal,
+    /// Open interest.
+    pub open_interest: BigDecimal,
+    /// Atomic resolution
+    pub atomic_resolution: i32,
+    /// Quantum conversion exponent.
+    pub quantum_conversion_exponent: i32,
+    /// Tick size.
+    pub tick_size: BigDecimal,
+    /// Step size.
+    pub step_size: BigDecimal,
+    /// Step base quantums.
+    pub step_base_quantums: u64,
+    /// Subticks per tick.
+    pub subticks_per_tick: u32,
+    /// Market type.
+    pub market_type: PerpetualMarketType,
+    /// Open interest lower capitalization.
+    pub open_interest_lower_cap: Option<BigDecimal>,
+    /// Open interest upper capitalization.
+    pub open_interest_upper_cap: Option<BigDecimal>,
+    /// Base open interest.
+    pub base_open_interest: BigDecimal,
+    /// Default funding rate 1H.
+    #[serde(rename = "defaultFundingRate1H")]
+    pub default_funding_rate_1h: Option<BigDecimal>,
 }
 
 impl PerpetualMarket {
@@ -1062,6 +1100,7 @@ impl PerpetualMarket {
 /// Candle response.
 #[derive(Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
+#[cfg_attr(any(test, feature = "strict-serde"), serde(deny_unknown_fields))]
 pub struct CandleResponse {
     /// List of candles.
     pub candles: Vec<CandleResponseObject>,
@@ -1070,34 +1109,40 @@ pub struct CandleResponse {
 /// Candle response.
 #[derive(Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
+#[cfg_attr(any(test, feature = "strict-serde"), serde(deny_unknown_fields))]
 pub struct CandleResponseObject {
-    /// Market ticker.
-    pub ticker: Ticker,
-    /// Number of trades.
-    pub trades: u64,
     /// Time(UTC).
     pub started_at: DateTime<Utc>,
-    /// Base token volume.
-    pub base_token_volume: Quantity,
-    /// Token price at open.
-    pub open: Price,
+    /// Market ticker.
+    pub ticker: Ticker,
+    /// Candle resolution.
+    pub resolution: CandleResolution,
     /// Low price volume.
     pub low: Price,
     /// High price volume.
     pub high: Price,
+    /// Token price at open.
+    pub open: Price,
     /// Token price at close.
     pub close: Price,
-    /// Candle resolution.
-    pub resolution: CandleResolution,
+    /// Base token volume.
+    pub base_token_volume: Quantity,
     /// USD volume.
     pub usd_volume: Quantity,
+    /// Number of trades.
+    pub trades: u64,
     /// Starting open interest.
     pub starting_open_interest: BigDecimal,
+    /// Orderbook mid price open.
+    pub orderbook_mid_price_open: Option<Price>,
+    /// Orderbook mid price close.
+    pub orderbook_mid_price_close: Option<Price>,
 }
 
 /// Block height parsed by Indexer.
 #[derive(Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
+#[cfg_attr(any(test, feature = "strict-serde"), serde(deny_unknown_fields))]
 pub struct HeightResponse {
     /// Block height.
     pub height: Height,

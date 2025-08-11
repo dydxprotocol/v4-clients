@@ -181,5 +181,32 @@ async def test_account():
     except Exception as e:
         print(f"Error: {e}")
 
+    try:
+        address = "dydx14zzueazeh0hj67cghhf9jypslcf9sh2n5k6art"
+        user_name = "NoisyPlumPOX"
+        search_params = [address, user_name]
+        for search_param in search_params:
+            response = await indexer.account.search_traders(search_param)
+            if response and response["result"]:
+                print(f"Address: {response['result']['address']}")
+                print(f"Subaccount id: {response['result']['subaccountId']}")
+                print(f"username: {response['result']['username']}")
+    except Exception as e:
+        print(f"Error: {e}")
+
+    try:
+        response = await indexer.account.get_funding_payments(test_address, 0, limit=10)
+        print(f"Funding payments: {response['fundingPayments']}")
+    except Exception as e:
+        print(f"Error: {e}")
+
+    try:
+        response = await indexer.account.get_funding_payments_for_parent_subaccount(
+            test_address, 0, limit=10
+        )
+        print(f"Funding payments for parent subaccount: {response['fundingPayments']}")
+    except Exception as e:
+        print(f"Error: {e}")
+
 
 asyncio.run(test_account())

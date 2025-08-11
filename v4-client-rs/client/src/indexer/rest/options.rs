@@ -90,6 +90,8 @@ pub struct GetFundingPaymentsOpts {
     pub after_or_at: Option<DateTime<Utc>>,
     /// Page.
     pub page: Option<u32>,
+    /// Show zero funding payments.
+    pub zero_payments: Option<bool>,
 }
 
 /// Filter options for transfers between subaccounts.

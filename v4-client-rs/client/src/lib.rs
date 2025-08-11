@@ -1,6 +1,6 @@
 //! [dYdX](https://dydx.trade/) v4 asynchronous client.
 //!
-//! [dYdX v4 architecture](https://docs.dydx.exchange/concepts-architecture/architectural_overview)
+//! [dYdX v4 architecture](https://docs.dydx.xyz/concepts/architecture/overview)
 //! introduces nodes and the indexer for read-write and read-only operations accordingly.
 //! Multiple entrypoints to the system are reflected in the client interface to allow for a highly customized use.
 //!

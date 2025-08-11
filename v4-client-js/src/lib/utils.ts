@@ -1,3 +1,6 @@
+import { AxiosProxyConfig } from 'axios';
+import { HttpsProxyAgent } from 'https-proxy-agent';
+
 import { MAX_UINT_32 } from '../clients/constants';
 
 /**
@@ -73,4 +76,9 @@ export function calculateClockOffsetFromFetchDateHeader(
   const offset = serverReportedTime - estimatedLocalTimeAtServerArrival;
 
   return Math.floor(offset);
+}
+
+export function getProxyAgent(proxy: AxiosProxyConfig): HttpsProxyAgent<string> {
+  const auth = proxy.auth ? `${proxy.auth.username}:${proxy.auth.password}@` : '';
+  return new HttpsProxyAgent(`${proxy.protocol}://${auth}${proxy.host}:${proxy.port}`);
 }

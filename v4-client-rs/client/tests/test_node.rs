@@ -83,6 +83,8 @@ async fn test_node_order_generator() -> Result<(), Error> {
         condition_type: ConditionType::Unspecified.into(),
         conditional_order_trigger_subticks: 0u64,
         good_til_oneof: Some(order::GoodTilOneof::GoodTilBlock(until_height.0)),
+        builder_code_parameters: None,
+        twap_parameters: None,
     };
 
     // Conditional stop market order
@@ -116,6 +118,8 @@ async fn test_node_order_generator() -> Result<(), Error> {
         good_til_oneof: Some(order::GoodTilOneof::GoodTilBlockTime(
             until_time.timestamp().try_into().unwrap(),
         )),
+        builder_code_parameters: None,
+        twap_parameters: None,
     };
 
     // Long-term limit order
@@ -147,6 +151,8 @@ async fn test_node_order_generator() -> Result<(), Error> {
         good_til_oneof: Some(order::GoodTilOneof::GoodTilBlockTime(
             until_time.timestamp().try_into().unwrap(),
         )),
+        builder_code_parameters: None,
+        twap_parameters: None,
     };
 
     assert_eq!(order_ms.1, order_ms_r);

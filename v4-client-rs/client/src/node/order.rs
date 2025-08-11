@@ -14,7 +14,7 @@ use dydx_proto::dydxprotocol::{
     clob::{
         msg_cancel_order,
         order::{self, ConditionType},
-        Order,
+        BuilderCodeParameters, Order, TwapParameters,
     },
     subaccounts::SubaccountId,
 };
@@ -27,7 +27,7 @@ pub const SHORT_TERM_ORDER_MAXIMUM_LIFETIME: u32 = 20;
 /// Value used to identify the Rust client.
 pub const DEFAULT_RUST_CLIENT_METADATA: u32 = 4;
 
-/// Order [expirations](https://docs.dydx.exchange/api_integration-trading/short_term_vs_stateful).
+/// Order [expirations](https://docs.dydx.xyz/concepts/trading/orders#comparison).
 #[derive(From, Clone, Debug)]
 pub enum OrderGoodUntil {
     /// Block expiratin is used for short-term orders.
@@ -144,7 +144,7 @@ impl From<PerpetualMarket> for OrderMarketParams {
 /// Note that the price input to the `OrderBuilder` is in the "common" units of the perpetual/currency, not the quantized/atomic value.
 ///
 /// Two main classes of orders in dYdX from persistence perspective are
-/// [short-term and long-term (stateful) orders](https://docs.dydx.exchange/api_integration-trading/short_term_vs_stateful).
+/// [short-term and long-term (stateful) orders](https://docs.dydx.xyz/concepts/trading/orders#short-term-vs-long-term).
 ///
 /// For different types of orders
 /// see also [Stop-Limit Versus Stop-Loss](https://dydx.exchange/crypto-learning/stop-limit-versus-stop-loss) and
@@ -166,6 +166,8 @@ pub struct OrderBuilder {
     execution: Option<OrderExecution>,
     trigger_price: Option<Price>,
     slippage: BigDecimal,
+    builder_code_parameters: Option<BuilderCodeParameters>,
+    twap_parameters: Option<TwapParameters>,
 }
 
 impl OrderBuilder {
@@ -186,6 +188,8 @@ impl OrderBuilder {
             execution: None,
             trigger_price: None,
             slippage: BigDecimal::new(5.into(), 2),
+            builder_code_parameters: None,
+            twap_parameters: None,
         }
     }
 
@@ -325,7 +329,7 @@ impl OrderBuilder {
         self
     }
 
-    /// Set [time execution options](https://docs.dydx.exchange/api_integration-trading/order_types#time-in-force).
+    /// Set [time execution options](https://docs.dydx.xyz/types/time_in_force#time-in-force).
     ///
     /// Basically, it places of the order in the range between being
     /// a Taker order and a Maker order.
@@ -338,7 +342,7 @@ impl OrderBuilder {
         self
     }
 
-    /// Set an order as [reduce-only](https://docs.dydx.exchange/api_integration-trading/order_types#reduce-only-order-ro).
+    /// Set an order as [reduce-only](https://docs.dydx.xyz/concepts/trading/orders#types).
     pub fn reduce_only(mut self, reduce: impl Into<bool>) -> Self {
         self.reduce_only = Some(reduce.into());
         self
@@ -369,6 +373,21 @@ impl OrderBuilder {
         self
     }
 
+    /// Set builder code parameters.
+    pub fn builder_code_parameters(
+        mut self,
+        builder_code_parameters: impl Into<BuilderCodeParameters>,
+    ) -> Self {
+        self.builder_code_parameters = Some(builder_code_parameters.into());
+        self
+    }
+
+    /// Set TWAP parameters.
+    pub fn twap_parameters(mut self, twap_parameters: impl Into<TwapParameters>) -> Self {
+        self.twap_parameters = Some(twap_parameters.into());
+        self
+    }
+
     /// Update the generator's market.
     ///
     /// Note that at the moment dYdX [doesn't support](https://dydx.exchange/faq) spot trading.
@@ -384,7 +403,7 @@ impl OrderBuilder {
     /* Builder */
     /// Build an [`Order`] and a corresponding [`OrderId`].
     ///
-    /// `client_id` [impacts](https://docs.dydx.exchange/api_integration-clients/validator_client#replacing-an-order) an order id.
+    /// `client_id` [impacts](https://docs.dydx.xyz/concepts/trading/limit-orderbook#replacements) an order id.
     /// So it is important to provide its uniqueness as otherwise some orders may overwrite others.
     pub fn build(self, client_id: impl Into<ClientId>) -> Result<(OrderId, Order), Error> {
         let side = self
@@ -448,6 +467,8 @@ impl OrderBuilder {
             condition_type: ty.condition_type()?.into(),
             conditional_order_trigger_subticks,
             good_til_oneof: Some(until.clone().try_into()?),
+            builder_code_parameters: self.builder_code_parameters.clone(),
+            twap_parameters: self.twap_parameters,
         };
 
         Ok((order_id, order))
@@ -528,7 +549,7 @@ impl OrderType {
         }
     }
 
-    /// Get [the condition type](https://docs.dydx.exchange/api_integration-trading/order_types#condition-types) for the order.
+    /// Get [the condition type](https://docs.dydx.xyz/concepts/trading/orders#types) for the order.
     pub fn condition_type(&self) -> Result<ConditionType, Error> {
         match self {
             OrderType::Limit | OrderType::Market => Ok(ConditionType::Unspecified),
@@ -548,7 +569,7 @@ mod tests {
     fn sample_market_params() -> OrderMarketParams {
         PerpetualMarket {
             ticker: Ticker::from("BTC-USD"),
-
+            default_funding_rate_1h: Default::default(),
             atomic_resolution: -10,
             clob_pair_id: ClobPairId(0),
             market_type: PerpetualMarketType::Cross,

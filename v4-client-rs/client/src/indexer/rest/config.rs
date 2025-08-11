@@ -5,6 +5,6 @@ use serde::{Deserialize, Serialize};
 pub struct RestConfig {
     /// REST endpoint.
     ///
-    /// You can select REST endpoints from [the list](https://docs.dydx.exchange/infrastructure_providers-network/resources#indexer-endpoints).
+    /// You can select REST endpoints from [the list](https://docs.dydx.xyz/nodes/resources#resources).
     pub endpoint: String,
 }

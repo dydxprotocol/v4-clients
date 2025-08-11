@@ -380,6 +380,7 @@ async fn test_indexer_account_search_trader() -> Result<()> {
             SubaccountId(SUBACCOUNT_ID.to_string())
         );
     }
+
     Ok(())
 }
 
@@ -400,5 +401,6 @@ async fn test_indexer_account_get_funding_payments_for_parent_subaccount() -> Re
         .accounts()
         .get_funding_payments_for_parent_subaccount(&env.subaccount.parent(), None)
         .await?;
+
     Ok(())
 }
