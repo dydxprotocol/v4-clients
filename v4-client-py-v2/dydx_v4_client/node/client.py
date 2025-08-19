@@ -1233,18 +1233,14 @@ class NodeClient(MutatingNodeClient):
         return await self.send_message(wallet=wallet, message=msg)
 
     async def close_position(
-        self,
-        wallet: Wallet,
-        address: str,
-        subaccount_number: int,
-        market: Market,
-        client_id: int,
-        reduce_by: Optional[Decimal],
-<<<<<<< HEAD
-        slippage_pct: float = 10,
-=======
-        client_id: int,
->>>>>>> 007cd8d (fix: Reformat)
+            self,
+            wallet: Wallet,
+            address: str,
+            subaccount_number: int,
+            market: Market,
+            client_id: int,
+            reduce_by: Optional[Decimal],
+            slippage_pct: float = 10,
     ) -> Any:
         """
         Close position for a given market.
@@ -1262,7 +1258,6 @@ class NodeClient(MutatingNodeClient):
             Any: The close position response
         """
         subaccount = await self.get_subaccount(address, 0)
-<<<<<<< HEAD
         quantum_value = None
         order_side = None
         price = None
@@ -1275,13 +1270,13 @@ class NodeClient(MutatingNodeClient):
                     if int(pos.quantums[0]) == 2:
                         order_side = Order.Side.SIDE_SELL
                         price = float(market.market["oraclePrice"]) * (
-                            (100 - slippage_pct) / 100.0
+                                (100 - slippage_pct) / 100.0
                         )
 
                     else:
                         order_side = Order.Side.SIDE_BUY
                         price = float(market.market["oraclePrice"]) * (
-                            (100 + slippage_pct) / 100.0
+                                (100 + slippage_pct) / 100.0
                         )
         except Exception as e:
             raise e
@@ -1295,33 +1290,6 @@ class NodeClient(MutatingNodeClient):
         order_id = market.order_id(
             address, subaccount_number, client_id, OrderFlags.SHORT_TERM
         )
-        print(f"Subaccount: {subaccount}")
-=======
->>>>>>> 87f770a (feat: Added example)
-        quantum_value = None
-        order_side = None
-        try:
-            for pos in subaccount.perpetual_positions:
-                if pos.perpetual_id == int(market.market["clobPairId"]):
-                    quantum_value = int.from_bytes(
-                        pos.quantums[1:], byteorder="big", signed=False
-                    )
-                    if pos.quantums[0] == b"0x02":
-                        order_side = OrderSide.SELL
-                    else:
-                        order_side = OrderSide.BUY
-        except Exception as e:
-            raise e
-
-        if quantum_value is None:
-            return
-
-        order_size = quantum_value / 10 ** (-market.market["atomicResolution"])
-        if reduce_by is not None:
-            order_size -= reduce_by
-        order_id = market.order_id(
-            address, subaccount_number, client_id, OrderFlags.SHORT_TERM
-        )
         current_height = await self.latest_block_height()
         new_order = market.order(
             order_id=order_id,
@@ -1329,18 +1297,8 @@ class NodeClient(MutatingNodeClient):
             time_in_force=None,
             side=order_side,
             size=order_size,
-<<<<<<< HEAD
             price=price,
             reduce_only=True,
             good_til_block=current_height + 20,
-=======
-            price=0,
-            reduce_only=False,
-<<<<<<< HEAD
-            good_til_block=current_height + 10,
->>>>>>> 007cd8d (fix: Reformat)
-=======
-            good_til_block=current_height + 20
->>>>>>> 9ab5a5c (Updated close_position example)
         )
         return await self.place_order(wallet, new_order)
