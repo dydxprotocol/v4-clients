@@ -1320,7 +1320,7 @@ class NodeClient(MutatingNodeClient):
         if reduce_by is not None:
             order_size -= reduce_by
         order_id = market.order_id(
-            address, subaccount_number, client_id, OrderFlags.LONG_TERM
+            address, subaccount_number, client_id, OrderFlags.SHORT_TERM
         )
         current_height = await self.latest_block_height()
         new_order = market.order(
@@ -1336,7 +1336,11 @@ class NodeClient(MutatingNodeClient):
 =======
             price=0,
             reduce_only=False,
+<<<<<<< HEAD
             good_til_block=current_height + 10,
 >>>>>>> 007cd8d (fix: Reformat)
+=======
+            good_til_block=current_height + 20
+>>>>>>> 9ab5a5c (Updated close_position example)
         )
         return await self.place_order(wallet, new_order)
