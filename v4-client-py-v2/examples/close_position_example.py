@@ -28,8 +28,7 @@ async def close_position_example(size: float):
     )
 
     order_id = market.order_id(
-        TEST_ADDRESS, 0, random.randint(0, MAX_CLIENT_ID),
-        OrderFlags.SHORT_TERM
+        TEST_ADDRESS, 0, random.randint(0, MAX_CLIENT_ID), OrderFlags.SHORT_TERM
     )
 
     current_block = await node.latest_block_height()
