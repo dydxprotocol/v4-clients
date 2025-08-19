@@ -1280,6 +1280,6 @@ class NodeClient(MutatingNodeClient):
             size=order_size,
             price=0,
             reduce_only=False,
-            good_til_block=current_height + 20
+            good_til_block=current_height + 20,
         )
         return await self.place_order(wallet, new_order)
