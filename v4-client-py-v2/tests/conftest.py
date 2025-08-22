@@ -118,6 +118,7 @@ def test_order(test_order_id) -> Order:
         quantums=10000000,
         subticks=40000000000,
         good_til_block_time=int(time.time() + 60),
+        builder_code_parameters=None
     )
 
 

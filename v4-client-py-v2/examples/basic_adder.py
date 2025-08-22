@@ -183,6 +183,7 @@ class BasicAdder:
             time_in_force=time_in_force,
             reduce_only=False,
             good_til_block=current_block + 10,
+            builder_code_parameters=None
         )
 
         transaction = await self.node_client.place_order(
