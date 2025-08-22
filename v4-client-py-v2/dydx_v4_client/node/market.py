@@ -1,8 +1,9 @@
 import math
 from dataclasses import dataclass
 from datetime import datetime, timedelta
+from typing import Optional
 
-from v4_proto.dydxprotocol.clob.order_pb2 import Order, OrderId
+from v4_proto.dydxprotocol.clob.order_pb2 import Order, OrderId, BuilderCodeParameters
 
 from dydx_v4_client.indexer.rest.constants import OrderType, OrderExecution
 from dydx_v4_client.node.chain_helpers import OrderHelper
@@ -63,6 +64,7 @@ class Market:
         price: int,
         time_in_force: Order.TimeInForce,
         reduce_only: bool,
+        builder_code_parameters: Optional[BuilderCodeParameters] = None,
         post_only: bool = False,
         good_til_block: int = None,
         good_til_block_time: int = None,
@@ -91,4 +93,5 @@ class Market:
             client_metadata=client_metadata,
             condition_type=condition_type,
             conditional_order_trigger_subticks=conditional_order_trigger_subticks,
+            builder_code_parameters=builder_code_parameters,
         )
