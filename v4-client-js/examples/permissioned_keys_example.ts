@@ -1,5 +1,3 @@
-import { TextEncoder } from 'util';
-
 import { toBase64 } from '@cosmjs/encoding';
 import { Order_TimeInForce } from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/clob/order';
 
@@ -28,14 +26,14 @@ async function test(): Promise<void> {
 
   // Change second wallet pubkey
   // Add an authenticator to allow wallet2 to place orders
-  console.log("** Adding authenticator **");
+  console.log('** Adding authenticator **');
   // Record authenticator count before adding
   const authsBefore = await client.getAuthenticators(wallet1.address!);
   const beforeCount = authsBefore.accountAuthenticators.length;
   console.log(`Authenticators before: ${beforeCount}`);
   await addTestAuthenticator(client, subaccount1, wallet2.pubKey!.value);
 
-  console.log("** Waiting 3 seconds for txn to be confirmed **");
+  console.log('** Waiting 3 seconds for txn to be confirmed **');
   await new Promise((resolve) => setTimeout(resolve, 3000));
 
   const authsAfter = await client.getAuthenticators(wallet1.address!);
@@ -54,22 +52,24 @@ async function test(): Promise<void> {
   console.log(`New authenticator ID: ${newAuthenticatorID}`);
 
   // Placing order using subaccount2 for subaccount1 succeeds
-  console.log("** Placing order for subaccount1 with subaccount2 + authenticator, should succeed **");
+  console.log(
+    '** Placing order for subaccount1 with subaccount2 + authenticator, should succeed **',
+  );
   await placeOrder(client, subaccount2, subaccount1, newAuthenticatorID);
 
   // Placing order using subaccount3 for subaccount1 should fail
-  console.log("** Placing order for subaccount1 with subaccount3 + authenticator, should fail **");
+  console.log('** Placing order for subaccount1 with subaccount3 + authenticator, should fail **');
   await placeOrder(client, subaccount3, subaccount1, newAuthenticatorID);
 
   // Remove authenticator
-  console.log("** Removing authenticator **");
+  console.log('** Removing authenticator **');
   await removeAuthenticator(client, subaccount1, newAuthenticatorID);
 
-  console.log("** Waiting 3 seconds for txn to be confirmed **");
+  console.log('** Waiting 3 seconds for txn to be confirmed **');
   await new Promise((resolve) => setTimeout(resolve, 3000));
-  
+
   // Placing an order using subaccount2 will now fail
-  console.log("** Placing order with removed authenticator should fail **");
+  console.log('** Placing order with removed authenticator should fail **');
   await placeOrder(client, subaccount2, subaccount1, newAuthenticatorID);
 }
 
