@@ -1,4 +1,4 @@
-import asyncio
+import time
 
 from google.protobuf.message import Message
 
@@ -54,7 +54,7 @@ def test_place_order_serialization(test_address):
         builder_code_parameters=None,
     )
     assert_serializes_properly(place_order(test_order), SERIALIZED_PLACE_ORDER)
-    await asyncio.sleep(5)
+    time.sleep(5)
 
 
 def test_cancel_order_serialization():
