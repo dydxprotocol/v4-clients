@@ -1,3 +1,5 @@
+import asyncio
+
 from google.protobuf.message import Message
 
 from dydx_v4_client.node.message import (
@@ -49,9 +51,10 @@ def test_place_order_serialization(test_address):
         quantums=10000000,
         subticks=40000000000,
         good_til_block_time=GOOD_TIL_BLOCK_TIME,
-        builder_code_parameters=None
+        builder_code_parameters=None,
     )
     assert_serializes_properly(place_order(test_order), SERIALIZED_PLACE_ORDER)
+    await asyncio.sleep(5)
 
 
 def test_cancel_order_serialization():
