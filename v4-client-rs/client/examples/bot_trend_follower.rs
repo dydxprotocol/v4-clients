@@ -79,7 +79,7 @@ impl TrendFollower {
         let ticker = Ticker::from("ETH-USD");
         let market = indexer
             .markets()
-            .list_perpetual_markets(Some(ListPerpetualMarketsOpts {
+            .get_perpetual_markets(Some(ListPerpetualMarketsOpts {
                 ticker: Some(ticker.clone()),
                 limit: None,
             }))
@@ -285,7 +285,7 @@ impl TrendFollower {
     }
 
     async fn place_limit_order(&mut self, side: OrderSide, price: Price) -> Result<OrderId> {
-        let current_block = self.client.get_latest_block_height().await?;
+        let current_block = self.client.latest_block_height().await?;
         let (id, order) = self
             .generator
             .clone()
@@ -299,7 +299,7 @@ impl TrendFollower {
     }
 
     async fn _cancel_order(&mut self, id: OrderId) -> Result<()> {
-        let current_block = self.client.get_latest_block_height().await?;
+        let current_block = self.client.latest_block_height().await?;
         let until = current_block.ahead(10);
         let c_id = id.client_id;
         let hash = self
@@ -356,7 +356,7 @@ async fn calculate_channel(
     };
     let candles = indexer
         .markets()
-        .get_candles(ticker, CandleResolution::M1, Some(opts))
+        .get_perpetual_market_candles(ticker, CandleResolution::M1, Some(opts))
         .await?;
     if candles.is_empty() {
         return Err(err!("Candles response is empty"));

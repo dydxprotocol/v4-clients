@@ -35,10 +35,10 @@ async fn main() -> Result<()> {
     let height = indexer.utility().get_height().await?;
     tracing::info!("Height: {height:?}");
 
-    let screen = indexer.utility().get_screen(address).await?;
+    let screen = indexer.utility().screen(address).await?;
     tracing::info!("Screen for address {address}: {screen:?}");
 
-    let compliance_screen = indexer.utility().get_compliance_screen(address).await?;
+    let compliance_screen = indexer.utility().compliance_screen(address).await?;
     tracing::info!("Compliance screen for address {address}: {compliance_screen:?}");
 
     Ok(())

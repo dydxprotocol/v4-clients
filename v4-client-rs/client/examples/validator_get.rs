@@ -53,10 +53,10 @@ async fn main() -> Result<()> {
         version.unwrap_or("unknown".into())
     );
 
-    let block = getter.client.get_latest_block().await?;
+    let block = getter.client.latest_block().await?;
     tracing::info!("Get latest block: {block:?}");
 
-    let height = getter.client.get_latest_block_height().await?;
+    let height = getter.client.latest_block_height().await?;
     tracing::info!("Get latest block height: {height:?}");
 
     let stats = getter.client.get_user_stats(&address).await?;
@@ -89,7 +89,7 @@ async fn main() -> Result<()> {
     let perpetuals = getter.client.get_perpetuals(None).await?;
     tracing::info!("Get perpetuals: {perpetuals:?}");
 
-    let equity_tier_limit = getter.client.get_equity_tier_limit_config().await?;
+    let equity_tier_limit = getter.client.get_equity_tier_limit_configuration().await?;
     tracing::info!("Get equity tier limit config: {equity_tier_limit:?}");
 
     let delegations = getter
@@ -119,12 +119,12 @@ async fn main() -> Result<()> {
     let reward_params = getter.client.get_rewards_params().await?;
     tracing::info!("Get reward params: {reward_params:?}");
 
-    let withdrawal_and_transfers_blocked_info = getter
+    let get_withdrawal_and_transfer_gating_status = getter
         .client
-        .withdrawal_and_transfers_blocked_info(ETH_USD_PAIR_ID)
+        .get_withdrawal_and_transfer_gating_status(ETH_USD_PAIR_ID)
         .await?;
     tracing::info!(
-        "Get withdrawal and transfers blocked info: {withdrawal_and_transfers_blocked_info:?}"
+        "Get withdrawal and transfer gating status: {get_withdrawal_and_transfer_gating_status:?}"
     );
 
     let rewards_params: QueryCapacityByDenomResponse = getter
@@ -138,8 +138,11 @@ async fn main() -> Result<()> {
         .await?;
     tracing::info!("Capacity by denom request (using send_query): {rewards_params:?}");
 
-    let capacity_by_denom = getter.client.capacity_by_denom("adv4tnt".parse()?).await?;
-    tracing::info!("Get capacity by denom: {capacity_by_denom:?}");
+    let get_withdrawal_capacity_by_denom = getter
+        .client
+        .get_withdrawal_capacity_by_denom("adv4tnt".parse()?)
+        .await?;
+    tracing::info!("Get withdrawal capacity by denom: {get_withdrawal_capacity_by_denom:?}");
 
     let affiliate_info = getter.client.get_affiliate_info(&address).await?;
     tracing::info!("Get affiliate info: {affiliate_info:?}");

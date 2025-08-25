@@ -48,10 +48,10 @@ async fn test_node_get_node_info() -> Result<()> {
 }
 
 #[tokio::test]
-async fn test_node_get_latest_block() -> Result<()> {
+async fn test_node_latest_block_height() -> Result<()> {
     let mut node = TestEnv::testnet().await?.node;
 
-    let height = node.get_latest_block_height().await?.0;
+    let height = node.latest_block_height().await?.0;
     assert!(height > 18_476_624);
     Ok(())
 }
@@ -154,10 +154,10 @@ async fn test_node_get_perpetuals() -> Result<()> {
 }
 
 #[tokio::test]
-async fn test_node_get_equity_tier_limit_config() -> Result<()> {
+async fn test_node_get_equity_tier_limit_configuration() -> Result<()> {
     let mut node = TestEnv::testnet().await?.node;
 
-    let config = node.get_equity_tier_limit_config().await?;
+    let config = node.get_equity_tier_limit_configuration().await?;
     assert!(
         config.stateful_order_equity_tiers.len() + config.short_term_order_equity_tiers.len() > 0
     );

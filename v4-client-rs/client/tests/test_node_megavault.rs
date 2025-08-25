@@ -6,14 +6,17 @@ use serial_test::serial;
 
 #[tokio::test]
 #[serial]
-async fn test_node_megavault_deposit() -> Result<(), Error> {
+async fn test_node_megavault_deposit_to_megavault() -> Result<(), Error> {
     let env = TestEnv::testnet().await?;
     let mut node = env.node;
     let mut account = env.account;
 
     let subaccount = account.subaccount(0)?;
 
-    let tx_res = node.megavault().deposit(&mut account, subaccount, 1).await;
+    let tx_res = node
+        .megavault()
+        .deposit_to_megavault(&mut account, subaccount, 1)
+        .await;
     node.query_transaction_result(tx_res).await?;
 
     Ok(())
