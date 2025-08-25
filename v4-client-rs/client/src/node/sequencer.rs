@@ -43,7 +43,6 @@ pub trait Sequencer: Send + 'static {
 
 /// A simple incremental sequencer.
 /// An internal counter is increased in every `next_nonce()` call.
-#[allow(dead_code)] // TODO remove after completion
 #[derive(Clone, Debug)]
 pub struct IncrementalSequencer {
     counters: HashMap<Address, u64>,
@@ -51,7 +50,6 @@ pub struct IncrementalSequencer {
 
 impl IncrementalSequencer {
     /// Add relevant `Address`es and respective starting counter values
-    #[allow(dead_code)] // TODO remove after completion
     pub fn new(addresses: &[(Address, u64)]) -> Self {
         Self {
             counters: addresses.iter().cloned().collect(),
@@ -59,7 +57,6 @@ impl IncrementalSequencer {
     }
 
     /// Adds an `Address` with a starting counter value to the sequencer
-    #[allow(dead_code)] // TODO remove after completion
     pub fn add_address(&mut self, address: Address, start_at: u64) -> Option<u64> {
         self.counters.insert(address, start_at)
     }
@@ -78,7 +75,6 @@ impl Sequencer for IncrementalSequencer {
 }
 
 /// A sequencer which fetches the next sequence number from the network.
-#[allow(dead_code)] // TODO remove after completion
 #[derive(Clone, Debug)]
 pub struct QueryingSequencer {
     querier: QueryGrpcClient<Timeout<Channel>>,
@@ -86,7 +82,6 @@ pub struct QueryingSequencer {
 
 impl QueryingSequencer {
     /// Creates a new `QueryingSequencer` using a gRPC [`Channel`].
-    #[allow(dead_code)] // TODO remove after completion
     pub fn new(channel: Timeout<Channel>) -> Self {
         Self {
             querier: QueryGrpcClient::new(channel),
@@ -118,7 +113,6 @@ impl Sequencer for QueryingSequencer {
 }
 
 /// A sequencer which uses a current timestamp as a sequence number.
-#[allow(dead_code)] // TODO remove after completion
 #[derive(Clone, Debug)]
 pub struct TimestamperSequencer;
 
