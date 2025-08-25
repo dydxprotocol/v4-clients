@@ -248,3 +248,7 @@ def withdraw_from_megavault(
         min_quote_quantums=min_quantums,
         shares=NumShares(num_shares=num_shares),
     )
+
+
+def builder_code_parameters(builder_address: str, fee_ppm: int):
+    return BuilderCodeParameters(builder_address=builder_address, fee_ppm=fee_ppm)
