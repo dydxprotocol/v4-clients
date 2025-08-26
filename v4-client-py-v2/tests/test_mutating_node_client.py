@@ -1,14 +1,17 @@
 import random
 import time
+import json
 
 import grpc
 import pytest
 import asyncio
 
+from dydx_v4_client import MAX_CLIENT_ID, OrderFlags
+from dydx_v4_client.indexer.rest.constants import OrderType, OrderSide
 from dydx_v4_client.node.market import Market
 from dydx_v4_client.node.message import subaccount, send_token
 from tests.conftest import get_wallet, assert_successful_broadcast
-
+from v4_proto.dydxprotocol.clob.order_pb2 import Order
 
 REQUEST_PROCESSING_TIME = 5
 
@@ -257,14 +260,75 @@ async def test_register_affiliate(node_client, wallet, test_address, recipient):
 
 
 @pytest.mark.asyncio
-async def test_close_position(node_client, wallet, test_address, indexer_rest_client):
+async def test_close_position_short_term(node_client, wallet, test_address, indexer_rest_client):
     MARKET_ID = "ETH-USD"
     market = Market(
-        (await indexer_rest_client.markets.get_perpetual_markets(MARKET_ID))["markets"][
-            MARKET_ID
-        ]
+        (await indexer_rest_client.markets.get_perpetual_markets(MARKET_ID))["markets"][MARKET_ID]
     )
+
+    order_id = market.order_id(
+        test_address, 0, random.randint(0, MAX_CLIENT_ID), OrderFlags.SHORT_TERM
+    )
+
+    size_before_placing_order=await get_current_order_size(node_client, test_address, market)
+
+    current_block = await node_client.latest_block_height()
+
+    new_order = market.order(
+        order_id=order_id,
+        order_type=OrderType.MARKET,
+        side=Order.Side.SIDE_SELL,
+        size=0.001,
+        price=0,
+        # Recommend set to oracle price - 5% or lower for SELL, oracle price + 5% for BUY
+        time_in_force=Order.TimeInForce.TIME_IN_FORCE_UNSPECIFIED,
+        reduce_only=False,
+        good_til_block=current_block + 20,
+    )
+
+    transaction = await node_client.place_order(
+        wallet=wallet,
+        order=new_order,
+    )
+
+    wallet.sequence += 1
+
+    await asyncio.sleep(5)
+
+    query_response = await node_client.query_transaction(transaction.tx_response.txhash)
+    print(f"query_response: {query_response}")
+
+    size_after_placing_order = await get_current_order_size(node_client, test_address, market)
+
+    print(f"Look:{size_before_placing_order}, {size_after_placing_order}")
+
     response = await node_client.close_position(
-        wallet, test_address, 0, market, None, random.randint(0, 1000000000)
+        wallet=wallet,
+        address=test_address,
+        subaccount_number=0,
+        market=market,
+        reduce_by=0.001,
+        client_id=random.randint(0, 1000000000)
     )
     print(response)
+    await asyncio.sleep(10)
+    size_after_closing = await get_current_order_size(node_client, test_address, market)
+    print(f"Look:{size_before_placing_order}, {size_after_placing_order}, {size_after_closing}")
+
+
+async def get_current_order_size(node_client, test_address, market):
+    subaccount = await node_client.get_subaccount(test_address, 0)
+    quantum_value = None
+    try:
+        for pos in subaccount.perpetual_positions:
+            if pos.perpetual_id == int(market.market["clobPairId"]):
+                quantum_value = int.from_bytes(
+                    pos.quantums[1:], byteorder="big", signed=False
+                )
+    except Exception as e:
+        raise e
+
+    if quantum_value is None:
+        return 0.0
+    order_size = quantum_value / 10 ** (-market.market["atomicResolution"])
+    return order_size
