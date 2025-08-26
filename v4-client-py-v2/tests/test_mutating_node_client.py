@@ -2,7 +2,6 @@ import random
 import time
 import random
 import json
-
 import grpc
 import pytest
 import asyncio
@@ -294,7 +293,6 @@ async def test_register_affiliate(node_client, wallet, test_address, recipient):
     except Exception as e:
         assert "Affiliate already exists for referee" in str(e)
 
-
 @pytest.mark.asyncio
 async def test_place_order_with_builder_code(
     node_client, indexer_rest_client, test_order_id, test_address, wallet
@@ -327,6 +325,7 @@ async def test_place_order_with_builder_code(
     )
 
     assert fills["fills"][0]["builderAddress"] == test_address
+
 
 @pytest.mark.asyncio
 async def test_close_position_sell_no_reduce_by(
