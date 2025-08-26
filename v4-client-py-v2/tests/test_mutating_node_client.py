@@ -1,7 +1,6 @@
 import random
 import time
 import json
-
 import grpc
 import pytest
 import asyncio
@@ -265,9 +264,9 @@ async def test_close_position_short_term(node_client, wallet, test_address, inde
     market = Market(
         (await indexer_rest_client.markets.get_perpetual_markets(MARKET_ID))["markets"][MARKET_ID]
     )
-
+    client_id_place_order = random.randint(0, MAX_CLIENT_ID)
     order_id = market.order_id(
-        test_address, 0, random.randint(0, MAX_CLIENT_ID), OrderFlags.SHORT_TERM
+        test_address, 0, client_id_place_order, OrderFlags.LONG_TERM
     )
 
     size_before_placing_order=await get_current_order_size(node_client, test_address, market)
@@ -293,14 +292,17 @@ async def test_close_position_short_term(node_client, wallet, test_address, inde
 
     wallet.sequence += 1
 
-    await asyncio.sleep(5)
+    close_position_order = await indexer_rest_client.account.get_subaccount_orders(test_address, 0)
+    for c in close_position_order:
+        if c['clientId'] == client_id_place_order:
+            print(c)
+            return
 
-    query_response = await node_client.query_transaction(transaction.tx_response.txhash)
-    print(f"query_response: {query_response}")
+    await asyncio.sleep(5)
 
     size_after_placing_order = await get_current_order_size(node_client, test_address, market)
 
-    print(f"Look:{size_before_placing_order}, {size_after_placing_order}")
+    client_id = random.randint(0, 1000000000)
 
     response = await node_client.close_position(
         wallet=wallet,
@@ -308,12 +310,10 @@ async def test_close_position_short_term(node_client, wallet, test_address, inde
         subaccount_number=0,
         market=market,
         reduce_by=0.001,
-        client_id=random.randint(0, 1000000000)
+        client_id=client_id
     )
     print(response)
-    await asyncio.sleep(10)
-    size_after_closing = await get_current_order_size(node_client, test_address, market)
-    print(f"Look:{size_before_placing_order}, {size_after_placing_order}, {size_after_closing}")
+    await asyncio.sleep(5)
 
 
 async def get_current_order_size(node_client, test_address, market):
