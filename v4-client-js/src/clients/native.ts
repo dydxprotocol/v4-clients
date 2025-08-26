@@ -275,7 +275,7 @@ export async function isWalletConnected(): Promise<string> {
     if (wallet === undefined) {
       throw new UserError('wallet is not set. Call connectWallet() first');
     }
-    return await encodeJson( { "result": true } );
+    return await encodeJson({ result: true });
   } catch (e) {
     return wrappedError(e);
   }
@@ -333,7 +333,7 @@ export async function placeOrder(payload: string): Promise<string> {
     const marketInfo = (json.marketInfo as MarketInfo) ?? undefined;
     const currentHeight = (json.currentHeight as number) ?? undefined;
 
-    const subaccount = new SubaccountInfo(wallet, subaccountNumber);
+    const subaccount = SubaccountInfo.forLocalWallet(wallet, subaccountNumber);
     const tx = await client.placeOrder(
       subaccount,
       marketId,
@@ -394,7 +394,7 @@ export async function cancelOrder(payload: string): Promise<string> {
     const goodTilBlock = json.goodTilBlock;
     const goodTilBlockTime = json.goodTilBlockTime;
 
-    const subaccount = new SubaccountInfo(wallet, subaccountNumber);
+    const subaccount = SubaccountInfo.forLocalWallet(wallet, subaccountNumber);
     const tx = await client.cancelRawOrder(
       subaccount,
       clientId,
@@ -430,7 +430,7 @@ export async function deposit(payload: string): Promise<string> {
       throw new UserError('amount is not set');
     }
 
-    const subaccount = new SubaccountInfo(wallet, subaccountNumber);
+    const subaccount = SubaccountInfo.forLocalWallet(wallet, subaccountNumber);
     const tx = await client.depositToSubaccount(subaccount, amount);
     return encodeJson(tx);
   } catch (error) {
@@ -459,7 +459,7 @@ export async function withdraw(payload: string): Promise<string> {
       throw new UserError('amount is not set');
     }
 
-    const subaccount = new SubaccountInfo(wallet, subaccountNumber);
+    const subaccount = SubaccountInfo.forLocalWallet(wallet, subaccountNumber);
     const tx = await client.withdrawFromSubaccount(subaccount, amount, json.recipient, json.memo);
     return encodeJson(tx);
   } catch (error) {
@@ -532,7 +532,7 @@ export async function withdrawToIBC(
       },
     };
 
-    const subaccount = new SubaccountInfo(wallet, subaccountNumber);
+    const subaccount = SubaccountInfo.forLocalWallet(wallet, subaccountNumber);
     const subaccountMsg = client.withdrawFromSubaccountMessage(subaccount, amount);
 
     const msgs = [subaccountMsg, ibcMsg];
@@ -669,7 +669,7 @@ export async function simulateDeposit(payload: string): Promise<string> {
       throw new UserError('amount is not set');
     }
 
-    const subaccount = new SubaccountInfo(wallet, subaccountNumber);
+    const subaccount = SubaccountInfo.forLocalWallet(wallet, subaccountNumber);
     const msg: EncodeObject = client.depositToSubaccountMessage(subaccount, amount);
     const msgs: EncodeObject[] = [msg];
     const encodeObjects: Promise<EncodeObject[]> = new Promise((resolve) => resolve(msgs));
@@ -703,7 +703,7 @@ export async function simulateWithdraw(payload: string): Promise<string> {
       throw new UserError('amount is not set');
     }
 
-    const subaccount = new SubaccountInfo(wallet, subaccountNumber);
+    const subaccount = SubaccountInfo.forLocalWallet(wallet, subaccountNumber);
     const msg: EncodeObject = client.withdrawFromSubaccountMessage(
       subaccount,
       amount,
@@ -832,7 +832,7 @@ export async function signPlaceOrder(
       throw new UserError('wallet is not set. Call connectWallet() first');
     }
 
-    const subaccount = new SubaccountInfo(wallet, subaccountNumber);
+    const subaccount = SubaccountInfo.forLocalWallet(wallet, subaccountNumber);
     const signed = await client.signPlaceOrder(
       subaccount,
       marketId,
@@ -871,7 +871,7 @@ export async function signCancelOrder(
       throw new UserError('wallet is not set. Call connectWallet() first');
     }
 
-    const subaccount = new SubaccountInfo(wallet, subaccountNumber);
+    const subaccount = SubaccountInfo.forLocalWallet(wallet, subaccountNumber);
     const signed = await client.signCancelOrder(
       subaccount,
       clientId,
@@ -1129,7 +1129,7 @@ export async function withdrawToNobleIBC(payload: string): Promise<String> {
     const parsedIbcPayload: SquidIBCPayload = JSON.parse(decoded);
 
     const msg = client.withdrawFromSubaccountMessage(
-      new SubaccountInfo(wallet, subaccountNumber),
+      SubaccountInfo.forLocalWallet(wallet, subaccountNumber),
       parseFloat(amount).toFixed(client.validatorClient.config.denoms.USDC_DECIMALS),
     );
     const ibcMsg: MsgTransferEncodeObject = {
@@ -1187,11 +1187,10 @@ export async function cctpWithdraw(squidPayload: string): Promise<String> {
   }
 }
 
-
 export async function cctpMultiMsgWithdraw(cosmosPayload: string): Promise<string> {
   try {
     const client = globalThis.nobleClient;
-    const messages: { typeUrl:string, value: { amount: string } }[] = JSON.parse(cosmosPayload)
+    const messages: { typeUrl: string; value: { amount: string } }[] = JSON.parse(cosmosPayload);
     if (client === undefined || !client.isConnected) {
       throw new UserError('client is not connected.');
     }
@@ -1217,7 +1216,7 @@ export async function cctpMultiMsgWithdraw(cosmosPayload: string): Promise<strin
 
     return encodeJson(tx);
   } catch (error) {
-    return wrappedError(error)
+    return wrappedError(error);
   }
 }
 
@@ -1247,7 +1246,8 @@ export async function getWithdrawalAndTransferGatingStatus(perpetualId: number):
       throw new UserError('client is not connected. Call connectClient() first');
     }
 
-    const response = await client.validatorClient.get.getWithdrawalAndTransferGatingStatus(perpetualId);
+    const response =
+      await client.validatorClient.get.getWithdrawalAndTransferGatingStatus(perpetualId);
     return encodeJson(response);
   } catch (error) {
     return wrappedError(error);
@@ -1285,7 +1285,7 @@ export async function subaccountTransfer(payload: string): Promise<string> {
       throw new UserError('destinationSubaccountNumber is not set');
     }
 
-    const subaccount = new SubaccountInfo(wallet, subaccountNumber);
+    const subaccount = SubaccountInfo.forLocalWallet(wallet, subaccountNumber);
     const tx = await client.transferToSubaccount(
       subaccount,
       destinationAddress,
@@ -1335,7 +1335,9 @@ export async function signCompliancePayload(payload: string): Promise<string> {
   }
 }
 
-export async function signPushNotificationTokenRegistrationPayload(payload: string): Promise<string> {
+export async function signPushNotificationTokenRegistrationPayload(
+  payload: string,
+): Promise<string> {
   try {
     const json = JSON.parse(payload);
     const message = json.message;
@@ -1387,17 +1389,14 @@ export async function getMegavaultOwnerShares(payload: string): Promise<string> 
     if (address === undefined) {
       throw new UserError('address is not set');
     }
-    const response =
-      await globalThis.client?.validatorClient.get.getMegavaultOwnerShares(address);
+    const response = await globalThis.client?.validatorClient.get.getMegavaultOwnerShares(address);
     return encodeJson(parseToPrimitives(response));
   } catch (e) {
     return wrappedError(e);
   }
 }
 
-export async function getMegavaultWithdrawalInfo(
-  sharesToWithdraw: bigint
-): Promise<string> {
+export async function getMegavaultWithdrawalInfo(sharesToWithdraw: bigint): Promise<string> {
   try {
     const client = globalThis.client;
     if (client === undefined) {
@@ -1405,7 +1404,7 @@ export async function getMegavaultWithdrawalInfo(
     }
     const response =
       await globalThis.client?.validatorClient.get.getMegavaultWithdrawalInfo(sharesToWithdraw);
-      return encodeJson(parseToPrimitives(response));
+    return encodeJson(parseToPrimitives(response));
   } catch (e) {
     return wrappedError(e);
   }
@@ -1413,7 +1412,7 @@ export async function getMegavaultWithdrawalInfo(
 
 export async function depositToMegavault(
   subaccountNumber: number,
-  amountUsdc: number
+  amountUsdc: number,
 ): Promise<string> {
   try {
     const client = globalThis.client;
@@ -1424,12 +1423,8 @@ export async function depositToMegavault(
     if (wallet === undefined) {
       throw new UserError('wallet is not set. Call connectWallet() first');
     }
-    const subaccount = new SubaccountInfo(wallet, subaccountNumber);
-    const tx = await client.depositToMegavault(
-      subaccount,
-      amountUsdc,
-      Method.BroadcastTxCommit,
-    );
+    const subaccount = SubaccountInfo.forLocalWallet(wallet, subaccountNumber);
+    const tx = await client.depositToMegavault(subaccount, amountUsdc, Method.BroadcastTxCommit);
     return encodeJson(parseToPrimitives(tx));
   } catch (error) {
     return wrappedError(error);
@@ -1450,7 +1445,7 @@ export async function withdrawFromMegavault(
     if (wallet === undefined) {
       throw new UserError('wallet is not set. Call connectWallet() first');
     }
-    const subaccount = new SubaccountInfo(wallet, subaccountNumber);
+    const subaccount = SubaccountInfo.forLocalWallet(wallet, subaccountNumber);
     const tx = await client.withdrawFromMegavault(
       subaccount,
       shares,

@@ -151,7 +151,7 @@ export class Post {
    * @returns The Signature.
    */
   async sign(
-    wallet: LocalWallet,
+    subaccount: SubaccountInfo,
     messaging: () => Promise<EncodeObject[]>,
     zeroFee: boolean,
     gasPrice: GasPrice = this.getGasPrice(),
@@ -159,10 +159,10 @@ export class Post {
     account?: () => Promise<Account>,
   ): Promise<Uint8Array> {
     const msgsPromise = await messaging();
-    const accountPromise = account ? await account() : this.account(wallet.address!);
+    const accountPromise = account ? await account() : this.account(subaccount.address);
     const msgsAndAccount = await Promise.all([msgsPromise, accountPromise]);
     const msgs = msgsAndAccount[0];
-    return this.signTransaction(wallet, msgs, msgsAndAccount[1], zeroFee, gasPrice, memo);
+    return this.signTransaction(subaccount, msgs, msgsAndAccount[1], zeroFee, gasPrice, memo);
   }
 
   /**
@@ -174,7 +174,7 @@ export class Post {
    * @returns The Tx Hash.
    */
   async send(
-    wallet: LocalWallet,
+    subaccount: SubaccountInfo,
     messaging: () => Promise<EncodeObject[]>,
     zeroFee: boolean,
     gasPrice: GasPrice = this.getGasPrice(),
@@ -182,15 +182,14 @@ export class Post {
     broadcastMode?: BroadcastMode,
     account?: () => Promise<Account>,
     gasAdjustment: number = GAS_MULTIPLIER,
-    authenticators?: Long[],
   ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
     const msgsPromise = messaging();
-    const accountPromise = account ? await account() : this.account(wallet.address!);
+    const accountPromise = account ? await account() : this.account(subaccount.address);
     const msgsAndAccount = await Promise.all([msgsPromise, accountPromise]);
     const msgs = msgsAndAccount[0];
 
     return this.signAndSendTransaction(
-      wallet,
+      subaccount,
       msgsAndAccount[1],
       msgs,
       zeroFee,
@@ -198,7 +197,6 @@ export class Post {
       memo ?? this.defaultClientMemo,
       broadcastMode ?? this.defaultBroadcastMode(msgs),
       gasAdjustment,
-      authenticators,
     );
   }
 
@@ -237,14 +235,13 @@ export class Post {
    * @returns The Tx Response.
    */
   private async signTransaction(
-    wallet: LocalWallet,
+    subaccount: SubaccountInfo,
     messages: EncodeObject[],
     account: Account,
     zeroFee: boolean,
     gasPrice: GasPrice = this.getGasPrice(),
     memo?: string,
     gasAdjustment: number = GAS_MULTIPLIER,
-    authenticators?: Long[],
   ): Promise<Uint8Array> {
     // protocol expects timestamp nonce in UTC milliseconds, which is the unit returned by Date.now()
     const sequence = this.useTimestampNonce
@@ -257,7 +254,7 @@ export class Post {
           gas: '1000000',
         }
       : await this.simulateTransaction(
-          wallet.pubKey!,
+          subaccount.signingWallet.pubKey!,
           sequence,
           messages,
           gasPrice,
@@ -269,10 +266,10 @@ export class Post {
       sequence,
       accountNumber: account.accountNumber,
       chainId: this.chainId,
-      authenticators,
+      authenticators: subaccount.authenticators,
     };
     // Generate signed transaction.
-    return wallet.signTransaction(messages, txOptions, fee, memo);
+    return subaccount.signingWallet.signTransaction(messages, txOptions, fee, memo);
   }
 
   /**
@@ -299,7 +296,7 @@ export class Post {
    * @returns The Tx Response.
    */
   private async signAndSendTransaction(
-    wallet: LocalWallet,
+    subaccount: SubaccountInfo,
     account: Account,
     messages: EncodeObject[],
     zeroFee: boolean,
@@ -307,17 +304,15 @@ export class Post {
     memo?: string,
     broadcastMode?: BroadcastMode,
     gasAdjustment: number = GAS_MULTIPLIER,
-    authenticators?: Long[],
   ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
     const signedTransaction = await this.signTransaction(
-      wallet,
+      subaccount,
       messages,
       account,
       zeroFee,
       gasPrice,
       memo,
       gasAdjustment,
-      authenticators,
     );
     return this.sendSignedTransaction(signedTransaction, broadcastMode);
   }
@@ -432,7 +427,7 @@ export class Post {
     );
     const account: Promise<Account> = this.account(subaccount.address, orderFlags);
     return this.send(
-      subaccount.wallet,
+      subaccount,
       () => Promise.resolve([msg]),
       true,
       undefined,
@@ -524,7 +519,7 @@ export class Post {
       goodTilBlockTime ?? 0,
     );
     return this.send(
-      subaccount.wallet,
+      subaccount,
       () => Promise.resolve([msg]),
       true,
       undefined,
@@ -585,7 +580,7 @@ export class Post {
       goodTilBlock,
     );
     return this.send(
-      subaccount.wallet,
+      subaccount,
       () => Promise.resolve([msg]),
       true,
       undefined,
@@ -628,7 +623,7 @@ export class Post {
       amount,
     );
     return this.send(
-      subaccount.wallet,
+      subaccount,
       () => Promise.resolve([msg]),
       false,
       undefined,
@@ -671,7 +666,7 @@ export class Post {
       quantums,
     );
     return this.send(
-      subaccount.wallet,
+      subaccount,
       () => Promise.resolve([msg]),
       false,
       undefined,
@@ -712,7 +707,7 @@ export class Post {
       recipient,
     );
     return this.send(
-      subaccount.wallet,
+      subaccount,
       () => Promise.resolve([msg]),
       false,
       undefined,
@@ -750,7 +745,7 @@ export class Post {
   ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
     const msg = await this.sendTokenMsg(subaccount.address, recipient, coinDenom, quantums);
     return this.send(
-      subaccount.wallet,
+      subaccount,
       () => Promise.resolve([msg]),
       zeroFee,
       coinDenom === this.denoms.CHAINTOKEN_DENOM ? this.defaultDydxGasPrice : this.defaultGasPrice,
@@ -787,7 +782,7 @@ export class Post {
       amount,
     });
     return this.send(
-      subaccount.wallet,
+      subaccount,
       () => Promise.resolve([msg]),
       false,
       this.defaultDydxGasPrice,
@@ -815,7 +810,7 @@ export class Post {
       amount,
     });
     return this.send(
-      subaccount.wallet,
+      subaccount,
       () => Promise.resolve([msg]),
       false,
       this.defaultDydxGasPrice,
@@ -839,7 +834,7 @@ export class Post {
   ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
     const msg = this.composer.composeMsgWithdrawDelegatorReward(delegator, validator);
     return this.send(
-      subaccount.wallet,
+      subaccount,
       () => Promise.resolve([msg]),
       false,
       this.defaultGasPrice,
@@ -864,7 +859,7 @@ export class Post {
       quoteQuantums,
     );
     return this.send(
-      subaccount.wallet,
+      subaccount,
       () => Promise.resolve([msg]),
       false,
       undefined,
@@ -892,7 +887,7 @@ export class Post {
       minQuoteQuantums,
     );
     return this.send(
-      subaccount.wallet,
+      subaccount,
       () => Promise.resolve([msg]),
       false,
       undefined,
@@ -915,7 +910,7 @@ export class Post {
   ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
     const msg = this.registerAffiliateMsg(subaccount.address, affiliate);
     return this.send(
-      subaccount.wallet,
+      subaccount,
       () => Promise.resolve([msg]),
       false,
       undefined,
@@ -946,7 +941,7 @@ export class Post {
     const msg = this.launchMarketMsg(subaccount.address, ticker, subaccount.subaccountNumber);
 
     return this.send(
-      subaccount.wallet,
+      subaccount,
       () => Promise.resolve([msg]),
       false,
       undefined,
@@ -969,7 +964,7 @@ export class Post {
     );
 
     return this.send(
-      subaccount.wallet,
+      subaccount,
       () => Promise.resolve([msg]),
       false,
       undefined,
@@ -987,7 +982,7 @@ export class Post {
     const msg = this.composer.composeMsgRemoveAuthenticator(subaccount.address, id);
 
     return this.send(
-      subaccount.wallet,
+      subaccount,
       () => Promise.resolve([msg]),
       false,
       undefined,
