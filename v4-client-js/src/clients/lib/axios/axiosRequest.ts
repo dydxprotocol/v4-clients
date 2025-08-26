@@ -13,14 +13,14 @@ export interface Response {
 async function axiosRequest(options: AxiosRequestConfig): Promise<Response> {
   try {
     return await axios(options);
-  } catch (error) {
-    // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
-    if (error.isAxiosError) {
-      // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
-      if (error.response) {
-        throw new AxiosServerError(error.response, error);
+  } catch (error: unknown) {
+    if (typeof error === 'object' && error !== null && 'isAxiosError' in error) {
+      // @eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const axiosErr = error as any;
+      if (axiosErr.response) {
+        throw new AxiosServerError(axiosErr.response, axiosErr);
       }
-      throw new AxiosError(`Axios: ${error.message}`, error);
+      throw new AxiosError(`Axios: ${axiosErr.message}`, axiosErr);
     }
     throw error;
   }
