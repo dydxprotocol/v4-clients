@@ -119,7 +119,7 @@ export class Post {
    * @returns The Fee for broadcasting a transaction.
    */
   async simulate(
-    wallet: LocalWallet,
+    subaccount: SubaccountInfo,
     messaging: () => Promise<EncodeObject[]>,
     gasPrice: GasPrice = this.getGasPrice(),
     memo?: string,
@@ -133,13 +133,19 @@ export class Post {
       msgs = await messaging();
     } else {
       const msgsPromise = messaging();
-      const accountPromise = account ? await account() : this.account(wallet.address!);
+      const accountPromise = account ? await account() : this.account(subaccount.address);
       const msgsAndAccount = await Promise.all([msgsPromise, accountPromise]);
       msgs = msgsAndAccount[0];
       sequence = msgsAndAccount[1].sequence;
     }
 
-    return this.simulateTransaction(wallet.pubKey!, sequence, msgs, gasPrice, memo);
+    return this.simulateTransaction(
+      subaccount.signingWallet.pubKey!,
+      sequence,
+      msgs,
+      gasPrice,
+      memo,
+    );
   }
 
   /**

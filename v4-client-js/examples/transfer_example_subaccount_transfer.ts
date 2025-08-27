@@ -15,7 +15,7 @@ async function test(): Promise<void> {
   console.log('**Client**');
   console.log(client);
 
-  const subaccount = new SubaccountInfo(wallet, 0);
+  const subaccount = SubaccountInfo.forLocalWallet(wallet, 0);
 
   const tx = await client.post.transfer(subaccount, subaccount.address, 1, 0, new Long(10_000_000));
   console.log('**Transfer Tx**');

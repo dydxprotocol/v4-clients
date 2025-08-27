@@ -539,7 +539,7 @@ export async function withdrawToIBC(
     const encodeObjects: Promise<EncodeObject[]> = new Promise((resolve) => resolve(msgs));
 
     const tx = await client.send(
-      wallet,
+      subaccount,
       () => {
         return encodeObjects;
       },
@@ -575,7 +575,7 @@ export async function transferNativeToken(payload: string): Promise<string> {
     const encodeObjects: Promise<EncodeObject[]> = new Promise((resolve) => resolve(msgs));
 
     const tx = await client.send(
-      wallet,
+      SubaccountInfo.forLocalWallet(wallet),
       () => {
         return encodeObjects;
       },
@@ -674,7 +674,7 @@ export async function simulateDeposit(payload: string): Promise<string> {
     const msgs: EncodeObject[] = [msg];
     const encodeObjects: Promise<EncodeObject[]> = new Promise((resolve) => resolve(msgs));
 
-    const stdFee = await client.simulate(globalThis.wallet, () => {
+    const stdFee = await client.simulate(subaccount, () => {
       return encodeObjects;
     });
     return JSON.stringify(stdFee);
@@ -712,7 +712,7 @@ export async function simulateWithdraw(payload: string): Promise<string> {
     const msgs: EncodeObject[] = [msg];
     const encodeObjects: Promise<EncodeObject[]> = new Promise((resolve) => resolve(msgs));
 
-    const stdFee = await client.simulate(globalThis.wallet, () => {
+    const stdFee = await client.simulate(subaccount, () => {
       return encodeObjects;
     });
     return encodeJson(stdFee);
@@ -746,7 +746,7 @@ export async function simulateTransferNativeToken(payload: string): Promise<stri
     const encodeObjects: Promise<EncodeObject[]> = new Promise((resolve) => resolve(msgs));
 
     const stdFee = await client.simulate(
-      globalThis.wallet,
+      SubaccountInfo.forLocalWallet(wallet),
       () => {
         return encodeObjects;
       },
@@ -800,7 +800,11 @@ export async function signRawPlaceOrder(
       );
       resolve([msg]);
     });
-    const signed = await client.sign(wallet, () => msgs, true);
+    const signed = await client.sign(
+      SubaccountInfo.forLocalWallet(wallet, subaccountNumber),
+      () => msgs,
+      true,
+    );
     return Buffer.from(signed).toString('base64');
   } catch (error) {
     return wrappedError(error);
@@ -1128,8 +1132,9 @@ export async function withdrawToNobleIBC(payload: string): Promise<String> {
 
     const parsedIbcPayload: SquidIBCPayload = JSON.parse(decoded);
 
+    const subaccount = SubaccountInfo.forLocalWallet(wallet, subaccountNumber);
     const msg = client.withdrawFromSubaccountMessage(
-      SubaccountInfo.forLocalWallet(wallet, subaccountNumber),
+      subaccount,
       parseFloat(amount).toFixed(client.validatorClient.config.denoms.USDC_DECIMALS),
     );
     const ibcMsg: MsgTransferEncodeObject = {
@@ -1143,7 +1148,7 @@ export async function withdrawToNobleIBC(payload: string): Promise<String> {
       },
     };
 
-    const tx = await client.send(wallet, () => Promise.resolve([msg, ibcMsg]), false);
+    const tx = await client.send(subaccount, () => Promise.resolve([msg, ibcMsg]), false);
 
     return encodeJson({
       txHash: `0x${Buffer.from(tx?.hash).toString('hex')}`,

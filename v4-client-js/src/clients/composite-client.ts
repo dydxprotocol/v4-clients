@@ -230,13 +230,13 @@ export class CompositeClient {
    * @returns The gas estimate.
    */
   async simulate(
-    wallet: LocalWallet,
+    subaccount: SubaccountInfo,
     messaging: () => Promise<EncodeObject[]>,
     gasPrice?: GasPrice,
     memo?: string,
     account?: () => Promise<Account>,
   ): Promise<StdFee> {
-    return this.validatorClient.post.simulate(wallet, messaging, gasPrice, memo, account);
+    return this.validatorClient.post.simulate(subaccount, messaging, gasPrice, memo, account);
   }
 
   /**
