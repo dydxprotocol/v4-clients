@@ -18,7 +18,7 @@ async function test(): Promise<void> {
   console.log('**Client**');
   console.log(client);
 
-  const subaccount = new SubaccountInfo(wallet, 0);
+  const subaccount = SubaccountInfo.forLocalWallet(wallet, 0);
 
   const amount = new Long(100_000_000);
 
@@ -33,7 +33,7 @@ async function test(): Promise<void> {
     resolve([msg]);
   });
 
-  const totalFee = await client.post.simulate(subaccount.wallet, () => msgs, undefined, undefined);
+  const totalFee = await client.post.simulate(subaccount, () => msgs, undefined, undefined);
   console.log('**Total Fee**');
   console.log(totalFee);
 

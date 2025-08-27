@@ -20,7 +20,7 @@ async function test(): Promise<void> {
   const client = await CompositeClient.connect(network);
   console.log('**Client**');
   console.log(client);
-  const subaccount = new SubaccountInfo(wallet, 0);
+  const subaccount = SubaccountInfo.forLocalWallet(wallet, 0);
   for (const orderParams of ordersParams) {
     try {
       const side = OrderSide[orderParams.side as keyof typeof OrderSide];
