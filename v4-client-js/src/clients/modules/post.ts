@@ -24,7 +24,6 @@ import {
 } from '../types';
 import { Composer } from './composer';
 import { Get } from './get';
-import LocalWallet from './local-wallet';
 import {
   Order_Side,
   Order_TimeInForce,
