@@ -40,9 +40,6 @@ jobs:
       - name: Install Dependencies
         run: poetry install
 
-      - name: Check Funding Account Balance
-        run: poetry run python dydx_v4_client/node/balance_checker.py
-
       - name: Lint
         run: poetry run black --check ./dydx_v4_client ./tests ./examples
 
