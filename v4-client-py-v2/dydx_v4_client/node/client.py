@@ -1233,6 +1233,7 @@ class NodeClient(MutatingNodeClient):
         return await self.send_message(wallet=wallet, message=msg)
 
     async def close_position(
+<<<<<<< HEAD
             self,
             wallet: Wallet,
             address: str,
@@ -1241,6 +1242,15 @@ class NodeClient(MutatingNodeClient):
             client_id: int,
             reduce_by: Optional[Decimal],
             slippage_pct: float = 10,
+=======
+        self,
+        wallet: Wallet,
+        address: str,
+        subaccount_number: int,
+        market: Market,
+        client_id: int,
+        reduce_by: Optional[Decimal],
+>>>>>>> dbe94d0 (Added test case to check sell with no reduce by)
     ) -> Any:
         """
         Close position for a given market.
@@ -1260,13 +1270,18 @@ class NodeClient(MutatingNodeClient):
         subaccount = await self.get_subaccount(address, 0)
         quantum_value = None
         order_side = None
+<<<<<<< HEAD
         price = None
+=======
+        price=None
+>>>>>>> dbe94d0 (Added test case to check sell with no reduce by)
         try:
             for pos in subaccount.perpetual_positions:
                 if pos.perpetual_id == int(market.market["clobPairId"]):
                     quantum_value = int.from_bytes(
                         pos.quantums[1:], byteorder="big", signed=False
                     )
+<<<<<<< HEAD
                     if int(pos.quantums[0]) == 2:
                         order_side = Order.Side.SIDE_SELL
                         price = float(market.market["oraclePrice"]) * (
@@ -1278,6 +1293,17 @@ class NodeClient(MutatingNodeClient):
                         price = float(market.market["oraclePrice"]) * (
                                 (100 + slippage_pct) / 100.0
                         )
+=======
+                    print(f"quantums: {pos.quantums}, {int(pos.quantums[0])}")
+                    if int(pos.quantums[0]) == 2:
+                        order_side = OrderSide.SELL
+                        price = 0
+                    else:
+                        order_side = OrderSide.BUY
+                        price = await self.get_price(pos.perpetual_id)
+                        price = int(price.price * 1.2)
+                        print(f"Price: {price}")
+>>>>>>> dbe94d0 (Added test case to check sell with no reduce by)
         except Exception as e:
             raise e
 
@@ -1301,4 +1327,9 @@ class NodeClient(MutatingNodeClient):
             reduce_only=True,
             good_til_block=current_height + 20,
         )
+<<<<<<< HEAD
         return await self.place_order(wallet, new_order)
+=======
+        print(f"New order: {new_order}")
+        return await self.place_order(wallet, new_order)
+>>>>>>> dbe94d0 (Added test case to check sell with no reduce by)

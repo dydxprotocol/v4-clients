@@ -12,6 +12,7 @@ from dydx_v4_client.node.market import Market
 from dydx_v4_client.node.message import order
 from dydx_v4_client.node.market import Market, since_now
 from dydx_v4_client.node.market import Market
+from dydx_v4_client.node.market import Market, since_now
 from dydx_v4_client.node.message import subaccount, send_token
 from tests.conftest import get_wallet, assert_successful_broadcast
 from v4_proto.dydxprotocol.clob.order_pb2 import BuilderCodeParameters
