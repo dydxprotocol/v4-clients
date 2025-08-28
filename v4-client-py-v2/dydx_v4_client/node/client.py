@@ -1257,22 +1257,19 @@ class NodeClient(MutatingNodeClient):
         subaccount = await self.get_subaccount(address, 0)
         quantum_value = None
         order_side = None
-        price=None
+        price = None
         try:
             for pos in subaccount.perpetual_positions:
                 if pos.perpetual_id == int(market.market["clobPairId"]):
                     quantum_value = int.from_bytes(
                         pos.quantums[1:], byteorder="big", signed=False
                     )
-                    print(f"quantums: {pos.quantums}, {int(pos.quantums[0])}")
                     if int(pos.quantums[0]) == 2:
                         order_side = OrderSide.SELL
                         price = 0
                     else:
                         order_side = OrderSide.BUY
-                        price = await self.get_price(pos.perpetual_id)
-                        price = int(price.price * 1.2)
-                        print(f"Price: {price}")
+                        price = float(market.market["oraclePrice"]) * 1.2
         except Exception as e:
             raise e
 
@@ -1296,5 +1293,4 @@ class NodeClient(MutatingNodeClient):
             reduce_only=True,
             good_til_block=current_height + 20,
         )
-        print(f"New order: {new_order}")
         return await self.place_order(wallet, new_order)

@@ -48,8 +48,6 @@ class Market:
         result = max(subticks, self.market["subticksPerTick"])
         return result
 
-
-
     def order_id(
         self, address: str, subaccount_number: int, client_id: int, order_flags: int
     ) -> OrderId:
@@ -67,7 +65,7 @@ class Market:
         order_type: OrderType,
         side: Order.Side,
         size: float,
-        price: int,
+        price: float,
         time_in_force: Order.TimeInForce,
         reduce_only: bool,
         post_only: bool = False,
