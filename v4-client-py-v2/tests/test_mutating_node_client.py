@@ -327,7 +327,6 @@ async def test_place_order_with_builder_code(
 
     assert fills["fills"][0]["builderAddress"] == test_address
 
-
 @pytest.mark.asyncio
 async def test_close_position_sell_no_reduce_by(
     node_client, wallet, test_address, indexer_rest_client

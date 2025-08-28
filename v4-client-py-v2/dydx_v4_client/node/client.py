@@ -1271,16 +1271,21 @@ class NodeClient(MutatingNodeClient):
         quantum_value = None
         order_side = None
 <<<<<<< HEAD
+<<<<<<< HEAD
         price = None
 =======
         price=None
 >>>>>>> dbe94d0 (Added test case to check sell with no reduce by)
+=======
+        price = None
+>>>>>>> 30be649 (Fixed close position issue)
         try:
             for pos in subaccount.perpetual_positions:
                 if pos.perpetual_id == int(market.market["clobPairId"]):
                     quantum_value = int.from_bytes(
                         pos.quantums[1:], byteorder="big", signed=False
                     )
+<<<<<<< HEAD
 <<<<<<< HEAD
                     if int(pos.quantums[0]) == 2:
                         order_side = Order.Side.SIDE_SELL
@@ -1295,15 +1300,21 @@ class NodeClient(MutatingNodeClient):
                         )
 =======
                     print(f"quantums: {pos.quantums}, {int(pos.quantums[0])}")
+=======
+>>>>>>> 30be649 (Fixed close position issue)
                     if int(pos.quantums[0]) == 2:
                         order_side = OrderSide.SELL
                         price = 0
                     else:
                         order_side = OrderSide.BUY
+<<<<<<< HEAD
                         price = await self.get_price(pos.perpetual_id)
                         price = int(price.price * 1.2)
                         print(f"Price: {price}")
 >>>>>>> dbe94d0 (Added test case to check sell with no reduce by)
+=======
+                        price = float(market.market["oraclePrice"]) * 1.2
+>>>>>>> 30be649 (Fixed close position issue)
         except Exception as e:
             raise e
 
@@ -1328,8 +1339,11 @@ class NodeClient(MutatingNodeClient):
             good_til_block=current_height + 20,
         )
 <<<<<<< HEAD
+<<<<<<< HEAD
         return await self.place_order(wallet, new_order)
 =======
         print(f"New order: {new_order}")
+=======
+>>>>>>> 30be649 (Fixed close position issue)
         return await self.place_order(wallet, new_order)
 >>>>>>> dbe94d0 (Added test case to check sell with no reduce by)
