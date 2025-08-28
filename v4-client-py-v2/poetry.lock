@@ -1949,14 +1949,14 @@ zstd = ["zstandard (>=0.18.0)"]
 
 [[package]]
 name = "v4-proto"
-version = "8.2.0"
+version = "9.0.0"
 description = "Protos for dYdX Chain protocol"
 optional = false
 python-versions = ">=3.8"
 groups = ["main"]
 files = [
-    {file = "v4-proto-8.2.0.tar.gz", hash = "sha256:2c8a4fa7b0604a685f20c043446bc732b9b244aa09d1fd3a9ab66ae733a57d6b"},
-    {file = "v4_proto-8.2.0-py3-none-any.whl", hash = "sha256:10965df9efdd80a3f3cfdf4d99553ce9f98227e635c83f7a6e26d547ebfb9472"},
+    {file = "v4-proto-9.0.0.tar.gz", hash = "sha256:47191420c69ba089b8715292f788b62486658e2ec3cfa767976c5c2e7d22675b"},
+    {file = "v4_proto-9.0.0-py3-none-any.whl", hash = "sha256:53d931bdf28292bef6163ff005bdd125cc10102d67ad7acb61c17455621f2f1a"},
 ]
 
 [package.dependencies]
@@ -2025,4 +2025,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.9"
-content-hash = "b381aed25b76b1f2dd126c1b4315c21be27939e5932cd77b662cb5a1b8fddfba"
+content-hash = "59c287cf834924cb42a62f2231b89e39983bff7cd2231f2c529df9776f389dce"
