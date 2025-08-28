@@ -6,7 +6,12 @@ from v4_proto.dydxprotocol.clob.order_pb2 import Order, OrderId
 
 from dydx_v4_client.indexer.rest.constants import OrderType, OrderExecution
 from dydx_v4_client.node.chain_helpers import OrderHelper
-from dydx_v4_client.node.message import order, order_id, builder_code_parameters, twap_parameters
+from dydx_v4_client.node.message import (
+    order,
+    order_id,
+    builder_code_parameters,
+    twap_parameters,
+)
 
 
 def since_now(*args, **kwargs) -> int:
@@ -74,7 +79,7 @@ class Market:
         twap_duration: int = None,
         twap_interval: int = None,
         twap_price_tolerance: int = None,
-        order_router_address: str = None
+        order_router_address: str = None,
     ) -> Order:
         order_time_in_force = OrderHelper.calculate_time_in_force(
             order_type, time_in_force, post_only, execution
@@ -98,6 +103,8 @@ class Market:
             condition_type=condition_type,
             conditional_order_trigger_subticks=conditional_order_trigger_subticks,
             builder_code_parameters=builder_code_parameters(builder_address, fee_ppm),
-            twap_parameters=twap_parameters(twap_duration, twap_interval, twap_price_tolerance),
-            order_router_address=order_router_address
+            twap_parameters=twap_parameters(
+                twap_duration, twap_interval, twap_price_tolerance
+            ),
+            order_router_address=order_router_address,
         )

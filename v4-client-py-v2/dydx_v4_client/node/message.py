@@ -6,7 +6,12 @@ from v4_proto.cosmos.base.v1beta1.coin_pb2 import Coin
 from v4_proto.cosmos.distribution.v1beta1.tx_pb2 import MsgWithdrawDelegatorReward
 from v4_proto.cosmos.staking.v1beta1.tx_pb2 import MsgUndelegate, MsgDelegate
 from v4_proto.dydxprotocol.affiliates.tx_pb2 import MsgRegisterAffiliate
-from v4_proto.dydxprotocol.clob.order_pb2 import Order, OrderId, BuilderCodeParameters, TwapParameters
+from v4_proto.dydxprotocol.clob.order_pb2 import (
+    Order,
+    OrderId,
+    BuilderCodeParameters,
+    TwapParameters,
+)
 from v4_proto.dydxprotocol.clob.tx_pb2 import MsgCancelOrder, MsgPlaceOrder
 from v4_proto.dydxprotocol.listing.tx_pb2 import MsgCreateMarketPermissionless
 from v4_proto.dydxprotocol.sending.transfer_pb2 import (
@@ -63,7 +68,7 @@ def order(
         conditional_order_trigger_subticks=conditional_order_trigger_subticks,
         builder_code_parameters=builder_code_parameters,
         twap_parameters=twap_parameters,
-        order_router_address=order_router_address
+        order_router_address=order_router_address,
     )
 
 
@@ -257,9 +262,8 @@ def withdraw_from_megavault(
 def builder_code_parameters(builder_address: str, fee_ppm: int):
     return BuilderCodeParameters(builder_address=builder_address, fee_ppm=fee_ppm)
 
+
 def twap_parameters(duration: int, interval: int, price_tolerance: int):
     return TwapParameters(
-        duration=duration,
-        interval=interval,
-        price_tolerance=price_tolerance
+        duration=duration, interval=interval, price_tolerance=price_tolerance
     )

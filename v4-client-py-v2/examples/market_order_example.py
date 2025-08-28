@@ -44,7 +44,7 @@ async def place_market_order(size: float):
         twap_duration=1000,
         twap_interval=5,
         twap_price_tolerance=1,
-        order_router_address=TEST_ADDRESS
+        order_router_address=TEST_ADDRESS,
     )
 
     transaction = await node.place_order(
