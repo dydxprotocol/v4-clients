@@ -60,7 +60,7 @@ class Market:
         order_type: OrderType,
         side: Order.Side,
         size: float,
-        price: int,
+        price: float,
         time_in_force: Order.TimeInForce,
         reduce_only: bool,
         post_only: bool = False,
