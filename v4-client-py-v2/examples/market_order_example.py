@@ -39,6 +39,12 @@ async def place_market_order(size: float):
         time_in_force=Order.TimeInForce.TIME_IN_FORCE_UNSPECIFIED,
         reduce_only=False,
         good_til_block=current_block + 10,
+        builder_address=TEST_ADDRESS,
+        fee_ppm=5,
+        twap_duration=1000,
+        twap_interval=5,
+        twap_price_tolerance=5,
+        order_router_address=TEST_ADDRESS,
     )
 
     transaction = await node.place_order(

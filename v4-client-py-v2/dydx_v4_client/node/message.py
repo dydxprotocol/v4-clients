@@ -1,12 +1,17 @@
 from decimal import Decimal
-from typing import List
+from typing import List, Optional
 
 from v4_proto.cosmos.bank.v1beta1.tx_pb2 import MsgSend
 from v4_proto.cosmos.base.v1beta1.coin_pb2 import Coin
 from v4_proto.cosmos.distribution.v1beta1.tx_pb2 import MsgWithdrawDelegatorReward
 from v4_proto.cosmos.staking.v1beta1.tx_pb2 import MsgUndelegate, MsgDelegate
 from v4_proto.dydxprotocol.affiliates.tx_pb2 import MsgRegisterAffiliate
-from v4_proto.dydxprotocol.clob.order_pb2 import Order, OrderId
+from v4_proto.dydxprotocol.clob.order_pb2 import (
+    Order,
+    OrderId,
+    BuilderCodeParameters,
+    TwapParameters,
+)
 from v4_proto.dydxprotocol.clob.tx_pb2 import MsgCancelOrder, MsgPlaceOrder
 from v4_proto.dydxprotocol.listing.tx_pb2 import MsgCreateMarketPermissionless
 from v4_proto.dydxprotocol.sending.transfer_pb2 import (
@@ -40,6 +45,9 @@ def order(
     subticks: int,
     time_in_force: Order.TimeInForce,
     reduce_only: bool,
+    build_code_parameters: Optional[BuilderCodeParameters],
+    twap_parameters: Optional[TwapParameters],
+    order_router_address: Optional[str],
     good_til_block: int = None,
     good_til_block_time: int = None,
     client_metadata: int = 0,
@@ -58,6 +66,9 @@ def order(
         client_metadata=PY_V2_CLIENT_ID,
         condition_type=condition_type,
         conditional_order_trigger_subticks=conditional_order_trigger_subticks,
+        builder_code_parameters=build_code_parameters,
+        twap_parameters=twap_parameters,
+        order_router_address=order_router_address,
     )
 
 
@@ -245,4 +256,16 @@ def withdraw_from_megavault(
         subaccount_id=SubaccountId(owner=address, number=subaccount_number),
         min_quote_quantums=min_quantums,
         shares=NumShares(num_shares=num_shares),
+    )
+
+
+def builder_code_parameters(builder_address: str, fee_ppm: int):
+    if builder_address is None:
+        return None
+    return BuilderCodeParameters(builder_address=builder_address, fee_ppm=fee_ppm)
+
+
+def twap_parameters(duration: int, interval: int, price_tolerance: int):
+    return TwapParameters(
+        duration=duration, interval=interval, price_tolerance=price_tolerance
     )
