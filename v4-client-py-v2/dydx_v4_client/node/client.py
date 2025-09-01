@@ -11,8 +11,12 @@ from google.protobuf.json_format import MessageToDict
 from typing_extensions import List, Optional, Self
 
 from dydx_v4_client import OrderFlags
+<<<<<<< HEAD
 
 from dydx_v4_client.indexer.rest.constants import OrderSide, OrderType
+=======
+from dydx_v4_client.indexer.rest.constants import OrderType
+>>>>>>> 2ba1d7a (Using order side from proto)
 from dydx_v4_client.node.market import Market
 from v4_proto.cosmos.auth.v1beta1 import query_pb2_grpc as auth
 from v4_proto.cosmos.auth.v1beta1.auth_pb2 import BaseAccount
@@ -1233,7 +1237,6 @@ class NodeClient(MutatingNodeClient):
         return await self.send_message(wallet=wallet, message=msg)
 
     async def close_position(
-<<<<<<< HEAD
             self,
             wallet: Wallet,
             address: str,
@@ -1242,15 +1245,6 @@ class NodeClient(MutatingNodeClient):
             client_id: int,
             reduce_by: Optional[Decimal],
             slippage_pct: float = 10,
-=======
-        self,
-        wallet: Wallet,
-        address: str,
-        subaccount_number: int,
-        market: Market,
-        client_id: int,
-        reduce_by: Optional[Decimal],
->>>>>>> dbe94d0 (Added test case to check sell with no reduce by)
     ) -> Any:
         """
         Close position for a given market.
@@ -1270,23 +1264,13 @@ class NodeClient(MutatingNodeClient):
         subaccount = await self.get_subaccount(address, 0)
         quantum_value = None
         order_side = None
-<<<<<<< HEAD
-<<<<<<< HEAD
         price = None
-=======
-        price=None
->>>>>>> dbe94d0 (Added test case to check sell with no reduce by)
-=======
-        price = None
->>>>>>> 30be649 (Fixed close position issue)
         try:
             for pos in subaccount.perpetual_positions:
                 if pos.perpetual_id == int(market.market["clobPairId"]):
                     quantum_value = int.from_bytes(
                         pos.quantums[1:], byteorder="big", signed=False
                     )
-<<<<<<< HEAD
-<<<<<<< HEAD
                     if int(pos.quantums[0]) == 2:
                         order_side = Order.Side.SIDE_SELL
                         price = float(market.market["oraclePrice"]) * (
@@ -1298,23 +1282,6 @@ class NodeClient(MutatingNodeClient):
                         price = float(market.market["oraclePrice"]) * (
                                 (100 + slippage_pct) / 100.0
                         )
-=======
-                    print(f"quantums: {pos.quantums}, {int(pos.quantums[0])}")
-=======
->>>>>>> 30be649 (Fixed close position issue)
-                    if int(pos.quantums[0]) == 2:
-                        order_side = OrderSide.SELL
-                        price = 0
-                    else:
-                        order_side = OrderSide.BUY
-<<<<<<< HEAD
-                        price = await self.get_price(pos.perpetual_id)
-                        price = int(price.price * 1.2)
-                        print(f"Price: {price}")
->>>>>>> dbe94d0 (Added test case to check sell with no reduce by)
-=======
-                        price = float(market.market["oraclePrice"]) * 1.2
->>>>>>> 30be649 (Fixed close position issue)
         except Exception as e:
             raise e
 
@@ -1338,12 +1305,4 @@ class NodeClient(MutatingNodeClient):
             reduce_only=True,
             good_til_block=current_height + 20,
         )
-<<<<<<< HEAD
-<<<<<<< HEAD
         return await self.place_order(wallet, new_order)
-=======
-        print(f"New order: {new_order}")
-=======
->>>>>>> 30be649 (Fixed close position issue)
-        return await self.place_order(wallet, new_order)
->>>>>>> dbe94d0 (Added test case to check sell with no reduce by)
