@@ -348,7 +348,7 @@ async def test_close_position_sell_no_reduce_by(
     new_order = market.order(
         order_id=order_id,
         order_type=OrderType.MARKET,
-        side=Order.Side.SIDE_SELL,
+        side=OrderSide.SELL,
         size=0.002,
         price=0,
         # Recommend set to oracle price - 5% or lower for SELL, oracle price + 5% for BUY
@@ -404,7 +404,7 @@ async def test_close_position_sell_having_reduce_by(
     new_order = market.order(
         order_id=order_id,
         order_type=OrderType.MARKET,
-        side=Order.Side.SIDE_SELL,
+        side=OrderSide.SELL,
         size=0.002,
         price=0,
         # Recommend set to oracle price - 5% or lower for SELL, oracle price + 5% for BUY
@@ -516,7 +516,7 @@ async def test_close_position_buy_having_reduce_by(
     new_order = market.order(
         order_id=order_id,
         order_type=OrderType.MARKET,
-        side=Order.Side.SIDE_BUY,
+        side=OrderSide.BUY,
         size=0.002,
         # Recommend set to oracle price - 5% or lower for SELL, oracle price + 5% for BUY
         price=float(market.market["oraclePrice"]) * 1.2,
