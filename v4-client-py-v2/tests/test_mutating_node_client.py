@@ -1,13 +1,12 @@
 import random
 import time
-import json
 import grpc
 import pytest
 import asyncio
 
 from dydx_v4_client import MAX_CLIENT_ID, OrderFlags
-from dydx_v4_client.indexer.rest.constants import OrderType, OrderSide
-from dydx_v4_client.node.market import Market, since_now
+from dydx_v4_client.indexer.rest.constants import OrderType
+from dydx_v4_client.node.market import Market
 from dydx_v4_client.node.message import subaccount, send_token
 from tests.conftest import get_wallet, assert_successful_broadcast
 from v4_proto.dydxprotocol.clob.order_pb2 import Order
@@ -279,7 +278,7 @@ async def test_close_position_sell_no_reduce_by(
     new_order = market.order(
         order_id=order_id,
         order_type=OrderType.MARKET,
-        side=OrderSide.SELL,
+        side=Order.Side.SIDE_SELL,
         size=0.002,
         price=0,
         # Recommend set to oracle price - 5% or lower for SELL, oracle price + 5% for BUY
@@ -336,7 +335,7 @@ async def test_close_position_sell_having_reduce_by(
     new_order = market.order(
         order_id=order_id,
         order_type=OrderType.MARKET,
-        side=OrderSide.SELL,
+        side=Order.Side.SIDE_SELL,
         size=0.002,
         price=0,
         # Recommend set to oracle price - 5% or lower for SELL, oracle price + 5% for BUY
@@ -450,7 +449,7 @@ async def test_close_position_buy_having_reduce_by(
     new_order = market.order(
         order_id=order_id,
         order_type=OrderType.MARKET,
-        side=OrderSide.BUY,
+        side=Order.Side.SIDE_BUY,
         size=0.002,
         # Recommend set to oracle price - 5% or lower for SELL, oracle price + 5% for BUY
         price=float(market.market["oraclePrice"]) * 1.2,
@@ -505,4 +504,5 @@ async def close_open_positions(node_client, wallet, test_address, market):
         market=market,
         reduce_by=None,
         client_id=random.randint(0, MAX_CLIENT_ID),
+        slippage_pct=5,
     )

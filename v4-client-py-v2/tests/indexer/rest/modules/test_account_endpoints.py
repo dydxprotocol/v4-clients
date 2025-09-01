@@ -1,6 +1,9 @@
 import pytest
 
-from dydx_v4_client.indexer.rest.constants import TradingRewardAggregationPeriod
+from dydx_v4_client.indexer.rest.constants import (
+    TradingRewardAggregationPeriod,
+    OrderSide,
+)
 from tests.conftest import retry_on_forbidden
 
 
@@ -110,7 +113,9 @@ async def test_transfers(indexer_rest_client, test_address):
 @pytest.mark.asyncio
 @retry_on_forbidden(max_retries=3, delay=1, skip=True)
 async def test_orders(indexer_rest_client, test_address):
-    response = await indexer_rest_client.account.get_subaccount_orders(test_address, 0)
+    response = await indexer_rest_client.account.get_subaccount_orders(
+        test_address, 0, side=OrderSide.SELL
+    )
     assert response is not None
     orders = response
     assert orders is not None
