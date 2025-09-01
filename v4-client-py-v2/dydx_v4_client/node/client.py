@@ -11,7 +11,7 @@ from google.protobuf.json_format import MessageToDict
 from typing_extensions import List, Optional, Self
 
 from dydx_v4_client import OrderFlags
-from dydx_v4_client.indexer.rest.constants import OrderSide, OrderType
+from dydx_v4_client.indexer.rest.constants import OrderType
 from dydx_v4_client.node.market import Market
 from v4_proto.cosmos.auth.v1beta1 import query_pb2_grpc as auth
 from v4_proto.cosmos.auth.v1beta1.auth_pb2 import BaseAccount
@@ -1239,6 +1239,7 @@ class NodeClient(MutatingNodeClient):
         market: Market,
         client_id: int,
         reduce_by: Optional[Decimal],
+        slippage_pct: float = 10,
     ) -> Any:
         """
         Close position for a given market.
@@ -1250,6 +1251,7 @@ class NodeClient(MutatingNodeClient):
             market: Market params
             reduce_by (Optional[Decimal]): reduced amount of the position
             client_id (int): The client id
+            slippage_pct(float): Percentage to reduce or increase during close position
 
         Returns:
             Any: The close position response
@@ -1265,11 +1267,16 @@ class NodeClient(MutatingNodeClient):
                         pos.quantums[1:], byteorder="big", signed=False
                     )
                     if int(pos.quantums[0]) == 2:
-                        order_side = OrderSide.SELL
-                        price = 0
+                        order_side = Order.Side.SIDE_SELL
+                        price = float(market.market["oraclePrice"]) * (
+                            (100 - slippage_pct) / 100.0
+                        )
+
                     else:
-                        order_side = OrderSide.BUY
-                        price = float(market.market["oraclePrice"]) * 1.2
+                        order_side = Order.Side.SIDE_BUY
+                        price = float(market.market["oraclePrice"]) * (
+                            (100 + slippage_pct) / 100.0
+                        )
         except Exception as e:
             raise e
 
