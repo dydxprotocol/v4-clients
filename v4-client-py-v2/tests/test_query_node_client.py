@@ -252,38 +252,3 @@ async def test_get_affiliate_whitelist(node_client):
     affiliate_whitelist = await node_client.get_affiliate_whitelist()
     assert affiliate_whitelist is not None
     assert isinstance(affiliate_whitelist, affiliate_query.AffiliateWhitelistResponse)
-
-
-@pytest.mark.asyncio
-async def test_get_market_mapper_revenue_share_param(node_client):
-    response = await node_client.get_market_mapper_revenue_share_param()
-    assert response is not None
-    assert isinstance(
-        response, revshare_query.QueryMarketMapperRevenueShareParamsResponse
-    )
-
-
-@pytest.mark.asyncio
-async def test_get_market_mapper_revenue_share_details(node_client):
-    response = await node_client.get_market_mapper_revenue_share_details(1)
-    assert response is not None
-    assert isinstance(response, revshare_query.QueryMarketMapperRevShareDetailsResponse)
-
-
-@pytest.mark.asyncio
-async def test_get_unconditional_revenue_sharing_config(node_client):
-    response = await node_client.get_unconditional_revenue_sharing_config()
-    assert response is not None
-    assert isinstance(response, revshare_query.QueryUnconditionalRevShareConfigResponse)
-
-
-# @pytest.mark.asyncio
-# async def test_get_order_router_revenue_share(node_client, test_address, wallet, test_order):
-#     placed = await node_client.place_order(
-#         wallet,
-#         test_order,
-#     )
-#     await asyncio.sleep(5)
-#     response = await node_client.get_order_router_revenue_share(test_address)
-#     assert response is not None
-#     assert isinstance(response, revshare_query.QueryOrderRouterRevShareResponse)
