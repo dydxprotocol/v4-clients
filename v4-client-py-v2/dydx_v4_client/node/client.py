@@ -84,6 +84,8 @@ from v4_proto.dydxprotocol.ratelimit import query_pb2 as rate_query
 from v4_proto.dydxprotocol.ratelimit import query_pb2_grpc as rate_query_grpc
 from v4_proto.dydxprotocol.affiliates import query_pb2 as affiliate_query
 from v4_proto.dydxprotocol.affiliates import query_pb2_grpc as affiliate_query_grpc
+from v4_proto.dydxprotocol.revshare import query_pb2_grpc as revshare_query_grpc
+from v4_proto.dydxprotocol.revshare import query_pb2 as revshare_query
 
 from dydx_v4_client.network import NodeConfig
 from dydx_v4_client.node.authenticators import Authenticator, validate_authenticator
@@ -623,6 +625,66 @@ class QueryNodeClient:
         """
         return affiliate_query_grpc.QueryStub(self.channel).AffiliateWhitelist(
             affiliate_query.AffiliateWhitelistRequest()
+        )
+
+    async def get_market_mapper_revenue_share_param(
+        self,
+    ) -> revshare_query.QueryMarketMapperRevenueShareParamsResponse:
+        """
+        Query revenue share params
+
+        Returns:
+            revshare_query.QueryMarketMapperRevenueShareParamsResponse: Market mapper revenue share parameters
+        """
+        return revshare_query_grpc.QueryStub(
+            self.channel
+        ).MarketMapperRevenueShareParams(
+            revshare_query.QueryMarketMapperRevenueShareParams()
+        )
+
+    async def get_market_mapper_revenue_share_details(
+        self, market_id: int
+    ) -> revshare_query.QueryMarketMapperRevShareDetailsResponse:
+        """
+        Query revenue share details by market id
+
+        Args:
+            market_id(int): Market id to query
+
+        Returns:
+            revshare_query.QueryMarketMapperRevShareDetailsResponse: Details of market mapper revenue share
+        """
+        return revshare_query_grpc.QueryStub(self.channel).MarketMapperRevShareDetails(
+            revshare_query.QueryMarketMapperRevShareDetails(market_id=market_id)
+        )
+
+    async def get_unconditional_revenue_sharing_config(
+        self,
+    ) -> revshare_query.QueryUnconditionalRevShareConfigResponse:
+        """
+        Query configuration of unconditional revenue sharing
+
+        Returns:
+            revshare_query.QueryUnconditionalRevShareConfigResponse: The configuration of unconditional revenue sharing
+        """
+        return revshare_query_grpc.QueryStub(self.channel).UnconditionalRevShareConfig(
+            revshare_query.QueryUnconditionalRevShareConfig()
+        )
+
+    async def get_order_router_revenue_share(
+        self, address: str
+    ) -> revshare_query.QueryOrderRouterRevShareResponse:
+        """
+        Query order router revenue share of certain address
+
+        Args:
+            address(str): Address to fetch order router revenue share of
+
+        Returns:
+            revshare_query.QueryOrderRouterRevShareResponse: Order router revenue share response
+        """
+        return revshare_query_grpc.QueryStub(self.channel).OrderRouterRevShare(
+            revshare_query.QueryOrderRouterRevShare(address=address)
         )
 
 

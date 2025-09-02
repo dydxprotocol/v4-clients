@@ -120,7 +120,7 @@ def test_order(test_order_id) -> Order:
         good_til_block_time=int(time.time() + 60),
         build_code_parameters=None,
         twap_parameters=None,
-        order_router_address=None
+        order_router_address=None,
     )
 
 
