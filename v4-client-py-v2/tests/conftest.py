@@ -115,8 +115,8 @@ def test_order(test_order_id) -> Order:
         time_in_force=0,
         reduce_only=False,
         side=1,
-        quantums=10000000,
-        subticks=40000000000,
+        quantums=1000000,
+        subticks=100000,
         good_til_block_time=int(time.time() + 60),
     )
 
