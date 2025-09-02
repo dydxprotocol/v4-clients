@@ -57,6 +57,7 @@ async def place_market_order_with_builder_code(size: float):
         address=TEST_ADDRESS, subaccount_number=0, ticker=MARKET_ID, limit=1
     )
     print(f"Fills: {fills}")
+    assert fills["fills"][0]["builderAddress"] == TEST_ADDRESS
 
 
 asyncio.run(place_market_order_with_builder_code(0.00001))
