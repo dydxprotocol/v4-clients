@@ -120,6 +120,7 @@ def test_order(test_order_id) -> Order:
         good_til_block_time=int(time.time() + 60),
     )
 
+
 @pytest.fixture
 def test_order2(test_order_id) -> Order:
     return order(
