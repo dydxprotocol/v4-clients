@@ -118,6 +118,9 @@ def test_order(test_order_id) -> Order:
         quantums=1000000,
         subticks=100000,
         good_til_block_time=int(time.time() + 60),
+        builder_code_parameters=None,
+        twap_parameters=None,
+        order_router_address=None,
     )
 
 
