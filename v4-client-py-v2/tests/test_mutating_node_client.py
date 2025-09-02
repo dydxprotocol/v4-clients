@@ -66,7 +66,13 @@ async def test_send_token(node_client, wallet, test_address, recipient):
 
 @pytest.mark.asyncio
 async def test_order(
-    node_client, test_order, test_order_id, test_address, key_pair, wallet, indexer_rest_client
+    node_client,
+    test_order,
+    test_order_id,
+    test_address,
+    key_pair,
+    wallet,
+    indexer_rest_client,
 ):
     try:
         placed = await node_client.place_order(
@@ -81,7 +87,9 @@ async def test_order(
         # codespace: "clob"\n  code:...hj67cghhf9jypslcf9sh2n5k6art Number:0} ClientId:13850897 OrderFlags:64 ClobPairId:0}: Stateful order does not exist"
         time.sleep(2)
 
-        orders = await indexer_rest_client.account.get_subaccount_orders(test_address, 0, status=OrderStatus.OPEN)
+        orders = await indexer_rest_client.account.get_subaccount_orders(
+            test_address, 0, status=OrderStatus.OPEN
+        )
         number_of_orders = len(orders)
         assert number_of_orders != 0
 
@@ -102,7 +110,13 @@ async def test_order(
 
 @pytest.mark.asyncio
 async def test_order_cancel(
-    node_client, test_order, test_order_id, test_address, key_pair, wallet, indexer_rest_client
+    node_client,
+    test_order,
+    test_order_id,
+    test_address,
+    key_pair,
+    wallet,
+    indexer_rest_client,
 ):
     try:
         placed = await node_client.place_order(
@@ -117,7 +131,9 @@ async def test_order_cancel(
         # codespace: "clob"\n  code:...hj67cghhf9jypslcf9sh2n5k6art Number:0} ClientId:13850897 OrderFlags:64 ClobPairId:0}: Stateful order does not exist"
         time.sleep(2)
 
-        orders = await indexer_rest_client.account.get_subaccount_orders(test_address, 0, status=OrderStatus.OPEN)
+        orders = await indexer_rest_client.account.get_subaccount_orders(
+            test_address, 0, status=OrderStatus.OPEN
+        )
         number_of_orders = len(orders)
         assert number_of_orders != 0
 
