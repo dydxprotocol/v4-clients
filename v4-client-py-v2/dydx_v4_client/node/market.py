@@ -102,7 +102,7 @@ class Market:
             client_metadata=client_metadata,
             condition_type=condition_type,
             conditional_order_trigger_subticks=conditional_order_trigger_subticks,
-            build_code_parameters=builder_code_parameters(builder_address, fee_ppm),
+            builder_code_parameters=builder_code_parameters(builder_address, fee_ppm),
             twap_parameters=twap_parameters(
                 twap_duration, twap_interval, twap_price_tolerance
             ),

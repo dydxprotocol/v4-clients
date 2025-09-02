@@ -49,7 +49,7 @@ def test_place_order_serialization(test_address):
         quantums=10000000,
         subticks=40000000000,
         good_til_block_time=GOOD_TIL_BLOCK_TIME,
-        build_code_parameters=None,
+        builder_code_parameters=None,
         twap_parameters=None,
         order_router_address=None,
     )

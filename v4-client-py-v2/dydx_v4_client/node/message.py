@@ -45,7 +45,7 @@ def order(
     subticks: int,
     time_in_force: Order.TimeInForce,
     reduce_only: bool,
-    build_code_parameters: Optional[BuilderCodeParameters],
+    builder_code_parameters: Optional[BuilderCodeParameters],
     twap_parameters: Optional[TwapParameters],
     order_router_address: Optional[str],
     good_til_block: int = None,
@@ -66,7 +66,7 @@ def order(
         client_metadata=PY_V2_CLIENT_ID,
         condition_type=condition_type,
         conditional_order_trigger_subticks=conditional_order_trigger_subticks,
-        builder_code_parameters=build_code_parameters,
+        builder_code_parameters=builder_code_parameters,
         twap_parameters=twap_parameters,
         order_router_address=order_router_address,
     )

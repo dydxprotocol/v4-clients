@@ -268,7 +268,7 @@ async def test_place_order_with_builder_code(
         quantums=10000000,
         subticks=40000000000,
         good_til_block_time=int(time.time() + 60),
-        build_code_parameters=builder_code_param,
+        builder_code_parameters=builder_code_param,
         twap_parameters=None,
         order_router_address=None,
     )
