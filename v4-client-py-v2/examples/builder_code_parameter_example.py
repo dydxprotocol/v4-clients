@@ -14,8 +14,7 @@ from tests.conftest import DYDX_TEST_MNEMONIC, TEST_ADDRESS
 
 MARKET_ID = "ETH-USD"
 
-
-async def place_market_order(size: float):
+async def place_market_order_with_builder_code(size: float):
     node = await NodeClient.connect(TESTNET.node)
     indexer = IndexerClient(TESTNET.rest_indexer)
 
@@ -41,10 +40,6 @@ async def place_market_order(size: float):
         good_til_block=current_block + 10,
         builder_address=TEST_ADDRESS,
         fee_ppm=500,
-        twap_duration=1000,
-        twap_interval=5,
-        twap_price_tolerance=5,
-        order_router_address=TEST_ADDRESS,
     )
 
     transaction = await node.place_order(
@@ -55,5 +50,15 @@ async def place_market_order(size: float):
     print(transaction)
     wallet.sequence += 1
 
+    await asyncio.sleep(5)
 
-asyncio.run(place_market_order(0.00001))
+    fills = await indexer.account.get_subaccount_fills(
+        address=TEST_ADDRESS,
+        subaccount_number=0,
+        ticker=MARKET_ID,
+        limit=1
+    )
+    print(f"Fills: {fills}")
+
+
+asyncio.run(place_market_order_with_builder_code(0.00001))
