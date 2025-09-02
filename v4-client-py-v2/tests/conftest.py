@@ -120,6 +120,18 @@ def test_order(test_order_id) -> Order:
         good_til_block_time=int(time.time() + 60),
     )
 
+@pytest.fixture
+def test_order2(test_order_id) -> Order:
+    return order(
+        test_order_id,
+        time_in_force=0,
+        reduce_only=False,
+        side=1,
+        quantums=1000000,
+        subticks=100000,
+        good_til_block_time=int(time.time() + 60),
+    )
+
 
 async def get_wallet(node_client, key_pair, test_address) -> Wallet:
     account = await node_client.get_account(test_address)

@@ -111,7 +111,7 @@ async def test_order(
 @pytest.mark.asyncio
 async def test_order_cancel(
     node_client,
-    test_order,
+    test_order2,
     test_order_id,
     test_address,
     key_pair,
@@ -121,7 +121,7 @@ async def test_order_cancel(
     try:
         placed = await node_client.place_order(
             wallet,
-            test_order,
+            test_order2,
         )
         assert_successful_broadcast(placed)
 
@@ -142,7 +142,7 @@ async def test_order_cancel(
         canceled = await node_client.cancel_order(
             wallet,
             test_order_id,
-            good_til_block_time=test_order.good_til_block_time,
+            good_til_block_time=test_order2.good_til_block_time,
         )
         assert_successful_broadcast(canceled)
         # assert canceled.__repr__() == ""
