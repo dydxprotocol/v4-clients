@@ -14,6 +14,7 @@ from tests.conftest import DYDX_TEST_MNEMONIC, TEST_ADDRESS
 
 MARKET_ID = "ETH-USD"
 
+
 async def place_market_order_with_builder_code(size: float):
     node = await NodeClient.connect(TESTNET.node)
     indexer = IndexerClient(TESTNET.rest_indexer)
@@ -53,10 +54,7 @@ async def place_market_order_with_builder_code(size: float):
     await asyncio.sleep(5)
 
     fills = await indexer.account.get_subaccount_fills(
-        address=TEST_ADDRESS,
-        subaccount_number=0,
-        ticker=MARKET_ID,
-        limit=1
+        address=TEST_ADDRESS, subaccount_number=0, ticker=MARKET_ID, limit=1
     )
     print(f"Fills: {fills}")
 
