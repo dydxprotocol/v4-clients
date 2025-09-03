@@ -60,7 +60,12 @@ export const builderOrder: IPlaceOrder = {
   builderCodeParameters: {
     builderAddress: 'dydx1test_builder_address',
     feePpm: 1000, // 0.1% fee
-  },
+  }
+};
+
+export const orderRouterOrder: IPlaceOrder = {
+  ...defaultOrder,
+  clientId: 2,
   orderRouterAddress: 'dydx1test_router_address',
 };
 
