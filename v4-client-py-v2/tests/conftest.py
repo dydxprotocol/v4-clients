@@ -147,7 +147,7 @@ def test_twap_order(test_order_id) -> Order:
     """Order with TWAP parameters for testing."""
     twap_params = TwapParameters(
         duration=3600,  # 1 hour
-        interval=300,  # 5 minutes
+        interval=300,   # 5 minutes
         price_tolerance=50000,  # 5% in ppm
     )
 
