@@ -226,15 +226,9 @@ async def test_delegate_undelegate(node_client, wallet, test_address):
     for u in undelgations.unbonding_responses:
         validator_to_num_of_undelegations[u.validator_address] += 1
     # Find validator with no pending undelegations, fallback to least if none available
-    validators_with_no_undelegations = [
-        addr for addr, count in validator_to_num_of_undelegations.items() if count == 0
-    ]
-    if validators_with_no_undelegations:
-        validator_address_with_least_undelegations = validators_with_no_undelegations[0]
-    else:
-        validator_address_with_least_undelegations = min(
-            validator_to_num_of_undelegations.items(), key=lambda item: item[1]
-        )[0]
+    validator_address_with_least_undelegations = min(
+        validator_to_num_of_undelegations.items(), key=lambda item: item[1]
+    )[0]
     delegate_response = await node_client.delegate(
         wallet,
         test_address,
