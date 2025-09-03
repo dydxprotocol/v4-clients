@@ -74,16 +74,11 @@ class Market:
         execution: OrderExecution = OrderExecution.DEFAULT,
         condition_type=None,
         conditional_order_trigger_subticks: int = 0,
-<<<<<<< HEAD
         builder_address: str = None,
         fee_ppm: int = None,
         twap_duration: int = None,
         twap_interval: int = None,
         twap_price_tolerance: int = None,
-=======
-        twap_parameters=None,
-        builder_code_parameters=None,
->>>>>>> 40eb8e4 (Update order protos with new fields)
         order_router_address: str = None,
     ) -> Order:
         order_time_in_force = OrderHelper.calculate_time_in_force(
@@ -107,14 +102,9 @@ class Market:
             client_metadata=client_metadata,
             condition_type=condition_type,
             conditional_order_trigger_subticks=conditional_order_trigger_subticks,
-<<<<<<< HEAD
             builder_code_parameters=builder_code_parameters(builder_address, fee_ppm),
             twap_parameters=twap_parameters(
                 twap_duration, twap_interval, twap_price_tolerance
             ),
-=======
-            twap_parameters=twap_parameters,
-            builder_code_parameters=builder_code_parameters,
->>>>>>> 40eb8e4 (Update order protos with new fields)
             order_router_address=order_router_address,
         )
