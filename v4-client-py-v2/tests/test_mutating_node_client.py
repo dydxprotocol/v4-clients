@@ -5,10 +5,7 @@ import pytest
 import asyncio
 
 from dydx_v4_client import MAX_CLIENT_ID, OrderFlags
-from dydx_v4_client.indexer.rest.constants import OrderType, OrderSide
-from dydx_v4_client.node.market import Market
 from dydx_v4_client.node.message import order
-from dydx_v4_client.node.market import Market, since_now
 
 from dydx_v4_client.indexer.rest.constants import OrderType
 from dydx_v4_client.node.market import Market
