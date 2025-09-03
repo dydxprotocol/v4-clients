@@ -97,7 +97,7 @@ export class Composer {
     conditionalOrderTriggerSubticks: Long = Long.fromInt(0),
     twapParameters?: ITwapParameters,
     builderCodeParameters?: IBuilderCodeParameters,
-    orderRouterAddress?: string,
+    orderRouterAddress: string = "",
   ): EncodeObject {
     this.validateGoodTilBlockAndTime(orderFlags, goodTilBlock, goodTilBlockTime);
 
