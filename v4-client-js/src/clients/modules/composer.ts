@@ -57,7 +57,7 @@ import {
   TYPE_URL_MSG_REMOVE_AUTHENTICATOR,
   AuthenticatorType,
 } from '../constants';
-import { DenomConfig } from '../types';
+import { DenomConfig, ITwapParameters, IBuilderCodeParameters } from '../types';
 import {
   OrderId,
   Order,
@@ -95,6 +95,9 @@ export class Composer {
     clientMetadata: number,
     conditionType: Order_ConditionType = Order_ConditionType.CONDITION_TYPE_UNSPECIFIED,
     conditionalOrderTriggerSubticks: Long = Long.fromInt(0),
+    twapParameters?: ITwapParameters,
+    builderCodeParameters?: IBuilderCodeParameters,
+    orderRouterAddress?: string,
   ): EncodeObject {
     this.validateGoodTilBlockAndTime(orderFlags, goodTilBlock, goodTilBlockTime);
 

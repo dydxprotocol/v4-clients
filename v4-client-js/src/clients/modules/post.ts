@@ -515,10 +515,10 @@ export class Post {
       placeOrder.clientMetadata,
       placeOrder.conditionType ?? Order_ConditionType.CONDITION_TYPE_UNSPECIFIED,
       placeOrder.conditionalOrderTriggerSubticks ?? Long.fromInt(0),
+      broadcastMode,
       placeOrder.twapParameters,
       placeOrder.builderCodeParameters,
       placeOrder.orderRouterAddress,
-      broadcastMode,
     );
   }
 
