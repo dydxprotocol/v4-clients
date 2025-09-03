@@ -110,19 +110,21 @@ message ConditionalOrderPlacement {
   TransactionOrdering trigger_index = 3;
 }
 
-// TwapParameters contains parameters for Time-Weighted Average Price (TWAP) order execution.
+// TwapParameters represents the necessary configuration for a TWAP order.
 message TwapParameters {
-  // The duration over which the TWAP order should be executed, in seconds.
-  uint32 duration_seconds = 1;
+  // Duration of the TWAP order execution in seconds. Must be in the range
+  // [300 (5 minutes), 86400 (24 hours)].
+  uint32 duration = 1;
 
-  // The number of sub-orders to split the TWAP order into.
-  uint32 num_randomized_rounds = 2;
+  // Interval in seconds for each suborder to execute. Must be a
+  // whole number, a factor of the duration, and in the range
+  // [30 (30 seconds), 3600 (1 hour)].
+  uint32 interval = 2;
 
-  // The minimum size for each sub-order as a percentage of the total order size.
-  uint32 min_order_size_percentage = 3;
-
-  // The maximum size for each sub-order as a percentage of the total order size.
-  uint32 max_order_size_percentage = 4;
+  // Price tolerance in ppm for each suborder. This will be applied to
+  // the oracle price each time a suborder is triggered. Must be
+  // be in the range [0, 1_000_000).
+  uint32 price_tolerance = 3;
 }
 
 // BuilderCodeParameters contains parameters for builder code execution.
