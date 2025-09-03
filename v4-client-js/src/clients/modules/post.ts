@@ -413,10 +413,10 @@ export class Post {
     clientMetadata: number = 0,
     conditionType: Order_ConditionType = Order_ConditionType.CONDITION_TYPE_UNSPECIFIED,
     conditionalOrderTriggerSubticks: Long = Long.fromInt(0),
-    broadcastMode?: BroadcastMode,
     twapParameters?: ITwapParameters,
     builderCodeParameters?: IBuilderCodeParameters,
     orderRouterAddress?: string,
+    broadcastMode?: BroadcastMode,
   ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
     const msg = await this.placeOrderMsg(
       subaccount.address,
@@ -515,10 +515,10 @@ export class Post {
       placeOrder.clientMetadata,
       placeOrder.conditionType ?? Order_ConditionType.CONDITION_TYPE_UNSPECIFIED,
       placeOrder.conditionalOrderTriggerSubticks ?? Long.fromInt(0),
-      broadcastMode,
       placeOrder.twapParameters,
       placeOrder.builderCodeParameters,
       placeOrder.orderRouterAddress,
+      broadcastMode,
     );
   }
 
