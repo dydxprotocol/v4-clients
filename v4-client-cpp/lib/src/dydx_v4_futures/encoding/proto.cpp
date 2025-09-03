@@ -187,7 +187,7 @@ std::string CreatePlaceOrderMessage(
             params.client_metadata,
             params.twap_parameters,
             params.builder_code_parameters,
-            params.order_router_address,
+            params.order_router_address
         ),
         /*gas_limit=*/0
     );
