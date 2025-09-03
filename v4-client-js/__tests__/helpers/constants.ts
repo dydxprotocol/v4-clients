@@ -36,6 +36,32 @@ export const defaultOrder: IPlaceOrder = {
   timeInForce: Order_TimeInForce.TIME_IN_FORCE_UNSPECIFIED,
   reduceOnly: false,
   clientMetadata: 0,
+  // New optional fields
+  twapParameters: undefined,
+  builderCodeParameters: undefined,
+  orderRouterAddress: undefined,
+};
+
+// PlaceOrder with TWAP parameters for testing
+export const twapOrder: IPlaceOrder = {
+  ...defaultOrder,
+  clientId: 1,
+  twapParameters: {
+    duration: 3600, // 1 hour
+    interval: 300,  // 5 minutes
+    priceTolerance: 50000, // 5% in ppm
+  },
+};
+
+// PlaceOrder with builder code parameters for testing
+export const builderOrder: IPlaceOrder = {
+  ...defaultOrder,
+  clientId: 2,
+  builderCodeParameters: {
+    builderAddress: 'dydx1test_builder_address',
+    feePpm: 1000, // 0.1% fee
+  },
+  orderRouterAddress: 'dydx1test_router_address',
 };
 
 // CancelOrder variables
