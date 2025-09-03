@@ -22,7 +22,10 @@ dydxprotocol::clob::MsgPlaceOrder CreateProtoMsgPlaceOrder(
     Subticks condition_order_trigger_subticks,
     bool reduce_only,
     bool long_term,
-    uint32_t client_metadata
+    uint32_t client_metadata,
+    const std::optional<dydxprotocol::clob::BuilderCodeParameters>& builder_code_parameters,
+    const std::optional<dydxprotocol::clob::TwapParameters>& twap_parameters,
+    const std::optional<std::string>& order_router_address
 )
 {
     assert(condition_type == dydxprotocol::clob::Order_ConditionType_CONDITION_TYPE_UNSPECIFIED || long_term);
@@ -51,6 +54,17 @@ dydxprotocol::clob::MsgPlaceOrder CreateProtoMsgPlaceOrder(
     order.set_client_metadata(client_metadata);
     order.set_condition_type(condition_type);
     order.set_conditional_order_trigger_subticks(condition_order_trigger_subticks);
+
+    if (order_router_address.has_value()) {
+        order.set_order_router_address(*order_router_address);
+    }
+    if (twap_parameters.has_value()) {
+        *order.mutable_twap_parameters() = *twap_parameters;
+    }
+    if (builder_code_parameters.has_value()) {
+        *order.mutable_builder_code_parameters() = *builder_code_parameters;
+    }
+
     return place_order;
 }
 

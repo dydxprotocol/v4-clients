@@ -35,7 +35,10 @@ dydxprotocol::clob::MsgPlaceOrder CreateProtoMsgPlaceOrder(
     Subticks condition_order_trigger_subticks,
     bool reduce_only,
     bool long_term,
-    uint32_t client_metadata
+    uint32_t client_metadata,
+    const std::optional<dydxprotocol::clob::BuilderCodeParameters>& builder_code_parameters = std::nullopt,
+    const std::optional<dydxprotocol::clob::TwapParameters>& twap_parameters = std::nullopt,
+    const std::optional<std::string>& order_router_address = std::nullopt
 );
 
 dydxprotocol::clob::MsgCancelOrder CreateProtoMsgCancelOrder(

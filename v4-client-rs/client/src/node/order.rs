@@ -167,6 +167,7 @@ pub struct OrderBuilder {
     slippage: BigDecimal,
     builder_code_parameters: Option<BuilderCodeParameters>,
     twap_parameters: Option<TwapParameters>,
+    order_router_address: Option<String>,
 }
 
 impl OrderBuilder {
@@ -189,6 +190,7 @@ impl OrderBuilder {
             slippage: BigDecimal::new(5.into(), 2),
             builder_code_parameters: None,
             twap_parameters: None,
+            order_router_address: None,
         }
     }
 
@@ -387,6 +389,12 @@ impl OrderBuilder {
         self
     }
 
+    /// Set the order router address.
+    pub fn order_router_address(mut self, address: impl Into<String>) -> Self {
+        self.order_router_address = Some(address.into());
+        self
+    }
+
     /// Update the generator's market.
     ///
     /// Note that at the moment dYdX [doesn't support](https://dydx.exchange/faq) spot trading.
@@ -468,6 +476,7 @@ impl OrderBuilder {
             good_til_oneof: Some(until.clone().try_into()?),
             builder_code_parameters: self.builder_code_parameters.clone(),
             twap_parameters: self.twap_parameters,
+            order_router_address: self.order_router_address.unwrap_or_default(),
         };
 
         Ok((order_id, order))
