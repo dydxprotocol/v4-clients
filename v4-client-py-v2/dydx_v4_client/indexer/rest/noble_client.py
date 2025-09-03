@@ -247,7 +247,7 @@ class NobleClient:
             gas_limit=gas_limit,
         )
 
-    async def send_token_ibc(self, sender, recipient, token, source_channel) -> Any:
+    async def send_token_ibc(self, sender, recipient, token, source_channel) -> any:
         """
         Transfer a token asset between Cosmos blockchain networks.
 
