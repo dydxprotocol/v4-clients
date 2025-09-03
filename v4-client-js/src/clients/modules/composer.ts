@@ -125,6 +125,9 @@ export class Composer {
       clientMetadata: clientMetadata ?? 0,
       conditionType,
       conditionalOrderTriggerSubticks,
+      twapParameters,
+      builderCodeParameters,
+      orderRouterAddress,
     };
     const msg: MsgPlaceOrder = {
       order,
