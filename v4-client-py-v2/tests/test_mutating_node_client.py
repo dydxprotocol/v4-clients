@@ -1,6 +1,5 @@
 import time
-from random import random
-import json
+import random
 import grpc
 import pytest
 import asyncio
@@ -375,11 +374,7 @@ async def test_close_position_sell_no_reduce_by(
         reduce_by=None,
         client_id=random.randint(0, MAX_CLIENT_ID),
     )
-    print(response)
 
-    await asyncio.sleep(10)
-    size_after_closing = await get_current_order_size(node_client, test_address)
-    print(f"Look:{size_before_placing_order}, {size_after_placing_order}, {size_after_closing}")
     await asyncio.sleep(5)
 
     assert await get_current_order_size(indexer_rest_client, test_address) is None
