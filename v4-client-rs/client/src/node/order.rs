@@ -474,8 +474,8 @@ impl OrderBuilder {
             condition_type: ty.condition_type()?.into(),
             conditional_order_trigger_subticks,
             good_til_oneof: Some(until.clone().try_into()?),
-            twap_parameters: self.twap_parameters,
             builder_code_parameters: self.builder_code_parameters.clone(),
+            twap_parameters: self.twap_parameters,
             order_router_address: self.order_router_address.unwrap_or_default(),
         };
 
