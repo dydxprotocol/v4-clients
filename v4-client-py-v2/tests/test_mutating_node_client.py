@@ -6,6 +6,8 @@ import asyncio
 from dydx_v4_client.node.message import subaccount, send_token, order
 from tests.conftest import get_wallet, assert_successful_broadcast
 from v4_proto.dydxprotocol.clob.order_pb2 import BuilderCodeParameters
+from dydx_v4_client.indexer.rest.constants import OrderStatus
+
 
 REQUEST_PROCESSING_TIME = 5
 
@@ -65,7 +67,13 @@ async def test_send_token(node_client, wallet, test_address, recipient):
 
 @pytest.mark.asyncio
 async def test_order(
-    node_client, test_order, test_order_id, test_address, key_pair, wallet
+    node_client,
+    test_order,
+    test_order_id,
+    test_address,
+    key_pair,
+    wallet,
+    indexer_rest_client,
 ):
     try:
         placed = await node_client.place_order(
@@ -79,6 +87,12 @@ async def test_order(
         # If the time is too long the result is:
         # codespace: "clob"\n  code:...hj67cghhf9jypslcf9sh2n5k6art Number:0} ClientId:13850897 OrderFlags:64 ClobPairId:0}: Stateful order does not exist"
         time.sleep(2)
+
+        orders = await indexer_rest_client.account.get_subaccount_orders(
+            test_address, 0, status=OrderStatus.OPEN
+        )
+        number_of_orders = len(orders)
+        assert number_of_orders != 0
 
         wallet = await get_wallet(node_client, key_pair, test_address)
 
@@ -97,12 +111,18 @@ async def test_order(
 
 @pytest.mark.asyncio
 async def test_order_cancel(
-    node_client, test_order, test_order_id, test_address, key_pair, wallet
+    node_client,
+    test_order2,
+    test_order_id,
+    test_address,
+    key_pair,
+    wallet,
+    indexer_rest_client,
 ):
     try:
         placed = await node_client.place_order(
             wallet,
-            test_order,
+            test_order2,
         )
         assert_successful_broadcast(placed)
 
@@ -112,12 +132,18 @@ async def test_order_cancel(
         # codespace: "clob"\n  code:...hj67cghhf9jypslcf9sh2n5k6art Number:0} ClientId:13850897 OrderFlags:64 ClobPairId:0}: Stateful order does not exist"
         time.sleep(2)
 
+        orders = await indexer_rest_client.account.get_subaccount_orders(
+            test_address, 0, status=OrderStatus.OPEN
+        )
+        number_of_orders = len(orders)
+        assert number_of_orders != 0
+
         wallet = await get_wallet(node_client, key_pair, test_address)
 
         canceled = await node_client.cancel_order(
             wallet,
             test_order_id,
-            good_til_block_time=test_order.good_til_block_time,
+            good_til_block_time=test_order2.good_til_block_time,
         )
         assert_successful_broadcast(canceled)
         # assert canceled.__repr__() == ""
