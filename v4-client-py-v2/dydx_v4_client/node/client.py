@@ -11,12 +11,9 @@ from google.protobuf.json_format import MessageToDict
 from typing_extensions import List, Optional, Self
 
 from dydx_v4_client import OrderFlags
-<<<<<<< HEAD
 
 from dydx_v4_client.indexer.rest.constants import OrderSide, OrderType
-=======
 from dydx_v4_client.indexer.rest.constants import OrderType
->>>>>>> 2ba1d7a (Using order side from proto)
 from dydx_v4_client.node.market import Market
 from v4_proto.cosmos.auth.v1beta1 import query_pb2_grpc as auth
 from v4_proto.cosmos.auth.v1beta1.auth_pb2 import BaseAccount
