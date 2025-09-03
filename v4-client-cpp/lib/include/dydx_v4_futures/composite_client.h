@@ -124,8 +124,8 @@ struct CompositeClient {
             .good_till_block = params.good_till_block ? *params.good_till_block : GetGoodTillBlock(),
             .reduce_only = params.reduce_only,
             .client_metadata = client_metadata,
-            .builder_code_parameters = std::nullopt,
             .twap_parameters = std::nullopt,
+            .builder_code_parameters = std::nullopt,
             .order_router_address = std::nullopt,
         };
     }
@@ -144,8 +144,8 @@ struct CompositeClient {
             .reduce_only = params.reduce_only,
             .conditional_order_params = params.conditional_order_params,
             .client_metadata = client_metadata,
-            .builder_code_parameters = std::nullopt,
             .twap_parameters = std::nullopt,
+            .builder_code_parameters = std::nullopt,
             .order_router_address = std::nullopt,
         };
     }

@@ -60,8 +60,8 @@ struct LowLevelPlaceShortTermOrderParams {
     BlockNumber good_till_block;
     bool reduce_only;
     uint32_t client_metadata;
-    std::optional<dydxprotocol::clob::BuilderCodeParameters> builder_code_parameters;
     std::optional<dydxprotocol::clob::TwapParameters> twap_parameters;
+    std::optional<dydxprotocol::clob::BuilderCodeParameters> builder_code_parameters;
     std::optional<std::string> order_router_address;
 };
 
@@ -90,8 +90,8 @@ struct LowLevelPlaceLongTermOrderParams {
     bool reduce_only;
     std::optional<ConditionalOrderParams> conditional_order_params;
     uint32_t client_metadata;
-    std::optional<dydxprotocol::clob::BuilderCodeParameters> builder_code_parameters;
     std::optional<dydxprotocol::clob::TwapParameters> twap_parameters;
+    std::optional<dydxprotocol::clob::BuilderCodeParameters> builder_code_parameters;
     std::optional<std::string> order_router_address;
 };
 
