@@ -35,6 +35,9 @@ struct PlaceLongTermOrderParams {
     bool reduce_only = false;
     std::optional<ConditionalOrderParams> conditional_order_params = std::nullopt;
     std::optional<uint32_t> client_metadata = std::nullopt;
+    std::optional<TwapParameters> twap_parameters = std::nullopt;
+    std::optional<BuilderCodeParameters> builder_code_parameters = std::nullopt;
+    std::optional<std::string> order_router_address = std::nullopt;
 };
 
 struct CancelShortTermOrderParams {
