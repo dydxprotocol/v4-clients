@@ -35,9 +35,6 @@ struct PlaceLongTermOrderParams {
     bool reduce_only = false;
     std::optional<ConditionalOrderParams> conditional_order_params = std::nullopt;
     std::optional<uint32_t> client_metadata = std::nullopt;
-    std::optional<TwapParameters> twap_parameters = std::nullopt;
-    std::optional<BuilderCodeParameters> builder_code_parameters = std::nullopt;
-    std::optional<std::string> order_router_address = std::nullopt;
 };
 
 struct CancelShortTermOrderParams {
@@ -127,9 +124,9 @@ struct CompositeClient {
             .good_till_block = params.good_till_block ? *params.good_till_block : GetGoodTillBlock(),
             .reduce_only = params.reduce_only,
             .client_metadata = client_metadata,
-            .twap_parameters = params.twap_parameters,
-            .builder_code_parameters = params.builder_code_parameters,
-            .order_router_address = params.order_router_address,
+            .twap_parameters = std::nullopt,
+            .builder_code_parameters = std::nullopt,
+            .order_router_address = std::nullopt,
         };
     }
 
@@ -147,9 +144,9 @@ struct CompositeClient {
             .reduce_only = params.reduce_only,
             .conditional_order_params = params.conditional_order_params,
             .client_metadata = client_metadata,
-            .twap_parameters = params.twap_parameters,
-            .builder_code_parameters = params.builder_code_parameters,
-            .order_router_address = params.order_router_address,
+            .twap_parameters = std::nullopt,
+            .builder_code_parameters = std::nullopt,
+            .order_router_address = std::nullopt,
         };
     }
 
