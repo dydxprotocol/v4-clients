@@ -96,7 +96,7 @@ impl<'a> Feeds<'a> {
 
     /// This channel provides realtime information about markets.
     ///
-    /// Initial message returns information on markets like [`list_perpetual_markets`](crate::indexer::Markets::list_perpetual_markets).
+    /// Initial message returns information on markets like [`get_perpetual_markets`](crate::indexer::Markets::get_perpetual_markets).
     ///
     /// Subsequent responses will contain any update to markets.
     pub async fn markets(&mut self, batched: bool) -> Result<Feed<MarketsMessage>, FeedError> {
@@ -105,7 +105,7 @@ impl<'a> Feeds<'a> {
 
     /// This channel provides realtime information about trades for the market.
     ///
-    /// Initial message returns information on trades like [`get_trades`](crate::indexer::Markets::get_trades).
+    /// Initial message returns information on trades like [`get_perpetual_market_trades`](crate::indexer::Markets::get_perpetual_market_trades).
     ///
     /// Subsequent responses will contain any update to trades for the market.
     pub async fn trades(
@@ -135,7 +135,7 @@ impl<'a> Feeds<'a> {
 
     /// This channel provides realtime information about the candles for the market.
     ///
-    /// Initial message returns information on candles like [`get_candles`](crate::indexer::Markets::get_candles).
+    /// Initial message returns information on candles like [`get_perpetual_market_candles`](crate::indexer::Markets::get_perpetual_market_candles).
     ///
     /// Subsequent responses will contain any update to the candles for the market.
     pub async fn candles(

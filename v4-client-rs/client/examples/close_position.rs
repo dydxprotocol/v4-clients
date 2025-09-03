@@ -41,7 +41,7 @@ async fn get_open_position(
 ) -> Option<PerpetualPosition> {
     indexer
         .accounts()
-        .list_positions(
+        .get_subaccount_perpetual_positions(
             subaccount,
             Some(ListPositionsOpts {
                 status: Some(PerpetualPositionStatus::Open),

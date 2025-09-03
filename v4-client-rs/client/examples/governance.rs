@@ -31,7 +31,7 @@ impl GovernanceExample {
         let proposals = self
             .node
             .governance()
-            .proposals(
+            .get_all_gov_proposals(
                 ProposalStatus::Passed,
                 address.clone(),
                 address.clone(),
@@ -149,7 +149,7 @@ impl GovernanceExample {
             let tx_res = self
                 .node
                 .governance()
-                .withdraw_delegate_reward(&mut account, address.clone(), validator_address)
+                .withdraw_delegator_reward(&mut account, address.clone(), validator_address)
                 .await;
 
             match &tx_res {

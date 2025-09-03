@@ -557,7 +557,7 @@ impl NodeClient {
             return Ok(None);
         };
 
-        let height = self.get_latest_block_height().await?;
+        let height = self.latest_block_height().await?;
 
         let (_, order) = OrderBuilder::new(market_params, subaccount.clone())
             .market(side, size)
@@ -798,7 +798,7 @@ impl NodeClient {
     /// a collateral pool associated with the passed in perpetual ID.
     ///
     /// Check [the example](https://github.com/dydxprotocol/v4-clients/blob/main/v4-client-rs/client/examples/validator_get.rs).
-    pub async fn withdrawal_and_transfers_blocked_info(
+    pub async fn get_withdrawal_and_transfer_gating_status(
         &mut self,
         perpetual_id: u32,
     ) -> Result<QueryGetWithdrawalAndTransfersBlockedInfoResponse, Error> {

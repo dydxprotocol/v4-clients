@@ -45,7 +45,7 @@ async fn main() -> Result<()> {
         .get_perpetual_market(&ticker)
         .await?;
 
-    let current_block_height = placer.client.get_latest_block_height().await?;
+    let current_block_height = placer.client.latest_block_height().await?;
     let good_until = current_block_height.ahead(10);
 
     let (order_id, order) = OrderBuilder::new(market, subaccount)

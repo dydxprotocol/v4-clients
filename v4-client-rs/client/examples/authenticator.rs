@@ -79,7 +79,7 @@ async fn main() -> Result<()> {
     master
         .client
         .authenticators()
-        .add(&mut master.account, master_address.clone(), authenticator)
+        .add_authenticator(&mut master.account, master_address.clone(), authenticator)
         .await?;
 
     sleep(Duration::from_secs(3)).await;
@@ -93,7 +93,7 @@ async fn main() -> Result<()> {
     let id = permissioned
         .client
         .authenticators()
-        .list(master_address.clone())
+        .get_authenticators(master_address.clone())
         .await?
         .last()
         .unwrap()
@@ -121,7 +121,7 @@ async fn main() -> Result<()> {
         .markets()
         .get_perpetual_market(&ETH_USD_TICKER.into())
         .await?;
-    let current_block_height = permissioned.client.get_latest_block_height().await?;
+    let current_block_height = permissioned.client.latest_block_height().await?;
 
     let size = BigDecimal::from_str("0.02")?;
     let (_id, order) = OrderBuilder::new(market, master_subaccount)
@@ -146,7 +146,7 @@ async fn main() -> Result<()> {
     master
         .client
         .authenticators()
-        .remove(&mut master.account, master_address, id)
+        .remove_authenticator(&mut master.account, master_address, id)
         .await?;
 
     Ok(())

@@ -79,7 +79,7 @@ async fn test_node_governance_delegate_undelegate() -> Result<(), Error> {
 
 #[tokio::test]
 #[serial]
-async fn test_node_governance_withdraw_delegate_reward() -> Result<(), Error> {
+async fn test_node_governance_withdraw_delegator_reward() -> Result<(), Error> {
     let env = TestEnv::testnet().await?;
     let mut node = env.node;
     let mut account = env.account;
@@ -94,7 +94,7 @@ async fn test_node_governance_withdraw_delegate_reward() -> Result<(), Error> {
 
     let tx_res = node
         .governance()
-        .withdraw_delegate_reward(&mut account, env.address.clone(), validator_address)
+        .withdraw_delegator_reward(&mut account, env.address.clone(), validator_address)
         .await;
 
     node.query_transaction_result(tx_res).await?;
@@ -139,13 +139,13 @@ async fn test_node_governance_register_affiliate() -> Result<(), Error> {
 
 #[tokio::test]
 #[serial]
-async fn test_node_governance_proposals() -> Result<(), Error> {
+async fn test_node_governance_get_all_gov_proposals() -> Result<(), Error> {
     let env = TestEnv::testnet().await?;
     let mut node = env.node;
 
     let _proposals = node
         .governance()
-        .proposals(
+        .get_all_gov_proposals(
             ProposalStatus::Passed,
             env.address.clone(),
             env.address.clone(),
@@ -158,13 +158,13 @@ async fn test_node_governance_proposals() -> Result<(), Error> {
 
 #[tokio::test]
 #[serial]
-async fn test_node_governance_delegation_total_rewards() -> Result<(), Error> {
+async fn test_node_governance_get_delegation_total_rewards() -> Result<(), Error> {
     let env = TestEnv::testnet().await?;
     let mut node = env.node;
 
     let _rewards = node
         .governance()
-        .delegation_total_rewards(env.address.clone())
+        .get_delegation_total_rewards(env.address.clone())
         .await?;
 
     Ok(())
