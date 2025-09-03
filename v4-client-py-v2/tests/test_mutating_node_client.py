@@ -9,13 +9,13 @@ from dydx_v4_client.indexer.rest.constants import OrderType, OrderSide
 from dydx_v4_client.node.market import Market
 from dydx_v4_client.node.message import order
 from dydx_v4_client.node.market import Market, since_now
+
 from dydx_v4_client.indexer.rest.constants import OrderType
 from dydx_v4_client.node.market import Market
 from dydx_v4_client.node.message import subaccount, send_token
 from tests.conftest import get_wallet, assert_successful_broadcast
 from v4_proto.dydxprotocol.clob.order_pb2 import BuilderCodeParameters
 from dydx_v4_client.indexer.rest.constants import OrderStatus
-
 
 from v4_proto.dydxprotocol.clob.order_pb2 import Order
 
@@ -323,6 +323,7 @@ async def test_place_order_with_builder_code(
     assert fills["fills"][0]["builderAddress"] == test_address
 
 
+@pytest.mark.asyncio
 async def test_close_position_sell_no_reduce_by(
     node_client, wallet, test_address, indexer_rest_client
 ):
@@ -374,9 +375,7 @@ async def test_close_position_sell_no_reduce_by(
         reduce_by=None,
         client_id=random.randint(0, MAX_CLIENT_ID),
     )
-
     await asyncio.sleep(5)
-
     assert await get_current_order_size(indexer_rest_client, test_address) is None
 
 
@@ -433,7 +432,6 @@ async def test_close_position_sell_having_reduce_by(
         client_id=random.randint(0, MAX_CLIENT_ID),
     )
     await asyncio.sleep(5)
-
     assert await get_current_order_size(indexer_rest_client, test_address) == -0.001
 
 
@@ -490,7 +488,6 @@ async def test_close_position_buy_no_reduce_by(
         client_id=random.randint(0, MAX_CLIENT_ID),
     )
     await asyncio.sleep(5)
-
     assert await get_current_order_size(indexer_rest_client, test_address) is None
 
 
