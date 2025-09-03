@@ -19,8 +19,6 @@ from dydx_v4_client.key_pair import KeyPair
 
 from v4_proto.dydxprotocol.clob.order_pb2 import Order, OrderId
 from v4_proto.cosmos.tx.v1beta1.service_pb2 import BroadcastTxResponse
-from v4_proto.dydxprotocol.clob.order_pb2 import TwapParameters
-from v4_proto.dydxprotocol.clob.order_pb2 import BuilderCodeParameters
 
 pytest_plugins = ("pytest_asyncio",)
 
@@ -139,48 +137,6 @@ def test_order2(test_order_id) -> Order:
         builder_code_parameters=None,
         twap_parameters=None,
         order_router_address=None,
-    )
-
-
-@pytest.fixture
-def test_twap_order(test_order_id) -> Order:
-    """Order with TWAP parameters for testing."""
-    twap_params = TwapParameters(
-        duration=3600,  # 1 hour
-        interval=300,   # 5 minutes
-        price_tolerance=50000,  # 5% in ppm
-    )
-
-    return order(
-        test_order_id,
-        time_in_force=0,
-        reduce_only=False,
-        side=1,
-        quantums=10000000,
-        subticks=40000000000,
-        good_til_block_time=int(time.time() + 60),
-        twap_parameters=twap_params,
-    )
-
-
-@pytest.fixture
-def test_builder_order(test_order_id) -> Order:
-    """Order with builder code parameters for testing."""
-    builder_params = BuilderCodeParameters(
-        builder_address="dydx1test_builder_address",
-        fee_ppm=1000,  # 0.1% fee
-    )
-
-    return order(
-        test_order_id,
-        time_in_force=0,
-        reduce_only=False,
-        side=1,
-        quantums=10000000,
-        subticks=40000000000,
-        good_til_block_time=int(time.time() + 60),
-        builder_code_parameters=builder_params,
-        order_router_address="dydx1test_router_address",
     )
 
 
