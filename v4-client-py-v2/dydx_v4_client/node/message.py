@@ -45,36 +45,15 @@ def order(
     subticks: int,
     time_in_force: Order.TimeInForce,
     reduce_only: bool,
-    builder_code_parameters: Optional[BuilderCodeParameters],
-    twap_parameters: Optional[TwapParameters],
-    order_router_address: Optional[str],
     good_til_block: int = None,
     good_til_block_time: int = None,
     client_metadata: int = 0,
     condition_type: Order.ConditionType = Order.ConditionType.CONDITION_TYPE_UNSPECIFIED,
     conditional_order_trigger_subticks: int = 0,
-    twap_parameters=None,
-    builder_code_parameters=None,
-    order_router_address: str = None,
+    twap_parameters: Optional[TwapParameters] = None,
+    builder_code_parameters: Optional[BuilderCodeParameters] = None,
+    order_router_address: Optional[str] = None,
 ):
-<<<<<<< HEAD
-    return Order(
-        order_id=order_id,
-        side=side,
-        quantums=quantums,
-        subticks=subticks,
-        good_til_block=good_til_block,
-        good_til_block_time=good_til_block_time,
-        time_in_force=time_in_force,
-        reduce_only=reduce_only,
-        client_metadata=PY_V2_CLIENT_ID,
-        condition_type=condition_type,
-        conditional_order_trigger_subticks=conditional_order_trigger_subticks,
-        builder_code_parameters=builder_code_parameters,
-        twap_parameters=twap_parameters,
-        order_router_address=order_router_address,
-    )
-=======
     order_kwargs = {
         "order_id": order_id,
         "side": side,
@@ -98,7 +77,6 @@ def order(
         order_kwargs["order_router_address"] = order_router_address
 
     return Order(**order_kwargs)
->>>>>>> 40eb8e4 (Update order protos with new fields)
 
 
 def order_id(
