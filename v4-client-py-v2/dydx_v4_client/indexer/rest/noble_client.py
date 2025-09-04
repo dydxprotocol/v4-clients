@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List, Optional, Any
 
 import grpc
 from v4_proto.cosmos.auth.v1beta1 import query_pb2_grpc as auth
@@ -29,6 +29,7 @@ from dydx_v4_client.config import GAS_MULTIPLIER
 from dydx_v4_client.node.builder import as_any
 from dydx_v4_client.key_pair import KeyPair
 from dydx_v4_client.wallet import Wallet
+
 
 class NobleClient:
     """
@@ -262,5 +263,3 @@ class NobleClient:
         """
 
         coin = token.coin()
-
-        
