@@ -17,4 +17,4 @@ derive_more = { version = "2", features = ["full"] }
 log = "0.4"
 thiserror = "2"
 tokio = { version = "1.43", features = ["fs", "rt-multi-thread"] }
-dydx-proto = "0.3.0"
+dydx-proto = "0.4.0"

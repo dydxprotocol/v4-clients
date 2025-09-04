@@ -35,7 +35,7 @@ async fn main() -> Result<()> {
     let tx_hash = vaulter
         .client
         .megavault()
-        .deposit(&mut account, subaccount.clone(), 1)
+        .deposit_to_megavault(&mut account, subaccount.clone(), 1)
         .await?;
     tracing::info!("Deposit transaction hash: {:?}", tx_hash);
 
@@ -46,7 +46,7 @@ async fn main() -> Result<()> {
     let tx_hash = vaulter
         .client
         .megavault()
-        .withdraw(&mut account, subaccount, 0, Some(&number_of_shares))
+        .withdraw_from_megavault(&mut account, subaccount, 0, Some(&number_of_shares))
         .await?;
     tracing::info!("Withdraw transaction hash: {:?}", tx_hash);
 

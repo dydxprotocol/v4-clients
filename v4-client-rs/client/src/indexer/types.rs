@@ -42,6 +42,12 @@ pub struct Account {
 )]
 pub struct Address(String);
 
+impl Default for Address {
+    fn default() -> Self {
+        Self(String::new())
+    }
+}
+
 impl FromStr for Address {
     type Err = Error;
     fn from_str(value: &str) -> Result<Self, Error> {

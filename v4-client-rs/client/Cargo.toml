@@ -35,16 +35,17 @@ delegate = "0.13"
 derive_more.workspace = true
 futures-util = "0.3"
 governor = { version = "0.8", default-features = false, features = ["std"] }
-ibc-proto = { version = "0.51", optional = true }
+ibc-proto = { version = "0.52", optional = true }
 log.workspace = true
 rand = "0.9"
 reqwest = { version = "0.12", features = ["json"] }
+rustls = { version = "0.23", features = ["ring"] }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 serde_with = "3.12"
 strum = { version = "0.26", features = ["derive"] }
 thiserror.workspace = true
-tonic = { version = "0.12", features = ["tls-native-roots"] }
+tonic = { version = "0.13", features = ["tls-native-roots"] }
 tokio.workspace = true
 tokio-tungstenite = { version = "0.26", features = ["native-tls"] }
 toml = "0.8"

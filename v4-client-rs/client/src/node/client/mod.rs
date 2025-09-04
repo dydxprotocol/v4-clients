@@ -569,19 +569,19 @@ impl NodeClient {
     }
 
     /// Access the vaults requests dispatcher
-    pub fn megavault(&mut self) -> MegaVault {
+    pub fn megavault(&mut self) -> MegaVault<'_> {
         MegaVault::new(self)
     }
 
     /// Access the governance requests dispatcher
-    pub fn governance(&mut self) -> Governance {
+    pub fn governance(&mut self) -> Governance<'_> {
         Governance::new(self)
     }
 
     /// Access the authenticators/permissioned keys requests dispatcher.
     ///
     /// See the [example](https://github.com/dydxprotocol/v4-clients/blob/main/v4-client-rs/client/examples/authenticator.rs).
-    pub fn authenticators(&mut self) -> Authenticators {
+    pub fn authenticators(&mut self) -> Authenticators<'_> {
         Authenticators::new(self)
     }
 

@@ -2,6 +2,7 @@
 use anyhow::anyhow as err;
 use anyhow::{Error, Result};
 use chrono::{TimeDelta, Utc};
+use std::sync::Once;
 #[cfg(feature = "faucet")]
 use dydx::faucet::FaucetClient;
 #[cfg(feature = "noble")]
@@ -15,6 +16,16 @@ use dydx::{
 const TEST_MNEMONIC: &str = "mirror actor skill push coach wait confirm orchard lunch mobile athlete gossip awake miracle matter bus reopen team ladder lazy list timber render wait";
 
 const TEST_MNEMONIC_2: &str = "movie yard still copper exile wear brisk chest ride dizzy novel future menu finish radar lunar claim hub middle force turtle mouse frequent embark";
+
+static INIT_CRYPTO: Once = Once::new();
+
+fn init_crypto_provider() {
+    INIT_CRYPTO.call_once(|| {
+        rustls::crypto::ring::default_provider()
+            .install_default()
+            .expect("Failed to install default rustls crypto provider");
+    });
+}
 
 pub enum TestEnv {}
 
@@ -37,6 +48,9 @@ pub struct MainnetEnv {
 
 impl MainnetEnv {
     async fn bootstrap() -> Result<Self> {
+        // Initialize rustls crypto provider
+        init_crypto_provider();
+            
         let path = "tests/mainnet.toml";
         let config = ClientConfig::from_file(path).await?;
         let indexer = IndexerClient::new(config.indexer);
@@ -68,6 +82,9 @@ pub struct TestnetEnv {
 #[allow(dead_code)]
 impl TestnetEnv {
     async fn bootstrap() -> Result<Self> {
+        // Initialize rustls crypto provider
+        init_crypto_provider();
+
         let path = "tests/testnet.toml";
         let config = ClientConfig::from_file(path).await?;
         let mut node = NodeClient::connect(config.node).await?;

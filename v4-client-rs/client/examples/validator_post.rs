@@ -69,6 +69,7 @@ async fn main() -> Result<()> {
             good_til_oneof: Some(GoodTilOneof::GoodTilBlock(til_height)),
             builder_code_parameters: None,
             twap_parameters: None,
+            order_router_address: "".to_string(),
         };
 
         let tx_hash = placer.client.place_order(&mut account, order).await?;
