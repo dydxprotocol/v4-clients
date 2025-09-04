@@ -84,6 +84,8 @@ from v4_proto.dydxprotocol.ratelimit import query_pb2 as rate_query
 from v4_proto.dydxprotocol.ratelimit import query_pb2_grpc as rate_query_grpc
 from v4_proto.dydxprotocol.affiliates import query_pb2 as affiliate_query
 from v4_proto.dydxprotocol.affiliates import query_pb2_grpc as affiliate_query_grpc
+from v4_proto.dydxprotocol.revshare import query_pb2_grpc as revshare_query_grpc
+from v4_proto.dydxprotocol.revshare import query_pb2 as revshare_query
 
 from dydx_v4_client.network import NodeConfig
 from dydx_v4_client.node.authenticators import Authenticator, validate_authenticator

@@ -17,6 +17,9 @@ export const DYDX_LOCAL_MNEMONIC =
 
 export const DYDX_TEST_MNEMONIC_2 = 'movie yard still copper exile wear brisk chest ride dizzy novel future menu finish radar lunar claim hub middle force turtle mouse frequent embark';
 
+// dydx1fxu2ndxwju2evh28js0cflkxn5wxzvlhw4gec5
+export const DYDX_TEST_MNEMONIC_3 = 'crane poverty boil edit response weasel quick almost fringe able upon benefit boil boat narrow innocent enter cradle tongue toward luggage awful mention column';
+
 export const MARKET_BTC_USD: string = 'BTC-USD';
 export const PERPETUAL_PAIR_BTC_USD: number = 0;
 

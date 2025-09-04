@@ -1,5 +1,3 @@
-import { TextDecoder } from 'util';
-
 import { EncodeObject } from '@cosmjs/proto-signing';
 import { Account, GasPrice, IndexedTx, StdFee } from '@cosmjs/stargate';
 import { Method } from '@cosmjs/tendermint-rpc';
@@ -1084,7 +1082,7 @@ export class CompositeClient {
           console.log(err);
         });
     });
-    const signature = await this.sign(wallet, () => msgs, true);
+    const signature = await this.sign(subaccount.wallet, () => msgs, true);
 
     return Buffer.from(signature).toString('base64');
   }
@@ -1414,34 +1412,41 @@ export class CompositeClient {
   }
 
   validateAuthenticator(authenticator: Authenticator): boolean {
-    function checkAuthenticator(auth: Authenticator): boolean {
+    const decodeCompositeConfig = (config: unknown): Authenticator[] | null => {
+      if (Array.isArray(config)) {
+        return config as Authenticator[];
+      }
+      if (typeof config === 'string') {
+        try {
+          const decoded = Buffer.from(config, 'base64').toString('utf8');
+          const parsed = JSON.parse(decoded);
+          return Array.isArray(parsed) ? (parsed as Authenticator[]) : null;
+        } catch {
+          return null;
+        }
+      }
+      return null;
+    };
+
+    const checkAuthenticator = (auth: Authenticator): boolean => {
       if (auth.type === AuthenticatorType.SIGNATURE_VERIFICATION) {
-        return true; // A SignatureVerification authenticator is safe.
+        return true;
       }
 
-      if (!Array.isArray(auth.config)) {
-        return false; // Unsafe case: a non-array config for a composite authenticator
+      if (auth.type === AuthenticatorType.ANY_OF || auth.type === AuthenticatorType.ALL_OF) {
+        const subAuthenticators = decodeCompositeConfig(auth.config);
+        if (subAuthenticators == null) {
+          return false;
+        }
+        if (auth.type === AuthenticatorType.ANY_OF) {
+          return subAuthenticators.every((nested) => checkAuthenticator(nested));
+        }
+        return subAuthenticators.some((nested) => checkAuthenticator(nested));
       }
 
-      if (auth.type === AuthenticatorType.ANY_OF) {
-        // ANY_OF is safe only if ALL sub-authenticators return true
-        return auth.config.every((nestedAuth) => checkAuthenticator(nestedAuth));
-      }
-
-      if (auth.type === AuthenticatorType.ALL_OF) {
-        // ALL_OF is safe if at least one sub-authenticator returns true
-        return auth.config.some((nestedAuth) => checkAuthenticator(nestedAuth));
-      }
-
-      // If it's a base-case authenticator but not SignatureVerification, it's unsafe
       return false;
-    }
+    };
 
-    // The top-level authenticator must pass validation
-    if (!checkAuthenticator(authenticator)) {
-      return false;
-    }
-
-    return true;
+    return checkAuthenticator(authenticator);
   }
 }

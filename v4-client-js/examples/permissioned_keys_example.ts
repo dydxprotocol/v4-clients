@@ -1,5 +1,3 @@
-import { TextEncoder } from 'util';
-
 import { toBase64 } from '@cosmjs/encoding';
 import { Order_TimeInForce } from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/clob/order';
 
@@ -8,11 +6,12 @@ import { CompositeClient } from '../src/clients/composite-client';
 import { AuthenticatorType, Network, OrderSide, SelectedGasDenom } from '../src/clients/constants';
 import LocalWallet from '../src/clients/modules/local-wallet';
 import { SubaccountInfo } from '../src/clients/subaccount';
-import { DYDX_TEST_MNEMONIC, DYDX_TEST_MNEMONIC_2 } from './constants';
+import { DYDX_TEST_MNEMONIC, DYDX_TEST_MNEMONIC_2, DYDX_TEST_MNEMONIC_3 } from './constants';
 
 async function test(): Promise<void> {
   const wallet1 = await LocalWallet.fromMnemonic(DYDX_TEST_MNEMONIC, BECH32_PREFIX);
   const wallet2 = await LocalWallet.fromMnemonic(DYDX_TEST_MNEMONIC_2, BECH32_PREFIX);
+  const wallet3 = await LocalWallet.fromMnemonic(DYDX_TEST_MNEMONIC_3, BECH32_PREFIX);
 
   const network = Network.staging();
   const client = await CompositeClient.connect(network);
@@ -23,28 +22,55 @@ async function test(): Promise<void> {
 
   const subaccount1 = new SubaccountInfo(wallet1, 0);
   const subaccount2 = new SubaccountInfo(wallet2, 0);
+  const subaccount3 = new SubaccountInfo(wallet3, 0);
 
   // Change second wallet pubkey
   // Add an authenticator to allow wallet2 to place orders
-  console.log("** Adding authenticator **");
-  await addAuthenticator(client, subaccount1, wallet2.pubKey!.value);
+  console.log('** Adding authenticator **');
+  // Record authenticator count before adding
+  const authsBefore = await client.getAuthenticators(wallet1.address!);
+  const beforeCount = authsBefore.accountAuthenticators.length;
+  console.log(`Authenticators before: ${beforeCount}`);
+  await addTestAuthenticator(client, subaccount1, wallet2.pubKey!.value);
 
-  const authenticators = await client.getAuthenticators(wallet1.address!);
+  console.log('** Waiting 3 seconds for txn to be confirmed **');
+  await new Promise((resolve) => setTimeout(resolve, 3000));
+
+  const authsAfter = await client.getAuthenticators(wallet1.address!);
+  const afterCount = authsAfter.accountAuthenticators.length;
+  console.log(`Authenticators after: ${afterCount}`);
+  if (afterCount !== beforeCount + 1) {
+    console.error('Authenticator count did not increment by 1.');
+    process.exit(1);
+  } else {
+    console.log('Authenticator count incremented by 1 as expected.');
+  }
   // Last element in authenticators array is the most recently created
-  const lastElement = authenticators.accountAuthenticators.length - 1;
-  const authenticatorID = authenticators.accountAuthenticators[lastElement].id;
+  const lastElement = authsAfter.accountAuthenticators.length - 1;
+  const newAuthenticatorID = authsAfter.accountAuthenticators[lastElement].id;
+
+  console.log(`New authenticator ID: ${newAuthenticatorID}`);
 
   // Placing order using subaccount2 for subaccount1 succeeds
-  console.log("** Placing order with authenticator **");
-  await placeOrder(client, subaccount2, subaccount1, authenticatorID);
+  console.log(
+    '** Placing order for subaccount1 with subaccount2 + authenticator, should succeed **',
+  );
+  await placeOrder(client, subaccount2, subaccount1, newAuthenticatorID);
+
+  // Placing order using subaccount3 for subaccount1 should fail
+  console.log('** Placing order for subaccount1 with subaccount3 + authenticator, should fail **');
+  await placeOrder(client, subaccount3, subaccount1, newAuthenticatorID);
 
   // Remove authenticator
-  console.log("** Removing authenticator **");
-  await removeAuthenticator(client, subaccount1, authenticatorID);
+  console.log('** Removing authenticator **');
+  await removeAuthenticator(client, subaccount1, newAuthenticatorID);
+
+  console.log('** Waiting 3 seconds for txn to be confirmed **');
+  await new Promise((resolve) => setTimeout(resolve, 3000));
 
   // Placing an order using subaccount2 will now fail
-  console.log("** Placing order with invalid authenticator should fail **");
-  await placeOrder(client, subaccount2, subaccount1, authenticatorID);
+  console.log('** Placing order with removed authenticator should fail **');
+  await placeOrder(client, subaccount2, subaccount1, newAuthenticatorID);
 }
 
 async function removeAuthenticator(
@@ -55,38 +81,41 @@ async function removeAuthenticator(
   await client.removeAuthenticator(subaccount, id);
 }
 
-async function addAuthenticator(
+async function addTestAuthenticator(
   client: CompositeClient,
   subaccount: SubaccountInfo,
   authedPubKey: string,
 ): Promise<void> {
-  const subAuth = [ {
-    type: AuthenticatorType.SIGNATURE_VERIFICATION,
-    config: authedPubKey,
-  },
-  {
-    type: AuthenticatorType.ANY_OF,
-    config: [
+  const msgType = (s: string): string => toBase64(new TextEncoder().encode(s));
+  const anyOfSubAuth = [
     {
       type: AuthenticatorType.MESSAGE_FILTER,
-      config: toBase64(new TextEncoder().encode('/dydxprotocol.clob.MsgPlaceOrder')),
+      config: msgType('/dydxprotocol.clob.MsgPlaceOrder'),
     },
     {
       type: AuthenticatorType.MESSAGE_FILTER,
-      config: toBase64(new TextEncoder().encode('/dydxprotocol.clob.MsgPlaceOrder')),
+      config: msgType('/dydxprotocol.sending.MsgCreateTransfer'),
     },
-    ]
-  }
-];
+  ];
+
+  // Nested AnyOf config must be base64(JSON([...])) as on-chain expects []byte
+  const anyOfConfigB64 = toBase64(new TextEncoder().encode(JSON.stringify(anyOfSubAuth)));
+
+  const subAuth = [
+    {
+      type: AuthenticatorType.SIGNATURE_VERIFICATION,
+      config: authedPubKey,
+    },
+    {
+      type: AuthenticatorType.ANY_OF,
+      config: anyOfConfigB64,
+    },
+  ];
 
   const jsonString = JSON.stringify(subAuth);
   const encodedData = new TextEncoder().encode(jsonString);
 
-  try {
-    await client.addAuthenticator(subaccount, AuthenticatorType.ALL_OF, encodedData);
-  } catch (error) {
-    console.log(error.message);
-  }
+  await client.addAuthenticator(subaccount, AuthenticatorType.ALL_OF, encodedData);
 }
 
 async function placeOrder(

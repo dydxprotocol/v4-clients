@@ -54,7 +54,6 @@ impl fmt::Display for Channel {
 pub struct TrendFollower {
     client: NodeClient,
     indexer: IndexerClient,
-    #[allow(dead_code)] // TODO remove after completion
     wallet: Wallet,
     account: Account,
     subaccount: Subaccount,
