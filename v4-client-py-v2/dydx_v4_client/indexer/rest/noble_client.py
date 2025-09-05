@@ -31,6 +31,7 @@ from dydx_v4_client.node.builder import as_any
 from dydx_v4_client.key_pair import KeyPair
 from dydx_v4_client.wallet import Wallet
 
+
 class NobleClient:
     """
     A client for interacting with the Noble blockchain.
@@ -263,5 +264,3 @@ class NobleClient:
         """
 
         coin = token.coin()
-
-        
