@@ -1,6 +1,7 @@
 from typing import List, Optional
 
 import grpc
+from typing import Any
 from v4_proto.cosmos.auth.v1beta1 import query_pb2_grpc as auth
 from v4_proto.cosmos.auth.v1beta1.auth_pb2 import BaseAccount
 from v4_proto.cosmos.auth.v1beta1.query_pb2 import QueryAccountRequest
