@@ -79,6 +79,7 @@ from v4_proto.dydxprotocol.prices.query_pb2 import (
     QueryAllMarketPricesResponse,
     QueryMarketPriceRequest,
 )
+from v4_proto.dydxprotocol.revshare.revshare_pb2 import OrderRouterRevShare
 from v4_proto.dydxprotocol.rewards import query_pb2 as rewards_query
 from v4_proto.dydxprotocol.rewards import query_pb2_grpc as rewards_query_grpc
 from v4_proto.dydxprotocol.stats import query_pb2 as stats_query
@@ -99,6 +100,8 @@ from v4_proto.dydxprotocol.affiliates import query_pb2 as affiliate_query
 from v4_proto.dydxprotocol.affiliates import query_pb2_grpc as affiliate_query_grpc
 from v4_proto.dydxprotocol.revshare import query_pb2_grpc as revshare_query_grpc
 from v4_proto.dydxprotocol.revshare import query_pb2 as revshare_query
+from v4_proto.dydxprotocol.revshare import tx_pb2_grpc as revshare_tx_grpc
+from v4_proto.dydxprotocol.revshare import tx_pb2 as revshare_tx_query
 
 from dydx_v4_client.network import NodeConfig
 from dydx_v4_client.node.authenticators import Authenticator, validate_authenticator
@@ -118,7 +121,7 @@ from dydx_v4_client.node.message import (
     register_affiliate,
     withdraw_delegator_reward,
     undelegate,
-    delegate,
+    delegate, order_router_revenue_share,
 )
 from dydx_v4_client.wallet import Wallet
 
@@ -1373,3 +1376,20 @@ class NodeClient(MutatingNodeClient):
             good_til_block=current_height + GOOD_TIL_BLOCK_OFFSET,
         )
         return await self.place_order(wallet, new_order)
+
+    async def set_order_router_revenue_share(
+            self,
+            authority: str,
+            address: str,
+            share_ppm: int
+    )->revshare_tx_query.MsgSetOrderRouterRevShare:
+        return revshare_tx_grpc.MsgServicer(self.channel).SetOrderRouterRevShare(
+            revshare_tx_query.MsgSetOrderRouterRevShare(
+                authority=authority,
+                order_router_rev_share=OrderRouterRevShare(
+                    address=address,
+                    share_ppm=share_ppm
+                )
+            )
+        )
+
