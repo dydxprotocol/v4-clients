@@ -26,6 +26,10 @@ from v4_proto.dydxprotocol.accountplus.tx_pb2 import (
     MsgAddAuthenticator,
     MsgRemoveAuthenticator,
 )
+
+from v4_proto.dydxprotocol.revshare import tx_pb2 as revshare_tx_types
+from v4_proto.dydxprotocol.revshare.revshare_pb2 import OrderRouterRevShare
+
 import json
 import base64
 
@@ -268,4 +272,13 @@ def builder_code_parameters(builder_address: str, fee_ppm: int):
 def twap_parameters(duration: int, interval: int, price_tolerance: int):
     return TwapParameters(
         duration=duration, interval=interval, price_tolerance=price_tolerance
+    )
+
+def order_router_revenue_share(authority: str, address: str, share_ppm: int):
+    return revshare_tx_types.MsgSetOrderRouterRevShare(
+        authority=authority,
+        order_router_rev_share=OrderRouterRevShare(
+            address=address,
+            share_ppm=share_ppm
+        )
     )
