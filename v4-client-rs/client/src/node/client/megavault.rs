@@ -27,7 +27,20 @@ impl<'a> MegaVault<'a> {
     /// Deposit USDC into the MegaVault.
     ///
     /// Check [the example](https://github.com/dydxprotocol/v4-clients/blob/main/v4-client-rs/client/examples/validator_megavault.rs).
+    #[deprecated(since = "0.3.0", note = "Use `deposit_to_megavault` instead")]
     pub async fn deposit(
+        &mut self,
+        account: &mut Account,
+        subaccount: Subaccount,
+        amount: impl Into<Usdc>,
+    ) -> Result<TxHash, NodeError> {
+        self.deposit_to_megavault(account, subaccount, amount).await
+    }
+
+    /// Deposit USDC into the MegaVault.
+    ///
+    /// Check [the example](https://github.com/dydxprotocol/v4-clients/blob/main/v4-client-rs/client/examples/validator_megavault.rs).
+    pub async fn deposit_to_megavault(
         &mut self,
         account: &mut Account,
         subaccount: Subaccount,
@@ -61,7 +74,24 @@ impl<'a> MegaVault<'a> {
     /// USDC-equivalent value).
     ///
     /// Check [the example](https://github.com/dydxprotocol/v4-clients/blob/main/v4-client-rs/client/examples/validator_megavault.rs).
+    #[deprecated(since = "0.3.0", note = "Use `withdraw_from_megavault` instead")]
     pub async fn withdraw(
+        &mut self,
+        account: &mut Account,
+        subaccount: Subaccount,
+        min_amount: impl Into<Usdc>,
+        shares: Option<&BigInt>,
+    ) -> Result<TxHash, NodeError> {
+        self.withdraw_from_megavault(account, subaccount, min_amount, shares)
+            .await
+    }
+
+    /// Withdraw shares from the MegaVault.
+    /// The number of shares must be equal or greater to some specified minimum amount (in
+    /// USDC-equivalent value).
+    ///
+    /// Check [the example](https://github.com/dydxprotocol/v4-clients/blob/main/v4-client-rs/client/examples/validator_megavault.rs).
+    pub async fn withdraw_from_megavault(
         &mut self,
         account: &mut Account,
         subaccount: Subaccount,

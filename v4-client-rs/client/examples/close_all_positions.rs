@@ -34,7 +34,7 @@ async fn get_open_positions(
 ) -> Result<Vec<PerpetualPosition>> {
     indexer
         .accounts()
-        .list_positions(
+        .get_subaccount_perpetual_positions(
             subaccount,
             Some(ListPositionsOpts {
                 status: Some(PerpetualPositionStatus::Open),

@@ -34,7 +34,7 @@ async fn main() -> Result<()> {
     };
     let markets = indexer
         .markets()
-        .list_perpetual_markets(Some(markets_options))
+        .get_perpetual_markets(Some(markets_options))
         .await?;
     tracing::info!("Markets response: {:?}", markets);
 
@@ -44,13 +44,13 @@ async fn main() -> Result<()> {
     };
     let market = indexer
         .markets()
-        .list_perpetual_markets(Some(markets_options))
+        .get_perpetual_markets(Some(markets_options))
         .await?;
     tracing::info!("Market ({ETH_USD_TICKER}) response: {:?}", market);
 
     let sparklines = indexer
         .markets()
-        .get_sparklines(SparklineTimePeriod::SevenDays)
+        .get_perpetual_market_sparklines(SparklineTimePeriod::SevenDays)
         .await?;
     tracing::info!(
         "Sparklines ({ETH_USD_TICKER}) response: {:?}",
@@ -63,7 +63,7 @@ async fn main() -> Result<()> {
     };
     let trades = indexer
         .markets()
-        .get_trades(&ticker, Some(trades_opts))
+        .get_perpetual_market_trades(&ticker, Some(trades_opts))
         .await?;
     tracing::info!("Trades ({ETH_USD_TICKER}) response: {:?}", trades);
 
@@ -79,7 +79,7 @@ async fn main() -> Result<()> {
     };
     let candles = indexer
         .markets()
-        .get_candles(&ticker, CandleResolution::M1, Some(candles_opts))
+        .get_perpetual_market_candles(&ticker, CandleResolution::M1, Some(candles_opts))
         .await?;
     tracing::info!("Candles ({ETH_USD_TICKER}) response: {:?}", candles);
 
@@ -89,7 +89,7 @@ async fn main() -> Result<()> {
     };
     let funding = indexer
         .markets()
-        .get_historical_funding(&ticker, Some(fund_opts))
+        .get_perpetual_market_historical_funding(&ticker, Some(fund_opts))
         .await?;
     tracing::info!(
         "Historical funding ({ETH_USD_TICKER}) response: {:?}",

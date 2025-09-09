@@ -137,7 +137,10 @@ std::string CreatePlaceOrderMessage(
             0,
             params.reduce_only,
             /*long_term=*/false,
-            params.client_metadata
+            params.client_metadata,
+            params.twap_parameters,
+            params.builder_code_parameters,
+            params.order_router_address
         ),
         /*gas_limit=*/0
     );
@@ -181,7 +184,10 @@ std::string CreatePlaceOrderMessage(
                 : 0,
             params.reduce_only,
             /*long_term=*/true,
-            params.client_metadata
+            params.client_metadata,
+            params.twap_parameters,
+            params.builder_code_parameters,
+            params.order_router_address
         ),
         /*gas_limit=*/0
     );

@@ -39,6 +39,19 @@ export enum OrderFlags {
   CONDITIONAL = 32,
 }
 
+// TWAP order parameters
+export interface ITwapParameters {
+  duration: number; // Duration in seconds [300, 86400]
+  interval: number; // Interval in seconds [30, 3600]
+  priceTolerance: number; // Price tolerance in ppm [0, 1_000_000)
+}
+
+// Builder code parameters for partner/builder fees
+export interface IBuilderCodeParameters {
+  builderAddress: string; // Address to receive the fee
+  feePpm: number; // Fee in parts per million
+}
+
 export interface IBasicOrder {
   clientId: number;
   orderFlags: OrderFlags;
@@ -56,6 +69,9 @@ export interface IPlaceOrder extends IBasicOrder {
   clientMetadata: number;
   conditionType?: Order_ConditionType;
   conditionalOrderTriggerSubticks?: Long;
+  twapParameters?: ITwapParameters;
+  builderCodeParameters?: IBuilderCodeParameters;
+  orderRouterAddress?: string;
 }
 
 export interface ICancelOrder extends IBasicOrder {}

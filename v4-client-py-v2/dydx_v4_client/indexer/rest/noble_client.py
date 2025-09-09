@@ -1,6 +1,7 @@
 from typing import List, Optional
 
 import grpc
+from typing import Any
 from v4_proto.cosmos.auth.v1beta1 import query_pb2_grpc as auth
 from v4_proto.cosmos.auth.v1beta1.auth_pb2 import BaseAccount
 from v4_proto.cosmos.auth.v1beta1.query_pb2 import QueryAccountRequest
@@ -247,3 +248,19 @@ class NobleClient:
             ],
             gas_limit=gas_limit,
         )
+
+    async def send_token_ibc(self, sender, recipient, token, source_channel) -> Any:
+        """
+        Transfer a token asset between Cosmos blockchain networks.
+
+        Args:
+            sender: The sender address.
+            recipient: The recipient address.
+            token: The token to transfer.
+            source_channel: The source channel.
+
+        Returns:
+            Hash of the transaction
+        """
+
+        coin = token.coin()

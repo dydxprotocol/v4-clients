@@ -60,7 +60,7 @@ async fn main() -> Result<()> {
     // Push some orders
     for _id in 0..N_ORDERS {
         // Short term orders have a maximum validity of 20 blocks
-        let height = placer.client.get_latest_block_height().await?;
+        let height = placer.client.latest_block_height().await?;
         let order_builder = builder.clone().until(height.ahead(10));
 
         let (order_id, order) = order_builder.build(ClientId::random_with_rng(&mut rng()))?;
@@ -78,7 +78,7 @@ async fn main() -> Result<()> {
     };
     let til_height = placer
         .client
-        .get_latest_block_height()
+        .latest_block_height()
         .await?
         .ahead(SHORT_TERM_ORDER_MAXIMUM_LIFETIME);
     let tx_hash = placer

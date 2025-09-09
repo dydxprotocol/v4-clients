@@ -18,7 +18,18 @@ impl<'a> Markets<'a> {
     /// Query for perpetual markets data.
     ///
     /// [Reference](https://docs.dydx.xyz/indexer-client/http#get-perpetual-markets).
+    #[deprecated(since = "0.3.0", note = "Use `get_perpetual_markets` instead")]
     pub async fn list_perpetual_markets(
+        &self,
+        opts: Option<ListPerpetualMarketsOpts>,
+    ) -> Result<HashMap<Ticker, PerpetualMarket>, Error> {
+        self.get_perpetual_markets(opts).await
+    }
+
+    /// Query for perpetual markets data.
+    ///
+    /// [Reference](https://docs.dydx.xyz/indexer-client/http#get-perpetual-markets).
+    pub async fn get_perpetual_markets(
         &self,
         opts: Option<ListPerpetualMarketsOpts>,
     ) -> Result<HashMap<Ticker, PerpetualMarket>, Error> {
@@ -42,7 +53,7 @@ impl<'a> Markets<'a> {
     /// Query for the perpetual market.
     pub async fn get_perpetual_market(&self, ticker: &Ticker) -> Result<PerpetualMarket, Error> {
         let mut markets = self
-            .list_perpetual_markets(Some(ListPerpetualMarketsOpts {
+            .get_perpetual_markets(Some(ListPerpetualMarketsOpts {
                 limit: Some(1),
                 ticker: Some(ticker.clone()),
             }))
@@ -76,7 +87,19 @@ impl<'a> Markets<'a> {
     /// Query for trades.
     ///
     /// [Reference](https://docs.dydx.xyz/indexer-client/http#get-trades).
+    #[deprecated(since = "0.3.0", note = "Use `get_perpetual_market_trades` instead")]
     pub async fn get_trades(
+        &self,
+        ticker: &Ticker,
+        opts: Option<GetTradesOpts>,
+    ) -> Result<Vec<TradeResponseObject>, Error> {
+        self.get_perpetual_market_trades(ticker, opts).await
+    }
+
+    /// Query for trades.
+    ///
+    /// [Reference](https://docs.dydx.xyz/indexer-client/http#get-trades).
+    pub async fn get_perpetual_market_trades(
         &self,
         ticker: &Ticker,
         opts: Option<GetTradesOpts>,
@@ -101,7 +124,20 @@ impl<'a> Markets<'a> {
     /// Query for [candles](https://dydx.exchange/crypto-learning/candlestick-patterns).
     ///
     /// [Reference](https://docs.dydx.xyz/indexer-client/http#get-candles).
+    #[deprecated(since = "0.3.0", note = "Use `get_perpetual_market_candles` instead")]
     pub async fn get_candles(
+        &self,
+        ticker: &Ticker,
+        res: CandleResolution,
+        opts: Option<GetCandlesOpts>,
+    ) -> Result<Vec<CandleResponseObject>, Error> {
+        self.get_perpetual_market_candles(ticker, res, opts).await
+    }
+
+    /// Query for [candles](https://dydx.exchange/crypto-learning/candlestick-patterns).
+    ///
+    /// [Reference](https://docs.dydx.xyz/indexer-client/http#get-candles).
+    pub async fn get_perpetual_market_candles(
         &self,
         ticker: &Ticker,
         res: CandleResolution,
@@ -128,7 +164,23 @@ impl<'a> Markets<'a> {
     /// Query for funding till time/block specified.
     ///
     /// [Reference](https://docs.dydx.xyz/indexer-client/http#get-historical-funding).
+    #[deprecated(
+        since = "0.3.0",
+        note = "Use `get_perpetual_market_historical_funding` instead"
+    )]
     pub async fn get_historical_funding(
+        &self,
+        ticker: &Ticker,
+        opts: Option<GetHistoricalFundingOpts>,
+    ) -> Result<Vec<HistoricalFundingResponseObject>, Error> {
+        self.get_perpetual_market_historical_funding(ticker, opts)
+            .await
+    }
+
+    /// Query for funding till time/block specified.
+    ///
+    /// [Reference](https://docs.dydx.xyz/indexer-client/http#get-historical-funding).
+    pub async fn get_perpetual_market_historical_funding(
         &self,
         ticker: &Ticker,
         opts: Option<GetHistoricalFundingOpts>,
@@ -153,7 +205,21 @@ impl<'a> Markets<'a> {
     /// Query for [sparklines](https://en.wikipedia.org/wiki/Sparkline).
     ///
     /// [Reference](https://docs.dydx.xyz/indexer-client/http#get-sparklines).
+    #[deprecated(
+        since = "0.3.0",
+        note = "Use `get_perpetual_market_sparklines` instead"
+    )]
     pub async fn get_sparklines(
+        &self,
+        period: SparklineTimePeriod,
+    ) -> Result<SparklineResponseObject, Error> {
+        self.get_perpetual_market_sparklines(period).await
+    }
+
+    /// Query for [sparklines](https://en.wikipedia.org/wiki/Sparkline).
+    ///
+    /// [Reference](https://docs.dydx.xyz/indexer-client/http#get-sparklines).
+    pub async fn get_perpetual_market_sparklines(
         &self,
         period: SparklineTimePeriod,
     ) -> Result<SparklineResponseObject, Error> {

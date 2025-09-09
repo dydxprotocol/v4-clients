@@ -21,6 +21,8 @@ import {
   IPlaceOrder,
   ICancelOrder,
   DenomConfig,
+  ITwapParameters,
+  IBuilderCodeParameters,
 } from '../types';
 import { Composer } from './composer';
 import { Get } from './get';
@@ -411,6 +413,9 @@ export class Post {
     clientMetadata: number = 0,
     conditionType: Order_ConditionType = Order_ConditionType.CONDITION_TYPE_UNSPECIFIED,
     conditionalOrderTriggerSubticks: Long = Long.fromInt(0),
+    twapParameters?: ITwapParameters,
+    builderCodeParameters?: IBuilderCodeParameters,
+    orderRouterAddress?: string,
     broadcastMode?: BroadcastMode,
   ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
     const msg = await this.placeOrderMsg(
@@ -429,6 +434,9 @@ export class Post {
       clientMetadata,
       conditionType,
       conditionalOrderTriggerSubticks,
+      twapParameters,
+      builderCodeParameters,
+      orderRouterAddress,
     );
     const account: Promise<Account> = this.account(subaccount.address, orderFlags);
     return this.send(
@@ -458,6 +466,9 @@ export class Post {
     clientMetadata: number = 0,
     conditionType: Order_ConditionType = Order_ConditionType.CONDITION_TYPE_UNSPECIFIED,
     conditionalOrderTriggerSubticks: Long = Long.fromInt(0),
+    twapParameters?: ITwapParameters,
+    builderCodeParameters?: IBuilderCodeParameters,
+    orderRouterAddress?: string,
   ): Promise<EncodeObject> {
     return new Promise((resolve) => {
       const msg = this.composer.composeMsgPlaceOrder(
@@ -476,6 +487,9 @@ export class Post {
         clientMetadata,
         conditionType,
         conditionalOrderTriggerSubticks,
+        twapParameters,
+        builderCodeParameters,
+        orderRouterAddress,
       );
       resolve(msg);
     });
@@ -501,6 +515,9 @@ export class Post {
       placeOrder.clientMetadata,
       placeOrder.conditionType ?? Order_ConditionType.CONDITION_TYPE_UNSPECIFIED,
       placeOrder.conditionalOrderTriggerSubticks ?? Long.fromInt(0),
+      placeOrder.twapParameters,
+      placeOrder.builderCodeParameters,
+      placeOrder.orderRouterAddress,
       broadcastMode,
     );
   }

@@ -106,7 +106,15 @@ impl NodeClient {
     /// Query for the latest block.
     ///
     /// Check [the example](https://github.com/dydxprotocol/v4-clients/blob/main/v4-client-rs/client/examples/validator_get.rs).
+    #[deprecated(since = "0.3.0", note = "Use `latest_block` instead")]
     pub async fn get_latest_block(&mut self) -> Result<Block, Error> {
+        self.latest_block().await
+    }
+
+    /// Query for the latest block.
+    ///
+    /// Check [the example](https://github.com/dydxprotocol/v4-clients/blob/main/v4-client-rs/client/examples/validator_get.rs).
+    pub async fn latest_block(&mut self) -> Result<Block, Error> {
         let req = GetLatestBlockRequest::default();
         let latest_block = self
             .base
@@ -121,8 +129,16 @@ impl NodeClient {
     /// Query for the latest block height.
     ///
     /// Check [the example](https://github.com/dydxprotocol/v4-clients/blob/main/v4-client-rs/client/examples/validator_get.rs).
+    #[deprecated(since = "0.3.0", note = "Use `latest_block_height` instead")]
     pub async fn get_latest_block_height(&mut self) -> Result<Height, Error> {
-        let latest_block = self.get_latest_block().await?;
+        self.latest_block_height().await
+    }
+
+    /// Query for the latest block height.
+    ///
+    /// Check [the example](https://github.com/dydxprotocol/v4-clients/blob/main/v4-client-rs/client/examples/validator_get.rs).
+    pub async fn latest_block_height(&mut self) -> Result<Height, Error> {
+        let latest_block = self.latest_block().await?;
         let header = latest_block
             .header
             .ok_or_else(|| err!("The block doesn't contain a header"))?;
@@ -296,7 +312,20 @@ impl NodeClient {
     /// Query for [`EquityTierLimitConfiguration`].
     ///
     /// Check [the example](https://github.com/dydxprotocol/v4-clients/blob/main/v4-client-rs/client/examples/validator_get.rs).
+    #[deprecated(
+        since = "0.3.0",
+        note = "Use `get_equity_tier_limit_configuration` instead"
+    )]
     pub async fn get_equity_tier_limit_config(
+        &mut self,
+    ) -> Result<EquityTierLimitConfiguration, Error> {
+        self.get_equity_tier_limit_configuration().await
+    }
+
+    /// Query for [`EquityTierLimitConfiguration`].
+    ///
+    /// Check [the example](https://github.com/dydxprotocol/v4-clients/blob/main/v4-client-rs/client/examples/validator_get.rs).
+    pub async fn get_equity_tier_limit_configuration(
         &mut self,
     ) -> Result<EquityTierLimitConfiguration, Error> {
         let req = QueryEquityTierLimitConfigurationRequest {};
@@ -426,7 +455,10 @@ impl NodeClient {
     /// Query capacity by denom.
     ///
     /// Check [the example](https://github.com/dydxprotocol/v4-clients/blob/main/v4-client-rs/client/examples/validator_get.rs).
-    pub async fn capacity_by_denom(&mut self, denom: Denom) -> Result<Vec<LimiterCapacity>, Error> {
+    pub async fn get_withdrawal_capacity_by_denom(
+        &mut self,
+        denom: Denom,
+    ) -> Result<Vec<LimiterCapacity>, Error> {
         let req = QueryCapacityByDenomRequest {
             denom: denom.to_string(),
         };
