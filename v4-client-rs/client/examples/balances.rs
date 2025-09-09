@@ -19,7 +19,11 @@ impl Transferor {
         let client = NodeClient::connect(config.node).await?;
         let wallet = Wallet::from_mnemonic(TEST_MNEMONIC)?;
         let wallet_2 = Wallet::from_mnemonic(DYDX_TEST_MNEMONIC_2)?;
-        Ok(Self { client, wallet, wallet_2 })
+        Ok(Self {
+            client,
+            wallet,
+            wallet_2,
+        })
     }
 }
 
@@ -28,14 +32,19 @@ async fn main() -> Result<()> {
     tracing_subscriber::fmt().try_init().map_err(Error::msg)?;
     let mut transferor = Transferor::connect().await?;
     let mut account = transferor.wallet.account(0, &mut transferor.client).await?;
-    let account_2 = transferor.wallet_2.account(0, &mut transferor.client).await?;
+    let account_2 = transferor
+        .wallet_2
+        .account(0, &mut transferor.client)
+        .await?;
 
     let sender = account.subaccount(0)?;
     let recipient = account_2.subaccount(0)?;
 
-    let balances = transferor.client.get_account_balance(&sender.address,    &Denom::Usdc).await?;
+    let balances = transferor
+        .client
+        .get_account_balance(&sender.address, &Denom::Usdc)
+        .await?;
     println!("balances: {:?}", balances);
-
 
     let tx_hash = transferor
         .client
@@ -46,7 +55,10 @@ async fn main() -> Result<()> {
 
     tracing::info!("Transfer transaction hash: {:?}", tx_hash);
 
-    let balances = transferor.client.get_account_balance(&sender.address, &Denom::Usdc).await?;
+    let balances = transferor
+        .client
+        .get_account_balance(&sender.address, &Denom::Usdc)
+        .await?;
     println!("balances: {:?}", balances);
 
     Ok(())

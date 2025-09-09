@@ -20,15 +20,25 @@ use dydx_proto::{
         },
     },
     dydxprotocol::{
+        accountplus::{AccountState, AccountStateRequest},
+        blocktime::{QuerySynchronyParamsRequest, SynchronyParams},
         bridge::{DelayedCompleteBridgeMessage, QueryDelayedCompleteBridgeMessagesRequest},
         clob::{
             ClobPair, EquityTierLimitConfiguration, QueryAllClobPairRequest,
             QueryEquityTierLimitConfigurationRequest, QueryGetClobPairRequest,
+            QueryNextClobPairIdRequest,
         },
         feetiers::{PerpetualFeeTier, QueryPerpetualFeeParamsRequest, QueryUserFeeTierRequest},
-        perpetuals::{Perpetual, QueryAllPerpetualsRequest, QueryPerpetualRequest},
-        prices::{MarketPrice, QueryAllMarketPricesRequest, QueryMarketPriceRequest},
+        perpetuals::{
+            Perpetual, QueryAllPerpetualsRequest, QueryNextPerpetualIdRequest,
+            QueryPerpetualRequest,
+        },
+        prices::{
+            MarketPrice, QueryAllMarketPricesRequest, QueryMarketPriceRequest,
+            QueryNextMarketIdRequest,
+        },
         ratelimit::{LimiterCapacity, QueryCapacityByDenomRequest},
+        revshare::{OrderRouterRevShare, QueryOrderRouterRevShare},
         rewards,
         stats::{QueryUserStatsRequest, UserStats},
         subaccounts::{
@@ -470,5 +480,101 @@ impl NodeClient {
             .limiter_capacity_list;
 
         Ok(capacity)
+    }
+
+    /// Queries for an account state (timestamp nonce).
+    pub async fn get_account_state(&mut self, address: &Address) -> Result<AccountState, Error> {
+        let req = AccountStateRequest {
+            address: address.to_string(),
+        };
+
+        let state = self
+            .accountplus
+            .account_state(req)
+            .await?
+            .into_inner()
+            .account_state
+            .ok_or_else(|| err!("Account state query response does not contain account state"))?;
+
+        Ok(state)
+    }
+
+    /// Queries for synchrony params.
+    pub async fn get_synchrony_params(&mut self) -> Result<SynchronyParams, Error> {
+        let req = QuerySynchronyParamsRequest {};
+
+        let params = self
+            .blocktime
+            .synchrony_params(req)
+            .await?
+            .into_inner()
+            .params
+            .ok_or_else(|| err!("Synchrony params query response does not contain params"))?;
+
+        Ok(params)
+    }
+
+    /// Queries for the next CLOB pair ID.
+    pub async fn get_next_clob_pair_id(&mut self) -> Result<u32, Error> {
+        let req = QueryNextClobPairIdRequest {};
+
+        let id = self
+            .clob
+            .next_clob_pair_id(req)
+            .await?
+            .into_inner()
+            .next_clob_pair_id;
+
+        Ok(id)
+    }
+
+    /// Queries for the next perpetual ID.
+    pub async fn get_next_perpetual_id(&mut self) -> Result<u32, Error> {
+        let req = QueryNextPerpetualIdRequest {};
+
+        let id = self
+            .perpetuals
+            .next_perpetual_id(req)
+            .await?
+            .into_inner()
+            .next_perpetual_id;
+
+        Ok(id)
+    }
+
+    /// Queries for the next market ID.
+    pub async fn get_next_market_id(&mut self) -> Result<u32, Error> {
+        let req = QueryNextMarketIdRequest {};
+
+        let id = self
+            .prices
+            .next_market_id(req)
+            .await?
+            .into_inner()
+            .next_market_id;
+
+        Ok(id)
+    }
+
+    /// Queries for the order router rev share.
+    pub async fn get_order_router_rev_share(
+        &mut self,
+        address: Address,
+    ) -> Result<OrderRouterRevShare, Error> {
+        let req = QueryOrderRouterRevShare {
+            address: address.to_string(),
+        };
+
+        let rev_share = self
+            .revshare
+            .order_router_rev_share(req)
+            .await?
+            .into_inner()
+            .order_router_rev_share
+            .ok_or_else(|| {
+                err!("Order router rev share query response does not contain rev share")
+            })?;
+
+        Ok(rev_share)
     }
 }

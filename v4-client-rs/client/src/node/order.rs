@@ -1,7 +1,10 @@
-use crate::{indexer::{
-    ClientId, ClobPairId, Height, OrderExecution, OrderFlags, OrderType, PerpetualMarket, Price,
-    Quantity, Subaccount,
-}, node::Address};
+use crate::{
+    indexer::{
+        ClientId, ClobPairId, Height, OrderExecution, OrderFlags, OrderType, PerpetualMarket,
+        Price, Quantity, Subaccount,
+    },
+    node::Address,
+};
 use anyhow::{anyhow as err, Error};
 use bigdecimal::{num_traits::cast::ToPrimitive, BigDecimal, One};
 use chrono::{DateTime, Utc};

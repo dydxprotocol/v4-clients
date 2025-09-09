@@ -47,6 +47,7 @@ use dydx_proto::{
             AffiliateInfoResponse, AffiliateTiers, AffiliateWhitelist, AffiliateWhitelistRequest,
             AllAffiliateTiersRequest, ReferredByRequest,
         },
+        blocktime::query_client::QueryClient as BlocktimeClient,
         bridge::query_client::QueryClient as BridgeClient,
         clob::{
             query_client::QueryClient as ClobClient, MsgBatchCancel, MsgCancelOrder, MsgPlaceOrder,
@@ -57,6 +58,7 @@ use dydx_proto::{
         perpetuals::query_client::QueryClient as PerpetualsClient,
         prices::query_client::QueryClient as PricesClient,
         ratelimit::query_client::QueryClient as RatelimitClient,
+        revshare::query_client::QueryClient as RevshareClient,
         rewards::query_client::QueryClient as RewardsClient,
         sending::{MsgCreateTransfer, MsgDepositToSubaccount, MsgWithdrawFromSubaccount, Transfer},
         stats::query_client::QueryClient as StatsClient,
@@ -147,6 +149,10 @@ pub struct Routes {
     pub query: Grpc<Timeout<Channel>>,
     /// Vaults
     pub vault: VaultClient<Timeout<Channel>>,
+    /// dYdX blocktime
+    pub blocktime: BlocktimeClient<Timeout<Channel>>,
+    /// Revshare
+    pub revshare: RevshareClient<Timeout<Channel>>,
 }
 
 impl Routes {
@@ -172,7 +178,9 @@ impl Routes {
             subaccounts: SubaccountsClient::new(channel.clone()),
             tx: TxClient::new(channel.clone()),
             query: Grpc::new(channel.clone()),
-            vault: VaultClient::new(channel),
+            blocktime: BlocktimeClient::new(channel.clone()),
+            vault: VaultClient::new(channel.clone()),
+            revshare: RevshareClient::new(channel),
         }
     }
 }

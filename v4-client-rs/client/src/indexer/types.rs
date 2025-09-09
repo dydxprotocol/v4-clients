@@ -38,15 +38,20 @@ pub struct Account {
 
 /// [Address](https://dydx.exchange/crypto-learning/what-is-a-wallet-address).
 #[derive(
-    Serialize, Deserialize, Debug, Clone, From, Display, PartialEq, Eq, PartialOrd, Ord, Hash,
+    Default,
+    Serialize,
+    Deserialize,
+    Debug,
+    Clone,
+    From,
+    Display,
+    PartialEq,
+    Eq,
+    PartialOrd,
+    Ord,
+    Hash,
 )]
 pub struct Address(String);
-
-impl Default for Address {
-    fn default() -> Self {
-        Self(String::new())
-    }
-}
 
 impl FromStr for Address {
     type Err = Error;

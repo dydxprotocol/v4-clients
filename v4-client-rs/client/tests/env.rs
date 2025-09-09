@@ -2,7 +2,6 @@
 use anyhow::anyhow as err;
 use anyhow::{Error, Result};
 use chrono::{TimeDelta, Utc};
-use std::sync::Once;
 #[cfg(feature = "faucet")]
 use dydx::faucet::FaucetClient;
 #[cfg(feature = "noble")]
@@ -12,6 +11,7 @@ use dydx::{
     indexer::{ClientId, Height, IndexerClient, PerpetualMarket, Ticker},
     node::{Account, Address, NodeClient, OrderBuilder, OrderId, OrderSide, Subaccount, Wallet},
 };
+use std::sync::Once;
 
 const TEST_MNEMONIC: &str = "mirror actor skill push coach wait confirm orchard lunch mobile athlete gossip awake miracle matter bus reopen team ladder lazy list timber render wait";
 
@@ -50,7 +50,7 @@ impl MainnetEnv {
     async fn bootstrap() -> Result<Self> {
         // Initialize rustls crypto provider
         init_crypto_provider();
-            
+
         let path = "tests/mainnet.toml";
         let config = ClientConfig::from_file(path).await?;
         let indexer = IndexerClient::new(config.indexer);
