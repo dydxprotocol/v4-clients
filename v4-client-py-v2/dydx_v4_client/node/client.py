@@ -1383,7 +1383,7 @@ class NodeClient(MutatingNodeClient):
             address: str,
             share_ppm: int
     )->revshare_tx_query.MsgSetOrderRouterRevShare:
-        return revshare_tx_grpc.MsgServicer(self.channel).SetOrderRouterRevShare(
+        return revshare_tx_grpc.MsgStub(self.channel).SetOrderRouterRevShare(
             revshare_tx_query.MsgSetOrderRouterRevShare(
                 authority=authority,
                 order_router_rev_share=OrderRouterRevShare(
