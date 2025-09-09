@@ -128,17 +128,20 @@ async fn test_node_auth_place_order_short_term() -> Result<(), Error> {
         .add_authenticator(&mut account, address.clone(), authenticator)
         .await?;
 
-    sleep(Duration::from_secs(3)).await;
+    sleep(Duration::from_secs(5)).await;
 
     // Grab last authenticator ID
     let list = node
         .authenticators()
         .get_authenticators(address.clone())
         .await?;
+
+    let last_id = list.iter().max_by_key(|auth| auth.id).unwrap().id;
+
     let master = PublicAccount::updated(account.address().clone(), &mut node).await?;
     paccount
         .authenticators_mut()
-        .add(master, list.last().unwrap().id);
+        .add(master, last_id);
 
     // Create order for permissioning account
     let (_, order) = OrderBuilder::new(market, account.subaccount(0)?)
