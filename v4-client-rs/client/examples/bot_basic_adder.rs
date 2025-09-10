@@ -4,8 +4,8 @@ use anyhow::{anyhow as err, Error, Result};
 use bigdecimal::{BigDecimal, One, Signed};
 use dydx::config::ClientConfig;
 use dydx::indexer::{
-    AnyId, Feed, IndexerClient, ListPerpetualMarketsOpts, PerpetualMarket, Price, Quantity,
-    SubaccountsMessage, Ticker, TradesMessage,
+    AnyId, Feed, IndexerClient, ListPerpetualMarketsOpts, Price, Quantity, SubaccountsMessage,
+    Ticker, TradesMessage,
 };
 use dydx::node::{Account, NodeClient, OrderBuilder, OrderId, OrderSide, Wallet};
 use std::str::FromStr;
@@ -33,10 +33,7 @@ enum State {
 
 pub struct BasicAdder {
     client: NodeClient,
-    indexer: IndexerClient,
-    wallet: Wallet,
     account: Account,
-    market: PerpetualMarket,
     generator: OrderBuilder,
     trades_feed: Feed<TradesMessage>,
     subaccounts_feed: Feed<SubaccountsMessage>,
@@ -47,6 +44,9 @@ pub struct BasicAdder {
 
 impl BasicAdder {
     pub async fn connect() -> Result<Self> {
+        // Initialize rustls crypto provider
+        support::crypto::init_crypto_provider();
+
         let config = ClientConfig::from_file("client/tests/testnet.toml").await?;
         let mut client = NodeClient::connect(config.node).await?;
         let mut indexer = IndexerClient::new(config.indexer);
@@ -85,10 +85,7 @@ impl BasicAdder {
         };
         Ok(Self {
             client,
-            indexer,
-            wallet,
             account,
-            market,
             generator,
             trades_feed,
             subaccounts_feed,

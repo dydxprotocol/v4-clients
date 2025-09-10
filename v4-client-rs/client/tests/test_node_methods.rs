@@ -226,3 +226,91 @@ async fn test_node_get_rewards_params() -> Result<()> {
     let _params = node.get_rewards_params().await?;
     Ok(())
 }
+
+#[tokio::test]
+async fn test_node_get_account_state() -> Result<()> {
+    let env = TestEnv::testnet().await?;
+    let mut node = env.node;
+    let address = env.account.address();
+
+    let account_state = node.get_account_state(address).await?;
+
+    // Verify the account state contains expected fields
+    assert!(account_state.address == address.as_ref());
+
+    Ok(())
+}
+
+#[tokio::test]
+async fn test_node_get_synchrony_params() -> Result<()> {
+    let mut node = TestEnv::testnet().await?.node;
+
+    let _synchrony_params = node.get_synchrony_params().await?;
+
+    Ok(())
+}
+
+#[tokio::test]
+async fn test_node_get_next_clob_pair_id() -> Result<()> {
+    let mut node = TestEnv::testnet().await?.node;
+
+    let next_clob_pair_id = node.get_next_clob_pair_id().await?;
+
+    // The next CLOB pair ID should be a reasonable positive number
+    // Since we know there are existing CLOB pairs, the next ID should be > 0
+    assert!(next_clob_pair_id > 0);
+
+    Ok(())
+}
+
+#[tokio::test]
+async fn test_node_get_next_perpetual_id() -> Result<()> {
+    let mut node = TestEnv::testnet().await?.node;
+
+    let next_perpetual_id = node.get_next_perpetual_id().await?;
+
+    // The next perpetual ID should be a reasonable positive number
+    // Since we know there are existing perpetuals, the next ID should be > 0
+    assert!(next_perpetual_id > 0);
+
+    Ok(())
+}
+
+#[tokio::test]
+async fn test_node_get_next_market_id() -> Result<()> {
+    let mut node = TestEnv::testnet().await?.node;
+
+    let next_market_id = node.get_next_market_id().await?;
+
+    // The next market ID should be a reasonable positive number
+    // Since we know there are existing markets, the next ID should be > 0
+    assert!(next_market_id > 0);
+
+    Ok(())
+}
+
+#[tokio::test]
+async fn test_node_get_order_router_rev_share() -> Result<()> {
+    let env = TestEnv::testnet().await?;
+    let mut node = env.node;
+    let address = env.account.address().clone();
+
+    let rev_share_result = node.get_order_router_rev_share(address.clone()).await;
+
+    // This test might fail if the address doesn't have rev share configured
+    // In that case, we should get an error, which is expected behavior
+    match rev_share_result {
+        Ok(rev_share) => {
+            // If successful, verify the rev share has reasonable values
+            // Check that address matches and share_ppm is within valid range (0-1,000,000 ppm)
+            assert_eq!(rev_share.address, address.as_ref());
+            assert!(rev_share.share_ppm <= 1_000_000);
+        }
+        Err(_) => {
+            // It's acceptable for this to fail if the address doesn't have rev share configured
+            // This is expected behavior for most test addresses
+        }
+    }
+
+    Ok(())
+}

@@ -16,6 +16,9 @@ pub struct Transferor {
 
 impl Transferor {
     pub async fn connect() -> Result<Self> {
+        // Initialize rustls crypto provider
+        support::crypto::init_crypto_provider();
+
         let config = ClientConfig::from_file("client/tests/testnet.toml").await?;
         let client = NodeClient::connect(config.node).await?;
         let wallet = Wallet::from_mnemonic(TEST_MNEMONIC)?;

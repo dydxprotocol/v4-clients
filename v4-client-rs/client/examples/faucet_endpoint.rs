@@ -18,6 +18,9 @@ mod faucet_endpoint_example {
 
     impl FaucetRequester {
         pub async fn connect() -> Result<Self> {
+            // Initialize rustls crypto provider
+            super::support::crypto::init_crypto_provider();
+
             let config = ClientConfig::from_file("client/tests/testnet.toml").await?;
             let faucet = FaucetClient::new(
                 config

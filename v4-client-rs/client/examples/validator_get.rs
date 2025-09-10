@@ -16,6 +16,9 @@ pub struct Getter {
 
 impl Getter {
     pub async fn connect() -> Result<Self> {
+        // Initialize rustls crypto provider
+        support::crypto::init_crypto_provider();
+
         let config = ClientConfig::from_file("client/tests/testnet.toml").await?;
         let client = NodeClient::connect(config.node).await?;
         let wallet = Wallet::from_mnemonic(TEST_MNEMONIC)?;
@@ -153,8 +156,38 @@ async fn main() -> Result<()> {
     let affiliate_whitelist = getter.client.get_affiliate_whitelist().await?;
     tracing::info!("Get affiliate whitelist: {affiliate_whitelist:?}");
 
-    let referred_by = getter.client.get_referred_by(address).await?;
+    let referred_by = getter.client.get_referred_by(address.clone()).await?;
     tracing::info!("Get referred by: {referred_by:?}");
+
+    // Account state query - returns timestamp nonce information
+    let account_state = getter.client.get_account_state(&address).await?;
+    tracing::info!("Get account state: {account_state:?}");
+
+    // Synchrony params query - returns blockchain synchrony parameters
+    let synchrony_params = getter.client.get_synchrony_params().await?;
+    tracing::info!("Get synchrony params: {synchrony_params:?}");
+
+    // Next CLOB pair ID - returns the next available CLOB pair identifier
+    let next_clob_pair_id = getter.client.get_next_clob_pair_id().await?;
+    tracing::info!("Get next CLOB pair ID: {next_clob_pair_id:?}");
+
+    // Next perpetual ID - returns the next available perpetual identifier
+    let next_perpetual_id = getter.client.get_next_perpetual_id().await?;
+    tracing::info!("Get next perpetual ID: {next_perpetual_id:?}");
+
+    // Next market ID - returns the next available market identifier
+    let next_market_id = getter.client.get_next_market_id().await?;
+    tracing::info!("Get next market ID: {next_market_id:?}");
+
+    // Order router rev share - may return an error if address doesn't have rev share configured
+    match getter.client.get_order_router_rev_share(address).await {
+        Ok(rev_share) => {
+            tracing::info!("Get order router rev share: {rev_share:?}");
+        }
+        Err(e) => {
+            tracing::warn!("Order router rev share not configured for this address: {e}");
+        }
+    }
 
     Ok(())
 }

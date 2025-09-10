@@ -32,7 +32,7 @@ async fn test_node_auth_add_allof_all_types() -> Result<(), Error> {
     let paccount = env.wallet.account_offline(1)?;
 
     let authenticator = Authenticator::AllOf(vec![
-        Authenticator::SignatureVerification(paccount.public_key().to_bytes().into()),
+        Authenticator::SignatureVerification(paccount.public_key().to_bytes()),
         Authenticator::MessageFilter("dydxprotocol.clob.MsgPlaceOrder".into()),
         Authenticator::SubaccountFilter("0".into()),
         Authenticator::ClobPairIdFilter("0,1".into()),
