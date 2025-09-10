@@ -14,6 +14,11 @@ from dydx_v4_client import OrderFlags
 from dydx_v4_client.indexer.rest.constants import OrderType
 from dydx_v4_client.node.market import Market
 from dydx_v4_client.node_helper_type import ExtendedSubaccount
+
+from dydx_v4_client.utility import convert_quantum_bytes_to_value_with_order_side
+from dydx_v4_client import OrderFlags
+from dydx_v4_client.indexer.rest.constants import OrderType
+from dydx_v4_client.node.market import Market
 from v4_proto.cosmos.auth.v1beta1 import query_pb2_grpc as auth
 from v4_proto.cosmos.auth.v1beta1.auth_pb2 import BaseAccount
 from v4_proto.cosmos.auth.v1beta1.query_pb2 import QueryAccountRequest
