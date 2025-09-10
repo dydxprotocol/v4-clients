@@ -13,6 +13,7 @@ from typing_extensions import List, Optional, Self
 from dydx_v4_client import OrderFlags
 
 from dydx_v4_client.indexer.rest.constants import OrderSide, OrderType
+
 from dydx_v4_client.indexer.rest.constants import OrderType
 from dydx_v4_client.node.market import Market
 from v4_proto.cosmos.auth.v1beta1 import query_pb2_grpc as auth
@@ -1234,14 +1235,14 @@ class NodeClient(MutatingNodeClient):
         return await self.send_message(wallet=wallet, message=msg)
 
     async def close_position(
-            self,
-            wallet: Wallet,
-            address: str,
-            subaccount_number: int,
-            market: Market,
-            client_id: int,
-            reduce_by: Optional[Decimal],
-            slippage_pct: float = 10,
+        self,
+        wallet: Wallet,
+        address: str,
+        subaccount_number: int,
+        market: Market,
+        client_id: int,
+        reduce_by: Optional[Decimal],
+        slippage_pct: float = 10,
     ) -> Any:
         """
         Close position for a given market.
@@ -1271,13 +1272,13 @@ class NodeClient(MutatingNodeClient):
                     if int(pos.quantums[0]) == 2:
                         order_side = Order.Side.SIDE_SELL
                         price = float(market.market["oraclePrice"]) * (
-                                (100 - slippage_pct) / 100.0
+                            (100 - slippage_pct) / 100.0
                         )
 
                     else:
                         order_side = Order.Side.SIDE_BUY
                         price = float(market.market["oraclePrice"]) * (
-                                (100 + slippage_pct) / 100.0
+                            (100 + slippage_pct) / 100.0
                         )
         except Exception as e:
             raise e
