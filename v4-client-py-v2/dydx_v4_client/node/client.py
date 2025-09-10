@@ -8,6 +8,9 @@ import grpc
 from google._upb._message import Message
 from google.protobuf.json_format import MessageToDict
 from typing_extensions import List, Optional, Self
+
+from dydx_v4_client.node_helper_type import ExtendedSubaccount
+from dydx_v4_client.utility import convert_quantum_bytes_to_value_with_order_side
 from v4_proto.cosmos.auth.v1beta1 import query_pb2_grpc as auth
 from v4_proto.cosmos.auth.v1beta1.auth_pb2 import BaseAccount
 from v4_proto.cosmos.auth.v1beta1.query_pb2 import QueryAccountRequest
@@ -256,7 +259,7 @@ class QueryNodeClient:
 
     async def get_subaccount(
         self, address: str, account_number: int
-    ) -> Optional[subaccount_type.Subaccount]:
+    ) -> ExtendedSubaccount:
         """
         Retrieves a subaccount for a given address and account number.
 
@@ -271,7 +274,7 @@ class QueryNodeClient:
         response = stub.Subaccount(
             QueryGetSubaccountRequest(owner=address, number=account_number)
         )
-        return response.subaccount
+        return ExtendedSubaccount(response.subaccount)
 
     async def get_subaccounts(self) -> QuerySubaccountAllResponse:
         """
