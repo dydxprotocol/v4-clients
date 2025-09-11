@@ -102,6 +102,8 @@ from v4_proto.dydxprotocol.revshare import query_pb2_grpc as revshare_query_grpc
 from v4_proto.dydxprotocol.revshare import query_pb2 as revshare_query
 from v4_proto.dydxprotocol.revshare import tx_pb2_grpc as revshare_tx_grpc
 from v4_proto.dydxprotocol.revshare import tx_pb2 as revshare_tx_query
+from v4_proto.dydxprotocol.revshare import params_pb2 as revshare_param
+from v4_proto.dydxprotocol.revshare import revshare_pb2
 
 from dydx_v4_client.network import NodeConfig
 from dydx_v4_client.node.authenticators import Authenticator, validate_authenticator
@@ -121,7 +123,8 @@ from dydx_v4_client.node.message import (
     register_affiliate,
     withdraw_delegator_reward,
     undelegate,
-    delegate, order_router_revenue_share,
+    delegate,
+    order_router_revenue_share,
 )
 from dydx_v4_client.wallet import Wallet
 
@@ -1378,18 +1381,104 @@ class NodeClient(MutatingNodeClient):
         return await self.place_order(wallet, new_order)
 
     async def set_order_router_revenue_share(
-            self,
-            authority: str,
-            address: str,
-            share_ppm: int
-    )->revshare_tx_query.MsgSetOrderRouterRevShare:
+        self, authority: str, address: str, share_ppm: int
+    ) -> revshare_tx_query.MsgSetOrderRouterRevShareResponse:
+        """
+        Set order router revenue share
+
+        Args:
+            authority (str): Setter's authority
+            address (str): Address to receive revenue share
+            share_ppm (int): Parts per million of revenue share
+
+        Returns:
+            revshare_tx_query.MsgSetOrderRouterRevShareResponse: Set order router revenue share response
+        """
         return revshare_tx_grpc.MsgStub(self.channel).SetOrderRouterRevShare(
             revshare_tx_query.MsgSetOrderRouterRevShare(
                 authority=authority,
                 order_router_rev_share=OrderRouterRevShare(
-                    address=address,
-                    share_ppm=share_ppm
-                )
+                    address=address, share_ppm=share_ppm
+                ),
             )
         )
 
+
+    async def set_market_mapper_revenue_share(
+        self, authority: str, address: str, revenue_share_ppm: int, valid_days: int
+    ) -> revshare_tx_query.MsgSetMarketMapperRevenueShareResponse:
+        """
+        Set market mapper revenue share
+
+        Args:
+            authority (str): Setter's authority
+            address (str): Address to receive revenue share
+            revenue_share_ppm (int): Parts per million of revenue share
+            valid_days (int): Validity in days
+
+        Returns:
+            revshare_tx_query.MsgSetMarketMapperRevenueShareResponse: Market mapper revenue share response
+        """
+        return revshare_tx_grpc.MsgStub(self.channel).SetMarketMapperRevenueShare(
+            revshare_tx_query.MsgSetMarketMapperRevenueShare(
+                authority=authority,
+                params=revshare_param.MarketMapperRevenueShareParams(
+                    address=address,
+                    revenue_share_ppm=revenue_share_ppm,
+                    valid_days=valid_days,
+                ),
+            ),
+        )
+
+    async def set_market_mapper_revenue_share_details_for_market(
+        self, authority: str, market_id: int, expiration_ts: int
+    ) -> revshare_tx_query.MsgSetMarketMapperRevShareDetailsForMarketResponse:
+        """
+        Set market mapper revenue share details
+
+        Args:
+            authority (str): Setter's authority
+            market_id (int): Market id of the revenue share
+            expiration_ts (int): Expiration
+
+        Returns:
+            revshare_query.MsgSetMarketMapperRevShareDetailsForMarketResponse: Market mapper revenue share details response
+        """
+        return revshare_tx_grpc.MsgStub(
+            self.channel
+        ).SetMarketMapperRevShareDetailsForMarket(
+            revshare_tx_query.MsgSetMarketMapperRevShareDetailsForMarket(
+                authority=authority,
+                market_id=market_id,
+                params=revshare_pb2.MarketMapperRevShareDetails(
+                    expiration_ts=expiration_ts
+                ),
+            )
+        )
+
+    async def update_unconditional_revenue_share_config(
+        self, authority: str, address: str, share_ppm: int
+    ) -> revshare_tx_query.MsgUpdateUnconditionalRevShareConfigResponse:
+        """
+        Update unconditional revenue share config
+
+        Args:
+            authority (str): Setter's authority
+            address (str): Address to receive revenue share
+            share_ppm (int): Parts per million of share
+
+        Returns:
+            revshare_tx_query.MsgUpdateUnconditionalRevShareConfigResponse: Update unconditional revenue share config response
+        """
+        return revshare_tx_grpc.MsgStub(self.channel).UpdateUnconditionalRevShareConfig(
+            revshare_tx_query.MsgUpdateUnconditionalRevShareConfig(
+                authority=authority,
+                config=revshare_pb2.UnconditionalRevShareConfig(
+                    configs=[
+                        revshare_pb2.UnconditionalRevShareConfig.RecipientConfig(
+                            address=address, share_ppm=share_ppm
+                        )
+                    ]
+                ),
+            )
+        )
