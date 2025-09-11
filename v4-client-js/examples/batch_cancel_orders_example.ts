@@ -57,7 +57,7 @@ async function test(): Promise<void> {
     const client = await CompositeClient.connect(network);
     console.log('**Client**', client);
 
-    const subaccount = new SubaccountInfo(wallet, 0);
+    const subaccount = SubaccountInfo.forLocalWallet(wallet, 0);
     const currentBlock = await client.validatorClient.get.latestBlockHeight();
     const goodTilBlock = currentBlock + 10;
 
@@ -100,7 +100,7 @@ const placeShortTermOrders = async (
 
   // Wait for all order placements to complete
   await Promise.all(orderPromises);
-}
+};
 
 const batchCancelOrders = async (
   client: CompositeClient,
@@ -119,7 +119,7 @@ const batchCancelOrders = async (
   } catch (error) {
     console.error('**Batch Cancel Short Term Orders Failed**', error.message);
   }
-}
+};
 
 test()
   .then(() => {

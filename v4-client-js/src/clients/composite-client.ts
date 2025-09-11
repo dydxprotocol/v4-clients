@@ -69,11 +69,6 @@ export interface OrderBatchWithMarketId {
   clientIds: number[];
 }
 
-export interface PermissionedKeysAccountAuth {
-  authenticators: Long[];
-  accountForOrder: SubaccountInfo;
-}
-
 export type PlaceOrderPayload = {
   subaccountNumber: number;
   marketId: string;
@@ -167,14 +162,14 @@ export class CompositeClient {
    * @returns The Signature.
    */
   async sign(
-    wallet: LocalWallet,
+    subaccount: SubaccountInfo,
     messaging: () => Promise<EncodeObject[]>,
     zeroFee: boolean,
     gasPrice?: GasPrice,
     memo?: string,
     account?: () => Promise<Account>,
   ): Promise<Uint8Array> {
-    return this.validatorClient.post.sign(wallet, messaging, zeroFee, gasPrice, memo, account);
+    return this.validatorClient.post.sign(subaccount, messaging, zeroFee, gasPrice, memo, account);
   }
 
   /**
@@ -186,17 +181,16 @@ export class CompositeClient {
    * @returns The Transaction Hash.
    */
   async send(
-    wallet: LocalWallet,
+    subaccount: SubaccountInfo,
     messaging: () => Promise<EncodeObject[]>,
     zeroFee: boolean,
     gasPrice?: GasPrice,
     memo?: string,
     broadcastMode?: BroadcastMode,
     account?: () => Promise<Account>,
-    authenticators?: Long[],
   ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
     return this.validatorClient.post.send(
-      wallet,
+      subaccount,
       messaging,
       zeroFee,
       gasPrice,
@@ -204,7 +198,6 @@ export class CompositeClient {
       broadcastMode,
       account,
       undefined,
-      authenticators,
     );
   }
 
@@ -237,13 +230,13 @@ export class CompositeClient {
    * @returns The gas estimate.
    */
   async simulate(
-    wallet: LocalWallet,
+    subaccount: SubaccountInfo,
     messaging: () => Promise<EncodeObject[]>,
     gasPrice?: GasPrice,
     memo?: string,
     account?: () => Promise<Account>,
   ): Promise<StdFee> {
-    return this.validatorClient.post.simulate(wallet, messaging, gasPrice, memo, account);
+    return this.validatorClient.post.simulate(subaccount, messaging, gasPrice, memo, account);
   }
 
   /**
@@ -342,16 +335,10 @@ export class CompositeClient {
     timeInForce: Order_TimeInForce,
     reduceOnly: boolean,
     memo?: string,
-    permissionedKeysAccountAuth?: PermissionedKeysAccountAuth,
   ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
-    // For permissioned orders, use the permissioning account details instead of the subaccount
-    // This allows placing orders on behalf of another account when using permissioned keys
-    const accountForOrder = permissionedKeysAccountAuth
-      ? permissionedKeysAccountAuth.accountForOrder
-      : subaccount;
     const msgs: Promise<EncodeObject[]> = new Promise((resolve, reject) => {
       const msg = this.placeShortTermOrderMessage(
-        accountForOrder,
+        subaccount,
         marketId,
         side,
         price,
@@ -371,18 +358,17 @@ export class CompositeClient {
         });
     });
     const account: Promise<Account> = this.validatorClient.post.account(
-      accountForOrder.address,
+      subaccount.address,
       undefined,
     );
     return this.send(
-      subaccount.wallet,
+      subaccount,
       () => msgs,
       true,
       undefined,
       memo,
       undefined,
       () => account,
-      permissionedKeysAccountAuth?.authenticators,
     );
   }
 
@@ -467,7 +453,7 @@ export class CompositeClient {
       orderFlags,
     );
     return this.send(
-      subaccount.wallet,
+      subaccount,
       () => msgs,
       true,
       undefined,
@@ -846,7 +832,7 @@ export class CompositeClient {
       resolve([msg]);
     });
     return this.send(
-      subaccount.wallet,
+      subaccount,
       () => msgs,
       false,
       undefined,
@@ -915,7 +901,7 @@ export class CompositeClient {
       const msg = this.depositToSubaccountMessage(subaccount, amount);
       resolve([msg]);
     });
-    return this.validatorClient.post.send(subaccount.wallet, () => msgs, false, undefined, memo);
+    return this.validatorClient.post.send(subaccount, () => msgs, false, undefined, memo);
   }
 
   /**
@@ -970,7 +956,7 @@ export class CompositeClient {
       const msg = this.withdrawFromSubaccountMessage(subaccount, amount, recipient);
       resolve([msg]);
     });
-    return this.send(subaccount.wallet, () => msgs, false, undefined, memo);
+    return this.send(subaccount, () => msgs, false, undefined, memo);
   }
 
   /**
@@ -1082,7 +1068,7 @@ export class CompositeClient {
           console.log(err);
         });
     });
-    const signature = await this.sign(subaccount.wallet, () => msgs, true);
+    const signature = await this.sign(subaccount, () => msgs, true);
 
     return Buffer.from(signature).toString('base64');
   }
@@ -1107,7 +1093,7 @@ export class CompositeClient {
       );
       resolve([msg]);
     });
-    const signature = await this.sign(subaccount.wallet, () => msgs, true);
+    const signature = await this.sign(subaccount, () => msgs, true);
 
     return Buffer.from(signature).toString('base64');
   }
@@ -1142,10 +1128,7 @@ export class CompositeClient {
 
     const msgs: Promise<EncodeObject[]> = (async () => {
       const cancelMsgPromises = cancelOrderPayloads.map(async (cancelPayload) => {
-        const cancelSubaccount = new SubaccountInfo(
-          subaccount.wallet,
-          cancelPayload.subaccountNumber,
-        );
+        const cancelSubaccount = subaccount.cloneWithSubaccount(cancelPayload.subaccountNumber);
         return this.validatorClient.post.cancelOrderMsg(
           cancelSubaccount.address,
           cancelSubaccount.subaccountNumber,
@@ -1161,9 +1144,8 @@ export class CompositeClient {
         if (transferToSubaccountPayload == null) {
           return undefined;
         }
-        const transferSubaccount = new SubaccountInfo(
-          subaccount.wallet,
-          transferToSubaccountPayload?.sourceSubaccountNumber,
+        const transferSubaccount = subaccount.cloneWithSubaccount(
+          transferToSubaccountPayload.sourceSubaccountNumber,
         );
         return this.transferToSubaccountMessage(
           transferSubaccount,
@@ -1174,10 +1156,7 @@ export class CompositeClient {
       })();
 
       const placeOrderMsgPromises = placeOrderPayloads.map((placePayload) => {
-        const placeSubaccount = new SubaccountInfo(
-          subaccount.wallet,
-          placePayload.subaccountNumber,
-        );
+        const placeSubaccount = subaccount.cloneWithSubaccount(placePayload.subaccountNumber);
         return this.placeOrderMessage(
           placeSubaccount,
           placePayload.marketId,
@@ -1206,7 +1185,7 @@ export class CompositeClient {
     })();
 
     return this.send(
-      subaccount.wallet,
+      subaccount,
       () => msgs,
       true,
       undefined,
@@ -1362,7 +1341,7 @@ export class CompositeClient {
       resolve([submitProposal]);
     });
 
-    return this.send(wallet, () => msg, false, undefined, memo);
+    return this.send(SubaccountInfo.forLocalWallet(wallet), () => msg, false, undefined, memo);
   }
 
   async createMarketPermissionless(

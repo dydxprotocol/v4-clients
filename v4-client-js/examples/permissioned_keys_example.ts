@@ -20,9 +20,9 @@ async function test(): Promise<void> {
   console.log('**Client**');
   console.log(client);
 
-  const subaccount1 = new SubaccountInfo(wallet1, 0);
-  const subaccount2 = new SubaccountInfo(wallet2, 0);
-  const subaccount3 = new SubaccountInfo(wallet3, 0);
+  const subaccount1 = SubaccountInfo.forLocalWallet(wallet1, 0);
+  const subaccount2 = SubaccountInfo.forLocalWallet(wallet2, 0);
+  const subaccount3 = SubaccountInfo.forLocalWallet(wallet3, 0);
 
   // Change second wallet pubkey
   // Add an authenticator to allow wallet2 to place orders
@@ -136,7 +136,12 @@ async function placeOrder(
     const clientId = Math.floor(Math.random() * 10000);
 
     const tx = await client.placeShortTermOrder(
-      fromAccount,
+      SubaccountInfo.forPermissionedWallet(
+        fromAccount.signingWallet,
+        forAccount.address,
+        forAccount.subaccountNumber,
+        [authenticatorId],
+      ),
       'ETH-USD',
       side,
       price,
@@ -146,10 +151,6 @@ async function placeOrder(
       timeInForce,
       false,
       undefined,
-      {
-        authenticators: [authenticatorId],
-        accountForOrder: forAccount,
-      },
     );
     console.log('**Order Tx**');
     console.log(Buffer.from(tx.hash).toString('hex'));
