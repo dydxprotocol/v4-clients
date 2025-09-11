@@ -116,6 +116,7 @@ from dydx_v4_client.wallet import Wallet
 
 DEFAULT_QUERY_TIMEOUT_SECS = 15
 DEFAULT_QUERY_INTERVAL_SECS = 2
+GOOD_TIL_BLOCK_OFFSET = 20
 
 
 class CustomJSONDecoder:
@@ -1256,7 +1257,7 @@ class NodeClient(MutatingNodeClient):
         Returns:
             Any: The close position response
         """
-        subaccount = await self.get_subaccount(address, 0)
+        subaccount = await self.get_subaccount(address, subaccount_number)
         quantum_value = None
         order_side = None
         price = None
@@ -1278,7 +1279,7 @@ class NodeClient(MutatingNodeClient):
                             (100 + slippage_pct) / 100.0
                         )
         except Exception as e:
-            raise e
+            raise RuntimeError(f"Failed to parse position data: {e}") from e
 
         if quantum_value is None:
             return
@@ -1298,6 +1299,6 @@ class NodeClient(MutatingNodeClient):
             size=order_size,
             price=price,
             reduce_only=True,
-            good_til_block=current_height + 20,
+            good_til_block=current_height + GOOD_TIL_BLOCK_OFFSET,
         )
         return await self.place_order(wallet, new_order)
