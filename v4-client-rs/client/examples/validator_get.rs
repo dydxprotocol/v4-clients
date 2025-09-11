@@ -189,5 +189,17 @@ async fn main() -> Result<()> {
         }
     }
 
+    // Market mapper revenue share params - returns global revenue share parameters
+    let market_mapper_params = getter.client.get_market_mapper_revenue_share_params().await?;
+    tracing::info!("Get market mapper revenue share params: {market_mapper_params:?}");
+
+    // Market mapper rev share details - returns details for a specific market
+    let market_mapper_details = getter.client.get_market_mapper_rev_share_details(ETH_USD_PAIR_ID).await?;
+    tracing::info!("Get market mapper rev share details for market {ETH_USD_PAIR_ID}: {market_mapper_details:?}");
+
+    // Unconditional rev share config - returns unconditional revenue share configuration
+    let unconditional_config = getter.client.get_unconditional_rev_share_config().await?;
+    tracing::info!("Get unconditional rev share config: {unconditional_config:?}");
+
     Ok(())
 }

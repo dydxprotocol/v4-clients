@@ -314,3 +314,48 @@ async fn test_node_get_order_router_rev_share() -> Result<()> {
 
     Ok(())
 }
+
+#[tokio::test]
+async fn test_node_get_market_mapper_revenue_share_params() -> Result<()> {
+    let mut node = TestEnv::testnet().await?.node;
+
+    let params = node.get_market_mapper_revenue_share_params().await?;
+
+    // Verify the market mapper revenue share params contain expected fields
+    // The address should be a valid string and revenue_share_ppm should be within valid range
+    assert!(params.address.len() > 0);
+    assert!(params.revenue_share_ppm <= 1_000_000); // Max 1,000,000 ppm (100%)
+    // valid_days is u32, so it's always >= 0. Just verify it's reasonable
+    assert!(params.valid_days <= 365 * 10); // Should be less than 10 years
+
+    Ok(())
+}
+
+#[tokio::test]
+async fn test_node_get_market_mapper_rev_share_details() -> Result<()> {
+    let mut node = TestEnv::testnet().await?.node;
+    let market_id = 0; // Use ETH-USD market ID
+
+    let _details = node.get_market_mapper_rev_share_details(market_id).await?;
+
+    Ok(())
+}
+
+#[tokio::test]
+async fn test_node_get_unconditional_rev_share_config() -> Result<()> {
+    let mut node = TestEnv::testnet().await?.node;
+
+    let config = node.get_unconditional_rev_share_config().await?;
+
+    // Verify the unconditional rev share config contains expected fields
+    // The config should have valid recipient configurations
+    // configs.len() is always >= 0, so just verify it's reasonable
+    assert!(config.configs.len() <= 100); // Should have reasonable number of configs
+    // Each config should have valid fields if present
+    for recipient_config in &config.configs {
+        assert!(recipient_config.address.len() > 0);
+        assert!(recipient_config.share_ppm <= 1_000_000); // Max 1,000,000 ppm (100%)
+    }
+
+    Ok(())
+}
