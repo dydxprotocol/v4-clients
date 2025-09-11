@@ -49,7 +49,7 @@ use dydx_proto::{
             AffiliateInfoResponse, AffiliateTiers, AffiliateWhitelist, AffiliateWhitelistRequest,
             AllAffiliateTiersRequest, ReferredByRequest,
         },
-        blocktime::{query_client::QueryClient as BlocktimeClient},
+        blocktime::query_client::QueryClient as BlocktimeClient,
         bridge::query_client::QueryClient as BridgeClient,
         clob::{
             query_client::QueryClient as ClobClient, MsgBatchCancel, MsgCancelOrder, MsgPlaceOrder,

@@ -325,7 +325,7 @@ async fn test_node_get_market_mapper_revenue_share_params() -> Result<()> {
     // The address should be a valid string and revenue_share_ppm should be within valid range
     assert!(params.address.len() > 0);
     assert!(params.revenue_share_ppm <= 1_000_000); // Max 1,000,000 ppm (100%)
-    // valid_days is u32, so it's always >= 0. Just verify it's reasonable
+                                                    // valid_days is u32, so it's always >= 0. Just verify it's reasonable
     assert!(params.valid_days <= 365 * 10); // Should be less than 10 years
 
     Ok(())
@@ -351,7 +351,7 @@ async fn test_node_get_unconditional_rev_share_config() -> Result<()> {
     // The config should have valid recipient configurations
     // configs.len() is always >= 0, so just verify it's reasonable
     assert!(config.configs.len() <= 100); // Should have reasonable number of configs
-    // Each config should have valid fields if present
+                                          // Each config should have valid fields if present
     for recipient_config in &config.configs {
         assert!(recipient_config.address.len() > 0);
         assert!(recipient_config.share_ppm <= 1_000_000); // Max 1,000,000 ppm (100%)
