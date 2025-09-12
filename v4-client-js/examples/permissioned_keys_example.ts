@@ -78,7 +78,7 @@ async function removeAuthenticator(
   subaccount: SubaccountInfo,
   id: Long,
 ): Promise<void> {
-  await client.removeAuthenticator(subaccount, id);
+  await client.removeAuthenticator(subaccount, id.toString());
 }
 
 async function addTestAuthenticator(

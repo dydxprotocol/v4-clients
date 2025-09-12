@@ -1381,9 +1381,9 @@ export class CompositeClient {
 
   async removeAuthenticator(
     subaccount: SubaccountInfo,
-    id: Long,
+    id: string,
   ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
-    return this.validatorClient.post.removeAuthenticator(subaccount, id);
+    return this.validatorClient.post.removeAuthenticator(subaccount, Long.fromString(id));
   }
 
   async getAuthenticators(address: string): Promise<GetAuthenticatorsResponse> {
