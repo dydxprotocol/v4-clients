@@ -1011,7 +1011,7 @@ export class Post {
       undefined,
       Method.BroadcastTxSync,
       undefined,
-      undefined,
+      3,
     );
   }
 }
