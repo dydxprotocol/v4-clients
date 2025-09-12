@@ -4,6 +4,7 @@ export * from './types';
 // Utility functions.
 export * as helpers from './lib/helpers';
 export * as onboarding from './lib/onboarding';
+export * as tradingKeyUtils from './lib/trading-key-utils';
 export * as utils from './lib/utils';
 export * as validation from './lib/validation';
 
