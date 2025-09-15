@@ -43,7 +43,7 @@ export const createNewRandomDydxWallet = async (): Promise<
 };
 
 // arguments to authorize a given wallet public key to trade on behalf of the user.
-// allows place order, cancel order, batch cancel on subaccount 0 only.
+// allows place order, cancel order, batch cancel.
 export const getAuthorizeNewTradingKeyArguments = ({
   generatedWalletPubKey,
 }: {
@@ -76,12 +76,6 @@ export const getAuthorizeNewTradingKeyArguments = ({
     {
       type: AuthenticatorType.ANY_OF,
       config: anyOfMessageFilterConfigB64,
-    },
-    // we limit to cross markets to make it slightly harder to drain user funds on low liquidity markets with trading keys
-    // could undo this in the future if people are angry about it
-    {
-      type: AuthenticatorType.SUBACCOUNT_FILTER,
-      config: wrapAndEncode64('0'),
     },
   ];
 
