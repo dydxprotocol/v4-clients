@@ -1,6 +1,7 @@
 import { EncodeObject } from '@cosmjs/proto-signing';
 import Long from 'long';
 
+import { SubaccountInfo } from '../src';
 import { Network } from '../src/clients/constants';
 import LocalWallet from '../src/clients/modules/local-wallet';
 import { NobleClient } from '../src/clients/noble-client';
@@ -43,7 +44,7 @@ async function test(): Promise<void> {
   const encodeObjects: Promise<EncodeObject[]> = new Promise((resolve) => resolve(msgs));
 
   await dydxClient.post.send(
-    dydxWallet,
+    SubaccountInfo.forLocalWallet(dydxWallet),
     () => {
       return encodeObjects;
     },

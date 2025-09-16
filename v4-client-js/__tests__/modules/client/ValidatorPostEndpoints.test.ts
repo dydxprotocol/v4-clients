@@ -41,7 +41,7 @@ describe('Validator Client', () => {
       console.log('**Account**');
       console.log(account);
       const height = await client.get.latestBlockHeight();
-      const subaccount = new SubaccountInfo(wallet, 0);
+      const subaccount = SubaccountInfo.forLocalWallet(wallet, 0);
       const placeOrder = dummyOrder(height);
       placeOrder.clientId = randomInt(1_000_000_000);
       const tx = await client.post.placeOrderObject(subaccount, placeOrder);

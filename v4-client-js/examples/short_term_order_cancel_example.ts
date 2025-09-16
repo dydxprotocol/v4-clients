@@ -13,7 +13,7 @@ async function test(): Promise<void> {
   const client = await CompositeClient.connect(network);
   console.log('**Client**');
   console.log(client);
-  const subaccount = new SubaccountInfo(wallet, 0);
+  const subaccount = SubaccountInfo.forLocalWallet(wallet, 0);
 
   const currentBlock = await client.validatorClient.get.latestBlockHeight();
   const nextValidBlockHeight = currentBlock + 1;
