@@ -11,6 +11,10 @@ from dydx_v4_client.node.message import subaccount, send_token, order
 from tests.conftest import get_wallet, assert_successful_broadcast
 from v4_proto.dydxprotocol.clob.order_pb2 import BuilderCodeParameters, Order
 from dydx_v4_client.indexer.rest.constants import OrderStatus, OrderType
+from tests.conftest import get_wallet, assert_successful_broadcast, TEST_ADDRESS_2
+from v4_proto.dydxprotocol.clob.order_pb2 import BuilderCodeParameters
+from dydx_v4_client.indexer.rest.constants import OrderStatus
+
 
 REQUEST_PROCESSING_TIME = 5
 
@@ -352,6 +356,38 @@ async def test_place_order_with_twap_parameters(
     )
 
     assert fills is not None
+
+
+async def test_place_order_with_order_router_address(
+    node_client, indexer_rest_client, test_order_id, test_address, wallet
+):
+    test_order = order(
+        test_order_id,
+        time_in_force=0,
+        reduce_only=False,
+        side=1,
+        quantums=10000000,
+        subticks=40000000000,
+        good_til_block_time=int(time.time() + 60),
+        builder_code_parameters=None,
+        twap_parameters=None,
+        order_router_address=TEST_ADDRESS_2,
+    )
+
+    placed = await node_client.place_order(
+        wallet,
+        test_order,
+    )
+
+    await asyncio.sleep(5)
+
+    fills = await indexer_rest_client.account.get_subaccount_fills(
+        address=test_address, subaccount_number=0, limit=1
+    )
+
+    assert fills is not None
+    assert fills["fills"][0]["orderRouterAddress"] == TEST_ADDRESS_2
+
 
 
 @pytest.mark.asyncio
