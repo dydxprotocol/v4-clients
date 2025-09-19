@@ -1,6 +1,9 @@
 import asyncio
+import random
+import time
 
 import pytest
+
 from v4_proto.cosmos.auth.v1beta1.auth_pb2 import BaseAccount
 from v4_proto.cosmos.bank.v1beta1 import query_pb2 as bank_query
 from v4_proto.cosmos.base.tendermint.v1beta1.query_pb2 import GetLatestBlockResponse
@@ -38,7 +41,6 @@ from v4_proto.cosmos.gov.v1 import query_pb2 as gov_query
 from v4_proto.dydxprotocol.subaccounts import query_pb2 as subaccount_query
 from v4_proto.dydxprotocol.ratelimit import query_pb2 as rate_query
 from v4_proto.dydxprotocol.affiliates import query_pb2 as affiliate_query
-from v4_proto.dydxprotocol.revshare import query_pb2 as revshare_query
 from tests.conftest import TEST_ADDRESS
 
 
