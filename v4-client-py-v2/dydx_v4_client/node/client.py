@@ -124,7 +124,6 @@ from dydx_v4_client.node.message import (
     withdraw_delegator_reward,
     undelegate,
     delegate,
-    order_router_revenue_share,
 )
 from dydx_v4_client.wallet import Wallet
 
