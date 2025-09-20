@@ -33,7 +33,7 @@ async fn test_node_megavault_withdraw() -> Result<(), Error> {
 
     let tx_res = node
         .megavault()
-        .withdraw(&mut account, subaccount, 0, Some(&1.into()))
+        .withdraw_from_megavault(&mut account, subaccount, 0, Some(&1.into()))
         .await;
 
     node.query_transaction_result(tx_res).await?;

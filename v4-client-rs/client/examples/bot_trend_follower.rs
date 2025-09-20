@@ -54,7 +54,6 @@ impl fmt::Display for Channel {
 pub struct TrendFollower {
     client: NodeClient,
     indexer: IndexerClient,
-    wallet: Wallet,
     account: Account,
     subaccount: Subaccount,
     market: PerpetualMarket,
@@ -69,6 +68,9 @@ pub struct TrendFollower {
 
 impl TrendFollower {
     pub async fn connect() -> Result<Self> {
+        // Initialize rustls crypto provider
+        support::crypto::init_crypto_provider();
+
         let config = ClientConfig::from_file("client/tests/testnet.toml").await?;
         let mut client = NodeClient::connect(config.node).await?;
         let mut indexer = IndexerClient::new(config.indexer.clone());
@@ -138,7 +140,6 @@ impl TrendFollower {
         Ok(Self {
             client,
             indexer,
-            wallet,
             account,
             subaccount,
             market,

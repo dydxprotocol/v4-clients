@@ -23,6 +23,9 @@ mod noble_transfer_example {
 
     impl Bridger {
         pub async fn connect() -> Result<Self> {
+            // Initialize rustls crypto provider
+            support::crypto::init_crypto_provider();
+
             let config = ClientConfig::from_file("client/tests/testnet.toml").await?;
             let noble = NobleClient::connect(
                 config

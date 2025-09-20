@@ -30,27 +30,27 @@ impl IndexerClient {
     }
 
     /// Get accounts query dispatcher.
-    pub fn accounts(&self) -> rest::Accounts {
+    pub fn accounts(&self) -> rest::Accounts<'_> {
         self.rest.accounts()
     }
 
     /// Get markets query dispatcher.
-    pub fn markets(&self) -> rest::Markets {
+    pub fn markets(&self) -> rest::Markets<'_> {
         self.rest.markets()
     }
 
     /// Get utility query dispatcher.
-    pub fn utility(&self) -> rest::Utility {
+    pub fn utility(&self) -> rest::Utility<'_> {
         self.rest.utility()
     }
 
     /// Get vaults query dispatcher.
-    pub fn vaults(&self) -> rest::Vaults {
+    pub fn vaults(&self) -> rest::Vaults<'_> {
         self.rest.vaults()
     }
 
     /// Get affiliates query dispatcher.
-    pub fn affiliates(&self) -> rest::Affiliates {
+    pub fn affiliates(&self) -> rest::Affiliates<'_> {
         self.rest.affiliates()
     }
 

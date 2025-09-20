@@ -9,6 +9,9 @@ pub struct Rester {
 
 impl Rester {
     pub async fn connect() -> Result<Self> {
+        // Initialize rustls crypto provider
+        support::crypto::init_crypto_provider();
+
         let config = ClientConfig::from_file("client/tests/testnet.toml").await?;
         let indexer = IndexerClient::new(config.indexer);
         Ok(Self { indexer })
