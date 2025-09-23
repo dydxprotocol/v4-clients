@@ -1265,6 +1265,9 @@ class NodeClient(MutatingNodeClient):
         Returns:
             Any: The close position response
         """
+        if slippage_pct < 0 or slippage_pct > 100:
+            raise ValueError("slippage_pct should be within 0 and 100")
+
         subaccount = await self.get_subaccount(address, subaccount_number)
         quantum_value = None
         order_side = None

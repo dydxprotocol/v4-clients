@@ -541,6 +541,39 @@ async def test_close_position_buy_having_reduce_by(
     assert await get_current_order_size(indexer_rest_client, test_address) == 0.001
 
 
+@pytest.mark.asyncio
+async def test_close_position_slippage_pct_raise_exception(
+    node_client, wallet, test_address, indexer_rest_client
+):
+    MARKET_ID = "ETH-USD"
+    market = Market(
+        (await indexer_rest_client.markets.get_perpetual_markets(MARKET_ID))["markets"][
+            MARKET_ID
+        ]
+    )
+    with pytest.raises(ValueError):
+        _ = await node_client.close_position(
+            wallet=wallet,
+            address=test_address,
+            subaccount_number=0,
+            market=market,
+            reduce_by=0.001,
+            client_id=random.randint(0, MAX_CLIENT_ID),
+            slippage_pct=101,
+        )
+
+    with pytest.raises(ValueError):
+        _ = await node_client.close_position(
+            wallet=wallet,
+            address=test_address,
+            subaccount_number=0,
+            market=market,
+            reduce_by=0.001,
+            client_id=random.randint(0, MAX_CLIENT_ID),
+            slippage_pct=-1,
+        )
+
+
 async def get_current_order_size(indexer_rest_client, test_address):
     subaccount = await indexer_rest_client.account.get_subaccount(test_address, 0)
     if "subaccount" not in subaccount:
