@@ -1,7 +1,9 @@
 import { Secp256k1Pubkey, StdFee, encodeSecp256k1Pubkey } from '@cosmjs/amino';
+import { fromHex } from '@cosmjs/encoding';
 import {
   AccountData,
   DirectSecp256k1HdWallet,
+  DirectSecp256k1Wallet,
   EncodeObject,
   OfflineSigner,
 } from '@cosmjs/proto-signing';
@@ -9,6 +11,7 @@ import { SigningStargateClient } from '@cosmjs/stargate';
 import Long from 'long';
 import protobuf from 'protobufjs';
 
+import { stripHexPrefix } from '../../lib/helpers';
 import { generateRegistry } from '../lib/registry';
 import { TransactionOptions } from '../types';
 import { TransactionSigner } from './signer';
@@ -36,6 +39,12 @@ export default class LocalWallet {
     return wallet;
   }
 
+  static async fromPrivateKey(pkHex: string, prefix?: string): Promise<LocalWallet> {
+    const wallet = new LocalWallet();
+    await wallet.setPrivateKey(pkHex, prefix);
+    return wallet;
+  }
+
   async setSigner(signer: OfflineSigner): Promise<void> {
     this.offlineSigner = signer;
     const stargateClient = await SigningStargateClient.offline(signer, {
@@ -51,6 +60,11 @@ export default class LocalWallet {
 
   async setMnemonic(mnemonic: string, prefix?: string): Promise<void> {
     const signer = await DirectSecp256k1HdWallet.fromMnemonic(mnemonic, { prefix });
+    return this.setSigner(signer);
+  }
+
+  async setPrivateKey(pkHex: string, prefix?: string): Promise<void> {
+    const signer = await DirectSecp256k1Wallet.fromKey(fromHex(stripHexPrefix(pkHex)), prefix);
     return this.setSigner(signer);
   }
 

@@ -40,7 +40,7 @@ async function test(): Promise<void> {
   const value1 = Long.fromNumber(400000000000);
   console.log(value1.toString());
 
-  const subaccount = new SubaccountInfo(wallet, 0);
+  const subaccount = SubaccountInfo.forLocalWallet(wallet, 0);
   for (const orderParams of ordersParams) {
     const height = await client.get.latestBlockHeight();
     const placeOrder = dummyOrder(height);
