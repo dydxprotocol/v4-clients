@@ -24,22 +24,24 @@ use chrono::{TimeDelta, Utc};
 use cosmrs::tx::{self, Tx};
 use derive_more::{Deref, DerefMut};
 use dydx_proto::{
-    cosmos_sdk_proto::cosmos::{
-        auth::v1beta1::query_client::QueryClient as AuthClient,
-        bank::v1beta1::{query_client::QueryClient as BankClient, MsgSend},
-        base::{
-            abci::v1beta1::GasInfo,
-            tendermint::v1beta1::service_client::ServiceClient as BaseClient,
+    cosmos_sdk_proto::{
+        cosmos::{
+            auth::v1beta1::query_client::QueryClient as AuthClient,
+            bank::v1beta1::{query_client::QueryClient as BankClient, MsgSend},
+            base::{
+                abci::v1beta1::GasInfo,
+                tendermint::v1beta1::service_client::ServiceClient as BaseClient,
+            },
+            distribution::v1beta1::query_client::QueryClient as DistributionClient,
+            gov::v1::query_client::QueryClient as GovClient,
+            staking::v1beta1::query_client::QueryClient as StakingClient,
+            tx::v1beta1::{
+                service_client::ServiceClient as TxClient, BroadcastMode, BroadcastTxRequest,
+                GetTxRequest, SimulateRequest,
+            },
         },
-        distribution::v1beta1::query_client::QueryClient as DistributionClient,
-        gov::v1::query_client::QueryClient as GovClient,
-        staking::v1beta1::query_client::QueryClient as StakingClient,
-        tx::v1beta1::{
-            service_client::ServiceClient as TxClient, BroadcastMode, BroadcastTxRequest,
-            GetTxRequest, SimulateRequest,
-        },
+        traits::Message,
     },
-    cosmos_sdk_proto::traits::Message,
     dydxprotocol::{
         accountplus::query_client::QueryClient as AccountPlusClient,
         affiliates::{
@@ -47,6 +49,7 @@ use dydx_proto::{
             AffiliateInfoResponse, AffiliateTiers, AffiliateWhitelist, AffiliateWhitelistRequest,
             AllAffiliateTiersRequest, ReferredByRequest,
         },
+        blocktime::query_client::QueryClient as BlocktimeClient,
         bridge::query_client::QueryClient as BridgeClient,
         clob::{
             query_client::QueryClient as ClobClient, MsgBatchCancel, MsgCancelOrder, MsgPlaceOrder,
@@ -57,6 +60,12 @@ use dydx_proto::{
         perpetuals::query_client::QueryClient as PerpetualsClient,
         prices::query_client::QueryClient as PricesClient,
         ratelimit::query_client::QueryClient as RatelimitClient,
+        revshare::{
+            query_client::QueryClient as RevshareClient, MarketMapperRevShareDetails,
+            MarketMapperRevenueShareParams, MsgSetOrderRouterRevShare, OrderRouterRevShare,
+            QueryMarketMapperRevShareDetails, QueryMarketMapperRevenueShareParams,
+            QueryUnconditionalRevShareConfig, UnconditionalRevShareConfig,
+        },
         rewards::query_client::QueryClient as RewardsClient,
         sending::{MsgCreateTransfer, MsgDepositToSubaccount, MsgWithdrawFromSubaccount, Transfer},
         stats::query_client::QueryClient as StatsClient,
@@ -147,6 +156,10 @@ pub struct Routes {
     pub query: Grpc<Timeout<Channel>>,
     /// Vaults
     pub vault: VaultClient<Timeout<Channel>>,
+    /// dYdX blocktime
+    pub blocktime: BlocktimeClient<Timeout<Channel>>,
+    /// Revshare
+    pub revshare: RevshareClient<Timeout<Channel>>,
 }
 
 impl Routes {
@@ -172,7 +185,9 @@ impl Routes {
             subaccounts: SubaccountsClient::new(channel.clone()),
             tx: TxClient::new(channel.clone()),
             query: Grpc::new(channel.clone()),
-            vault: VaultClient::new(channel),
+            blocktime: BlocktimeClient::new(channel.clone()),
+            vault: VaultClient::new(channel.clone()),
+            revshare: RevshareClient::new(channel),
         }
     }
 }
@@ -569,19 +584,19 @@ impl NodeClient {
     }
 
     /// Access the vaults requests dispatcher
-    pub fn megavault(&mut self) -> MegaVault {
+    pub fn megavault(&mut self) -> MegaVault<'_> {
         MegaVault::new(self)
     }
 
     /// Access the governance requests dispatcher
-    pub fn governance(&mut self) -> Governance {
+    pub fn governance(&mut self) -> Governance<'_> {
         Governance::new(self)
     }
 
     /// Access the authenticators/permissioned keys requests dispatcher.
     ///
     /// See the [example](https://github.com/dydxprotocol/v4-clients/blob/main/v4-client-rs/client/examples/authenticator.rs).
-    pub fn authenticators(&mut self) -> Authenticators {
+    pub fn authenticators(&mut self) -> Authenticators<'_> {
         Authenticators::new(self)
     }
 
@@ -877,5 +892,88 @@ impl NodeClient {
             .whitelist
             .ok_or_else(|| err!("AffiliateWhiteList query response does not contain whitelist"))?;
         Ok(whitelist)
+    }
+
+    /// Set the order router rev share.
+    ///
+    /// Check [the example](https://github.com/dydxprotocol/v4-clients/blob/main/v4-client-rs/client/examples/validator_get.rs).
+    pub async fn set_order_router_rev_share(
+        &mut self,
+        account: &mut Account,
+        authority: Address,
+        rev_share: OrderRouterRevShare,
+    ) -> Result<TxHash, NodeError> {
+        let msg = MsgSetOrderRouterRevShare {
+            authority: authority.to_string(),
+            order_router_rev_share: Some(rev_share),
+        };
+
+        let tx_raw = self.create_transaction(account, msg, None).await?;
+
+        self.broadcast_transaction(tx_raw).await
+    }
+
+    /// Query the market mapper revenue share params.
+    ///
+    /// Check [the example](https://github.com/dydxprotocol/v4-clients/blob/main/v4-client-rs/client/examples/validator_get.rs).
+    pub async fn get_market_mapper_revenue_share_params(
+        &mut self,
+    ) -> Result<MarketMapperRevenueShareParams, Error> {
+        let req = QueryMarketMapperRevenueShareParams {};
+
+        let params = self
+            .revshare
+            .market_mapper_revenue_share_params(req)
+            .await?
+            .into_inner()
+            .params
+            .ok_or_else(|| {
+                err!("MarketMapperRevenueShareParams query response does not contain params")
+            })?;
+
+        Ok(params)
+    }
+
+    /// Query the market mapper revenue share details.
+    ///
+    /// Check [the example](https://github.com/dydxprotocol/v4-clients/blob/main/v4-client-rs/client/examples/validator_get.rs).
+    pub async fn get_market_mapper_rev_share_details(
+        &mut self,
+        market_id: u32,
+    ) -> Result<MarketMapperRevShareDetails, Error> {
+        let req = QueryMarketMapperRevShareDetails { market_id };
+
+        let details = self
+            .revshare
+            .market_mapper_rev_share_details(req)
+            .await?
+            .into_inner()
+            .details
+            .ok_or_else(|| {
+                err!("MarketMapperRevShareDetails query response does not contain details")
+            })?;
+
+        Ok(details)
+    }
+
+    /// Query the unconditional rev share config.
+    ///
+    /// Check [the example](https://github.com/dydxprotocol/v4-clients/blob/main/v4-client-rs/client/examples/validator_get.rs).
+    pub async fn get_unconditional_rev_share_config(
+        &mut self,
+    ) -> Result<UnconditionalRevShareConfig, Error> {
+        let req = QueryUnconditionalRevShareConfig {};
+
+        let config = self
+            .revshare
+            .unconditional_rev_share_config(req)
+            .await?
+            .into_inner()
+            .config
+            .ok_or_else(|| {
+                err!("UnconditionalRevShareConfig query response does not contain config")
+            })?;
+
+        Ok(config)
     }
 }

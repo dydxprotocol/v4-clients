@@ -32,7 +32,7 @@ async fn test_node_auth_add_allof_all_types() -> Result<(), Error> {
     let paccount = env.wallet.account_offline(1)?;
 
     let authenticator = Authenticator::AllOf(vec![
-        Authenticator::SignatureVerification(paccount.public_key().to_bytes().into()),
+        Authenticator::SignatureVerification(paccount.public_key().to_bytes()),
         Authenticator::MessageFilter("dydxprotocol.clob.MsgPlaceOrder".into()),
         Authenticator::SubaccountFilter("0".into()),
         Authenticator::ClobPairIdFilter("0,1".into()),
@@ -128,23 +128,24 @@ async fn test_node_auth_place_order_short_term() -> Result<(), Error> {
         .add_authenticator(&mut account, address.clone(), authenticator)
         .await?;
 
-    sleep(Duration::from_secs(3)).await;
+    sleep(Duration::from_secs(5)).await;
 
     // Grab last authenticator ID
     let list = node
         .authenticators()
         .get_authenticators(address.clone())
         .await?;
+
+    let last_id = list.iter().max_by_key(|auth| auth.id).unwrap().id;
+
     let master = PublicAccount::updated(account.address().clone(), &mut node).await?;
-    paccount
-        .authenticators_mut()
-        .add(master, list.last().unwrap().id);
+    paccount.authenticators_mut().add(master, last_id);
 
     // Create order for permissioning account
     let (_, order) = OrderBuilder::new(market, account.subaccount(0)?)
         .market(OrderSide::Buy, BigDecimal::from_str("0.001")?)
         .price(10) // Low slippage price to not execute
-        .until(height.ahead(10))
+        .until(height.ahead(20))
         .build(rng().random_range(0..100_000_000))?;
 
     // Push order by permissioned account

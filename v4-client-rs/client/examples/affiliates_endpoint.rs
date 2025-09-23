@@ -30,7 +30,7 @@ async fn main() -> Result<()> {
     // Test values
     let address = account.address();
 
-    let metadata = indexer.affiliates().get_metadata(&address).await?;
+    let metadata = indexer.affiliates().get_metadata(address).await?;
     tracing::info!("Metadata: {metadata:?}");
 
     let address_from_referral_code = indexer.affiliates().get_address("UpperJamX3B").await?;
@@ -39,7 +39,7 @@ async fn main() -> Result<()> {
     let snapshot = indexer.affiliates().get_snapshot(None, None, None).await?;
     tracing::info!("Snapshot: {snapshot:?}");
 
-    let total_volume = indexer.affiliates().get_total_volume(&address).await?;
+    let total_volume = indexer.affiliates().get_total_volume(address).await?;
     tracing::info!("Total volume: {total_volume:?}");
 
     Ok(())
