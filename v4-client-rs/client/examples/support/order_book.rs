@@ -86,15 +86,15 @@ pub struct OrderBook {
 }
 
 impl OrderBook {
-    pub fn bids(&self) -> impl Iterator<Item = Quote> {
+    pub fn bids(&self) -> impl Iterator<Item = Quote<'_>> {
         self.bids.iter().map(Quote::from).rev()
     }
 
-    pub fn asks(&self) -> impl Iterator<Item = Quote> {
+    pub fn asks(&self) -> impl Iterator<Item = Quote<'_>> {
         self.asks.iter().map(Quote::from)
     }
 
-    pub fn spread(&self) -> Option<Spread> {
+    pub fn spread(&self) -> Option<Spread<'_>> {
         let bid = self.bids().next()?;
         let ask = self.asks().next()?;
         Some(Spread { bid, ask })
@@ -118,7 +118,7 @@ impl OrderBook {
         Self::update(&mut self.asks, asks);
     }
 
-    pub fn table(&self) -> OrderBookTable {
+    pub fn table(&self) -> OrderBookTable<'_> {
         OrderBookTable { inner: self }
     }
 }

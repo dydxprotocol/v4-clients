@@ -24,6 +24,9 @@ pub struct Trader {
 
 impl Trader {
     pub async fn connect(index: u32) -> Result<Self> {
+        // Initialize rustls crypto provider
+        support::crypto::init_crypto_provider();
+
         let config = ClientConfig::from_file("client/tests/testnet.toml").await?;
         let mut client = NodeClient::connect(config.node).await?;
         let indexer = IndexerClient::new(config.indexer);

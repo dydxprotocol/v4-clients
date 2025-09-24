@@ -529,6 +529,10 @@ pub struct FillResponseObject {
     pub builder_fee: Option<BigDecimal>,
     /// Builder address.
     pub builder_address: Option<Address>,
+    /// Order router address.
+    pub order_router_address: Option<Address>,
+    /// Order router fee.
+    pub order_router_fee: Option<BigDecimal>,
 }
 
 /// Profit and loss reports.
