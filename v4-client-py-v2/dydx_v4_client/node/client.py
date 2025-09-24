@@ -2,6 +2,7 @@ import asyncio
 import base64
 import json
 from dataclasses import dataclass
+from decimal import Decimal
 from typing import Union, Dict, Any
 
 import grpc
@@ -9,6 +10,15 @@ from google._upb._message import Message
 from google.protobuf.json_format import MessageToDict
 from typing_extensions import List, Optional, Self
 
+from dydx_v4_client import OrderFlags
+from dydx_v4_client.indexer.rest.constants import OrderType
+from dydx_v4_client.node.market import Market
+from dydx_v4_client.node_helper_type import ExtendedSubaccount
+
+from dydx_v4_client.utility import convert_quantum_bytes_to_value_with_order_side
+from dydx_v4_client import OrderFlags
+from dydx_v4_client.indexer.rest.constants import OrderType
+from dydx_v4_client.node.market import Market
 from dydx_v4_client.node_helper_type import ExtendedSubaccount
 from dydx_v4_client.utility import convert_quantum_bytes_to_value_with_order_side
 from v4_proto.cosmos.auth.v1beta1 import query_pb2_grpc as auth
@@ -114,6 +124,7 @@ from dydx_v4_client.wallet import Wallet
 
 DEFAULT_QUERY_TIMEOUT_SECS = 15
 DEFAULT_QUERY_INTERVAL_SECS = 2
+GOOD_TIL_BLOCK_OFFSET = 20
 
 
 class CustomJSONDecoder:
@@ -1228,3 +1239,77 @@ class NodeClient(MutatingNodeClient):
         """
         msg = register_affiliate(referee=referee, affiliate=affiliate)
         return await self.send_message(wallet=wallet, message=msg)
+
+    async def close_position(
+        self,
+        wallet: Wallet,
+        address: str,
+        subaccount_number: int,
+        market: Market,
+        client_id: int,
+        reduce_by: Optional[Decimal],
+        slippage_pct: float = 10,
+    ) -> Any:
+        """
+        Close position for a given market.
+
+        Args:
+            wallet (Wallet): The wallet
+            address (str): The address associated with the wallet
+            subaccount_number (int): The subaccount number of the account
+            market: Market params
+            reduce_by (Optional[Decimal]): reduced amount of the position
+            client_id (int): The client id
+            slippage_pct(float): Percentage to reduce or increase during close position
+
+        Returns:
+            Any: The close position response
+        """
+        if slippage_pct < 0 or slippage_pct > 100:
+            raise ValueError("slippage_pct should be within 0 and 100")
+
+        subaccount = await self.get_subaccount(address, subaccount_number)
+        quantum_value = None
+        order_side = None
+        price = None
+        try:
+            for pos in subaccount.perpetual_positions:
+                if pos.perpetual_id == int(market.market["clobPairId"]):
+                    quantum_value = int.from_bytes(
+                        pos.quantums[1:], byteorder="big", signed=False
+                    )
+                    if int(pos.quantums[0]) == 2:
+                        order_side = Order.Side.SIDE_SELL
+                        price = float(market.market["oraclePrice"]) * (
+                            (100 - slippage_pct) / 100.0
+                        )
+
+                    else:
+                        order_side = Order.Side.SIDE_BUY
+                        price = float(market.market["oraclePrice"]) * (
+                            (100 + slippage_pct) / 100.0
+                        )
+        except Exception as e:
+            raise RuntimeError(f"Failed to parse position data: {e}") from e
+
+        if quantum_value is None:
+            return
+
+        order_size = quantum_value / 10 ** (-market.market["atomicResolution"])
+        if reduce_by is not None:
+            order_size = min(order_size, reduce_by)
+        order_id = market.order_id(
+            address, subaccount_number, client_id, OrderFlags.SHORT_TERM
+        )
+        current_height = await self.latest_block_height()
+        new_order = market.order(
+            order_id=order_id,
+            order_type=OrderType.MARKET,
+            time_in_force=None,
+            side=order_side,
+            size=order_size,
+            price=price,
+            reduce_only=True,
+            good_til_block=current_height + GOOD_TIL_BLOCK_OFFSET,
+        )
+        return await self.place_order(wallet, new_order)

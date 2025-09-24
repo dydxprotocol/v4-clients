@@ -1,13 +1,16 @@
 import time
+import random
+
 import grpc
 import pytest
 import asyncio
 
+from dydx_v4_client import MAX_CLIENT_ID, OrderFlags
+from dydx_v4_client.node.market import Market
 from dydx_v4_client.node.message import subaccount, send_token, order
 from tests.conftest import get_wallet, assert_successful_broadcast
-from v4_proto.dydxprotocol.clob.order_pb2 import BuilderCodeParameters
-from dydx_v4_client.indexer.rest.constants import OrderStatus
-
+from v4_proto.dydxprotocol.clob.order_pb2 import BuilderCodeParameters, Order
+from dydx_v4_client.indexer.rest.constants import OrderStatus, OrderType
 
 REQUEST_PROCESSING_TIME = 5
 
@@ -311,3 +314,284 @@ async def test_place_order_with_builder_code(
     )
 
     assert fills["fills"][0]["builderAddress"] == test_address
+
+
+@pytest.mark.asyncio
+async def test_close_position_sell_no_reduce_by(
+    node_client, wallet, test_address, indexer_rest_client
+):
+    MARKET_ID = "ETH-USD"
+    market = Market(
+        (await indexer_rest_client.markets.get_perpetual_markets(MARKET_ID))["markets"][
+            MARKET_ID
+        ]
+    )
+
+    _ = await close_open_positions(node_client, wallet, test_address, market)
+
+    # Open a position for sell order
+    order_id = market.order_id(
+        test_address, 0, random.randint(0, MAX_CLIENT_ID), OrderFlags.SHORT_TERM
+    )
+    current_block = await node_client.latest_block_height()
+    new_order = market.order(
+        order_id=order_id,
+        order_type=OrderType.MARKET,
+        side=Order.Side.SIDE_SELL,
+        size=0.002,
+        price=0,
+        # Recommend set to oracle price - 5% or lower for SELL, oracle price + 5% for BUY
+        time_in_force=None,
+        reduce_only=False,
+        good_til_block=current_block + 20,
+    )
+
+    _ = await node_client.place_order(
+        wallet=wallet,
+        order=new_order,
+    )
+
+    wallet.sequence += 1
+
+    await asyncio.sleep(5)
+
+    size_after_placing_order = await get_current_order_size(
+        indexer_rest_client, test_address
+    )
+    assert size_after_placing_order == -0.002
+
+    _ = await node_client.close_position(
+        wallet=wallet,
+        address=test_address,
+        subaccount_number=0,
+        market=market,
+        reduce_by=None,
+        client_id=random.randint(0, MAX_CLIENT_ID),
+    )
+    await asyncio.sleep(5)
+    assert await get_current_order_size(indexer_rest_client, test_address) is None
+
+
+@pytest.mark.asyncio
+async def test_close_position_sell_having_reduce_by(
+    node_client, wallet, test_address, indexer_rest_client
+):
+    MARKET_ID = "ETH-USD"
+    market = Market(
+        (await indexer_rest_client.markets.get_perpetual_markets(MARKET_ID))["markets"][
+            MARKET_ID
+        ]
+    )
+
+    _ = await close_open_positions(node_client, wallet, test_address, market)
+
+    # Open a position for sell order
+    order_id = market.order_id(
+        test_address, 0, random.randint(0, MAX_CLIENT_ID), OrderFlags.SHORT_TERM
+    )
+    current_block = await node_client.latest_block_height()
+    new_order = market.order(
+        order_id=order_id,
+        order_type=OrderType.MARKET,
+        side=Order.Side.SIDE_SELL,
+        size=0.002,
+        price=0,
+        # Recommend set to oracle price - 5% or lower for SELL, oracle price + 5% for BUY
+        time_in_force=None,
+        reduce_only=False,
+        good_til_block=current_block + 20,
+    )
+
+    _ = await node_client.place_order(
+        wallet=wallet,
+        order=new_order,
+    )
+
+    wallet.sequence += 1
+
+    await asyncio.sleep(5)
+
+    size_after_placing_order = await get_current_order_size(
+        indexer_rest_client, test_address
+    )
+    assert size_after_placing_order == -0.002
+
+    _ = await node_client.close_position(
+        wallet=wallet,
+        address=test_address,
+        subaccount_number=0,
+        market=market,
+        reduce_by=0.001,
+        client_id=random.randint(0, MAX_CLIENT_ID),
+    )
+    await asyncio.sleep(5)
+    assert await get_current_order_size(indexer_rest_client, test_address) == -0.001
+
+
+@pytest.mark.asyncio
+async def test_close_position_buy_no_reduce_by(
+    node_client, wallet, test_address, indexer_rest_client
+):
+    MARKET_ID = "ETH-USD"
+    market = Market(
+        (await indexer_rest_client.markets.get_perpetual_markets(MARKET_ID))["markets"][
+            MARKET_ID
+        ]
+    )
+
+    _ = await close_open_positions(node_client, wallet, test_address, market)
+
+    # Open a position for sell order
+    order_id = market.order_id(
+        test_address, 0, random.randint(0, MAX_CLIENT_ID), OrderFlags.SHORT_TERM
+    )
+    current_block = await node_client.latest_block_height()
+    new_order = market.order(
+        order_id=order_id,
+        order_type=OrderType.MARKET,
+        side=Order.Side.SIDE_BUY,
+        size=0.002,
+        # Recommend set to oracle price - 5% or lower for SELL, oracle price + 5% for BUY
+        price=float(market.market["oraclePrice"]) * 1.2,
+        time_in_force=None,
+        reduce_only=False,
+        good_til_block=current_block + 20,
+    )
+
+    _ = await node_client.place_order(
+        wallet=wallet,
+        order=new_order,
+    )
+
+    wallet.sequence += 1
+
+    await asyncio.sleep(5)
+
+    size_after_placing_order = await get_current_order_size(
+        indexer_rest_client, test_address
+    )
+    assert size_after_placing_order == 0.002
+
+    _ = await node_client.close_position(
+        wallet=wallet,
+        address=test_address,
+        subaccount_number=0,
+        market=market,
+        reduce_by=None,
+        client_id=random.randint(0, MAX_CLIENT_ID),
+    )
+    await asyncio.sleep(5)
+    assert await get_current_order_size(indexer_rest_client, test_address) is None
+
+
+@pytest.mark.asyncio
+async def test_close_position_buy_having_reduce_by(
+    node_client, wallet, test_address, indexer_rest_client
+):
+    MARKET_ID = "ETH-USD"
+    market = Market(
+        (await indexer_rest_client.markets.get_perpetual_markets(MARKET_ID))["markets"][
+            MARKET_ID
+        ]
+    )
+
+    _ = await close_open_positions(node_client, wallet, test_address, market)
+
+    # Open a position for sell order
+    order_id = market.order_id(
+        test_address, 0, random.randint(0, MAX_CLIENT_ID), OrderFlags.SHORT_TERM
+    )
+    current_block = await node_client.latest_block_height()
+    new_order = market.order(
+        order_id=order_id,
+        order_type=OrderType.MARKET,
+        side=Order.Side.SIDE_BUY,
+        size=0.002,
+        # Recommend set to oracle price - 5% or lower for SELL, oracle price + 5% for BUY
+        price=float(market.market["oraclePrice"]) * 1.2,
+        time_in_force=None,
+        reduce_only=False,
+        good_til_block=current_block + 20,
+    )
+
+    _ = await node_client.place_order(
+        wallet=wallet,
+        order=new_order,
+    )
+
+    wallet.sequence += 1
+
+    await asyncio.sleep(5)
+
+    size_after_placing_order = await get_current_order_size(
+        indexer_rest_client, test_address
+    )
+    assert size_after_placing_order == 0.002
+
+    _ = await node_client.close_position(
+        wallet=wallet,
+        address=test_address,
+        subaccount_number=0,
+        market=market,
+        reduce_by=0.001,
+        client_id=random.randint(0, MAX_CLIENT_ID),
+    )
+    await asyncio.sleep(5)
+
+    assert await get_current_order_size(indexer_rest_client, test_address) == 0.001
+
+
+@pytest.mark.asyncio
+async def test_close_position_slippage_pct_raise_exception(
+    node_client, wallet, test_address, indexer_rest_client
+):
+    MARKET_ID = "ETH-USD"
+    market = Market(
+        (await indexer_rest_client.markets.get_perpetual_markets(MARKET_ID))["markets"][
+            MARKET_ID
+        ]
+    )
+    with pytest.raises(ValueError):
+        _ = await node_client.close_position(
+            wallet=wallet,
+            address=test_address,
+            subaccount_number=0,
+            market=market,
+            reduce_by=0.001,
+            client_id=random.randint(0, MAX_CLIENT_ID),
+            slippage_pct=101,
+        )
+
+    with pytest.raises(ValueError):
+        _ = await node_client.close_position(
+            wallet=wallet,
+            address=test_address,
+            subaccount_number=0,
+            market=market,
+            reduce_by=0.001,
+            client_id=random.randint(0, MAX_CLIENT_ID),
+            slippage_pct=-1,
+        )
+
+
+async def get_current_order_size(indexer_rest_client, test_address):
+    subaccount = await indexer_rest_client.account.get_subaccount(test_address, 0)
+    if "subaccount" not in subaccount:
+        return None
+    if "openPerpetualPositions" not in subaccount["subaccount"]:
+        return None
+    if "ETH-USD" not in subaccount["subaccount"]["openPerpetualPositions"]:
+        return None
+    return float(subaccount["subaccount"]["openPerpetualPositions"]["ETH-USD"]["size"])
+
+
+async def close_open_positions(node_client, wallet, test_address, market):
+    _ = await node_client.close_position(
+        wallet=wallet,
+        address=test_address,
+        subaccount_number=0,
+        market=market,
+        reduce_by=None,
+        client_id=random.randint(0, MAX_CLIENT_ID),
+        slippage_pct=5,
+    )
