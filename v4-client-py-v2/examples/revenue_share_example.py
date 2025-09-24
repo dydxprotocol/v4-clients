@@ -5,8 +5,9 @@ import time
 from dydx_v4_client.indexer.rest.indexer_client import IndexerClient
 from dydx_v4_client.key_pair import KeyPair
 from dydx_v4_client.network import TESTNET
+from dydx_v4_client.node import market
 from dydx_v4_client.node.client import NodeClient
-from dydx_v4_client.node.message import order_id, order
+from dydx_v4_client.node.message import order_id
 from dydx_v4_client.wallet import Wallet
 from tests.conftest import TEST_ADDRESS_2, TEST_ADDRESS, DYDX_TEST_MNEMONIC
 
@@ -27,16 +28,14 @@ async def test():
             order_flags=64,
         )
 
-        test_order = order(
-            test_order_id,
+        test_order = market.order(
+            order_id=test_order_id,
             time_in_force=0,
             reduce_only=False,
             side=1,
-            quantums=10000000,
-            subticks=40000000000,
+            size=0.0001,
+            price=0,
             good_til_block_time=int(time.time() + 60),
-            builder_code_parameters=None,
-            twap_parameters=None,
             order_router_address=TEST_ADDRESS_2,
         )
 
