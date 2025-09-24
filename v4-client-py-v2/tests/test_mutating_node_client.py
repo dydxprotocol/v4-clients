@@ -348,6 +348,7 @@ async def test_place_order_with_order_router_address(
 
     assert fills["fills"][0]["orderRouterAddress"] == TEST_ADDRESS_2
 
+
 async def test_close_position_sell_no_reduce_by(
     node_client, wallet, test_address, indexer_rest_client
 ):
