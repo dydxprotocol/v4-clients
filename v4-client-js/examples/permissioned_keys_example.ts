@@ -23,7 +23,7 @@ async function test(): Promise<void> {
   const wallet1 = await LocalWallet.fromMnemonic(DYDX_TEST_MNEMONIC, BECH32_PREFIX);
   const wallet2 = await LocalWallet.fromMnemonic(DYDX_TEST_MNEMONIC_2, BECH32_PREFIX);
 
-  const network = Network.staging();
+  const network = Network.testnet();
   const client = await CompositeClient.connect(network);
   client.setSelectedGasDenom(SelectedGasDenom.NATIVE);
 
