@@ -7,7 +7,7 @@ import asyncio
 
 from dydx_v4_client import MAX_CLIENT_ID, OrderFlags
 from dydx_v4_client.node.market import Market
-from dydx_v4_client.node.message import subaccount, send_token, order
+from dydx_v4_client.node.message import subaccount, send_token
 from tests.conftest import get_wallet, assert_successful_broadcast
 from v4_proto.dydxprotocol.clob.order_pb2 import BuilderCodeParameters, Order
 from dydx_v4_client.indexer.rest.constants import OrderStatus, OrderType
@@ -314,6 +314,44 @@ async def test_place_order_with_builder_code(
     )
 
     assert fills["fills"][0]["builderAddress"] == test_address
+
+
+@pytest.mark.asyncio
+async def test_place_order_with_twap_parameters(
+    node_client, indexer_rest_client, test_order_id, test_address, wallet
+):
+    MARKET_ID = "ETH-USD"
+    market = Market(
+        (await indexer_rest_client.markets.get_perpetual_markets(MARKET_ID))["markets"][
+            MARKET_ID
+        ]
+    )
+    test_order = market.order(
+        order_id=test_order_id,
+        time_in_force=0,
+        reduce_only=False,
+        order_type=OrderType.MARKET,
+        side=1,
+        size=0.0001,
+        price=0,
+        good_til_block_time=int(time.time() + 60),
+        twap_duration=0,
+        twap_interval=0,
+        twap_price_tolerance=0
+    )
+
+    _ = await node_client.place_order(
+        wallet,
+        test_order,
+    )
+
+    await asyncio.sleep(5)
+
+    fills = await indexer_rest_client.account.get_subaccount_fills(
+        address=test_address, subaccount_number=0, limit=1
+    )
+
+    print(fills)
 
 
 @pytest.mark.asyncio
