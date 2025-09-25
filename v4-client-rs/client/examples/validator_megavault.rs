@@ -13,6 +13,9 @@ pub struct MegaVaulter {
 
 impl MegaVaulter {
     pub async fn connect() -> Result<Self> {
+        // Initialize rustls crypto provider
+        support::crypto::init_crypto_provider();
+
         let config = ClientConfig::from_file("client/tests/testnet.toml").await?;
         let client = NodeClient::connect(config.node).await?;
         let wallet = Wallet::from_mnemonic(TEST_MNEMONIC)?;
@@ -35,7 +38,7 @@ async fn main() -> Result<()> {
     let tx_hash = vaulter
         .client
         .megavault()
-        .deposit(&mut account, subaccount.clone(), 1)
+        .deposit_to_megavault(&mut account, subaccount.clone(), 1)
         .await?;
     tracing::info!("Deposit transaction hash: {:?}", tx_hash);
 
@@ -46,7 +49,7 @@ async fn main() -> Result<()> {
     let tx_hash = vaulter
         .client
         .megavault()
-        .withdraw(&mut account, subaccount, 0, Some(&number_of_shares))
+        .withdraw_from_megavault(&mut account, subaccount, 0, Some(&number_of_shares))
         .await?;
     tracing::info!("Withdraw transaction hash: {:?}", tx_hash);
 

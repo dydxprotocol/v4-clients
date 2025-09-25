@@ -1,6 +1,9 @@
-use crate::indexer::{
-    ClientId, ClobPairId, Height, OrderExecution, OrderFlags, OrderType, PerpetualMarket, Price,
-    Quantity, Subaccount,
+use crate::{
+    indexer::{
+        ClientId, ClobPairId, Height, OrderExecution, OrderFlags, OrderType, PerpetualMarket,
+        Price, Quantity, Subaccount,
+    },
+    node::Address,
 };
 use anyhow::{anyhow as err, Error};
 use bigdecimal::{num_traits::cast::ToPrimitive, BigDecimal, One};
@@ -167,6 +170,7 @@ pub struct OrderBuilder {
     slippage: BigDecimal,
     builder_code_parameters: Option<BuilderCodeParameters>,
     twap_parameters: Option<TwapParameters>,
+    order_router_address: Address,
 }
 
 impl OrderBuilder {
@@ -189,6 +193,7 @@ impl OrderBuilder {
             slippage: BigDecimal::new(5.into(), 2),
             builder_code_parameters: None,
             twap_parameters: None,
+            order_router_address: Address::default(),
         }
     }
 
@@ -387,6 +392,12 @@ impl OrderBuilder {
         self
     }
 
+    /// Set order router address.
+    pub fn order_router_address(mut self, order_router_address: impl Into<Address>) -> Self {
+        self.order_router_address = order_router_address.into();
+        self
+    }
+
     /// Update the generator's market.
     ///
     /// Note that at the moment dYdX [doesn't support](https://dydx.exchange/faq) spot trading.
@@ -468,6 +479,7 @@ impl OrderBuilder {
             good_til_oneof: Some(until.clone().try_into()?),
             builder_code_parameters: self.builder_code_parameters.clone(),
             twap_parameters: self.twap_parameters,
+            order_router_address: self.order_router_address.to_string(),
         };
 
         Ok((order_id, order))

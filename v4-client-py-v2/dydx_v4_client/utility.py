@@ -1,6 +1,9 @@
 from decimal import Decimal, getcontext, ROUND_DOWN
 
 # Set precision high enough for financial calculations
+from dydx_v4_client.indexer.rest.constants import OrderSide
+from v4_proto.dydxprotocol.clob.order_pb2 import Order
+
 getcontext().prec = 28
 
 
@@ -73,3 +76,20 @@ def convert_amount_to_quantums_vec(amount):
         raise ValueError(
             f"Failed converting amount to serializable quantums vector: {e}"
         )
+
+
+def convert_quantum_bytes_to_value(quantums: bytes):
+    # quantums = q.encode()
+    side = Order.Side.SIDE_BUY
+    quantum_value = int.from_bytes(quantums, byteorder="big", signed=False)
+
+    return quantum_value
+
+
+def convert_quantum_bytes_to_value_with_order_side(quantums: bytes):
+    side = OrderSide.BUY
+    quantum_value = int.from_bytes(quantums[1:], byteorder="big", signed=False)
+    if int(quantums[0]) == 3:
+        side = OrderSide.SELL
+
+    return (quantum_value, side)

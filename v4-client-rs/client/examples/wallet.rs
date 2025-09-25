@@ -8,6 +8,9 @@ use support::constants::TEST_MNEMONIC;
 
 #[tokio::main]
 async fn main() -> Result<()> {
+    // Initialize rustls crypto provider
+    support::crypto::init_crypto_provider();
+
     tracing_subscriber::fmt().try_init().map_err(Error::msg)?;
 
     // Create a `Wallet` from a mnemonic

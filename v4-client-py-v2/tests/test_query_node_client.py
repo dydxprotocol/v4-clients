@@ -1,6 +1,8 @@
 import asyncio
 
 import pytest
+
+from dydx_v4_client.node_helper_type import ExtendedSubaccount
 from v4_proto.cosmos.auth.v1beta1.auth_pb2 import BaseAccount
 from v4_proto.cosmos.bank.v1beta1 import query_pb2 as bank_query
 from v4_proto.cosmos.base.tendermint.v1beta1.query_pb2 import GetLatestBlockResponse
@@ -97,7 +99,7 @@ async def test_get_all_validators(node_client):
 @pytest.mark.asyncio
 async def test_get_subaccount(node_client, test_address):
     subaccount = await node_client.get_subaccount(test_address, 0)
-    assert isinstance(subaccount, Subaccount)
+    assert isinstance(subaccount, ExtendedSubaccount)
 
 
 @pytest.mark.asyncio

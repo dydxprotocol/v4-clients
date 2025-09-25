@@ -21,6 +21,9 @@ pub struct Feeder {
 
 impl Feeder {
     pub async fn connect() -> Result<Self> {
+        // Initialize rustls crypto provider
+        support::crypto::init_crypto_provider();
+
         tracing_subscriber::fmt()
             .with_max_level(tracing::Level::DEBUG)
             .try_init()

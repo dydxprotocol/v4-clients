@@ -38,7 +38,18 @@ pub struct Account {
 
 /// [Address](https://dydx.exchange/crypto-learning/what-is-a-wallet-address).
 #[derive(
-    Serialize, Deserialize, Debug, Clone, From, Display, PartialEq, Eq, PartialOrd, Ord, Hash,
+    Default,
+    Serialize,
+    Deserialize,
+    Debug,
+    Clone,
+    From,
+    Display,
+    PartialEq,
+    Eq,
+    PartialOrd,
+    Ord,
+    Hash,
 )]
 pub struct Address(String);
 
@@ -980,10 +991,18 @@ pub struct OrderResponseObject {
     pub updated_at_height: Option<Height>,
     /// Trigger price.
     pub trigger_price: Option<Price>,
-    /// Builder fee.
-    pub builder_fee: Option<BigDecimal>,
     /// Fee ppm.
     pub fee_ppm: Option<BigDecimal>,
+    /// Builder address..
+    pub builder_address: Option<Address>,
+    /// Order router address.
+    pub order_router_address: Option<Address>,
+    /// Duration.
+    pub duration: Option<BigDecimal>,
+    /// Interval.
+    pub interval: Option<BigDecimal>,
+    /// Price tolerance.
+    pub price_tolerance: Option<BigDecimal>,
 }
 
 /// Trade response.
