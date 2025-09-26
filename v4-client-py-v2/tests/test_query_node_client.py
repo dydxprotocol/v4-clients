@@ -1,6 +1,9 @@
 import asyncio
+import random
+import time
 
 import pytest
+
 
 from dydx_v4_client.node_helper_type import ExtendedSubaccount
 from v4_proto.cosmos.auth.v1beta1.auth_pb2 import BaseAccount
@@ -40,7 +43,6 @@ from v4_proto.cosmos.gov.v1 import query_pb2 as gov_query
 from v4_proto.dydxprotocol.subaccounts import query_pb2 as subaccount_query
 from v4_proto.dydxprotocol.ratelimit import query_pb2 as rate_query
 from v4_proto.dydxprotocol.affiliates import query_pb2 as affiliate_query
-from v4_proto.dydxprotocol.revshare import query_pb2 as revshare_query
 from tests.conftest import TEST_ADDRESS
 
 
