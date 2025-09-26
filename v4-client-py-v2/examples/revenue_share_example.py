@@ -2,11 +2,12 @@ import asyncio
 import random
 import time
 
+from dydx_v4_client.indexer.rest.constants import OrderType
 from dydx_v4_client.indexer.rest.indexer_client import IndexerClient
 from dydx_v4_client.key_pair import KeyPair
 from dydx_v4_client.network import TESTNET
-from dydx_v4_client.node import market
 from dydx_v4_client.node.client import NodeClient
+from dydx_v4_client.node.market import Market
 from dydx_v4_client.node.message import order_id
 from dydx_v4_client.wallet import Wallet
 from tests.conftest import TEST_ADDRESS_2, TEST_ADDRESS, DYDX_TEST_MNEMONIC
@@ -28,11 +29,19 @@ async def test():
             order_flags=64,
         )
 
+        MARKET_ID = "ETH-USD"
+        market = Market(
+            (await indexer_client.markets.get_perpetual_markets(MARKET_ID))["markets"][
+                MARKET_ID
+            ]
+        )
+
         test_order = market.order(
             order_id=test_order_id,
             time_in_force=0,
             reduce_only=False,
             side=1,
+            order_type=OrderType.MARKET,
             size=0.0001,
             price=0,
             good_til_block_time=int(time.time() + 60),
@@ -59,18 +68,6 @@ async def test():
         print(response)
     except Exception as e:
         print(f"Error during fetching get_market_mapper_revenue_share_param: {e}")
-
-    try:
-        response = await node_client.get_market_mapper_revenue_share_details(1)
-        print(response)
-    except Exception as e:
-        print(f"Error during fetching get_market_mapper_revenue_share_details: {e}")
-
-    try:
-        response = await node_client.get_unconditional_revenue_sharing_config()
-        print(response)
-    except Exception as e:
-        print(f"Error during fetching get_unconditional_revenue_sharing_config: {e}")
 
     try:
         response = await node_client.get_order_router_revenue_share(TEST_ADDRESS_2)

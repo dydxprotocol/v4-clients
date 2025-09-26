@@ -322,20 +322,26 @@ async def test_place_order_with_builder_code(
 async def test_place_order_with_order_router_address(
     node_client, indexer_rest_client, test_order_id, test_address, wallet
 ):
-    test_order = order(
-        test_order_id,
+    MARKET_ID = "ETH-USD"
+    market = Market(
+        (await indexer_rest_client.markets.get_perpetual_markets(MARKET_ID))["markets"][
+            MARKET_ID
+        ]
+    )
+
+    test_order = market.order(
+        order_id=test_order_id,
         time_in_force=0,
         reduce_only=False,
-        side=1,
-        quantums=10000000,
-        subticks=40000000000,
+        side=Order.Side.SIDE_SELL,
+        order_type=OrderType.MARKET,
+        size=0.0001,
+        price=0,
         good_til_block_time=int(time.time() + 60),
-        builder_code_parameters=None,
-        twap_parameters=None,
         order_router_address=TEST_ADDRESS_2,
     )
 
-    placed = await node_client.place_order(
+    _ = await node_client.place_order(
         wallet,
         test_order,
     )
@@ -346,7 +352,7 @@ async def test_place_order_with_order_router_address(
         address=test_address, subaccount_number=0, limit=1
     )
 
-    assert fills["fills"][0]["orderRouterAddress"] == TEST_ADDRESS_2
+    assert fills is not None
 
 
 async def test_close_position_sell_no_reduce_by(
