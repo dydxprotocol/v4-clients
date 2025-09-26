@@ -7,7 +7,7 @@ import asyncio
 
 from dydx_v4_client import MAX_CLIENT_ID, OrderFlags
 from dydx_v4_client.node.market import Market
-from dydx_v4_client.node.message import subaccount, send_token
+from dydx_v4_client.node.message import subaccount, send_token, order
 from tests.conftest import get_wallet, assert_successful_broadcast
 from v4_proto.dydxprotocol.clob.order_pb2 import BuilderCodeParameters, Order
 from dydx_v4_client.indexer.rest.constants import OrderStatus, OrderType
@@ -335,9 +335,9 @@ async def test_place_order_with_twap_parameters(
         size=0.0001,
         price=0,
         good_til_block_time=int(time.time() + 60),
-        twap_duration=0,
-        twap_interval=0,
-        twap_price_tolerance=0
+        twap_duration=7,
+        twap_interval=1,
+        twap_price_tolerance=10,
     )
 
     _ = await node_client.place_order(
@@ -351,7 +351,7 @@ async def test_place_order_with_twap_parameters(
         address=test_address, subaccount_number=0, limit=1
     )
 
-    print(fills)
+    assert fills is not None
 
 
 @pytest.mark.asyncio
