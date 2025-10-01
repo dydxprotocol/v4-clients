@@ -13,7 +13,7 @@ from dydx_v4_client.wallet import Wallet
 from tests.conftest import TEST_ADDRESS_2, TEST_ADDRESS, DYDX_TEST_MNEMONIC
 
 
-async def test():
+async def run_revenue_share_example():
     node_client = await NodeClient.connect(TESTNET.node)
     try:
         indexer_client = IndexerClient(TESTNET.rest_indexer)
@@ -76,4 +76,4 @@ async def test():
         print(f"Error during fetching get_order_router_revenue_share: {e}")
 
 
-asyncio.run(test())
+asyncio.run(run_revenue_share_example())
