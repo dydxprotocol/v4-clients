@@ -1402,7 +1402,6 @@ class NodeClient(MutatingNodeClient):
             )
         )
 
-
     async def set_market_mapper_revenue_share(
         self, authority: str, address: str, revenue_share_ppm: int, valid_days: int
     ) -> revshare_tx_query.MsgSetMarketMapperRevenueShareResponse:
