@@ -421,6 +421,7 @@ export class CompositeClient {
     currentHeight?: number,
     goodTilBlock?: number,
     memo?: string,
+    broadcastMode?: BroadcastMode,
   ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
     const msgs: Promise<EncodeObject[]> = new Promise((resolve) => {
       const msg = this.placeOrderMessage(
@@ -458,7 +459,7 @@ export class CompositeClient {
       true,
       undefined,
       memo,
-      undefined,
+      broadcastMode,
       () => account,
     );
   }
