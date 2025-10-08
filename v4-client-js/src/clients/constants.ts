@@ -228,9 +228,9 @@ export const DEFAULT_API_TIMEOUT: number = 3_000;
 
 export const MAX_MEMO_CHARACTERS: number = 256;
 
-export const SHORT_BLOCK_WINDOW: number = 20;
+export const SHORT_BLOCK_WINDOW: number = 40;
 
-export const SHORT_BLOCK_FORWARD: number = 3;
+export const SHORT_BLOCK_FORWARD: number = 20;
 
 // Querying
 export const PAGE_REQUEST: PageRequest = {
