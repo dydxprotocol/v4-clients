@@ -317,6 +317,44 @@ async def test_place_order_with_builder_code(
 
 
 @pytest.mark.asyncio
+async def test_place_order_with_twap_parameters(
+    node_client, indexer_rest_client, test_order_id, test_address, wallet
+):
+    MARKET_ID = "ETH-USD"
+    market = Market(
+        (await indexer_rest_client.markets.get_perpetual_markets(MARKET_ID))["markets"][
+            MARKET_ID
+        ]
+    )
+    test_order = market.order(
+        order_id=test_order_id,
+        time_in_force=0,
+        reduce_only=False,
+        order_type=OrderType.MARKET,
+        side=1,
+        size=0.0001,
+        price=0,
+        good_til_block_time=int(time.time() + 60),
+        twap_duration=7,
+        twap_interval=1,
+        twap_price_tolerance=10,
+    )
+
+    _ = await node_client.place_order(
+        wallet,
+        test_order,
+    )
+
+    await asyncio.sleep(5)
+
+    fills = await indexer_rest_client.account.get_subaccount_fills(
+        address=test_address, subaccount_number=0, limit=1
+    )
+
+    assert fills is not None
+
+
+@pytest.mark.asyncio
 async def test_close_position_sell_no_reduce_by(
     node_client, wallet, test_address, indexer_rest_client
 ):
