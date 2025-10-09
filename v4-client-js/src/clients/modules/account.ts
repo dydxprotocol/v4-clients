@@ -292,6 +292,7 @@ export default class AccountClient extends RestClient {
   async getSubaccountHistoricalPNLsV2(
     address: string,
     subaccountNumber: number,
+    // false or undefined = hourly
     daily?: boolean,
     createdBeforeOrAtHeight?: number | null,
     createdBeforeOrAt?: string | null,
@@ -317,6 +318,7 @@ export default class AccountClient extends RestClient {
   async getParentSubaccountNumberHistoricalPNLsV2(
     address: string,
     parentSubaccountNumber: number,
+    // false or undefined = hourly
     daily?: boolean,
     createdBeforeOrAtHeight?: number | null,
     createdBeforeOrAt?: string | null,
