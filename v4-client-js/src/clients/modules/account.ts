@@ -289,6 +289,54 @@ export default class AccountClient extends RestClient {
     });
   }
 
+  async getSubaccountHistoricalPNLsV2(
+    address: string,
+    subaccountNumber: number,
+    // false or undefined = hourly
+    daily?: boolean,
+    createdBeforeOrAtHeight?: number | null,
+    createdBeforeOrAt?: string | null,
+    createdOnOrAfterHeight?: number | null,
+    createdOnOrAfter?: string | null,
+    limit?: number | null,
+    page?: number | null,
+  ): Promise<Data> {
+    const uri = '/v4/pnl';
+    return this.get(uri, {
+      address,
+      subaccountNumber,
+      createdBeforeOrAtHeight,
+      createdBeforeOrAt,
+      createdOnOrAfterHeight,
+      createdOnOrAfter,
+      limit,
+      page,
+      daily,
+    });
+  }
+
+  async getParentSubaccountNumberHistoricalPNLsV2(
+    address: string,
+    parentSubaccountNumber: number,
+    // false or undefined = hourly
+    daily?: boolean,
+    createdBeforeOrAtHeight?: number | null,
+    createdBeforeOrAt?: string | null,
+    createdOnOrAfterHeight?: number | null,
+    createdOnOrAfter?: string | null,
+  ): Promise<Data> {
+    const uri = '/v4/pnl/parentSubaccountNumber';
+    return this.get(uri, {
+      address,
+      parentSubaccountNumber,
+      createdBeforeOrAtHeight,
+      createdBeforeOrAt,
+      createdOnOrAfterHeight,
+      createdOnOrAfter,
+      daily,
+    });
+  }
+
   // ------ Rewards ------ //
 
   async getHistoricalTradingRewardsAggregations(
