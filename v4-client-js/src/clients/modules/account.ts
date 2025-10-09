@@ -314,7 +314,6 @@ export default class AccountClient extends RestClient {
     });
   }
 
-  // limit applies to the subaccount ticks, so expect number of results to be much lower than limit
   async getParentSubaccountNumberHistoricalPNLsV2(
     address: string,
     parentSubaccountNumber: number,
@@ -323,7 +322,6 @@ export default class AccountClient extends RestClient {
     createdBeforeOrAt?: string | null,
     createdOnOrAfterHeight?: number | null,
     createdOnOrAfter?: string | null,
-    limit?: number | null,
   ): Promise<Data> {
     const uri = '/v4/pnl/parentSubaccountNumber';
     return this.get(uri, {
@@ -333,7 +331,6 @@ export default class AccountClient extends RestClient {
       createdBeforeOrAt,
       createdOnOrAfterHeight,
       createdOnOrAfter,
-      limit,
       daily,
     });
   }
