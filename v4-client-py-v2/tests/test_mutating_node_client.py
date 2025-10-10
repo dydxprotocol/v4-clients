@@ -11,6 +11,10 @@ from dydx_v4_client.node.message import subaccount, send_token, order
 from tests.conftest import get_wallet, assert_successful_broadcast
 from v4_proto.dydxprotocol.clob.order_pb2 import BuilderCodeParameters, Order
 from dydx_v4_client.indexer.rest.constants import OrderStatus, OrderType
+from tests.conftest import get_wallet, assert_successful_broadcast, TEST_ADDRESS_2
+from v4_proto.dydxprotocol.clob.order_pb2 import BuilderCodeParameters
+from dydx_v4_client.indexer.rest.constants import OrderStatus
+
 
 REQUEST_PROCESSING_TIME = 5
 
@@ -338,6 +342,42 @@ async def test_place_order_with_twap_parameters(
         twap_duration=7,
         twap_interval=1,
         twap_price_tolerance=10,
+    )
+
+    _ = await node_client.place_order(
+        wallet,
+        test_order,
+    )
+
+    await asyncio.sleep(5)
+
+    fills = await indexer_rest_client.account.get_subaccount_fills(
+        address=test_address, subaccount_number=0, limit=1
+    )
+
+    assert fills is not None
+
+
+async def test_place_order_with_order_router_address(
+    node_client, indexer_rest_client, test_order_id, test_address, wallet
+):
+    MARKET_ID = "ETH-USD"
+    market = Market(
+        (await indexer_rest_client.markets.get_perpetual_markets(MARKET_ID))["markets"][
+            MARKET_ID
+        ]
+    )
+
+    test_order = market.order(
+        order_id=test_order_id,
+        time_in_force=0,
+        reduce_only=False,
+        side=Order.Side.SIDE_SELL,
+        order_type=OrderType.MARKET,
+        size=0.0001,
+        price=0,
+        good_til_block_time=int(time.time() + 60),
+        order_router_address=TEST_ADDRESS_2,
     )
 
     _ = await node_client.place_order(
