@@ -6,7 +6,7 @@ import "slinky/alerts/v1/alerts.proto";
 import "slinky/alerts/v1/genesis.proto";
 import "gogoproto/gogo.proto";
 
-option go_package = "github.com/skip-mev/connect/v2/x/alerts/types";
+option go_package = "github.com/dydxprotocol/slinky/x/alerts/types";
 
 // Query is the query service for the x/alerts module.
 service Query {
