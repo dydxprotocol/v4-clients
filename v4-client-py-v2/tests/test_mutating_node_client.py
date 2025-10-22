@@ -392,6 +392,7 @@ async def test_place_order_with_order_router_address(
     )
 
     assert fills is not None
+    assert fills["fills"][0]["orderRouterAddress"] == TEST_ADDRESS_2
 
 
 @pytest.mark.asyncio
