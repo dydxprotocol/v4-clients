@@ -8,7 +8,7 @@ import asyncio
 from dydx_v4_client import MAX_CLIENT_ID, OrderFlags
 from dydx_v4_client.node.market import Market
 from dydx_v4_client.node.message import subaccount, send_token, order
-from tests.conftest import get_wallet, assert_successful_broadcast
+from tests.conftest import get_wallet, assert_successful_broadcast, TEST_ADDRESS
 from v4_proto.dydxprotocol.clob.order_pb2 import BuilderCodeParameters, Order
 from dydx_v4_client.indexer.rest.constants import OrderStatus, OrderType
 from tests.conftest import get_wallet, assert_successful_broadcast, TEST_ADDRESS_2
@@ -368,27 +368,33 @@ async def test_place_order_with_order_router_address(
         ]
     )
 
-    test_order = market.order(
-        order_id=test_order_id,
-        time_in_force=0,
-        reduce_only=False,
-        side=Order.Side.SIDE_SELL,
+    order_id = market.order_id(
+        TEST_ADDRESS, 0, random.randint(0, MAX_CLIENT_ID), OrderFlags.SHORT_TERM
+    )
+
+    current_block = await node_client.latest_block_height()
+
+    new_order = market.order(
+        order_id=order_id,
         order_type=OrderType.MARKET,
+        side=Order.Side.SIDE_SELL,
         size=0.0001,
-        price=0,
-        good_til_block_time=int(time.time() + 60),
+        price=0,  # Recommend set to oracle price - 5% or lower for SELL, oracle price + 5% for BUY
+        time_in_force=Order.TimeInForce.TIME_IN_FORCE_UNSPECIFIED,
+        reduce_only=False,
+        good_til_block=current_block + 10,
         order_router_address=TEST_ADDRESS_2,
     )
 
-    _ = await node_client.place_order(
-        wallet,
-        test_order,
+    transaction = await node_client.place_order(
+        wallet=wallet,
+        order=new_order,
     )
 
     await asyncio.sleep(5)
 
     fills = await indexer_rest_client.account.get_subaccount_fills(
-        address=test_address, subaccount_number=0, limit=1
+        address=TEST_ADDRESS, subaccount_number=0, limit=1
     )
 
     assert fills is not None
