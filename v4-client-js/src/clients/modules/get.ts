@@ -639,11 +639,11 @@ export class Get {
     );
 
     const data = await this.sendQuery(
-      '/dydxprotocol.feetiers.Query/PerpetualFeeParams',
+      '/dydxprotocol.feetiers.Query/AllMarketFeeDiscountParams',
       requestData,
     );
 
-    return FeeTierModule.QueryPerpetualFeeParamsResponse.decode(data);
+    return FeeTierModule.QueryAllMarketFeeDiscountParamsResponse.decode(data);
   }
 
   /**
