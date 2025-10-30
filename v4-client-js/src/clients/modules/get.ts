@@ -635,7 +635,7 @@ export class Get {
    */
   async getAllPerpMarketFeeDiscounts(): Promise<FeeTierModule.QueryAllMarketFeeDiscountParamsRequest> {
     const requestData = Uint8Array.from(
-      FeeTierModule.QueryPerpetualFeeParamsRequest.encode({}).finish(),
+      FeeTierModule.QueryAllMarketFeeDiscountParamsRequest.encode({}).finish(),
     );
 
     const data = await this.sendQuery(
