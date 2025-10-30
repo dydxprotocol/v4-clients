@@ -7,7 +7,10 @@ import {
   TxExtension,
   QueryAbciResponse,
 } from '@cosmjs/stargate';
-import { GetAuthenticatorsRequest, GetAuthenticatorsResponse } from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/accountplus/query';
+import {
+  GetAuthenticatorsRequest,
+  GetAuthenticatorsResponse,
+} from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/accountplus/query';
 import * as AuthModule from 'cosmjs-types/cosmos/auth/v1beta1/query';
 import * as BankModule from 'cosmjs-types/cosmos/bank/v1beta1/query';
 import { Any } from 'cosmjs-types/google/protobuf/any';
@@ -624,6 +627,52 @@ export class Get {
     );
 
     return GetAuthenticatorsResponse.decode(data);
+  }
+
+  /**
+   * @description Get fee discounts for all perp markets.
+   * @returns All markets' fee discounts.
+   */
+  async getAllPerpMarketFeeDiscounts(): Promise<FeeTierModule.QueryAllMarketFeeDiscountParamsRequest> {
+    const requestData = Uint8Array.from(
+      FeeTierModule.QueryAllMarketFeeDiscountParamsRequest.encode({}).finish(),
+    );
+
+    const data = await this.sendQuery(
+      '/dydxprotocol.feetiers.Query/AllMarketFeeDiscountParams',
+      requestData,
+    );
+
+    return FeeTierModule.QueryAllMarketFeeDiscountParamsResponse.decode(data);
+  }
+
+  /**
+   *
+   * @param address The address of the user to get the staking tier for.
+   * @returns The staking tier for the user.
+   */
+  async getUserStakingTier(address: string): Promise<FeeTierModule.QueryUserStakingTierResponse> {
+    const requestData = Uint8Array.from(
+      FeeTierModule.QueryUserStakingTierRequest.encode({
+        address,
+      }).finish(),
+    );
+
+    const data = await this.sendQuery('/dydxprotocol.feetiers.Query/UserStakingTier', requestData);
+
+    return FeeTierModule.QueryUserStakingTierResponse.decode(data);
+  }
+
+  /**
+   * @description Get all staking tiers.
+   * @returns All staking tiers.
+   */
+  async getAllStakingTiers(): Promise<FeeTierModule.QueryStakingTiersResponse> {
+    const requestData = Uint8Array.from(FeeTierModule.QueryStakingTiersRequest.encode({}).finish());
+
+    const data = await this.sendQuery('/dydxprotocol.feetiers.Query/StakingTiers', requestData);
+
+    return FeeTierModule.QueryStakingTiersResponse.decode(data);
   }
 
   private async sendQuery(requestUrl: string, requestData: Uint8Array): Promise<Uint8Array> {

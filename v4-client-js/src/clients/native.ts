@@ -1462,3 +1462,47 @@ export async function withdrawFromMegavault(
     return wrappedError(error);
   }
 }
+
+export async function getAllPerpMarketFeeDiscounts(): Promise<string> {
+  try {
+    const client = globalThis.client;
+    if (client === undefined) {
+      throw new UserError('client is not connected. Call connectClient() first');
+    }
+    const response = await globalThis.client?.validatorClient.get.getAllPerpMarketFeeDiscounts();
+    return encodeJson(response);
+  } catch (error) {
+    return wrappedError(error);
+  }
+}
+
+export async function getAllStakingTiers(): Promise<string> {
+  try {
+    const client = globalThis.client;
+    if (client === undefined) {
+      throw new UserError('client is not connected. Call connectClient() first');
+    }
+    const response = await globalThis.client?.validatorClient.get.getAllStakingTiers();
+    return encodeJson(response);
+  } catch (error) {
+    return wrappedError(error);
+  }
+}
+
+export async function getUserStakingTier(payload: string): Promise<string> {
+  try {
+    const client = globalThis.client;
+    if (client === undefined) {
+      throw new UserError('client is not connected. Call connectClient() first');
+    }
+    const json = JSON.parse(payload);
+    const address = json.address;
+    if (address === undefined) {
+      throw new UserError('address is not set');
+    }
+    const response = await globalThis.client?.validatorClient.get.getUserStakingTier(address);
+    return encodeJson(response);
+  } catch (error) {
+    return wrappedError(error);
+  }
+}
