@@ -663,6 +663,18 @@ export class Get {
     return FeeTierModule.QueryUserStakingTierResponse.decode(data);
   }
 
+  /**
+   * @description Get all staking tiers.
+   * @returns All staking tiers.
+   */
+  async getAllStakingTiers(): Promise<FeeTierModule.QueryStakingTiersResponse> {
+    const requestData = Uint8Array.from(FeeTierModule.QueryStakingTiersRequest.encode({}).finish());
+
+    const data = await this.sendQuery('/dydxprotocol.feetiers.Query/StakingTiers', requestData);
+
+    return FeeTierModule.QueryStakingTiersResponse.decode(data);
+  }
+
   private async sendQuery(requestUrl: string, requestData: Uint8Array): Promise<Uint8Array> {
     // eslint-disable-next-line max-len
     const resp: QueryAbciResponse = await this.stargateQueryClient.queryAbci(
