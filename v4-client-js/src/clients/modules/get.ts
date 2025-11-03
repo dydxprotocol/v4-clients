@@ -633,7 +633,7 @@ export class Get {
    * @description Get fee discounts for all perp markets.
    * @returns All markets' fee discounts.
    */
-  async getAllPerpMarketFeeDiscounts(): Promise<FeeTierModule.QueryAllMarketFeeDiscountParamsRequest> {
+  async getAllPerpMarketFeeDiscounts(): Promise<FeeTierModule.QueryAllMarketFeeDiscountParamsResponse> {
     const requestData = Uint8Array.from(
       FeeTierModule.QueryAllMarketFeeDiscountParamsRequest.encode({}).finish(),
     );
