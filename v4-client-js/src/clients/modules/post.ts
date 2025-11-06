@@ -630,14 +630,24 @@ export class Post {
   }
 
   async updateLeverage(
+    subaccount: SubaccountInfo,
     address: string,
-    subaccountNumber: number,
     entries: LeverageEntry[],
-  ): Promise<EncodeObject> {
-    return new Promise((resolve) => {
-      const msg = this.composer.composeMsgUpdateLeverage(address, subaccountNumber, entries);
-      resolve(msg);
-    });
+    broadcastMode?: BroadcastMode,
+  ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
+    const msg = this.composer.composeMsgUpdateLeverage(
+      address,
+      subaccount.subaccountNumber,
+      entries,
+    );
+    return this.send(
+      subaccount,
+      () => Promise.resolve([msg]),
+      false,
+      undefined,
+      undefined,
+      broadcastMode,
+    );
   }
 
   async transfer(
