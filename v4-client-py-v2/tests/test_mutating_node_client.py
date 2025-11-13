@@ -8,9 +8,12 @@ import asyncio
 from dydx_v4_client import MAX_CLIENT_ID, OrderFlags
 from dydx_v4_client.node.market import Market
 from dydx_v4_client.node.message import subaccount, send_token, order
+from v4_proto.dydxprotocol.clob.order_pb2 import Order
+from dydx_v4_client.indexer.rest.constants import OrderType
 from tests.conftest import get_wallet, assert_successful_broadcast
-from v4_proto.dydxprotocol.clob.order_pb2 import BuilderCodeParameters, Order
-from dydx_v4_client.indexer.rest.constants import OrderStatus, OrderType
+from v4_proto.dydxprotocol.clob.order_pb2 import BuilderCodeParameters
+from dydx_v4_client.indexer.rest.constants import OrderStatus
+
 
 REQUEST_PROCESSING_TIME = 5
 

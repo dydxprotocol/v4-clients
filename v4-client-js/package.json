@@ -52,7 +52,7 @@
     "@cosmjs/stargate": "^0.32.1",
     "@cosmjs/tendermint-rpc": "^0.32.1",
     "@cosmjs/utils": "^0.32.1",
-    "@dydxprotocol/v4-proto": "9.0.0",
+    "@dydxprotocol/v4-proto": "9.4.0-rc.0",
     "@osmonauts/lcd": "^0.6.0",
     "@scure/bip32": "^1.1.5",
     "@scure/bip39": "^1.1.1",

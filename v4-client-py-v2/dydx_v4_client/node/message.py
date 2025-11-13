@@ -26,6 +26,10 @@ from v4_proto.dydxprotocol.accountplus.tx_pb2 import (
     MsgAddAuthenticator,
     MsgRemoveAuthenticator,
 )
+
+from v4_proto.dydxprotocol.revshare import tx_pb2 as revshare_tx_types
+from v4_proto.dydxprotocol.revshare.revshare_pb2 import OrderRouterRevShare
+
 import json
 import base64
 
