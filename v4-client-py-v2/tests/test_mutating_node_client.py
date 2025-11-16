@@ -289,7 +289,9 @@ async def test_withdraw_delegate_reward(node_client, wallet, test_address):
 async def test_register_affiliate(node_client, wallet, test_address, recipient):
     try:
         subaccount_info = SubaccountInfo.for_wallet(wallet, 0)
-        response = await node_client.register_affiliate(subaccount_info, test_address, recipient)
+        response = await node_client.register_affiliate(
+            subaccount_info, test_address, recipient
+        )
         assert response is not None
         assert response.tx_response is not None
         assert response.tx_response.txhash is not None

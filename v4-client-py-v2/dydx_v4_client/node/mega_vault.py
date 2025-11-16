@@ -20,7 +20,11 @@ class MegaVault:
         self.node_client = node_client
 
     async def deposit(
-        self, subaccount: SubaccountInfo, address: str, subaccount_number: int, amount: Decimal
+        self,
+        subaccount: SubaccountInfo,
+        address: str,
+        subaccount_number: int,
+        amount: Decimal,
     ) -> Any:
         """
         Deposit USDC into the MegaVault.
@@ -39,7 +43,9 @@ class MegaVault:
             msg = deposit_to_megavault(
                 address=address, subaccount_number=subaccount_number, quantums=qunatums
             )
-            return await self.node_client.send_message(subaccount=subaccount, message=msg)
+            return await self.node_client.send_message(
+                subaccount=subaccount, message=msg
+            )
         except Exception as e:
             print(f"Error: {e}")
 
@@ -75,7 +81,9 @@ class MegaVault:
                 min_quantums=min_amount_quantums,
                 num_shares=shares_quantums,
             )
-            return await self.node_client.send_message(subaccount=subaccount, message=msg)
+            return await self.node_client.send_message(
+                subaccount=subaccount, message=msg
+            )
         except Exception as e:
             print(f"Error: {e}")
 

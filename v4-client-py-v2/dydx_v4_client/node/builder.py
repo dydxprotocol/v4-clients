@@ -58,6 +58,7 @@ class TxOptions:
     DEPRECATED: Use SubaccountInfo instead.
     This class is kept for backward compatibility but will be removed in a future version.
     """
+
     authenticators: List[int]
     sequence: int
     account_number: int
@@ -90,12 +91,12 @@ class Builder:
     ) -> Tx:
         """
         Builds a transaction from messages.
-        
+
         Args:
             subaccount: SubaccountInfo containing wallet and authenticators
             messages: List of protobuf messages to include
             fee: Transaction fee
-            
+
         Returns:
             Built and signed transaction
         """
@@ -138,12 +139,12 @@ class Builder:
     ) -> Tx:
         """
         Builds a transaction with a single message.
-        
+
         Args:
             subaccount: SubaccountInfo containing wallet and authenticators
             message: Protobuf message to include
             fee: Transaction fee (defaults to DEFAULT_FEE)
-            
+
         Returns:
             Built and signed transaction
         """

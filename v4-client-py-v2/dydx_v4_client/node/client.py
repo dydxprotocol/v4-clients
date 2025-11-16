@@ -768,7 +768,10 @@ class MutatingNodeClient(QueryNodeClient):
         return service_pb2_grpc.ServiceStub(self.channel).Simulate(request)
 
     async def send(
-        self, subaccount: SubaccountInfo, transaction: Tx, mode=BroadcastMode.BROADCAST_MODE_SYNC
+        self,
+        subaccount: SubaccountInfo,
+        transaction: Tx,
+        mode=BroadcastMode.BROADCAST_MODE_SYNC,
     ):
         """
         Sends a transaction.
@@ -786,12 +789,17 @@ class MutatingNodeClient(QueryNodeClient):
 
         fee = self.builder.calculate_fee(simulated.gas_info.gas_used)
 
-        transaction = builder.build_transaction(subaccount, transaction.body.messages, fee)
+        transaction = builder.build_transaction(
+            subaccount, transaction.body.messages, fee
+        )
 
         return await self.broadcast(transaction, mode)
 
     async def send_message(
-        self, subaccount: SubaccountInfo, message: Message, mode=BroadcastMode.BROADCAST_MODE_SYNC
+        self,
+        subaccount: SubaccountInfo,
+        message: Message,
+        mode=BroadcastMode.BROADCAST_MODE_SYNC,
     ):
         """
         Sends a message.
@@ -807,7 +815,9 @@ class MutatingNodeClient(QueryNodeClient):
         if self.sequence_manager:
             await self.sequence_manager.before_send(subaccount)
 
-        response = await self.send(subaccount, self.builder.build(subaccount, message), mode)
+        response = await self.send(
+            subaccount, self.builder.build(subaccount, message), mode
+        )
 
         if self.sequence_manager:
             await self.sequence_manager.after_send(subaccount)
@@ -844,7 +854,9 @@ class MutatingNodeClient(QueryNodeClient):
 
         return response
 
-    def build_transaction(self, subaccount: SubaccountInfo, messages: List[Message], fee: Fee):
+    def build_transaction(
+        self, subaccount: SubaccountInfo, messages: List[Message], fee: Fee
+    ):
         """
         Builds a transaction.
 
@@ -1107,7 +1119,9 @@ class NodeClient(MutatingNodeClient):
             add_authenticator_msg,
         )
 
-    async def remove_authenticator(self, subaccount: SubaccountInfo, authenticator_id: int):
+    async def remove_authenticator(
+        self, subaccount: SubaccountInfo, authenticator_id: int
+    ):
         """
         Removes authenticator from a subaccount.
 
@@ -1129,7 +1143,9 @@ class NodeClient(MutatingNodeClient):
             remove_authenticator_msg,
         )
 
-    async def create_transaction(self, subaccount: SubaccountInfo, message: Message) -> Tx:
+    async def create_transaction(
+        self, subaccount: SubaccountInfo, message: Message
+    ) -> Tx:
         """
         Create a transaction
 
@@ -1328,7 +1344,9 @@ class NodeClient(MutatingNodeClient):
         if slippage_pct < 0 or slippage_pct > 100:
             raise ValueError("slippage_pct should be within 0 and 100")
 
-        subaccount_data = await self.get_subaccount(subaccount.address, subaccount.subaccount_number)
+        subaccount_data = await self.get_subaccount(
+            subaccount.address, subaccount.subaccount_number
+        )
         quantum_value = None
         order_side = None
         price = None
@@ -1359,7 +1377,10 @@ class NodeClient(MutatingNodeClient):
         if reduce_by is not None:
             order_size = min(order_size, reduce_by)
         order_id = market.order_id(
-            subaccount.address, subaccount.subaccount_number, client_id, OrderFlags.SHORT_TERM
+            subaccount.address,
+            subaccount.subaccount_number,
+            client_id,
+            OrderFlags.SHORT_TERM,
         )
         current_height = await self.latest_block_height()
         new_order = market.order(
