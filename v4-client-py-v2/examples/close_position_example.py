@@ -9,6 +9,7 @@ from dydx_v4_client.indexer.rest.indexer_client import IndexerClient
 from dydx_v4_client.network import TESTNET
 from dydx_v4_client.node.client import NodeClient
 from dydx_v4_client.node.market import Market
+from dydx_v4_client.node.subaccount import SubaccountInfo
 from dydx_v4_client.wallet import Wallet
 from tests.conftest import DYDX_TEST_MNEMONIC, TEST_ADDRESS
 
@@ -22,6 +23,7 @@ async def close_position_example(size: float):
         mnemonic=DYDX_TEST_MNEMONIC,
         address=TEST_ADDRESS,
     )
+    subaccount = SubaccountInfo.for_wallet(wallet, 0)
     MARKET_ID = "ETH-USD"
     market = Market(
         (await indexer.markets.get_perpetual_markets(MARKET_ID))["markets"][MARKET_ID]
@@ -46,17 +48,16 @@ async def close_position_example(size: float):
     )
 
     transaction = await node.place_order(
-        wallet=wallet,
-        order=new_order,
+        subaccount,
+        new_order,
     )
 
     print(transaction)
-    wallet.sequence += 1
 
     await asyncio.sleep(5)
 
     response = await node_client.close_position(
-        wallet, TEST_ADDRESS, 0, market, None, random.randint(0, 1000000000)
+        subaccount, market, random.randint(0, 1000000000), None
     )
     print(response)
 

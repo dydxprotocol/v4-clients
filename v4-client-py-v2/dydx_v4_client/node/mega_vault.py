@@ -6,6 +6,7 @@ from v4_proto.dydxprotocol.vault import query_pb2_grpc as vault_query_grpc
 from v4_proto.dydxprotocol.vault import query_pb2 as vault_query
 
 from dydx_v4_client.node.message import deposit_to_megavault, withdraw_from_megavault
+from dydx_v4_client.node.subaccount import SubaccountInfo
 from dydx_v4_client.utility import convert_amount_to_quantums_vec, to_serializable_vec
 from dydx_v4_client.wallet import Wallet
 from dydx_v4_client.node.client import NodeClient
@@ -19,13 +20,13 @@ class MegaVault:
         self.node_client = node_client
 
     async def deposit(
-        self, wallet: Wallet, address: str, subaccount_number: int, amount: Decimal
+        self, subaccount: SubaccountInfo, address: str, subaccount_number: int, amount: Decimal
     ) -> Any:
         """
         Deposit USDC into the MegaVault.
 
         Args:
-            wallet (Wallet): The wallet
+            subaccount (SubaccountInfo): The subaccount info containing wallet and authenticators.
             address (str): Address to deposit
             subaccount_number (int): Subaccount number
             amount (Decimal): Amount to deposit
@@ -38,13 +39,13 @@ class MegaVault:
             msg = deposit_to_megavault(
                 address=address, subaccount_number=subaccount_number, quantums=qunatums
             )
-            return await self.node_client.send_message(wallet=wallet, message=msg)
+            return await self.node_client.send_message(subaccount=subaccount, message=msg)
         except Exception as e:
             print(f"Error: {e}")
 
     async def withdraw(
         self,
-        wallet: Wallet,
+        subaccount: SubaccountInfo,
         address: str,
         subaccount_number: int,
         min_amount: Decimal,
@@ -55,7 +56,7 @@ class MegaVault:
         The number of shares must be equal or greater to some specified minimum amount (in USDC-equivalent value).
 
         Args:
-            wallet (Wallet): The wallet
+            subaccount (SubaccountInfo): The subaccount info containing wallet and authenticators.
             address (str): Address to withdraw
             subaccount_number (int): Subaccount number associated with the address
             min_amount (Decimal): Minimum amount to withdraw
@@ -74,7 +75,7 @@ class MegaVault:
                 min_quantums=min_amount_quantums,
                 num_shares=shares_quantums,
             )
-            return await self.node_client.send_message(wallet=wallet, message=msg)
+            return await self.node_client.send_message(subaccount=subaccount, message=msg)
         except Exception as e:
             print(f"Error: {e}")
 

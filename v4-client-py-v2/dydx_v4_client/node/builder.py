@@ -16,6 +16,7 @@ from v4_proto.cosmos.tx.v1beta1.tx_pb2 import (
 )
 
 from dydx_v4_client.node.fee import calculate_fee, Denom
+from dydx_v4_client.node.subaccount import SubaccountInfo
 from dydx_v4_client.wallet import Wallet
 from v4_proto.dydxprotocol.accountplus.tx_pb2 import TxExtension
 
@@ -53,6 +54,10 @@ DEFAULT_FEE = Fee(
 
 @dataclass
 class TxOptions:
+    """
+    DEPRECATED: Use SubaccountInfo instead.
+    This class is kept for backward compatibility but will be removed in a future version.
+    """
     authenticators: List[int]
     sequence: int
     account_number: int
@@ -79,15 +84,25 @@ class Builder:
 
     def build_transaction(
         self,
-        wallet: Wallet,
+        subaccount: SubaccountInfo,
         messages: List[Message],
         fee: Fee,
-        tx_options: Optional[TxOptions] = None,
     ) -> Tx:
+        """
+        Builds a transaction from messages.
+        
+        Args:
+            subaccount: SubaccountInfo containing wallet and authenticators
+            messages: List of protobuf messages to include
+            fee: Transaction fee
+            
+        Returns:
+            Built and signed transaction
+        """
         non_critical_extension_options = []
-        if tx_options is not None:
+        if subaccount.authenticators:
             tx_extension = TxExtension(
-                selected_authenticators=tx_options.authenticators,
+                selected_authenticators=subaccount.authenticators,
             )
             non_critical_extension_options.append(as_any(tx_extension))
         body = TxBody(
@@ -95,11 +110,12 @@ class Builder:
             memo=self.memo,
             non_critical_extension_options=non_critical_extension_options,
         )
+        wallet = subaccount.signing_wallet
         auth_info = AuthInfo(
             signer_infos=[
                 get_signer_info(
                     wallet.public_key,
-                    tx_options.sequence if tx_options else wallet.sequence,
+                    wallet.sequence,
                 )
             ],
             fee=fee,
@@ -108,7 +124,7 @@ class Builder:
             wallet.key,
             body,
             auth_info,
-            tx_options.account_number if tx_options else wallet.account_number,
+            wallet.account_number,
             self.chain_id,
         )
 
@@ -116,9 +132,19 @@ class Builder:
 
     def build(
         self,
-        wallet: Wallet,
+        subaccount: SubaccountInfo,
         message: Message,
         fee: Fee = DEFAULT_FEE,
-        tx_options: Optional[dict] = None,
     ) -> Tx:
-        return self.build_transaction(wallet, [as_any(message)], fee, tx_options)
+        """
+        Builds a transaction with a single message.
+        
+        Args:
+            subaccount: SubaccountInfo containing wallet and authenticators
+            message: Protobuf message to include
+            fee: Transaction fee (defaults to DEFAULT_FEE)
+            
+        Returns:
+            Built and signed transaction
+        """
+        return self.build_transaction(subaccount, [as_any(message)], fee)

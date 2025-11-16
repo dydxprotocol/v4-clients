@@ -4,6 +4,7 @@ import random
 from dydx_v4_client import MAX_CLIENT_ID, OrderFlags
 from dydx_v4_client.indexer.rest.constants import OrderType
 from dydx_v4_client.node.market import Market
+from dydx_v4_client.node.subaccount import SubaccountInfo
 from tests.conftest import TEST_ADDRESS_2, TEST_ADDRESS
 from v4_proto.dydxprotocol.clob.order_pb2 import Order
 from v4_proto.dydxprotocol.revshare import query_pb2 as revshare_query
@@ -42,9 +43,10 @@ async def test_place_order_with_order_router_address(
         order_router_address=TEST_ADDRESS_2,
     )
 
+    subaccount_info = SubaccountInfo.for_wallet(wallet, 0)
     transaction = await node_client.place_order(
-        wallet=wallet,
-        order=new_order,
+        subaccount_info,
+        new_order,
     )
 
     await asyncio.sleep(5)

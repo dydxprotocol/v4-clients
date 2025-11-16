@@ -2,6 +2,7 @@ import asyncio
 
 from dydx_v4_client.network import TESTNET
 from dydx_v4_client.node.client import NodeClient
+from dydx_v4_client.node.subaccount import SubaccountInfo
 from dydx_v4_client.wallet import Wallet
 from tests.conftest import (
     DYDX_TEST_MNEMONIC,
@@ -17,9 +18,10 @@ async def affiliate_examples():
     affiliate_wallet = await Wallet.from_mnemonic(
         node, DYDX_TEST_MNEMONIC_2, TEST_ADDRESS_2
     )
+    referee_subaccount = SubaccountInfo.for_wallet(referee_wallet, 0)
     try:
         response = await node.register_affiliate(
-            referee_wallet, referee_wallet.address, affiliate_wallet.address
+            referee_subaccount, referee_wallet.address, affiliate_wallet.address
         )
         print(response)
     except Exception as e:

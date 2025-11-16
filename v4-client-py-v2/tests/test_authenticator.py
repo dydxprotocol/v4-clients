@@ -4,6 +4,7 @@ import time
 from dydx_v4_client.network import TESTNET
 from dydx_v4_client.node.authenticators import Authenticator, AuthenticatorType
 from dydx_v4_client.node.client import NodeClient
+from dydx_v4_client.node.subaccount import SubaccountInfo
 from dydx_v4_client.wallet import Wallet
 from tests.conftest import (
     DYDX_TEST_MNEMONIC,
@@ -51,7 +52,8 @@ async def test_auth_add_single():
         trader_wallet.public_key.key
     )
 
-    response = await node.add_authenticator(wallet, place_order_auth)
+    owner_subaccount = SubaccountInfo.for_wallet(wallet, 0)
+    response = await node.add_authenticator(owner_subaccount, place_order_auth)
 
     assert response.tx_response.code == 0, response
 
@@ -75,7 +77,8 @@ async def test_auth_add_allof_anyof():
         ],
     )
 
-    response = await node.add_authenticator(wallet, place_order_auth)
+    owner_subaccount = SubaccountInfo.for_wallet(wallet, 0)
+    response = await node.add_authenticator(owner_subaccount, place_order_auth)
 
     assert response.tx_response.code == 0, response
 
@@ -109,6 +112,7 @@ async def test_auth_add_allof_allof_anyof():
         ],
     )
 
-    response = await node.add_authenticator(wallet, place_order_auth)
+    owner_subaccount = SubaccountInfo.for_wallet(wallet, 0)
+    response = await node.add_authenticator(owner_subaccount, place_order_auth)
 
     assert response.tx_response.code == 0, response

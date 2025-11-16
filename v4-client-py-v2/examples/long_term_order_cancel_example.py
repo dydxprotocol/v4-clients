@@ -10,6 +10,7 @@ from dydx_v4_client.indexer.rest.indexer_client import IndexerClient
 from dydx_v4_client.network import TESTNET
 from dydx_v4_client.node.client import NodeClient
 from dydx_v4_client.node.market import Market, since_now
+from dydx_v4_client.node.subaccount import SubaccountInfo
 from dydx_v4_client.wallet import Wallet
 from dydx_v4_client.indexer.rest.constants import OrderType
 from tests.conftest import DYDX_TEST_MNEMONIC, TEST_ADDRESS
@@ -26,13 +27,14 @@ async def test():
         (await indexer.markets.get_perpetual_markets(MARKET_ID))["markets"][MARKET_ID]
     )
     wallet = await Wallet.from_mnemonic(node, DYDX_TEST_MNEMONIC, TEST_ADDRESS)
+    subaccount = SubaccountInfo.for_wallet(wallet, 0)
 
     order_id = market.order_id(
         TEST_ADDRESS, 0, random.randint(0, MAX_CLIENT_ID), OrderFlags.LONG_TERM
     )
 
     place = await node.place_order(
-        wallet,
+        subaccount,
         market.order(
             order_id,
             OrderType.LIMIT,
@@ -46,13 +48,12 @@ async def test():
     )
     print(place)
 
-    wallet.sequence += 1
     time.sleep(5)
 
     time.sleep(5)
 
     cancel_response = await node.cancel_order(
-        wallet,
+        subaccount,
         order_id,
         good_til_block_time=since_now(seconds=120),
     )

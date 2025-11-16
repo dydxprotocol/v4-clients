@@ -2,10 +2,13 @@ import asyncio
 
 import pytest
 
+from dydx_v4_client.node.subaccount import SubaccountInfo
+
 
 @pytest.mark.asyncio
 async def test_deposit(node_client, megavault, wallet, test_address):
-    response = await megavault.deposit(wallet, test_address, 0, 1)
+    subaccount = SubaccountInfo.for_wallet(wallet, 0)
+    response = await megavault.deposit(subaccount, test_address, 0, 1)
     assert response is not None
     assert response.tx_response is not None
     await asyncio.sleep(5)
@@ -15,7 +18,8 @@ async def test_deposit(node_client, megavault, wallet, test_address):
 
 @pytest.mark.asyncio
 async def test_withdraw(node_client, megavault, wallet, test_address):
-    response = await megavault.withdraw(wallet, test_address, 0, 0, 1)
+    subaccount = SubaccountInfo.for_wallet(wallet, 0)
+    response = await megavault.withdraw(subaccount, test_address, 0, 0, 1)
     assert response is not None
     assert response.tx_response is not None
     await asyncio.sleep(5)

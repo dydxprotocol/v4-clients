@@ -9,6 +9,7 @@ from dydx_v4_client.indexer.rest.indexer_client import IndexerClient
 from dydx_v4_client.network import TESTNET
 from dydx_v4_client.node.client import NodeClient
 from dydx_v4_client.node.market import Market
+from dydx_v4_client.node.subaccount import SubaccountInfo
 from dydx_v4_client.wallet import Wallet
 from tests.conftest import DYDX_TEST_MNEMONIC, TEST_ADDRESS
 from v4_proto.dydxprotocol.clob.tx_pb2 import OrderBatch
@@ -27,6 +28,7 @@ async def test_batch_cancel():
         (await indexer.markets.get_perpetual_markets(MARKET_ID))["markets"][MARKET_ID]
     )
     wallet = await Wallet.from_mnemonic(node, DYDX_TEST_MNEMONIC, TEST_ADDRESS)
+    subaccount = SubaccountInfo.for_wallet(wallet, 0)
 
     # Place multiple orders
     orders = []
@@ -50,9 +52,8 @@ async def test_batch_cancel():
 
     # Place orders
     for order in orders:
-        place_order_response = await node.place_order(wallet, order)
+        place_order_response = await node.place_order(subaccount, order)
         print(f"Placed order: {place_order_response}")
-        wallet.sequence += 1
 
     # Prepare batch cancel
     subaccount_id = SubaccountId(owner=TEST_ADDRESS, number=0)
@@ -61,7 +62,7 @@ async def test_batch_cancel():
 
     # Execute batch cancel
     batch_cancel_response = await node.batch_cancel_orders(
-        wallet, subaccount_id, [order_batch], cancellation_current_block + 10
+        subaccount, subaccount_id, [order_batch], cancellation_current_block + 10
     )
     print(f"Batch cancel response: {batch_cancel_response}")
     resp_code = batch_cancel_response.tx_response.code

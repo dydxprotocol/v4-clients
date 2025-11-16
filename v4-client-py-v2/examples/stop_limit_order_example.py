@@ -9,6 +9,7 @@ from dydx_v4_client.indexer.rest.indexer_client import IndexerClient
 from dydx_v4_client.network import TESTNET
 from dydx_v4_client.node.client import NodeClient
 from dydx_v4_client.node.market import Market, since_now
+from dydx_v4_client.node.subaccount import SubaccountInfo
 from dydx_v4_client.wallet import Wallet
 from tests.conftest import DYDX_TEST_MNEMONIC, TEST_ADDRESS
 
@@ -24,6 +25,7 @@ async def test_place_stop_limit_order():
         (await indexer.markets.get_perpetual_markets(MARKET_ID))["markets"][MARKET_ID]
     )
     wallet = await Wallet.from_mnemonic(node, DYDX_TEST_MNEMONIC, TEST_ADDRESS)
+    subaccount = SubaccountInfo.for_wallet(wallet, 0)
 
     order_id = market.order_id(
         TEST_ADDRESS, 0, random.randint(0, MAX_CLIENT_ID), OrderFlags.CONDITIONAL
@@ -46,12 +48,11 @@ async def test_place_stop_limit_order():
     )
     print(new_order)
     transaction = await node.place_order(
-        wallet=wallet,
-        order=new_order,
+        subaccount,
+        new_order,
     )
 
     print(transaction)
-    wallet.sequence += 1
 
 
 asyncio.run(test_place_stop_limit_order())

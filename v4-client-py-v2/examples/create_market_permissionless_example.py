@@ -2,6 +2,7 @@ import asyncio
 
 from dydx_v4_client.network import TESTNET
 from dydx_v4_client.node.client import NodeClient
+from dydx_v4_client.node.subaccount import SubaccountInfo
 from dydx_v4_client.wallet import Wallet
 from tests.conftest import TEST_ADDRESS, DYDX_TEST_MNEMONIC
 
@@ -9,9 +10,10 @@ from tests.conftest import TEST_ADDRESS, DYDX_TEST_MNEMONIC
 async def create_market_permissionless_example():
     node = await NodeClient.connect(TESTNET.node)
     wallet = await Wallet.from_mnemonic(node, DYDX_TEST_MNEMONIC, TEST_ADDRESS)
+    subaccount = SubaccountInfo.for_wallet(wallet, 0)
     try:
         response = await node.create_market_permissionless(
-            wallet, "BTC-USD", TEST_ADDRESS, 0
+            subaccount, "BTC-USD", TEST_ADDRESS, 0
         )
         print(response)
     except Exception as e:

@@ -7,6 +7,7 @@ from random import randint
 from dydx_v4_client.indexer.rest.constants import OrderType
 from dydx_v4_client import MAX_CLIENT_ID, OrderFlags
 from dydx_v4_client.node.market import Market
+from dydx_v4_client.node.subaccount import SubaccountInfo
 from dydx_v4_client.wallet import Wallet
 
 from v4_proto.dydxprotocol.clob.order_pb2 import Order
@@ -64,13 +65,13 @@ async def test_batch_cancel(indexer_rest_client, node_client, test_address, wall
     assert orders[0].subticks != orders[1].subticks
 
     wallet = await Wallet.from_mnemonic(node_client, DYDX_TEST_MNEMONIC, test_address)
+    subaccount_info = SubaccountInfo.for_wallet(wallet, 0)
 
     assert wallet.address == test_address
 
     # Place orders
     for order in orders:
-        response = await node_client.place_order(wallet, order)
-        wallet.sequence += 1
+        response = await node_client.place_order(subaccount_info, order)
         assert_successful_broadcast(response)
 
     # Prepare batch cancel
@@ -80,6 +81,6 @@ async def test_batch_cancel(indexer_rest_client, node_client, test_address, wall
 
     # Execute batch cancel
     batch_cancel_response = await node_client.batch_cancel_orders(
-        wallet, subaccount_id, [order_batch], cancellation_current_block + 10
+        subaccount_info, subaccount_id, [order_batch], cancellation_current_block + 10
     )
     assert_successful_broadcast(batch_cancel_response)

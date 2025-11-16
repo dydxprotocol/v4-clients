@@ -8,9 +8,9 @@ from dydx_v4_client.indexer.rest.constants import OrderType
 from dydx_v4_client.indexer.rest.indexer_client import IndexerClient
 from dydx_v4_client.network import TESTNET
 from dydx_v4_client.node.authenticators import Authenticator, AuthenticatorType
-from dydx_v4_client.node.builder import TxOptions
 from dydx_v4_client.node.client import NodeClient
 from dydx_v4_client.node.market import Market
+from dydx_v4_client.node.subaccount import SubaccountInfo
 from dydx_v4_client.wallet import Wallet
 from tests.conftest import (
     DYDX_TEST_MNEMONIC,
@@ -33,6 +33,7 @@ async def authenticator_example():
         mnemonic=DYDX_TEST_MNEMONIC,
         address=TEST_ADDRESS,
     )
+    owner_subaccount = SubaccountInfo.for_wallet(wallet, 0)
 
     # Set up the "trader" wallet
     trader_wallet = await Wallet.from_mnemonic(
@@ -50,7 +51,7 @@ async def authenticator_example():
         ],
     )
 
-    response = await node.add_authenticator(wallet, place_order_auth)
+    response = await node.add_authenticator(owner_subaccount, place_order_auth)
 
     print(f"Added authenticator: {response}")
     assert response.tx_response.code == 0, response
@@ -68,11 +69,14 @@ async def authenticator_example():
     last_auth_id = last_auth.id
     # exit(0)
 
-    tx_options = TxOptions(
-        authenticators=[last_auth_id],
-        sequence=wallet.sequence,
-        account_number=wallet.account_number,
+    # Create a permissioned subaccount for the trader wallet
+    permissioned_subaccount = SubaccountInfo.for_permissioned_wallet(
+        trader_wallet,
+        TEST_ADDRESS,  # Account address
+        0,  # Subaccount number
+        [last_auth_id],  # Authenticator IDs
     )
+
     market = Market(
         (await indexer.markets.get_perpetual_markets(MARKET_ID))["markets"][MARKET_ID]
     )
@@ -93,15 +97,14 @@ async def authenticator_example():
         good_til_block=good_til_block,
     )
     response = await node.place_order(
-        trader_wallet,
+        permissioned_subaccount,
         order,
-        tx_options,
     )
     print(f"Placed order: {response}")
     assert response.tx_response.code == 0
 
     # Remove the authenticator
-    response = await node.remove_authenticator(wallet, last_auth_id)
+    response = await node.remove_authenticator(owner_subaccount, last_auth_id)
     print(f"Removed authenticator: {response}")
 
 

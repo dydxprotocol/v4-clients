@@ -10,6 +10,7 @@ from dydx_v4_client.network import TESTNET
 from dydx_v4_client.node.client import NodeClient
 from dydx_v4_client.node.market import Market
 from dydx_v4_client.node.message import order_id
+from dydx_v4_client.node.subaccount import SubaccountInfo
 from dydx_v4_client.wallet import Wallet
 from tests.conftest import TEST_ADDRESS_2, TEST_ADDRESS, DYDX_TEST_MNEMONIC
 from v4_proto.dydxprotocol.clob.order_pb2 import Order
@@ -26,6 +27,7 @@ async def run_revenue_share_example():
             ]
         )
         wallet = await Wallet.from_mnemonic(node, DYDX_TEST_MNEMONIC, TEST_ADDRESS)
+        subaccount = SubaccountInfo.for_wallet(wallet, 0)
 
         order_id = market.order_id(
             TEST_ADDRESS, 0, random.randint(0, MAX_CLIENT_ID), OrderFlags.SHORT_TERM
@@ -46,8 +48,8 @@ async def run_revenue_share_example():
         )
 
         transaction = await node.place_order(
-            wallet=wallet,
-            order=new_order,
+            subaccount,
+            new_order,
         )
 
         print(transaction)

@@ -2,6 +2,7 @@ import asyncio
 
 from dydx_v4_client.network import TESTNET
 from dydx_v4_client.node.client import NodeClient
+from dydx_v4_client.node.subaccount import SubaccountInfo
 from dydx_v4_client.wallet import Wallet
 from tests.conftest import DYDX_TEST_MNEMONIC, TEST_ADDRESS
 
@@ -9,6 +10,7 @@ from tests.conftest import DYDX_TEST_MNEMONIC, TEST_ADDRESS
 async def delegate_undelegate_example():
     node = await NodeClient.connect(TESTNET.node)
     wallet = await Wallet.from_mnemonic(node, DYDX_TEST_MNEMONIC, TEST_ADDRESS)
+    subaccount = SubaccountInfo.for_wallet(wallet, 0)
 
     validator = await node.get_all_validators()
     assert validator is not None
@@ -25,7 +27,7 @@ async def delegate_undelegate_example():
     )[0]
 
     delegate_response = await node.delegate(
-        wallet,
+        subaccount,
         TEST_ADDRESS,
         validator_address_with_least_undelegations,
         100000,
@@ -36,7 +38,7 @@ async def delegate_undelegate_example():
     await node.query_transaction(delegate_response.tx_response.txhash)
 
     undelegate_response = await node.undelegate(
-        wallet,
+        subaccount,
         TEST_ADDRESS,
         validator_address_with_least_undelegations,
         100000,

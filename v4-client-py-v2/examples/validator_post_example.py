@@ -8,6 +8,7 @@ from dydx_v4_client import MAX_CLIENT_ID
 from dydx_v4_client.network import TESTNET
 from dydx_v4_client.node.client import NodeClient
 from dydx_v4_client.node.message import order, order_id
+from dydx_v4_client.node.subaccount import SubaccountInfo
 from dydx_v4_client.wallet import Wallet
 from tests.conftest import DYDX_TEST_MNEMONIC, TEST_ADDRESS
 from google.protobuf.json_format import MessageToJson
@@ -21,6 +22,7 @@ with open(Path(__file__).parent / "raw_orders.json", "r") as file:
 async def test():
     node = await NodeClient.connect(TESTNET.node)
     wallet = await Wallet.from_mnemonic(node, DYDX_TEST_MNEMONIC, TEST_ADDRESS)
+    subaccount = SubaccountInfo.for_wallet(wallet, 0)
 
     for order_dict in orders:
         id = order_id(
@@ -39,7 +41,7 @@ async def test():
             good_til_block = current_block + 3
 
         place = await node.place_order(
-            wallet,
+            subaccount,
             order(
                 id,
                 order_dict["side"],
@@ -53,8 +55,6 @@ async def test():
         )
         print("**Order Tx**")
         print(MessageToJson(place, always_print_fields_with_no_presence=True))
-        # FIXME: Remove
-        wallet.sequence += 1
         time.sleep(5)
 
 

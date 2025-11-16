@@ -8,6 +8,7 @@ import asyncio
 from dydx_v4_client import MAX_CLIENT_ID, OrderFlags
 from dydx_v4_client.node.market import Market
 from dydx_v4_client.node.message import subaccount, send_token, order
+from dydx_v4_client.node.subaccount import SubaccountInfo
 from v4_proto.dydxprotocol.clob.order_pb2 import Order
 from dydx_v4_client.indexer.rest.constants import OrderType
 from tests.conftest import get_wallet, assert_successful_broadcast
@@ -31,8 +32,9 @@ def sleep_after_test(request):
 
 @pytest.mark.asyncio
 async def test_deposit(node_client, test_address, wallet):
+    subaccount_info = SubaccountInfo.for_wallet(wallet, 0)
     response = await node_client.deposit(
-        wallet,
+        subaccount_info,
         test_address,
         subaccount(test_address, 0),
         asset_id=0,
@@ -44,8 +46,9 @@ async def test_deposit(node_client, test_address, wallet):
 @pytest.mark.asyncio
 async def test_withdraw(node_client, wallet, test_address):
     try:
+        subaccount_info = SubaccountInfo.for_wallet(wallet, 0)
         response = await node_client.withdraw(
-            wallet,
+            subaccount_info,
             subaccount(test_address, 0),
             test_address,
             asset_id=0,
@@ -61,8 +64,9 @@ async def test_withdraw(node_client, wallet, test_address):
 
 @pytest.mark.asyncio
 async def test_send_token(node_client, wallet, test_address, recipient):
+    subaccount_info = SubaccountInfo.for_wallet(wallet, 0)
     response = await node_client.send_token(
-        wallet,
+        subaccount_info,
         test_address,
         recipient,
         10000000,
@@ -82,8 +86,9 @@ async def test_order(
     indexer_rest_client,
 ):
     try:
+        subaccount_info = SubaccountInfo.for_wallet(wallet, 0)
         placed = await node_client.place_order(
-            wallet,
+            subaccount_info,
             test_order,
         )
         assert_successful_broadcast(placed)
@@ -101,9 +106,10 @@ async def test_order(
         assert number_of_orders != 0
 
         wallet = await get_wallet(node_client, key_pair, test_address)
+        subaccount_info = SubaccountInfo.for_wallet(wallet, 0)
 
         canceled = await node_client.cancel_order(
-            wallet,
+            subaccount_info,
             test_order_id,
             good_til_block_time=test_order.good_til_block_time,
         )
@@ -126,8 +132,9 @@ async def test_order_cancel(
     indexer_rest_client,
 ):
     try:
+        subaccount_info = SubaccountInfo.for_wallet(wallet, 0)
         placed = await node_client.place_order(
-            wallet,
+            subaccount_info,
             test_order2,
         )
         assert_successful_broadcast(placed)
@@ -145,9 +152,10 @@ async def test_order_cancel(
         assert number_of_orders != 0
 
         wallet = await get_wallet(node_client, key_pair, test_address)
+        subaccount_info = SubaccountInfo.for_wallet(wallet, 0)
 
         canceled = await node_client.cancel_order(
-            wallet,
+            subaccount_info,
             test_order_id,
             good_til_block_time=test_order2.good_til_block_time,
         )
@@ -163,8 +171,9 @@ async def test_order_cancel(
 @pytest.mark.asyncio
 async def test_transfer(node_client, wallet, test_address, recipient):
     try:
+        subaccount_info = SubaccountInfo.for_wallet(wallet, 0)
         response = await node_client.transfer(
-            wallet,
+            subaccount_info,
             subaccount(test_address, 0),
             subaccount(recipient, 1),
             asset_id=0,
@@ -183,7 +192,8 @@ async def test_create_transaction_and_query_transaction(
     node_client, test_address, wallet, recipient
 ):
     send_token_msg = send_token(test_address, recipient, 10000000, "adv4tnt")
-    tx = await node_client.create_transaction(wallet, send_token_msg)
+    subaccount_info = SubaccountInfo.for_wallet(wallet, 0)
+    tx = await node_client.create_transaction(subaccount_info, send_token_msg)
     assert tx is not None
     assert tx.body is not None
     assert tx.auth_info is not None
@@ -209,8 +219,9 @@ async def test_query_address(node_client, test_address):
 async def test_create_market_permissionless(node_client, wallet, test_address):
     ticker = "ETH-USD"
     try:
+        subaccount_info = SubaccountInfo.for_wallet(wallet, 0)
         response = await node_client.create_market_permissionless(
-            wallet, ticker, test_address, 0
+            subaccount_info, ticker, test_address, 0
         )
         assert response is not None
         assert response.tx_response is not None
@@ -234,8 +245,9 @@ async def test_delegate_undelegate(node_client, wallet, test_address):
     validator_address_with_least_undelegations = min(
         validator_to_num_of_undelegations.items(), key=lambda item: item[1]
     )[0]
+    subaccount_info = SubaccountInfo.for_wallet(wallet, 0)
     delegate_response = await node_client.delegate(
-        wallet,
+        subaccount_info,
         test_address,
         validator_address_with_least_undelegations,
         100000,
@@ -245,7 +257,7 @@ async def test_delegate_undelegate(node_client, wallet, test_address):
     await node_client.query_transaction(delegate_response.tx_response.txhash)
 
     undelegate_response = await node_client.undelegate(
-        wallet,
+        subaccount_info,
         test_address,
         validator_address_with_least_undelegations,
         100000,
@@ -262,8 +274,9 @@ async def test_withdraw_delegate_reward(node_client, wallet, test_address):
     validator = await node_client.get_all_validators()
     assert validator is not None
     assert len(validator.validators) > 0
+    subaccount_info = SubaccountInfo.for_wallet(wallet, 0)
     response = await node_client.withdraw_delegate_reward(
-        wallet, test_address, validator.validators[0].operator_address
+        subaccount_info, test_address, validator.validators[0].operator_address
     )
     assert response is not None
     assert response.tx_response is not None
@@ -275,7 +288,8 @@ async def test_withdraw_delegate_reward(node_client, wallet, test_address):
 @pytest.mark.asyncio
 async def test_register_affiliate(node_client, wallet, test_address, recipient):
     try:
-        response = await node_client.register_affiliate(wallet, test_address, recipient)
+        subaccount_info = SubaccountInfo.for_wallet(wallet, 0)
+        response = await node_client.register_affiliate(subaccount_info, test_address, recipient)
         assert response is not None
         assert response.tx_response is not None
         assert response.tx_response.txhash is not None
@@ -305,8 +319,9 @@ async def test_place_order_with_builder_code(
         order_router_address=None,
     )
 
+    subaccount_info = SubaccountInfo.for_wallet(wallet, 0)
     placed = await node_client.place_order(
-        wallet,
+        subaccount_info,
         test_order,
     )
 
@@ -343,8 +358,9 @@ async def test_place_order_with_twap_parameters(
         twap_price_tolerance=10,
     )
 
+    subaccount_info = SubaccountInfo.for_wallet(wallet, 0)
     _ = await node_client.place_order(
-        wallet,
+        subaccount_info,
         test_order,
     )
 
@@ -387,12 +403,11 @@ async def test_close_position_sell_no_reduce_by(
         good_til_block=current_block + 20,
     )
 
+    subaccount_info = SubaccountInfo.for_wallet(wallet, 0)
     _ = await node_client.place_order(
-        wallet=wallet,
-        order=new_order,
+        subaccount_info,
+        new_order,
     )
-
-    wallet.sequence += 1
 
     await asyncio.sleep(5)
 
@@ -402,12 +417,10 @@ async def test_close_position_sell_no_reduce_by(
     assert size_after_placing_order == -0.002
 
     _ = await node_client.close_position(
-        wallet=wallet,
-        address=test_address,
-        subaccount_number=0,
+        subaccount_info,
         market=market,
-        reduce_by=None,
         client_id=random.randint(0, MAX_CLIENT_ID),
+        reduce_by=None,
     )
     await asyncio.sleep(5)
     assert await get_current_order_size(indexer_rest_client, test_address) is None
@@ -443,12 +456,11 @@ async def test_close_position_sell_having_reduce_by(
         good_til_block=current_block + 20,
     )
 
+    subaccount_info = SubaccountInfo.for_wallet(wallet, 0)
     _ = await node_client.place_order(
-        wallet=wallet,
-        order=new_order,
+        subaccount_info,
+        new_order,
     )
-
-    wallet.sequence += 1
 
     await asyncio.sleep(5)
 
@@ -458,12 +470,10 @@ async def test_close_position_sell_having_reduce_by(
     assert size_after_placing_order == -0.002
 
     _ = await node_client.close_position(
-        wallet=wallet,
-        address=test_address,
-        subaccount_number=0,
+        subaccount_info,
         market=market,
-        reduce_by=0.001,
         client_id=random.randint(0, MAX_CLIENT_ID),
+        reduce_by=0.001,
     )
     await asyncio.sleep(5)
     assert await get_current_order_size(indexer_rest_client, test_address) == -0.001
@@ -499,12 +509,11 @@ async def test_close_position_buy_no_reduce_by(
         good_til_block=current_block + 20,
     )
 
+    subaccount_info = SubaccountInfo.for_wallet(wallet, 0)
     _ = await node_client.place_order(
-        wallet=wallet,
-        order=new_order,
+        subaccount_info,
+        new_order,
     )
-
-    wallet.sequence += 1
 
     await asyncio.sleep(5)
 
@@ -514,12 +523,10 @@ async def test_close_position_buy_no_reduce_by(
     assert size_after_placing_order == 0.002
 
     _ = await node_client.close_position(
-        wallet=wallet,
-        address=test_address,
-        subaccount_number=0,
+        subaccount_info,
         market=market,
-        reduce_by=None,
         client_id=random.randint(0, MAX_CLIENT_ID),
+        reduce_by=None,
     )
     await asyncio.sleep(5)
     assert await get_current_order_size(indexer_rest_client, test_address) is None
@@ -555,12 +562,11 @@ async def test_close_position_buy_having_reduce_by(
         good_til_block=current_block + 20,
     )
 
+    subaccount_info = SubaccountInfo.for_wallet(wallet, 0)
     _ = await node_client.place_order(
-        wallet=wallet,
-        order=new_order,
+        subaccount_info,
+        new_order,
     )
-
-    wallet.sequence += 1
 
     await asyncio.sleep(5)
 
@@ -570,12 +576,10 @@ async def test_close_position_buy_having_reduce_by(
     assert size_after_placing_order == 0.002
 
     _ = await node_client.close_position(
-        wallet=wallet,
-        address=test_address,
-        subaccount_number=0,
+        subaccount_info,
         market=market,
-        reduce_by=0.001,
         client_id=random.randint(0, MAX_CLIENT_ID),
+        reduce_by=0.001,
     )
     await asyncio.sleep(5)
 
@@ -592,25 +596,22 @@ async def test_close_position_slippage_pct_raise_exception(
             MARKET_ID
         ]
     )
+    subaccount_info = SubaccountInfo.for_wallet(wallet, 0)
     with pytest.raises(ValueError):
         _ = await node_client.close_position(
-            wallet=wallet,
-            address=test_address,
-            subaccount_number=0,
+            subaccount_info,
             market=market,
-            reduce_by=0.001,
             client_id=random.randint(0, MAX_CLIENT_ID),
+            reduce_by=0.001,
             slippage_pct=101,
         )
 
     with pytest.raises(ValueError):
         _ = await node_client.close_position(
-            wallet=wallet,
-            address=test_address,
-            subaccount_number=0,
+            subaccount_info,
             market=market,
-            reduce_by=0.001,
             client_id=random.randint(0, MAX_CLIENT_ID),
+            reduce_by=0.001,
             slippage_pct=-1,
         )
 
@@ -627,12 +628,11 @@ async def get_current_order_size(indexer_rest_client, test_address):
 
 
 async def close_open_positions(node_client, wallet, test_address, market):
+    subaccount_info = SubaccountInfo.for_wallet(wallet, 0)
     _ = await node_client.close_position(
-        wallet=wallet,
-        address=test_address,
-        subaccount_number=0,
+        subaccount_info,
         market=market,
-        reduce_by=None,
         client_id=random.randint(0, MAX_CLIENT_ID),
+        reduce_by=None,
         slippage_pct=5,
     )

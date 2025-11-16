@@ -13,6 +13,7 @@ from dydx_v4_client.indexer.socket.websocket import (
 from dydx_v4_client.network import TESTNET
 from dydx_v4_client.node.client import NodeClient
 from dydx_v4_client.node.message import order, order_id
+from dydx_v4_client.node.subaccount import SubaccountInfo
 from dydx_v4_client.key_pair import KeyPair
 from dydx_v4_client.wallet import Wallet
 from tests.conftest import DYDX_TEST_PRIVATE_KEY
@@ -185,25 +186,29 @@ class BasicAdder:
             good_til_block=current_block + 10,
         )
 
+        wallet = Wallet(
+            key=self.key,
+            sequence=account.sequence,
+            account_number=account.account_number,
+        )
+        subaccount = SubaccountInfo.for_wallet(wallet, self.subaccount_number)
         transaction = await self.node_client.place_order(
-            wallet=Wallet(
-                key=self.key,
-                sequence=account.sequence,
-                account_number=account.account_number,
-            ),
-            order=new_order,
+            subaccount,
+            new_order,
         )
         logging.info(f"Placed order transaction: {transaction}")
 
     async def cancel_order(self, oid: OrderId):
         account = await self.node_client.get_account(self.address)
         current_block = await self.node_client.latest_block_height()
+        wallet = Wallet(
+            key=self.key,
+            sequence=account.sequence,
+            account_number=account.account_number,
+        )
+        subaccount = SubaccountInfo.for_wallet(wallet, self.subaccount_number)
         transaction = await self.node_client.cancel_order(
-            wallet=Wallet(
-                key=self.key,
-                sequence=account.sequence,
-                account_number=account.account_number,
-            ),
+            subaccount,
             order_id=oid,
             good_til_block=current_block + 10,
         )

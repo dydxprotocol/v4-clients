@@ -107,8 +107,9 @@ from v4_proto.dydxprotocol.revshare import revshare_pb2
 
 from dydx_v4_client.network import NodeConfig
 from dydx_v4_client.node.authenticators import Authenticator, validate_authenticator
-from dydx_v4_client.node.builder import Builder, TxOptions
+from dydx_v4_client.node.builder import Builder
 from dydx_v4_client.node.fee import Coin, Fee, calculate_fee, Denom
+from dydx_v4_client.node.subaccount import SubaccountInfo
 from dydx_v4_client.node.message import (
     cancel_order,
     deposit,
@@ -711,14 +712,23 @@ class SequenceManager:
     def __init__(self, query_node_client: QueryNodeClient):
         self.query_node_client = query_node_client
 
-    async def before_send(self, wallet: Wallet):
+    async def before_send(self, subaccount: SubaccountInfo):
+        """
+        Update sequence number before sending transaction.
+        For permissioned wallets, fetch account info using subaccount.address.
+        """
         if self.query_node_client:
-            account = await self.query_node_client.get_account(wallet.address)
-            wallet.sequence = account.sequence
+            # For permissioned wallets, use the account address, not signing wallet address
+            account = await self.query_node_client.get_account(subaccount.address)
+            subaccount.signing_wallet.sequence = account.sequence
 
-    async def after_send(self, wallet: Wallet):
+    async def after_send(self, subaccount: SubaccountInfo):
+        """
+        Update sequence number after sending transaction.
+        Only increment if not using query_node_client (local sequence management).
+        """
         if not self.query_node_client:
-            wallet.sequence += 1
+            subaccount.signing_wallet.sequence += 1
 
 
 @dataclass
@@ -758,13 +768,13 @@ class MutatingNodeClient(QueryNodeClient):
         return service_pb2_grpc.ServiceStub(self.channel).Simulate(request)
 
     async def send(
-        self, wallet: Wallet, transaction: Tx, mode=BroadcastMode.BROADCAST_MODE_SYNC
+        self, subaccount: SubaccountInfo, transaction: Tx, mode=BroadcastMode.BROADCAST_MODE_SYNC
     ):
         """
         Sends a transaction.
 
         Args:
-            wallet (Wallet): The wallet to use for signing the transaction.
+            subaccount (SubaccountInfo): The subaccount info containing wallet and authenticators.
             transaction (Tx): The transaction to send.
             mode (BroadcastMode, optional): The broadcast mode. Defaults to BroadcastMode.BROADCAST_MODE_SYNC.
 
@@ -776,18 +786,18 @@ class MutatingNodeClient(QueryNodeClient):
 
         fee = self.builder.calculate_fee(simulated.gas_info.gas_used)
 
-        transaction = builder.build_transaction(wallet, transaction.body.messages, fee)
+        transaction = builder.build_transaction(subaccount, transaction.body.messages, fee)
 
         return await self.broadcast(transaction, mode)
 
     async def send_message(
-        self, wallet: Wallet, message: Message, mode=BroadcastMode.BROADCAST_MODE_SYNC
+        self, subaccount: SubaccountInfo, message: Message, mode=BroadcastMode.BROADCAST_MODE_SYNC
     ):
         """
         Sends a message.
 
         Args:
-            wallet (Wallet): The wallet to use for signing the transaction.
+            subaccount (SubaccountInfo): The subaccount info containing wallet and authenticators.
             message (Message): The message to send.
             mode (BroadcastMode, optional): The broadcast mode. Defaults to BroadcastMode.BROADCAST_MODE_SYNC.
 
@@ -795,74 +805,72 @@ class MutatingNodeClient(QueryNodeClient):
             The response from the broadcast.
         """
         if self.sequence_manager:
-            await self.sequence_manager.before_send(wallet)
+            await self.sequence_manager.before_send(subaccount)
 
-        response = await self.send(wallet, self.builder.build(wallet, message), mode)
+        response = await self.send(subaccount, self.builder.build(subaccount, message), mode)
 
         if self.sequence_manager:
-            await self.sequence_manager.after_send(wallet)
+            await self.sequence_manager.after_send(subaccount)
 
         return response
 
     async def broadcast_message(
         self,
-        wallet: Wallet,
+        subaccount: SubaccountInfo,
         message: Message,
         mode=BroadcastMode.BROADCAST_MODE_SYNC,
-        tx_options: Optional[TxOptions] = None,
     ):
         """
         Broadcasts a message.
 
         Args:
-            wallet (Wallet): The wallet to use for signing the transaction.
+            subaccount (SubaccountInfo): The subaccount info containing wallet and authenticators.
             message (Message): The message to broadcast.
             mode (BroadcastMode, optional): The broadcast mode. Defaults to BroadcastMode.BROADCAST_MODE_SYNC.
-            tx_options (TxOptions, optional): Options for transaction to support authenticators.
 
         Returns:
             The response from the broadcast.
         """
-        if not tx_options and self.sequence_manager:
-            await self.sequence_manager.before_send(wallet)
+        if self.sequence_manager:
+            await self.sequence_manager.before_send(subaccount)
 
         response = await self.broadcast(
-            self.builder.build(wallet, message, tx_options=tx_options),
+            self.builder.build(subaccount, message),
             mode,
         )
 
-        if not tx_options and self.sequence_manager:
-            await self.sequence_manager.after_send(wallet)
+        if self.sequence_manager:
+            await self.sequence_manager.after_send(subaccount)
 
         return response
 
-    def build_transaction(self, wallet: Wallet, messages: List[Message], fee: Fee):
+    def build_transaction(self, subaccount: SubaccountInfo, messages: List[Message], fee: Fee):
         """
         Builds a transaction.
 
         Args:
-            wallet (Wallet): The wallet to use for signing the transaction.
+            subaccount (SubaccountInfo): The subaccount info containing wallet and authenticators.
             messages (List[Message]): The list of messages to include in the transaction.
             fee (Fee): The fee to use for the transaction.
 
         Returns:
             The built transaction.
         """
-        return self.builder.build_transaction(wallet, messages, fee.as_proto())
+        return self.builder.build_transaction(subaccount, messages, fee.as_proto())
 
-    def build(self, wallet: Wallet, message: Message, fee: Fee):
+    def build(self, subaccount: SubaccountInfo, message: Message, fee: Fee):
         """
         Builds a transaction with a single message.
 
         Args:
-            wallet (Wallet): The wallet to use for signing the transaction.
+            subaccount (SubaccountInfo): The subaccount info containing wallet and authenticators.
             message (Message): The message to include in the transaction.
             fee (Fee): The fee to use for the transaction.
 
         Returns:
             The built transaction.
         """
-        return self.builder.build(wallet, message, fee.as_proto())
+        return self.builder.build(subaccount, message, fee.as_proto())
 
     def calculate_fee(self, gas_used) -> Fee:
         """
@@ -891,7 +899,7 @@ class NodeClient(MutatingNodeClient):
 
     async def deposit(
         self,
-        wallet: Wallet,
+        subaccount: SubaccountInfo,
         sender: str,
         recipient_subaccount: SubaccountId,
         asset_id: int,
@@ -901,7 +909,7 @@ class NodeClient(MutatingNodeClient):
         Deposits funds into a subaccount.
 
         Args:
-            wallet (Wallet): The wallet to use for signing the transaction.
+            subaccount (SubaccountInfo): The subaccount info containing wallet and authenticators.
             sender (str): The sender address.
             recipient_subaccount (SubaccountId): The recipient subaccount ID.
             asset_id (int): The asset ID.
@@ -911,12 +919,12 @@ class NodeClient(MutatingNodeClient):
             The response from the transaction broadcast.
         """
         return await self.send_message(
-            wallet, deposit(sender, recipient_subaccount, asset_id, quantums)
+            subaccount, deposit(sender, recipient_subaccount, asset_id, quantums)
         )
 
     async def withdraw(
         self,
-        wallet: Wallet,
+        subaccount: SubaccountInfo,
         sender_subaccount: SubaccountId,
         recipient: str,
         asset_id: int,
@@ -926,7 +934,7 @@ class NodeClient(MutatingNodeClient):
         Withdraws funds from a subaccount.
 
         Args:
-            wallet (Wallet): The wallet to use for signing the transaction.
+            subaccount (SubaccountInfo): The subaccount info containing wallet and authenticators.
             sender_subaccount (SubaccountId): The sender subaccount ID.
             recipient (str): The recipient address.
             asset_id (int): The asset ID.
@@ -936,12 +944,12 @@ class NodeClient(MutatingNodeClient):
             The response from the transaction broadcast.
         """
         return await self.send_message(
-            wallet, withdraw(sender_subaccount, recipient, asset_id, quantums)
+            subaccount, withdraw(sender_subaccount, recipient, asset_id, quantums)
         )
 
     async def send_token(
         self,
-        wallet: Wallet,
+        subaccount: SubaccountInfo,
         sender: str,
         recipient: str,
         quantums: int,
@@ -951,7 +959,7 @@ class NodeClient(MutatingNodeClient):
         Sends tokens from one address to another.
 
         Args:
-            wallet (Wallet): The wallet to use for signing the transaction.
+            subaccount (SubaccountInfo): The subaccount info containing wallet and authenticators.
             sender (str): The sender address.
             recipient (str): The recipient address.
             quantums (int): The amount of quantums to send.
@@ -961,12 +969,12 @@ class NodeClient(MutatingNodeClient):
             The response from the transaction broadcast.
         """
         return await self.send_message(
-            wallet, send_token(sender, recipient, quantums, denomination)
+            subaccount, send_token(sender, recipient, quantums, denomination)
         )
 
     async def transfer(
         self,
-        wallet: Wallet,
+        subaccount: SubaccountInfo,
         sender_subaccount: SubaccountId,
         recipient_subaccount: SubaccountId,
         asset_id: int,
@@ -976,7 +984,7 @@ class NodeClient(MutatingNodeClient):
         Transfers funds between subaccounts.
 
         Args:
-            wallet (Wallet): The wallet to use for signing the transaction.
+            subaccount (SubaccountInfo): The subaccount info containing wallet and authenticators.
             sender_subaccount (SubaccountId): The sender subaccount ID.
             recipient_subaccount (SubaccountId): The recipient subaccount ID.
             asset_id (int): The asset ID.
@@ -986,7 +994,7 @@ class NodeClient(MutatingNodeClient):
             The response from the transaction broadcast.
         """
         return await self.send_message(
-            wallet,
+            subaccount,
             transfer(
                 sender_subaccount,
                 recipient_subaccount,
@@ -997,71 +1005,63 @@ class NodeClient(MutatingNodeClient):
 
     async def place_order(
         self,
-        wallet: Wallet,
+        subaccount: SubaccountInfo,
         order: Order,
-        tx_options: Optional[TxOptions] = None,
     ):
         """
         Places an order.
 
         Args:
-            wallet (Wallet): The wallet to use for signing the transaction.
+            subaccount (SubaccountInfo): The subaccount info containing wallet and authenticators.
             order (Order): The order to place.
-            tx_options (TxOptions, optional): Options for transaction to support authenticators.
 
         Returns:
             The response from the transaction broadcast.
         """
         return await self.broadcast_message(
-            wallet,
+            subaccount,
             place_order(order),
-            tx_options=tx_options,
         )
 
     async def cancel_order(
         self,
-        wallet: Wallet,
+        subaccount: SubaccountInfo,
         order_id: OrderId,
         good_til_block: int = None,
         good_til_block_time: int = None,
-        tx_options: Optional[TxOptions] = None,
     ):
         """
         Cancels an order.
 
         Args:
-            wallet (Wallet): The wallet to use for signing the transaction.
+            subaccount (SubaccountInfo): The subaccount info containing wallet and authenticators.
             order_id (OrderId): The ID of the order to cancel.
             good_til_block (int, optional): The block number until which the order is valid. Defaults to None.
             good_til_block_time (int, optional): The block time until which the order is valid. Defaults to None.
-            tx_options (TxOptions, optional): Options for transaction to support authenticators.
 
         Returns:
             The response from the transaction broadcast.
         """
         return await self.broadcast_message(
-            wallet,
+            subaccount,
             cancel_order(order_id, good_til_block, good_til_block_time),
-            tx_options=tx_options,
         )
 
     async def batch_cancel_orders(
         self,
-        wallet: Wallet,
+        subaccount: SubaccountInfo,
         subaccount_id: SubaccountId,
         short_term_cancels: List[OrderBatch],
         good_til_block: int,
-        tx_options: Optional[TxOptions] = None,
     ):
         """
         Batch cancels orders for a subaccount.
 
         Args:
-            wallet (Wallet): The wallet to use for signing the transaction.
+            subaccount (SubaccountInfo): The subaccount info containing wallet and authenticators.
             subaccount_id (SubaccountId): The subaccount ID for which to cancel orders.
             short_term_cancels (List[OrderBatch]): List of OrderBatch objects containing the orders to cancel.
             good_til_block (int): The last block the short term order cancellations can be executed at.
-            tx_options (TxOptions, optional): Options for transaction to support authenticators.
 
         Returns:
             The response from the transaction broadcast.
@@ -1072,21 +1072,20 @@ class NodeClient(MutatingNodeClient):
             good_til_block=good_til_block,
         )
         return await self.broadcast_message(
-            wallet,
+            subaccount,
             batch_cancel_msg,
-            tx_options=tx_options,
         )
 
     async def add_authenticator(
         self,
-        wallet: Wallet,
+        subaccount: SubaccountInfo,
         authenticator: Authenticator,
     ):
         """
         Adds authenticator to a subaccount.
 
         Args:
-            wallet (Wallet): The wallet to use for signing the transaction or authenticating the request.
+            subaccount (SubaccountInfo): The subaccount info containing wallet and authenticators.
             authenticator Authenticator: The authenticator to be added.
 
         Returns:
@@ -1098,22 +1097,22 @@ class NodeClient(MutatingNodeClient):
             )
 
         add_authenticator_msg = add_authenticator(
-            wallet.address,
+            subaccount.address,
             authenticator.type,
             authenticator.config,
         )
 
         return await self.send_message(
-            wallet,
+            subaccount,
             add_authenticator_msg,
         )
 
-    async def remove_authenticator(self, wallet: Wallet, authenticator_id: int):
+    async def remove_authenticator(self, subaccount: SubaccountInfo, authenticator_id: int):
         """
         Removes authenticator from a subaccount.
 
         Args:
-            wallet (Wallet): The wallet to use for signing the transaction or authenticating the request.
+            subaccount (SubaccountInfo): The subaccount info containing wallet and authenticators.
             authenticator_id (int): The authenticator identifier.
 
         Returns:
@@ -1121,39 +1120,39 @@ class NodeClient(MutatingNodeClient):
         """
 
         remove_authenticator_msg = remove_authenticator(
-            wallet.address,
+            subaccount.address,
             authenticator_id,
         )
 
         return await self.send_message(
-            wallet,
+            subaccount,
             remove_authenticator_msg,
         )
 
-    async def create_transaction(self, wallet: Wallet, message: Message) -> Tx:
+    async def create_transaction(self, subaccount: SubaccountInfo, message: Message) -> Tx:
         """
         Create a transaction
 
         Args:
-            wallet: Wallet information
+            subaccount: SubaccountInfo containing wallet and authenticators
             message: Transaction message
 
         Returns:
             Tx: Returns transaction information
         """
         if self.sequence_manager:
-            await self.sequence_manager.before_send(wallet)
+            await self.sequence_manager.before_send(subaccount)
 
-        transaction = self.builder.build(wallet, message)
+        transaction = self.builder.build(subaccount, message)
         simulated_response = await self.simulate(transaction)
 
         response = self.builder.build_transaction(
-            wallet=wallet,
+            subaccount=subaccount,
             messages=transaction.body.messages,
             fee=self.builder.calculate_fee(simulated_response.gas_info.gas_used),
         )
         if self.sequence_manager:
-            await self.sequence_manager.after_send(wallet)
+            await self.sequence_manager.after_send(subaccount)
         return response
 
     async def query_transaction(self, tx_hash: str) -> Tx:
@@ -1197,13 +1196,13 @@ class NodeClient(MutatingNodeClient):
         return (account.account_number, account.sequence)
 
     async def create_market_permissionless(
-        self, wallet: Wallet, ticker: str, address: str, subaccount_id: int
+        self, subaccount: SubaccountInfo, ticker: str, address: str, subaccount_id: int
     ) -> Any:
         """
         Create a market permissionless
 
         Args:
-            wallet (Wallet): Wallet
+            subaccount (SubaccountInfo): The subaccount info containing wallet and authenticators.
             ticker (str): The market identifier
             address (str): Subaccount address
             subaccount_id (int): Subaccount number
@@ -1211,11 +1210,11 @@ class NodeClient(MutatingNodeClient):
         msg = create_market_permissionless(
             ticker=ticker, address=address, subaccount_id=subaccount_id
         )
-        return await self.send_message(wallet=wallet, message=msg)
+        return await self.send_message(subaccount=subaccount, message=msg)
 
     async def delegate(
         self,
-        wallet: Wallet,
+        subaccount: SubaccountInfo,
         delegator: str,
         validator: str,
         quamtums: int,
@@ -1225,7 +1224,7 @@ class NodeClient(MutatingNodeClient):
         Delegate coins from a delegator to a validator.
 
         Args:
-            wallet (Wallet): The wallet
+            subaccount (SubaccountInfo): The subaccount info containing wallet and authenticators.
             delegator (str): Delegator address
             validator (str): Validator address
             quantums (int): amount
@@ -1240,11 +1239,11 @@ class NodeClient(MutatingNodeClient):
             quantums=quamtums,
             denomination=denomination,
         )
-        return await self.send_message(wallet, msg)
+        return await self.send_message(subaccount, msg)
 
     async def undelegate(
         self,
-        wallet: Wallet,
+        subaccount: SubaccountInfo,
         delegator: str,
         validator: str,
         quamtums: int,
@@ -1254,7 +1253,7 @@ class NodeClient(MutatingNodeClient):
         Undelegate coins from a delegator to a validator.
 
         Args:
-            wallet (Wallet): The wallet
+            subaccount (SubaccountInfo): The subaccount info containing wallet and authenticators.
             delegator (str): Delegator address
             validator (str): Validator address
             quantums (int): amount
@@ -1269,16 +1268,16 @@ class NodeClient(MutatingNodeClient):
             quantums=quamtums,
             denomination=denomination,
         )
-        return await self.send_message(wallet, msg)
+        return await self.send_message(subaccount, msg)
 
     async def withdraw_delegate_reward(
-        self, wallet: Wallet, delegator: str, validator: str
+        self, subaccount: SubaccountInfo, delegator: str, validator: str
     ) -> Any:
         """
         Delegation withdrawal to a delegator from a validator.
 
         Args:
-            wallet (Wallet): The wallet info
+            subaccount (SubaccountInfo): The subaccount info containing wallet and authenticators.
             delegator (str): The delegator address
             validator (str): The validator address
 
@@ -1286,16 +1285,16 @@ class NodeClient(MutatingNodeClient):
             Any: withdrawal delegate reward
         """
         msg = withdraw_delegator_reward(delegator=delegator, validator=validator)
-        return await self.send_message(wallet, msg)
+        return await self.send_message(subaccount, msg)
 
     async def register_affiliate(
-        self, wallet: Wallet, referee: str, affiliate: str
+        self, subaccount: SubaccountInfo, referee: str, affiliate: str
     ) -> Any:
         """
         Register a referee-affiliate relationship.
 
         Args:
-            wallet (Wallet): The Wallet
+            subaccount (SubaccountInfo): The subaccount info containing wallet and authenticators.
             referee (str): Affiliate referee address
             affiliate (str): Affiliate address
 
@@ -1303,13 +1302,11 @@ class NodeClient(MutatingNodeClient):
             Any: Register affiliate
         """
         msg = register_affiliate(referee=referee, affiliate=affiliate)
-        return await self.send_message(wallet=wallet, message=msg)
+        return await self.send_message(subaccount=subaccount, message=msg)
 
     async def close_position(
         self,
-        wallet: Wallet,
-        address: str,
-        subaccount_number: int,
+        subaccount: SubaccountInfo,
         market: Market,
         client_id: int,
         reduce_by: Optional[Decimal],
@@ -1319,9 +1316,7 @@ class NodeClient(MutatingNodeClient):
         Close position for a given market.
 
         Args:
-            wallet (Wallet): The wallet
-            address (str): The address associated with the wallet
-            subaccount_number (int): The subaccount number of the account
+            subaccount (SubaccountInfo): The subaccount info containing wallet and authenticators.
             market: Market params
             reduce_by (Optional[Decimal]): reduced amount of the position
             client_id (int): The client id
@@ -1333,12 +1328,12 @@ class NodeClient(MutatingNodeClient):
         if slippage_pct < 0 or slippage_pct > 100:
             raise ValueError("slippage_pct should be within 0 and 100")
 
-        subaccount = await self.get_subaccount(address, subaccount_number)
+        subaccount_data = await self.get_subaccount(subaccount.address, subaccount.subaccount_number)
         quantum_value = None
         order_side = None
         price = None
         try:
-            for pos in subaccount.perpetual_positions:
+            for pos in subaccount_data.perpetual_positions:
                 if pos.perpetual_id == int(market.market["clobPairId"]):
                     quantum_value = int.from_bytes(
                         pos.quantums[1:], byteorder="big", signed=False
@@ -1364,7 +1359,7 @@ class NodeClient(MutatingNodeClient):
         if reduce_by is not None:
             order_size = min(order_size, reduce_by)
         order_id = market.order_id(
-            address, subaccount_number, client_id, OrderFlags.SHORT_TERM
+            subaccount.address, subaccount.subaccount_number, client_id, OrderFlags.SHORT_TERM
         )
         current_height = await self.latest_block_height()
         new_order = market.order(
@@ -1377,7 +1372,7 @@ class NodeClient(MutatingNodeClient):
             reduce_only=True,
             good_til_block=current_height + GOOD_TIL_BLOCK_OFFSET,
         )
-        return await self.place_order(wallet, new_order)
+        return await self.place_order(subaccount, new_order)
 
     async def set_order_router_revenue_share(
         self, authority: str, address: str, share_ppm: int
