@@ -11,6 +11,7 @@ This is a **breaking change** that introduces the `SubaccountInfo` class to unif
 All `NodeClient` methods accepted a `Wallet` parameter directly, and authenticators were passed via an optional `TxOptions` parameter:
 
 ```python
+# NOTE: TxOptions has been removed in v2.0.0 - this code will not work
 from dydx_v4_client.node.builder import TxOptions
 
 wallet = await Wallet.from_mnemonic(node, mnemonic, address)
@@ -55,6 +56,7 @@ await node.place_order(subaccount, order)
 
 **Before:**
 ```python
+# NOTE: TxOptions has been removed in v2.0.0 - this code will not work
 owner_wallet = await Wallet.from_mnemonic(node, owner_mnemonic, owner_address)
 trader_wallet = await Wallet.from_mnemonic(node, trader_mnemonic, trader_address)
 
@@ -107,6 +109,7 @@ All the following methods now take `SubaccountInfo` instead of `Wallet`:
 
 **Before:**
 ```python
+# NOTE: TxOptions has been removed in v2.0.0 - this code will not work
 tx = builder.build_transaction(wallet, messages, fee, tx_options)
 ```
 
@@ -168,7 +171,7 @@ permissioned_subaccount = SubaccountInfo.for_permissioned_wallet(
 
 ## Removed Features
 
-- `TxOptions` class is deprecated and will be removed in a future version. Use `SubaccountInfo` instead.
+- `TxOptions` class has been **removed** in v2.0.0. Use `SubaccountInfo` instead. The `TxOptions` class is no longer available and cannot be imported.
 
 ## Benefits
 

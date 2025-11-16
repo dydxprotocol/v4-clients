@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import List, Optional
+from typing import List
 
 import google
 from google.protobuf.message import Message
@@ -50,18 +50,6 @@ DEFAULT_FEE = Fee(
     amount=[],
     gas_limit=1000000,
 )
-
-
-@dataclass
-class TxOptions:
-    """
-    DEPRECATED: Use SubaccountInfo instead.
-    This class is kept for backward compatibility but will be removed in a future version.
-    """
-
-    authenticators: List[int]
-    sequence: int
-    account_number: int
 
 
 @dataclass
