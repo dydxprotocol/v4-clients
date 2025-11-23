@@ -12,7 +12,11 @@ from v4_proto.dydxprotocol.clob.order_pb2 import (
     BuilderCodeParameters,
     TwapParameters,
 )
-from v4_proto.dydxprotocol.clob.tx_pb2 import MsgCancelOrder, MsgPlaceOrder
+from v4_proto.dydxprotocol.clob.tx_pb2 import (
+    MsgCancelOrder,
+    MsgPlaceOrder,
+    MsgUpdateLeverage,
+)
 from v4_proto.dydxprotocol.listing.tx_pb2 import MsgCreateMarketPermissionless
 from v4_proto.dydxprotocol.sending.transfer_pb2 import (
     MsgDepositToSubaccount,
@@ -272,4 +276,22 @@ def builder_code_parameters(builder_address: str, fee_ppm: int):
 def twap_parameters(duration: int, interval: int, price_tolerance: int):
     return TwapParameters(
         duration=duration, interval=interval, price_tolerance=price_tolerance
+    )
+
+
+def update_leverage(address: str, subaccount_number: int, entries: List):
+    """
+    Create a MsgUpdateLeverage message.
+
+    Args:
+        address (str): The subaccount owner address.
+        subaccount_number (int): The subaccount number.
+        entries (List): List of LeverageEntry objects.
+
+    Returns:
+        MsgUpdateLeverage: The update leverage message.
+    """
+    return MsgUpdateLeverage(
+        subaccount_id=SubaccountId(owner=address, number=subaccount_number),
+        entries=entries,
     )
