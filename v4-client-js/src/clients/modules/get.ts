@@ -365,6 +365,22 @@ export class Get {
   }
 
   /**
+   * @description Get user leverage settings for a given subaccount
+   * @returns User set leverage for all clob pairs
+   */
+  async getPerpetualMarketsLeverage(
+    address: string,
+    subaccountNumber: number,
+  ): Promise<ClobModule.QueryLeverageResponse> {
+    const requestData: Uint8Array = Uint8Array.from(
+      ClobModule.QueryLeverageRequest.encode({ owner: address, number: subaccountNumber }).finish(),
+    );
+
+    const data: Uint8Array = await this.sendQuery('/dydxprotocol.clob.Query/Leverage', requestData);
+    return ClobModule.QueryLeverageResponse.decode(data);
+  }
+
+  /**
    *
    * @description Get all delegations from a delegator.
    *
