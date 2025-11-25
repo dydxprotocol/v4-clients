@@ -82,6 +82,7 @@ export const TYPE_URL_MSG_CANCEL_ORDER = '/dydxprotocol.clob.MsgCancelOrder';
 export const TYPE_URL_BATCH_CANCEL = '/dydxprotocol.clob.MsgBatchCancel';
 export const TYPE_URL_MSG_CREATE_CLOB_PAIR = '/dydxprotocol.clob.MsgCreateClobPair';
 export const TYPE_URL_MSG_UPDATE_CLOB_PAIR = '/dydxprotocol.clob.MsgUpdateClobPair';
+export const TYPE_URL_MSG_UPDATE_LEVERAGE = '/dydxprotocol.clob.MsgUpdateLeverage';
 
 // x/delaymsg
 export const TYPE_URL_MSG_DELAY_MESSAGE = '/dydxprotocol.delaymsg.MsgDelayMessage';
