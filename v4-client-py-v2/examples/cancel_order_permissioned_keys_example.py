@@ -127,4 +127,3 @@ async def authenticator_example():
 
 if __name__ == "__main__":
     asyncio.run(authenticator_example())
-
