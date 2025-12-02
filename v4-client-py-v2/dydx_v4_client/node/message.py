@@ -293,5 +293,5 @@ def update_leverage(address: str, subaccount_number: int, entries: List):
     """
     return MsgUpdateLeverage(
         subaccount_id=SubaccountId(owner=address, number=subaccount_number),
-        entries=entries,
+        clob_pair_leverage=entries,
     )

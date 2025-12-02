@@ -345,7 +345,7 @@ class QueryNodeClient:
         stub = clob_query_grpc.QueryStub(self.channel)
         return stub.Leverage(
             QueryLeverageRequest(
-                subaccount_id=SubaccountId(owner=address, number=subaccount_number)
+                owner=address, number=subaccount_number
             )
         )
 
