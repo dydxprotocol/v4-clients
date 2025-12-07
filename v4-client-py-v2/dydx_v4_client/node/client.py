@@ -344,9 +344,7 @@ class QueryNodeClient:
         """
         stub = clob_query_grpc.QueryStub(self.channel)
         return stub.Leverage(
-            QueryLeverageRequest(
-                owner=address, number=subaccount_number
-            )
+            QueryLeverageRequest(owner=address, number=subaccount_number)
         )
 
     async def get_price(self, market_id: int) -> market_price_type.MarketPrice:
