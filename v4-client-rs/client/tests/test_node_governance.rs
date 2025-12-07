@@ -128,7 +128,7 @@ async fn test_node_governance_register_affiliate() -> Result<(), Error> {
                 referee: {}, \
                 affiliate: {}: \
                 Affiliate already exists for referee \
-                [dydxprotocol/v4-chain/protocol/x/affiliates/keeper/keeper.go:77] \
+                [dydxprotocol/v4-chain/protocol/x/affiliates/keeper/keeper.go:76] \
                 with gas used: '32783'",
             env.address, affiliate_address,
         )
