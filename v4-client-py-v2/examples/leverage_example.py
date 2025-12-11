@@ -77,29 +77,42 @@ async def close_btc_position_if_exists(
                 return attempt > 1  # Return True if we closed it, False if it never existed
             
             position_size = float(btc_position.get('size'))
+            is_long = position_size > 0
+            abs_size = abs(position_size)
+
             if attempt == 1:
-                print(f"Found open BTC position: {position_size} BTC")
-            
+                position_type = "long" if is_long else "short"
+                print(f"Found open BTC position: {abs_size} BTC ({position_type})")
+
             print(f"Closing BTC position... (attempt {attempt}/{max_attempts})")
-            
-            # Create order to close position (SELL for long positions)
+
+            # Create order to close position
             order_id = market.order_id(
                 address, subaccount_number, random.randint(0, MAX_CLIENT_ID), OrderFlags.SHORT_TERM
             )
-            
+
             current_block = await node.latest_block_height()
-            
-            # Calculate price from oracle price with slippage (for SELL orders, subtract slippage)
+
+            # Calculate price from oracle price with slippage
+            # For SELL orders (closing long): subtract slippage
+            # For BUY orders (closing short): add slippage
             slippage_pct = 10  # Same as open_btc_position default
             oracle_price = float(market.market["oraclePrice"])
-            price = oracle_price * ((100 - slippage_pct) / 100.0)
-            
-            # Use SELL side to close a long position
+
+            if is_long:
+                # Long position: use SELL to close, subtract slippage
+                side = Order.Side.SIDE_SELL
+                price = oracle_price * ((100 - slippage_pct) / 100.0)
+            else:
+                # Short position: use BUY to close, add slippage
+                side = Order.Side.SIDE_BUY
+                price = oracle_price * ((100 + slippage_pct) / 100.0)
+
             new_order = market.order(
                 order_id=order_id,
                 order_type=OrderType.MARKET,
-                side=Order.Side.SIDE_SELL,
-                size=position_size,
+                side=side,
+                size=abs_size,
                 price=price,
                 time_in_force=None,
                 reduce_only=True,
@@ -195,7 +208,7 @@ async def open_btc_position(
     Open a BTC position with the specified size.
     
     Args:
-        size: Position size in BTC (e.g., 0.01)
+        size: Position size in BTC (e.g., 0.001)
         slippage_pct: Percentage to add to oracle price for BUY orders (default: 10)
     
     Returns:
@@ -319,13 +332,16 @@ async def test():
     wallet = await Wallet.from_mnemonic(node, DYDX_TEST_MNEMONIC, TEST_ADDRESS)
 
     subaccount_number = 0
-    clob_pair_id = 0  # BTC-USD
     market_id = "BTC-USD"
-    position_size = 0.01  # BTC
+    position_size = 0.001  # BTC
     
     # Get BTC market
     market_data = await indexer.markets.get_perpetual_markets(market_id)
     market = Market(market_data["markets"][market_id])
+    
+    # Get the CLOB pair ID from the market data (not hardcoded)
+    clob_pair_id = int(market.market["clobPairId"])
+    print(f"Using CLOB pair ID: {clob_pair_id} for market {market_id}")
     
     # Step 1: Close initial BTC position if any
     print("\n" + "=" * 60)
