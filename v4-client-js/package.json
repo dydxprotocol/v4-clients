@@ -1,6 +1,6 @@
 {
   "name": "@dydxprotocol/v4-client-js",
-  "version": "1.3.17",
+  "version": "3.2.1",
   "description": "General client library for the new dYdX system (v4 decentralized)",
   "main": "build/cjs/src/index.js",
   "module": "build/esm/src/index.js",
