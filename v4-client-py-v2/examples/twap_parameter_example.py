@@ -247,4 +247,4 @@ async def place_and_track_twap_order(size: float):
 
 
 if __name__ == "__main__":
-    asyncio.run(place_and_track_twap_order(0.01))
+    asyncio.run(place_and_track_twap_order(0.001))
