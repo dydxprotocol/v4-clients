@@ -105,6 +105,6 @@ class Market:
             builder_code_parameters=builder_code_parameters(builder_address, fee_ppm),
             twap_parameters=twap_parameters(
                 twap_duration, twap_interval, twap_price_tolerance
-            ),
+            ) if (twap_duration is not None and twap_interval is not None and twap_price_tolerance is not None) else None,
             order_router_address=order_router_address,
         )
