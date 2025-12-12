@@ -28,7 +28,9 @@ def print_leverage_response(leverage_response, node, title="Leverage"):
         print("Per-CLOB leverage entries:")
         for entry in leverage_list:
             imf_percent = entry.custom_imf_ppm / 10_000  # ppm to %
-            target_leverage = 1_000_000 / entry.custom_imf_ppm if entry.custom_imf_ppm > 0 else 0
+            target_leverage = (
+                1_000_000 / entry.custom_imf_ppm if entry.custom_imf_ppm > 0 else 0
+            )
 
             print(
                 f"  - CLOB Pair ID: {entry.clob_pair_id} | "
@@ -36,7 +38,9 @@ def print_leverage_response(leverage_response, node, title="Leverage"):
                 f"Target Leverage: {target_leverage:.2f}x"
             )
     else:
-        print("No 'clob_pair_leverage' field on response; raw decoded response printed above.")
+        print(
+            "No 'clob_pair_leverage' field on response; raw decoded response printed above."
+        )
 
 
 async def close_btc_position_if_exists(
@@ -49,34 +53,38 @@ async def close_btc_position_if_exists(
 ) -> bool:
     """
     Close BTC position if it exists.
-    
+
     Returns:
         bool: True if a position was closed, False if no position existed
     """
     max_attempts = 3
-    
+
     try:
         for attempt in range(1, max_attempts + 1):
             # Check if position exists
-            positions_response = await indexer.account.get_subaccount_perpetual_positions(
-                address, subaccount_number
+            positions_response = (
+                await indexer.account.get_subaccount_perpetual_positions(
+                    address, subaccount_number
+                )
             )
             positions = positions_response.get("positions", [])
-            
+
             btc_position = None
             for pos in positions:
                 if pos.get("market") == "BTC-USD" and pos.get("status") != "CLOSED":
                     btc_position = pos
                     break
-            
+
             if btc_position is None:
                 if attempt == 1:
                     print("No open BTC position found.")
                 else:
                     print("BTC position closed successfully.")
-                return attempt > 1  # Return True if we closed it, False if it never existed
-            
-            position_size = float(btc_position.get('size'))
+                return (
+                    attempt > 1
+                )  # Return True if we closed it, False if it never existed
+
+            position_size = float(btc_position.get("size"))
             is_long = position_size > 0
             abs_size = abs(position_size)
 
@@ -88,7 +96,10 @@ async def close_btc_position_if_exists(
 
             # Create order to close position
             order_id = market.order_id(
-                address, subaccount_number, random.randint(0, MAX_CLIENT_ID), OrderFlags.SHORT_TERM
+                address,
+                subaccount_number,
+                random.randint(0, MAX_CLIENT_ID),
+                OrderFlags.SHORT_TERM,
             )
 
             current_block = await node.latest_block_height()
@@ -118,24 +129,24 @@ async def close_btc_position_if_exists(
                 reduce_only=True,
                 good_til_block=current_block + 20,
             )
-            
+
             transaction = await node.place_order(
                 wallet=wallet,
                 order=new_order,
             )
-            
+
             print(f"Position close transaction submitted: {transaction}")
             wallet.sequence += 1
-            
+
             # Wait 5 seconds after sending the close request
             await asyncio.sleep(5)
-            
-            
+
         return False
-            
+
     except Exception as e:
         print(f"Error closing BTC position: {e}")
         import traceback
+
         traceback.print_exc()
         return False
 
@@ -151,17 +162,19 @@ async def set_leverage_with_verification(
 ) -> bool:
     """
     Set leverage and verify it was set correctly.
-    
+
     Args:
         leverage: The target leverage (e.g., 5 for 5x, 10 for 10x)
         custom_imf_ppm: The custom IMF in parts per million
-    
+
     Returns:
         bool: True if leverage was set successfully, False otherwise
     """
     try:
         print(f"\n{'=' * 60}")
-        print(f"Setting leverage to {leverage}x ({custom_imf_ppm} ppm = {custom_imf_ppm / 10_000}% IMF) for CLOB pair {clob_pair_id}")
+        print(
+            f"Setting leverage to {leverage}x ({custom_imf_ppm} ppm = {custom_imf_ppm / 10_000}% IMF) for CLOB pair {clob_pair_id}"
+        )
         print(f"{'=' * 60}")
 
         leverage_entries = [
@@ -185,12 +198,13 @@ async def set_leverage_with_verification(
         print_leverage_response(
             leverage_response, node, f"Leverage After Update ({leverage}x)"
         )
-        
+
         return True
 
     except Exception as e:
         print(f"Error setting leverage to {leverage}x: {e}")
         import traceback
+
         traceback.print_exc()
         return False
 
@@ -206,19 +220,22 @@ async def open_btc_position(
 ) -> bool:
     """
     Open a BTC position with the specified size.
-    
+
     Args:
         size: Position size in BTC (e.g., 0.001)
         slippage_pct: Percentage to add to oracle price for BUY orders (default: 10)
-    
+
     Returns:
         bool: True if order was placed successfully, False otherwise
     """
     try:
         print(f"\nOpening {size} BTC position...")
-        
+
         order_id = market.order_id(
-            address, subaccount_number, random.randint(0, MAX_CLIENT_ID), OrderFlags.SHORT_TERM
+            address,
+            subaccount_number,
+            random.randint(0, MAX_CLIENT_ID),
+            OrderFlags.SHORT_TERM,
         )
 
         current_block = await node.latest_block_height()
@@ -250,12 +267,13 @@ async def open_btc_position(
         # Wait for order execution
         await asyncio.sleep(5)
         print(f"Position opened: {size} BTC")
-        
+
         return True
 
     except Exception as e:
         print(f"Error opening BTC position: {e}")
         import traceback
+
         traceback.print_exc()
         return False
 
@@ -268,7 +286,7 @@ async def measure_used_collateral(
 ) -> dict:
     """
     Measure used collateral by getting equity and free collateral.
-    
+
     Returns:
         dict: Contains equity, free_collateral, and used_collateral
     """
@@ -278,7 +296,9 @@ async def measure_used_collateral(
         print(f"{'-' * 60}")
 
         # Get subaccount info
-        subaccount_response = await indexer.account.get_subaccount(address, subaccount_number)
+        subaccount_response = await indexer.account.get_subaccount(
+            address, subaccount_number
+        )
         subaccount = (
             subaccount_response.get("subaccount", {})
             if isinstance(subaccount_response, dict)
@@ -310,6 +330,7 @@ async def measure_used_collateral(
     except Exception as e:
         print(f"Error measuring used collateral: {e}")
         import traceback
+
         traceback.print_exc()
         return {
             "equity": 0.0,
@@ -323,7 +344,7 @@ async def test():
     print("=" * 60)
     print("BTC Leverage Collateral Comparison Test")
     print("=" * 60)
-    
+
     # Create the clients
     node = await NodeClient.connect(TESTNET.node)
     indexer = IndexerClient(TESTNET.rest_indexer)
@@ -334,15 +355,15 @@ async def test():
     subaccount_number = 0
     market_id = "BTC-USD"
     position_size = 0.001  # BTC
-    
+
     # Get BTC market
     market_data = await indexer.markets.get_perpetual_markets(market_id)
     market = Market(market_data["markets"][market_id])
-    
+
     # Get the CLOB pair ID from the market data (not hardcoded)
     clob_pair_id = int(market.market["clobPairId"])
     print(f"Using CLOB pair ID: {clob_pair_id} for market {market_id}")
-    
+
     # Step 1: Close initial BTC position if any
     print("\n" + "=" * 60)
     print("Step 1: Closing initial BTC position (if any)")
@@ -351,7 +372,7 @@ async def test():
         node, indexer, wallet, TEST_ADDRESS, subaccount_number, market
     )
     await asyncio.sleep(2)
-    
+
     # Step 2: Set leverage to 5x and verify
     print("\n" + "=" * 60)
     print("Step 2: Setting leverage to 5x")
@@ -362,7 +383,7 @@ async def test():
     if not success:
         print("Failed to set leverage to 5x. Aborting.")
         return
-    
+
     # Step 3: Open BTC position and measure used collateral
     print("\n" + "=" * 60)
     print("Step 3: Opening BTC position and measuring used collateral at 5x leverage")
@@ -373,12 +394,12 @@ async def test():
     if not success:
         print("Failed to open position. Aborting.")
         return
-    
+
     collateral_5x = await measure_used_collateral(
         indexer, TEST_ADDRESS, subaccount_number, "Used Collateral at 5x Leverage"
     )
     used_collateral_5x = collateral_5x["used_collateral"]
-    
+
     # Step 4: Close the position
     print("\n" + "=" * 60)
     print("Step 4: Closing position")
@@ -387,7 +408,7 @@ async def test():
         node, indexer, wallet, TEST_ADDRESS, subaccount_number, market
     )
     await asyncio.sleep(2)
-    
+
     # Step 5: Set leverage to 10x and verify
     print("\n" + "=" * 60)
     print("Step 5: Setting leverage to 10x")
@@ -398,7 +419,7 @@ async def test():
     if not success:
         print("Failed to set leverage to 10x. Aborting.")
         return
-    
+
     # Step 6: Open BTC position and measure used collateral
     print("\n" + "=" * 60)
     print("Step 6: Opening BTC position and measuring used collateral at 10x leverage")
@@ -409,31 +430,35 @@ async def test():
     if not success:
         print("Failed to open position. Aborting.")
         return
-    
+
     collateral_10x = await measure_used_collateral(
         indexer, TEST_ADDRESS, subaccount_number, "Used Collateral at 10x Leverage"
     )
     used_collateral_10x = collateral_10x["used_collateral"]
-    
+
     # Step 7: Print difference in used collateral
     print("\n" + "=" * 60)
     print("Step 7: Comparison Results")
     print("=" * 60)
     print(f"\nUsed Collateral at 5x leverage:  ${used_collateral_5x:.2f}")
     print(f"Used Collateral at 10x leverage: ${used_collateral_10x:.2f}")
-    
+
     diff = used_collateral_10x - used_collateral_5x
     diff_percent = (diff / used_collateral_5x * 100) if used_collateral_5x > 0 else 0
-    
+
     print(f"\nDifference: ${diff:.2f} ({diff_percent:+.2f}%)")
-    
+
     if diff < 0:
-        print(f"\n✓ Higher leverage (10x) uses ${abs(diff):.2f} LESS collateral than 5x leverage")
+        print(
+            f"\n✓ Higher leverage (10x) uses ${abs(diff):.2f} LESS collateral than 5x leverage"
+        )
     elif diff > 0:
-        print(f"\n✓ Higher leverage (10x) uses ${diff:.2f} MORE collateral than 5x leverage")
+        print(
+            f"\n✓ Higher leverage (10x) uses ${diff:.2f} MORE collateral than 5x leverage"
+        )
     else:
         print(f"\n✓ Both leverage settings use the same amount of collateral")
-    
+
     print("\n" + "=" * 60)
     print("Test complete!")
     print("=" * 60)
