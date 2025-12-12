@@ -32,7 +32,7 @@ export default class UtilityClient extends RestClient {
    */
   async getHeightWithHeaders(): Promise<HeightResponseWithHeaders> {
     const uri = '/v4/height';
-    return this._get(uri);
+    return this.getWithResponseHeaders(uri);
   }
 
   /**
