@@ -2,13 +2,13 @@ import Long from 'long';
 import protobuf from 'protobufjs';
 
 import { BECH32_PREFIX } from '../src';
-import { Network, OrderType, OrderSide, OrderFlags } from '../src/clients/constants';
+import { Network, OrderType, OrderSide } from '../src/clients/constants';
 import { calculateQuantums, calculateSubticks } from '../src/clients/helpers/chain-helpers';
 import { IndexerClient } from '../src/clients/indexer-client';
 import LocalWallet from '../src/clients/modules/local-wallet';
 import { Order_Side, Order_TimeInForce } from '../src/clients/modules/proto-includes';
 import { SubaccountInfo } from '../src/clients/subaccount';
-import { IPlaceOrder, ITwapParameters } from '../src/clients/types';
+import { IPlaceOrder, ITwapParameters, OrderFlags } from '../src/clients/types';
 import { ValidatorClient } from '../src/clients/validator-client';
 import { DYDX_TEST_MNEMONIC, DYDX_TEST_ADDRESS, MAX_CLIENT_ID } from './constants';
 
@@ -91,9 +91,13 @@ async function placeAndTrackTwapOrder(size: number): Promise<void> {
     DYDX_TEST_ADDRESS,
     0,
   );
-  const positions = positionsResponse.positions || [];
+  const positions = (positionsResponse.positions || []) as Array<{
+    market?: string;
+    status?: string;
+    size?: string;
+  }>;
 
-  let initialPosition = null;
+  let initialPosition: { market?: string; status?: string; size?: string } | null = null;
   for (const pos of positions) {
     if (pos.market === MARKET_ID && pos.status !== 'CLOSED') {
       initialPosition = pos;
@@ -159,7 +163,7 @@ async function placeAndTrackTwapOrder(size: number): Promise<void> {
   const transaction = await validatorClient.post.placeOrderObject(subaccount, placeOrder);
 
   console.log('✓ Order placed successfully!');
-  console.log(`Transaction: ${JSON.stringify(transaction, null, 2)}`);
+  console.log('Transaction:', transaction);
   console.log();
 
   // Track position changes
@@ -176,7 +180,7 @@ async function placeAndTrackTwapOrder(size: number): Promise<void> {
   console.log('Monitoring position changes every 2 seconds...');
   console.log();
 
-  let finalPosition = null;
+  let finalPosition: { market?: string; status?: string; size?: string } | null = null;
   let finalSize = initialSize;
 
   while (Date.now() < endTime) {
@@ -187,9 +191,13 @@ async function placeAndTrackTwapOrder(size: number): Promise<void> {
       DYDX_TEST_ADDRESS,
       0,
     );
-    const currentPositions = currentPositionsResponse.positions || [];
+    const currentPositions = (currentPositionsResponse.positions || []) as Array<{
+      market?: string;
+      status?: string;
+      size?: string;
+    }>;
 
-    let currentPosition = null;
+    let currentPosition: { market?: string; status?: string; size?: string } | null = null;
     for (const pos of currentPositions) {
       if (pos.market === MARKET_ID && pos.status !== 'CLOSED') {
         currentPosition = pos;
