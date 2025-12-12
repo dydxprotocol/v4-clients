@@ -18,7 +18,7 @@ MARKET_ID = "ETH-USD"
 # TWAP Configuration
 TWAP_DURATION = 300  # minimum is 300 seconds
 # Interval must be in range [30 (30 seconds), 3600 (1 hour)] AND must be a factor of duration
-TWAP_INTERVAL = 60   # minimum is 30 seconds, must be factor of duration
+TWAP_INTERVAL = 60  # minimum is 30 seconds, must be factor of duration
 TWAP_PRICE_TOLERANCE = 10000  # 1% tolerance (10,000 ppm) - valid range [0, 1_000_000)
 MONITORING_INTERVAL = 2  # Check position changes every 2 seconds
 
@@ -84,7 +84,9 @@ async def place_and_track_twap_order(size: float):
     if initial_position:
         print(f"  Market: {MARKET_ID}")
         print(f"  Size: {initial_size:.6f}")
-        print(f"  Direction: {'LONG' if is_long else 'SHORT' if initial_size < 0 else 'NONE'}")
+        print(
+            f"  Direction: {'LONG' if is_long else 'SHORT' if initial_size < 0 else 'NONE'}"
+        )
     else:
         print(f"  No open position for {MARKET_ID}")
     print()
@@ -95,9 +97,7 @@ async def place_and_track_twap_order(size: float):
     print()
 
     # Create order ID
-    order_id = market.order_id(
-        TEST_ADDRESS, 0, unique_client_id, OrderFlags.SHORT_TERM
-    )
+    order_id = market.order_id(TEST_ADDRESS, 0, unique_client_id, OrderFlags.SHORT_TERM)
 
     current_block = await node.latest_block_height()
 
@@ -118,7 +118,8 @@ async def place_and_track_twap_order(size: float):
         price=0,  # Market order
         time_in_force=Order.TimeInForce.TIME_IN_FORCE_UNSPECIFIED,
         reduce_only=False,
-        good_til_block=current_block + 30,  # Must be within ShortBlockWindow limit (40 blocks max)
+        good_til_block=current_block
+        + 30,  # Must be within ShortBlockWindow limit (40 blocks max)
         twap_duration=TWAP_DURATION,
         twap_interval=TWAP_INTERVAL,
         twap_price_tolerance=TWAP_PRICE_TOLERANCE,
@@ -160,7 +161,9 @@ async def place_and_track_twap_order(size: float):
                 current_position = pos
                 break
 
-        current_size = float(current_position.get("size", 0)) if current_position else 0.0
+        current_size = (
+            float(current_position.get("size", 0)) if current_position else 0.0
+        )
 
         # Check if position changed
         if abs(current_size - last_position_size) > 0.000001:
@@ -238,7 +241,9 @@ async def place_and_track_twap_order(size: float):
                 f"Total Change: {change['total_change']:+.6f}"
             )
     else:
-        print("No position changes detected (order may still be executing or no changes occurred)")
+        print(
+            "No position changes detected (order may still be executing or no changes occurred)"
+        )
 
     print()
     print("=" * 80)
