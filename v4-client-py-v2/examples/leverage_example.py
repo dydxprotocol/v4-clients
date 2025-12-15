@@ -46,7 +46,7 @@ def print_leverage_response(leverage_response, node, title="Leverage"):
         )
 
 
-async def close_btc_position_if_exists(
+async def close_position_if_exists(
     node: NodeClient,
     indexer: IndexerClient,
     wallet: Wallet,
@@ -114,7 +114,7 @@ async def close_btc_position_if_exists(
             # Calculate price from oracle price with slippage
             # For SELL orders (closing long): subtract slippage
             # For BUY orders (closing short): add slippage
-            slippage_pct = 10  # Same as open_btc_position default
+            slippage_pct = 10  # Same as open_position default
             oracle_price = float(market.market["oraclePrice"])
 
             if is_long:
@@ -216,7 +216,7 @@ async def set_leverage_with_verification(
         return False
 
 
-async def open_btc_position(
+async def open_position(
     node: NodeClient,
     wallet: Wallet,
     address: str,
@@ -226,17 +226,17 @@ async def open_btc_position(
     slippage_pct: float = 10,
 ) -> bool:
     """
-    Open a BTC position with the specified size.
+    Open a position with the specified size.
 
     Args:
-        size: Position size in BTC (e.g., 0.001)
+        size: Position size (e.g., 0.001)
         slippage_pct: Percentage to add to oracle price for BUY orders (default: 10)
 
     Returns:
         bool: True if order was placed successfully, False otherwise
     """
     try:
-        print(f"\nOpening {size} BTC position...")
+        print(f"\nOpening {size} position...")
 
         order_id = market.order_id(
             address,
@@ -273,12 +273,12 @@ async def open_btc_position(
 
         # Wait for order execution
         await asyncio.sleep(5)
-        print(f"Position opened: {size} BTC")
+        print(f"Position opened: {size}")
 
         return True
 
     except Exception as e:
-        print(f"Error opening BTC position: {e}")
+        print(f"Error opening position: {e}")
         import traceback
 
         traceback.print_exc()
@@ -361,7 +361,7 @@ async def test():
     wallet = await Wallet.from_mnemonic(node, DYDX_TEST_MNEMONIC, TEST_ADDRESS)
 
     subaccount_number = 0
-    position_size = 0.001  # BTC
+    position_size = 0.001
 
     # Get market data
     market_data = await indexer.markets.get_perpetual_markets(market_id)
@@ -375,7 +375,7 @@ async def test():
     print("\n" + "=" * 60)
     print(f"Step 1: Closing initial {market_id} position (if any)")
     print("=" * 60)
-    await close_btc_position_if_exists(
+    await close_position_if_exists(
         node, indexer, wallet, TEST_ADDRESS, subaccount_number, market, market_id
     )
     await asyncio.sleep(2)
@@ -395,7 +395,7 @@ async def test():
     print("\n" + "=" * 60)
     print(f"Step 3: Opening {market_id} position and measuring used collateral at 5x leverage")
     print("=" * 60)
-    success = await open_btc_position(
+    success = await open_position(
         node, wallet, TEST_ADDRESS, subaccount_number, market, position_size
     )
     if not success:
@@ -414,7 +414,7 @@ async def test():
     print("\n" + "=" * 60)
     print("Step 4: Closing position")
     print("=" * 60)
-    await close_btc_position_if_exists(
+    await close_position_if_exists(
         node, indexer, wallet, TEST_ADDRESS, subaccount_number, market, market_id
     )
     await asyncio.sleep(2)
@@ -434,7 +434,7 @@ async def test():
     print("\n" + "=" * 60)
     print(f"Step 6: Opening {market_id} position and measuring used collateral at 10x leverage")
     print("=" * 60)
-    success = await open_btc_position(
+    success = await open_position(
         node, wallet, TEST_ADDRESS, subaccount_number, market, position_size
     )
     if not success:
