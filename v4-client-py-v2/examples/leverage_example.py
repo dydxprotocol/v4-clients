@@ -66,10 +66,8 @@ async def close_position_if_exists(
                Returns 0.0 if no position existed.
     """
     # Check if position exists
-    positions_response = (
-        await indexer.account.get_subaccount_perpetual_positions(
-            address, subaccount_number
-        )
+    positions_response = await indexer.account.get_subaccount_perpetual_positions(
+        address, subaccount_number
     )
     positions = positions_response.get("positions", [])
 
@@ -138,10 +136,8 @@ async def close_position_if_exists(
     # Wait 5 seconds after sending the close request
     await asyncio.sleep(5)
     # Check position size again, throw an exception if it exists
-    positions_response = (
-        await indexer.account.get_subaccount_perpetual_positions(
-            address, subaccount_number
-        )
+    positions_response = await indexer.account.get_subaccount_perpetual_positions(
+        address, subaccount_number
     )
     positions = positions_response.get("positions", [])
 
@@ -152,8 +148,9 @@ async def close_position_if_exists(
             break
 
     if position is not None:
-        raise Exception(f"Failed to close {market_id} position: position remains open with size {position.get("size")}")
-
+        raise Exception(
+            f"Failed to close {market_id} position: position remains open with size {position.get("size")}"
+        )
 
     # Return the initial position size with sign preserved
     return initial_position_size
@@ -393,7 +390,9 @@ async def test():
 
     # Step 3: Open position and measure used collateral
     print("\n" + "=" * 60)
-    print(f"Step 3: Opening {market_id} position and measuring used collateral at 5x leverage")
+    print(
+        f"Step 3: Opening {market_id} position and measuring used collateral at 5x leverage"
+    )
     print("=" * 60)
     success = await open_position(
         node, wallet, TEST_ADDRESS, subaccount_number, market, position_size
@@ -431,7 +430,9 @@ async def test():
 
     # Step 6: Open position and measure used collateral
     print("\n" + "=" * 60)
-    print(f"Step 6: Opening {market_id} position and measuring used collateral at 10x leverage")
+    print(
+        f"Step 6: Opening {market_id} position and measuring used collateral at 10x leverage"
+    )
     print("=" * 60)
     success = await open_position(
         node, wallet, TEST_ADDRESS, subaccount_number, market, position_size
