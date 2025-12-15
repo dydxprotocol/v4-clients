@@ -36,6 +36,64 @@ def format_order_id_for_query(order_id_obj) -> str:
     )
 
 
+async def get_all_fills(
+    indexer: IndexerClient,
+    address: str,
+    subaccount_number: int,
+    ticker: str,
+    limit: int = 100,
+) -> list:
+    """
+    Retrieve all fills for a subaccount by paginating through all pages.
+    
+    Args:
+        indexer: The IndexerClient instance
+        address: The account address
+        subaccount_number: The subaccount number
+        ticker: The market ticker to filter by
+        limit: Number of fills per page (default 100)
+    
+    Returns:
+        List of all fills
+    """
+    all_fills = []
+    created_before_or_at = None
+    
+    while True:
+        params = {
+            "address": address,
+            "subaccount_number": subaccount_number,
+            "ticker": ticker,
+            "limit": limit,
+        }
+        
+        if created_before_or_at:
+            params["created_before_or_at"] = created_before_or_at
+        
+        response = await indexer.account.get_subaccount_fills(**params)
+        fills = response.get("fills", [])
+        
+        if not fills:
+            break
+        
+        all_fills.extend(fills)
+        
+        # If we got fewer fills than the limit, we've reached the end
+        if len(fills) < limit:
+            break
+        
+        # Use the createdAt timestamp of the last fill for the next page
+        # The API expects fills created before or at this timestamp
+        last_fill = fills[-1]
+        created_before_or_at = last_fill.get("createdAt")
+        
+        if not created_before_or_at:
+            # If createdAt is missing, we can't paginate further
+            break
+    
+    return all_fills
+
+
 async def place_and_track_twap_order(size: float):
     """
     Place a TWAP order and track its execution in real-time.
@@ -65,6 +123,19 @@ async def place_and_track_twap_order(size: float):
     )
     wallet = await Wallet.from_mnemonic(node, DYDX_TEST_MNEMONIC, TEST_ADDRESS)
 
+    # Retrieve all initial fills with pagination
+    print("Retrieving initial fills (this may take a moment if there are many fills)...")
+    initial_fills = await get_all_fills(
+        indexer=indexer,
+        address=TEST_ADDRESS,
+        subaccount_number=0,
+        ticker=MARKET_ID,
+    )
+    # Store initial fill IDs for comparison
+    initial_fill_ids = {fill.get("id") for fill in initial_fills if fill.get("id")}
+    print(f"Retrieved {len(initial_fills)} initial fills")
+    print()
+    
     # Get initial position before placing order
     positions_response = await indexer.account.get_subaccount_perpetual_positions(
         TEST_ADDRESS, 0
@@ -199,6 +270,25 @@ async def place_and_track_twap_order(size: float):
 
         await asyncio.sleep(MONITORING_INTERVAL)
 
+    # Retrieve all fills again after TWAP execution
+    print("Retrieving all fills after TWAP execution...")
+    final_fills = await get_all_fills(
+        indexer=indexer,
+        address=TEST_ADDRESS,
+        subaccount_number=0,
+        ticker=MARKET_ID,
+    )
+    print(f"Retrieved {len(final_fills)} total fills")
+    print()
+    
+    # Identify new fills (TWAP fills)
+    final_fill_ids = {fill.get("id") for fill in final_fills if fill.get("id")}
+    new_fill_ids = final_fill_ids - initial_fill_ids
+    twap_fills = [fill for fill in final_fills if fill.get("id") in new_fill_ids]
+    
+    # Sort TWAP fills by creation time (oldest first)
+    twap_fills.sort(key=lambda x: x.get("createdAt", ""))
+    
     # Final verification
     print("=" * 80)
     print("FINAL VERIFICATION")
@@ -218,6 +308,41 @@ async def place_and_track_twap_order(size: float):
     print("Using position tracking verification:")
     print(f"  - Position changed: ✓")
     print(f"  - Total position change: {abs_total_change:.6f}")
+    print()
+
+    # Display TWAP fills
+    print("=" * 80)
+    print("TWAP FILLS")
+    print("=" * 80)
+    if twap_fills:
+        print(f"Found {len(twap_fills)} new fills from TWAP order execution:")
+        print()
+        total_filled_size = 0.0
+        for i, fill in enumerate(twap_fills, 1):
+            fill_id = fill.get("id", "N/A")
+            created_at = fill.get("createdAt", "N/A")
+            size = float(fill.get("size", 0))
+            price = float(fill.get("price", 0))
+            side = fill.get("side", "N/A")
+            total_filled_size += abs(size)
+            
+            print(f"Fill {i}:")
+            print(f"  ID: {fill_id}")
+            print(f"  Created At: {created_at}")
+            print(f"  Side: {side}")
+            print(f"  Size: {size:.6f}")
+            print(f"  Price: ${price:.2f}")
+            print(f"  Notional: ${abs(size * price):.2f}")
+            print()
+        
+        print(f"Total Filled Size: {total_filled_size:.6f}")
+        print(f"Expected Order Size: {size:.6f}")
+        if total_filled_size > 0:
+            fill_percentage = (total_filled_size / size) * 100
+            print(f"Fill Percentage: {fill_percentage:.1f}%")
+    else:
+        print("No new fills detected. The TWAP order may not have executed yet,")
+        print("or all fills were already present in the initial retrieval.")
     print()
 
     # Final summary
