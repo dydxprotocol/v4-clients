@@ -400,6 +400,9 @@ async def test():
     )
     used_collateral_5x = collateral_5x["used_collateral"]
 
+    print("\nPausing for 30 seconds to allow UI inspection...")
+    await asyncio.sleep(30)
+
     # Step 4: Close the position
     print("\n" + "=" * 60)
     print("Step 4: Closing position")
@@ -435,6 +438,9 @@ async def test():
         indexer, TEST_ADDRESS, subaccount_number, "Used Collateral at 10x Leverage"
     )
     used_collateral_10x = collateral_10x["used_collateral"]
+
+    print("\nPausing for 30 seconds to allow UI inspection...")
+    await asyncio.sleep(30)
 
     # Step 7: Print difference in used collateral
     print("\n" + "=" * 60)
