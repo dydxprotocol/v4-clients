@@ -13,7 +13,7 @@ from v4_proto.dydxprotocol.clob.order_pb2 import Order
 from v4_proto.dydxprotocol.clob.tx_pb2 import LeverageEntry
 
 # Constants for market configuration
-MARKET_ID = "ETH-USD"
+MARKET_ID = "BTC-USD"
 
 
 def print_leverage_response(leverage_response, node, title="Leverage"):
@@ -137,6 +137,23 @@ async def close_position_if_exists(
 
     # Wait 5 seconds after sending the close request
     await asyncio.sleep(5)
+    # Check position size again, throw an exception if it exists
+    positions_response = (
+        await indexer.account.get_subaccount_perpetual_positions(
+            address, subaccount_number
+        )
+    )
+    positions = positions_response.get("positions", [])
+
+    position = None
+    for pos in positions:
+        if pos.get("market") == market_id and pos.get("status") != "CLOSED":
+            position = pos
+            break
+
+    if position is not None:
+        raise Exception(f"Failed to close {market_id} position: position remains open with size {position.get("size")}")
+
 
     # Return the initial position size with sign preserved
     return initial_position_size
@@ -362,10 +379,6 @@ async def test():
     closed_size = await close_position_if_exists(
         node, indexer, wallet, TEST_ADDRESS, subaccount_number, market, market_id
     )
-    await restore_initial_position(
-        node, wallet, TEST_ADDRESS, subaccount_number, market, closed_size
-    )
-    await asyncio.sleep(2)
 
     # Step 2: Set leverage to 5x and verify
     print("\n" + "=" * 60)
@@ -401,13 +414,9 @@ async def test():
     print("\n" + "=" * 60)
     print("Step 4: Closing position")
     print("=" * 60)
-    closed_size = await close_position_if_exists(
+    await close_position_if_exists(
         node, indexer, wallet, TEST_ADDRESS, subaccount_number, market, market_id
     )
-    await restore_initial_position(
-        node, wallet, TEST_ADDRESS, subaccount_number, market, closed_size
-    )
-    await asyncio.sleep(2)
 
     # Step 5: Set leverage to 10x and verify
     print("\n" + "=" * 60)
@@ -438,6 +447,15 @@ async def test():
 
     print("\nPausing for 30 seconds to allow UI inspection...")
     await asyncio.sleep(30)
+
+    await close_position_if_exists(
+        node, indexer, wallet, TEST_ADDRESS, subaccount_number, market, market_id
+    )
+
+    await restore_initial_position(
+        node, wallet, TEST_ADDRESS, subaccount_number, market, closed_size
+    )
+    await asyncio.sleep(2)
 
     # Step 7: Print difference in used collateral
     print("\n" + "=" * 60)
@@ -475,16 +493,6 @@ async def restore_initial_position(
     market: Market,
     closed_size: float,
 ) -> bool:
-    """
-    Restore the initial position with the same size that was closed.
-
-    Args:
-        closed_size: The size of the position that was closed (with sign preserved).
-                    If 0.0, no position will be opened.
-
-    Returns:
-        bool: True if position was restored successfully or no restoration needed, False otherwise
-    """
     if closed_size == 0.0:
         print("No position to restore (closed_size is 0.0).")
         return True
