@@ -12,6 +12,9 @@ from tests.conftest import DYDX_TEST_MNEMONIC, TEST_ADDRESS
 from v4_proto.dydxprotocol.clob.order_pb2 import Order
 from v4_proto.dydxprotocol.clob.tx_pb2 import LeverageEntry
 
+# Constants for market configuration
+MARKET_ID = "BTC-USD"
+
 
 def print_leverage_response(leverage_response, node, title="Leverage"):
     """Helper function to print leverage response in a readable format."""
@@ -50,9 +53,13 @@ async def close_btc_position_if_exists(
     address: str,
     subaccount_number: int,
     market: Market,
+    market_id: str,
 ) -> bool:
     """
-    Close BTC position if it exists.
+    Close position for the specified market if it exists.
+
+    Args:
+        market_id: The market identifier (e.g., "BTC-USD")
 
     Returns:
         bool: True if a position was closed, False if no position existed
@@ -69,30 +76,30 @@ async def close_btc_position_if_exists(
             )
             positions = positions_response.get("positions", [])
 
-            btc_position = None
+            position = None
             for pos in positions:
-                if pos.get("market") == "BTC-USD" and pos.get("status") != "CLOSED":
-                    btc_position = pos
+                if pos.get("market") == market_id and pos.get("status") != "CLOSED":
+                    position = pos
                     break
 
-            if btc_position is None:
+            if position is None:
                 if attempt == 1:
-                    print("No open BTC position found.")
+                    print(f"No open {market_id} position found.")
                 else:
-                    print("BTC position closed successfully.")
+                    print(f"{market_id} position closed successfully.")
                 return (
                     attempt > 1
                 )  # Return True if we closed it, False if it never existed
 
-            position_size = float(btc_position.get("size"))
+            position_size = float(position.get("size"))
             is_long = position_size > 0
             abs_size = abs(position_size)
 
             if attempt == 1:
                 position_type = "long" if is_long else "short"
-                print(f"Found open BTC position: {abs_size} BTC ({position_type})")
+                print(f"Found open {market_id} position: {abs_size} ({position_type})")
 
-            print(f"Closing BTC position... (attempt {attempt}/{max_attempts})")
+            print(f"Closing {market_id} position... (attempt {attempt}/{max_attempts})")
 
             # Create order to close position
             order_id = market.order_id(
@@ -144,7 +151,7 @@ async def close_btc_position_if_exists(
         return False
 
     except Exception as e:
-        print(f"Error closing BTC position: {e}")
+        print(f"Error closing {market_id} position: {e}")
         import traceback
 
         traceback.print_exc()
@@ -341,8 +348,9 @@ async def measure_used_collateral(
 
 async def test():
     """Main function orchestrating the leverage collateral comparison test."""
+    market_id = MARKET_ID
     print("=" * 60)
-    print("BTC Leverage Collateral Comparison Test")
+    print(f"{market_id} Leverage Collateral Comparison Test")
     print("=" * 60)
 
     # Create the clients
@@ -353,23 +361,22 @@ async def test():
     wallet = await Wallet.from_mnemonic(node, DYDX_TEST_MNEMONIC, TEST_ADDRESS)
 
     subaccount_number = 0
-    market_id = "BTC-USD"
     position_size = 0.001  # BTC
 
-    # Get BTC market
+    # Get market data
     market_data = await indexer.markets.get_perpetual_markets(market_id)
     market = Market(market_data["markets"][market_id])
 
-    # Get the CLOB pair ID from the market data (not hardcoded)
+    # Get the CLOB pair ID from the market data (dynamically retrieved, not hardcoded)
     clob_pair_id = int(market.market["clobPairId"])
     print(f"Using CLOB pair ID: {clob_pair_id} for market {market_id}")
 
-    # Step 1: Close initial BTC position if any
+    # Step 1: Close initial position if any
     print("\n" + "=" * 60)
-    print("Step 1: Closing initial BTC position (if any)")
+    print(f"Step 1: Closing initial {market_id} position (if any)")
     print("=" * 60)
     await close_btc_position_if_exists(
-        node, indexer, wallet, TEST_ADDRESS, subaccount_number, market
+        node, indexer, wallet, TEST_ADDRESS, subaccount_number, market, market_id
     )
     await asyncio.sleep(2)
 
@@ -384,9 +391,9 @@ async def test():
         print("Failed to set leverage to 5x. Aborting.")
         return
 
-    # Step 3: Open BTC position and measure used collateral
+    # Step 3: Open position and measure used collateral
     print("\n" + "=" * 60)
-    print("Step 3: Opening BTC position and measuring used collateral at 5x leverage")
+    print(f"Step 3: Opening {market_id} position and measuring used collateral at 5x leverage")
     print("=" * 60)
     success = await open_btc_position(
         node, wallet, TEST_ADDRESS, subaccount_number, market, position_size
@@ -408,7 +415,7 @@ async def test():
     print("Step 4: Closing position")
     print("=" * 60)
     await close_btc_position_if_exists(
-        node, indexer, wallet, TEST_ADDRESS, subaccount_number, market
+        node, indexer, wallet, TEST_ADDRESS, subaccount_number, market, market_id
     )
     await asyncio.sleep(2)
 
@@ -423,9 +430,9 @@ async def test():
         print("Failed to set leverage to 10x. Aborting.")
         return
 
-    # Step 6: Open BTC position and measure used collateral
+    # Step 6: Open position and measure used collateral
     print("\n" + "=" * 60)
-    print("Step 6: Opening BTC position and measuring used collateral at 10x leverage")
+    print(f"Step 6: Opening {market_id} position and measuring used collateral at 10x leverage")
     print("=" * 60)
     success = await open_btc_position(
         node, wallet, TEST_ADDRESS, subaccount_number, market, position_size
