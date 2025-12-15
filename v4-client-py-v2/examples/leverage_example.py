@@ -13,7 +13,7 @@ from v4_proto.dydxprotocol.clob.order_pb2 import Order
 from v4_proto.dydxprotocol.clob.tx_pb2 import LeverageEntry
 
 # Constants for market configuration
-MARKET_ID = "BTC-USD"
+MARKET_ID = "ETH-USD"
 
 
 def print_leverage_response(leverage_response, node, title="Leverage"):
@@ -54,7 +54,7 @@ async def close_position_if_exists(
     subaccount_number: int,
     market: Market,
     market_id: str,
-) -> bool:
+) -> float:
     """
     Close position for the specified market if it exists.
 
@@ -62,100 +62,84 @@ async def close_position_if_exists(
         market_id: The market identifier (e.g., "BTC-USD")
 
     Returns:
-        bool: True if a position was closed, False if no position existed
+        float: The closed position size (with sign preserved, e.g., -0.1 for short, 0.1 for long).
+               Returns 0.0 if no position existed.
     """
-    max_attempts = 3
+    # Check if position exists
+    positions_response = (
+        await indexer.account.get_subaccount_perpetual_positions(
+            address, subaccount_number
+        )
+    )
+    positions = positions_response.get("positions", [])
 
-    try:
-        for attempt in range(1, max_attempts + 1):
-            # Check if position exists
-            positions_response = (
-                await indexer.account.get_subaccount_perpetual_positions(
-                    address, subaccount_number
-                )
-            )
-            positions = positions_response.get("positions", [])
+    position = None
+    for pos in positions:
+        if pos.get("market") == market_id and pos.get("status") != "CLOSED":
+            position = pos
+            break
 
-            position = None
-            for pos in positions:
-                if pos.get("market") == market_id and pos.get("status") != "CLOSED":
-                    position = pos
-                    break
+    if position is None:
+        print(f"No open {market_id} position found.")
+        return 0.0
 
-            if position is None:
-                if attempt == 1:
-                    print(f"No open {market_id} position found.")
-                else:
-                    print(f"{market_id} position closed successfully.")
-                return (
-                    attempt > 1
-                )  # Return True if we closed it, False if it never existed
+    # Capture initial position size with sign preserved
+    initial_position_size = float(position.get("size"))
+    is_long = initial_position_size > 0
+    abs_size = abs(initial_position_size)
+    position_type = "long" if is_long else "short"
+    print(f"Found open {market_id} position: {abs_size} ({position_type})")
+    print(f"Closing {market_id} position...")
 
-            position_size = float(position.get("size"))
-            is_long = position_size > 0
-            abs_size = abs(position_size)
+    # Create order to close position
+    order_id = market.order_id(
+        address,
+        subaccount_number,
+        random.randint(0, MAX_CLIENT_ID),
+        OrderFlags.SHORT_TERM,
+    )
 
-            if attempt == 1:
-                position_type = "long" if is_long else "short"
-                print(f"Found open {market_id} position: {abs_size} ({position_type})")
+    current_block = await node.latest_block_height()
 
-            print(f"Closing {market_id} position... (attempt {attempt}/{max_attempts})")
+    # Calculate price from oracle price with slippage
+    # For SELL orders (closing long): subtract slippage
+    # For BUY orders (closing short): add slippage
+    slippage_pct = 10  # Same as open_position default
+    oracle_price = float(market.market["oraclePrice"])
 
-            # Create order to close position
-            order_id = market.order_id(
-                address,
-                subaccount_number,
-                random.randint(0, MAX_CLIENT_ID),
-                OrderFlags.SHORT_TERM,
-            )
+    if is_long:
+        # Long position: use SELL to close, subtract slippage
+        side = Order.Side.SIDE_SELL
+        price = oracle_price * ((100 - slippage_pct) / 100.0)
+    else:
+        # Short position: use BUY to close, add slippage
+        side = Order.Side.SIDE_BUY
+        price = oracle_price * ((100 + slippage_pct) / 100.0)
 
-            current_block = await node.latest_block_height()
+    new_order = market.order(
+        order_id=order_id,
+        order_type=OrderType.MARKET,
+        side=side,
+        size=abs_size,
+        price=price,
+        time_in_force=None,
+        reduce_only=True,
+        good_til_block=current_block + 20,
+    )
 
-            # Calculate price from oracle price with slippage
-            # For SELL orders (closing long): subtract slippage
-            # For BUY orders (closing short): add slippage
-            slippage_pct = 10  # Same as open_position default
-            oracle_price = float(market.market["oraclePrice"])
+    transaction = await node.place_order(
+        wallet=wallet,
+        order=new_order,
+    )
 
-            if is_long:
-                # Long position: use SELL to close, subtract slippage
-                side = Order.Side.SIDE_SELL
-                price = oracle_price * ((100 - slippage_pct) / 100.0)
-            else:
-                # Short position: use BUY to close, add slippage
-                side = Order.Side.SIDE_BUY
-                price = oracle_price * ((100 + slippage_pct) / 100.0)
+    print(f"Position close transaction submitted: {transaction}")
+    wallet.sequence += 1
 
-            new_order = market.order(
-                order_id=order_id,
-                order_type=OrderType.MARKET,
-                side=side,
-                size=abs_size,
-                price=price,
-                time_in_force=None,
-                reduce_only=True,
-                good_til_block=current_block + 20,
-            )
+    # Wait 5 seconds after sending the close request
+    await asyncio.sleep(5)
 
-            transaction = await node.place_order(
-                wallet=wallet,
-                order=new_order,
-            )
-
-            print(f"Position close transaction submitted: {transaction}")
-            wallet.sequence += 1
-
-            # Wait 5 seconds after sending the close request
-            await asyncio.sleep(5)
-
-        return False
-
-    except Exception as e:
-        print(f"Error closing {market_id} position: {e}")
-        import traceback
-
-        traceback.print_exc()
-        return False
+    # Return the initial position size with sign preserved
+    return initial_position_size
 
 
 async def set_leverage_with_verification(
@@ -375,8 +359,11 @@ async def test():
     print("\n" + "=" * 60)
     print(f"Step 1: Closing initial {market_id} position (if any)")
     print("=" * 60)
-    await close_position_if_exists(
+    closed_size = await close_position_if_exists(
         node, indexer, wallet, TEST_ADDRESS, subaccount_number, market, market_id
+    )
+    await restore_initial_position(
+        node, wallet, TEST_ADDRESS, subaccount_number, market, closed_size
     )
     await asyncio.sleep(2)
 
@@ -414,8 +401,11 @@ async def test():
     print("\n" + "=" * 60)
     print("Step 4: Closing position")
     print("=" * 60)
-    await close_position_if_exists(
+    closed_size = await close_position_if_exists(
         node, indexer, wallet, TEST_ADDRESS, subaccount_number, market, market_id
+    )
+    await restore_initial_position(
+        node, wallet, TEST_ADDRESS, subaccount_number, market, closed_size
     )
     await asyncio.sleep(2)
 
@@ -475,6 +465,89 @@ async def test():
     print("\n" + "=" * 60)
     print("Test complete!")
     print("=" * 60)
+
+
+async def restore_initial_position(
+    node: NodeClient,
+    wallet: Wallet,
+    address: str,
+    subaccount_number: int,
+    market: Market,
+    closed_size: float,
+) -> bool:
+    """
+    Restore the initial position with the same size that was closed.
+
+    Args:
+        closed_size: The size of the position that was closed (with sign preserved).
+                    If 0.0, no position will be opened.
+
+    Returns:
+        bool: True if position was restored successfully or no restoration needed, False otherwise
+    """
+    if closed_size == 0.0:
+        print("No position to restore (closed_size is 0.0).")
+        return True
+
+    try:
+        is_long = closed_size > 0
+        abs_size = abs(closed_size)
+        position_type = "long" if is_long else "short"
+        print(f"\nRestoring {position_type} position with size {abs_size}...")
+
+        order_id = market.order_id(
+            address,
+            subaccount_number,
+            random.randint(0, MAX_CLIENT_ID),
+            OrderFlags.SHORT_TERM,
+        )
+
+        current_block = await node.latest_block_height()
+
+        # Calculate price from oracle price with slippage
+        slippage_pct = 10  # Same as open_position default
+        oracle_price = float(market.market["oraclePrice"])
+
+        if is_long:
+            # Long position: use BUY, add slippage
+            side = Order.Side.SIDE_BUY
+            price = oracle_price * ((100 + slippage_pct) / 100.0)
+        else:
+            # Short position: use SELL, subtract slippage
+            side = Order.Side.SIDE_SELL
+            price = oracle_price * ((100 - slippage_pct) / 100.0)
+
+        new_order = market.order(
+            order_id=order_id,
+            order_type=OrderType.MARKET,
+            side=side,
+            size=abs_size,
+            price=price,
+            time_in_force=None,
+            reduce_only=False,
+            good_til_block=current_block + 20,
+        )
+
+        transaction = await node.place_order(
+            wallet=wallet,
+            order=new_order,
+        )
+
+        print(f"Restore position transaction submitted: {transaction}")
+        wallet.sequence += 1
+
+        # Wait for order execution
+        await asyncio.sleep(5)
+        print(f"Position restored: {closed_size}")
+
+        return True
+
+    except Exception as e:
+        print(f"Error restoring position: {e}")
+        import traceback
+
+        traceback.print_exc()
+        return False
 
 
 if __name__ == "__main__":
