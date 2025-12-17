@@ -45,7 +45,7 @@ import { UserError } from './lib/errors';
 import { generateRegistry } from './lib/registry';
 import LocalWallet from './modules/local-wallet';
 import { SubaccountInfo } from './subaccount';
-import { BroadcastMode, OrderBatch } from './types';
+import { BroadcastMode, IBuilderCodeParameters, ITwapParameters, OrderBatch } from './types';
 import { ValidatorClient } from './validator-client';
 
 // Required for encoding and decoding queries that are of type Long.
@@ -86,6 +86,9 @@ export type PlaceOrderPayload = {
   marketInfo?: MarketInfo;
   currentHeight?: number;
   goodTilBlock?: number;
+  twapParameters?: ITwapParameters;
+  builderCodeParameters?: IBuilderCodeParameters;
+  orderRouterAddress?: string;
 };
 
 export type CancelRawOrderPayload = {
@@ -422,6 +425,9 @@ export class CompositeClient {
     goodTilBlock?: number,
     memo?: string,
     broadcastMode?: BroadcastMode,
+    twapParameters?: ITwapParameters,
+    builderCodeParameters?: IBuilderCodeParameters,
+    orderRouterAddress?: string,
   ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
     const msgs: Promise<EncodeObject[]> = new Promise((resolve) => {
       const msg = this.placeOrderMessage(
@@ -441,6 +447,9 @@ export class CompositeClient {
         marketInfo,
         currentHeight,
         goodTilBlock,
+        twapParameters,
+        builderCodeParameters,
+        orderRouterAddress,
       );
       msg
         .then((it) => resolve([it]))
@@ -506,6 +515,9 @@ export class CompositeClient {
     marketInfo?: MarketInfo,
     currentHeight?: number,
     goodTilBlock?: number,
+    twapParameters?: ITwapParameters,
+    builderCodeParameters?: IBuilderCodeParameters,
+    orderRouterAddress?: string,
   ): Promise<EncodeObject> {
     const orderFlags = calculateOrderFlags(type, timeInForce);
 
@@ -561,6 +573,9 @@ export class CompositeClient {
       clientMetadata,
       conditionalType,
       conditionalOrderTriggerSubticks,
+      twapParameters,
+      builderCodeParameters,
+      orderRouterAddress,
     );
   }
 
