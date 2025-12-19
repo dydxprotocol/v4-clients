@@ -14,7 +14,7 @@ from tests.conftest import TEST_ADDRESS
 
 
 async def check_funding_account_balance(
-    test_address: str, min_balance_usdc: int = 21000000
+    test_address: str, min_balance_usdc: int = 100000
 ) -> bool:
     """
     Check if the funding account has sufficient balance.
