@@ -234,4 +234,3 @@ poetry run pytest
 Built by Nethermind: [@piwonskp](https://github.com/piwonskp), [@samtin0x](https://github.com/samtin0x),  [@therustmonk](https://github.com/therustmonk)
 
 For more details about the grant see [link](https://www.dydxgrants.com/grants/python-trading-client).
-
