@@ -63,8 +63,9 @@ async function getAllFills(
    */
   const allFills: Fill[] = [];
   let createdBeforeOrAt: string | null = null;
+  let hasMore = true;
 
-  while (true) {
+  while (hasMore) {
     const response = await indexerClient.account.getSubaccountFills(
       address,
       subaccountNumber,
@@ -72,13 +73,14 @@ async function getAllFills(
       undefined, // tickerType - default is PERPETUAL
       limit,
       undefined, // createdBeforeOrAtHeight
-      createdBeforeOrAt || undefined, // createdBeforeOrAt
+      createdBeforeOrAt ?? undefined, // createdBeforeOrAt
       undefined, // page
     );
 
-    const fills = (response.fills || []) as Fill[];
+    const fills = (response.fills != null ? response.fills : []) as Fill[];
 
-    if (!fills || fills.length === 0) {
+    if (fills.length === 0) {
+      hasMore = false;
       break;
     }
 
@@ -86,16 +88,18 @@ async function getAllFills(
 
     // If we got fewer fills than the limit, we've reached the end
     if (fills.length < limit) {
+      hasMore = false;
       break;
     }
 
     // Use the createdAt timestamp of the last fill for the next page
     // The API expects fills created before or at this timestamp
     const lastFill = fills[fills.length - 1];
-    createdBeforeOrAt = lastFill.createdAt || null;
+    createdBeforeOrAt = lastFill.createdAt != null ? lastFill.createdAt : null;
 
-    if (!createdBeforeOrAt) {
+    if (createdBeforeOrAt == null) {
       // If createdAt is missing, we can't paginate further
+      hasMore = false;
       break;
     }
   }
@@ -152,7 +156,7 @@ async function placeAndTrackTwapOrder(size: number): Promise<void> {
   // Store initial fill IDs for comparison
   const initialFillIds = new Set<string>();
   for (const fill of initialFills) {
-    if (fill.id) {
+    if (fill.id != null && fill.id !== '') {
       initialFillIds.add(fill.id);
     }
   }
@@ -164,7 +168,7 @@ async function placeAndTrackTwapOrder(size: number): Promise<void> {
     DYDX_TEST_ADDRESS,
     0,
   );
-  const positions = (positionsResponse.positions || []) as Array<{
+  const positions = (positionsResponse.positions != null ? positionsResponse.positions : []) as Array<{
     market?: string;
     status?: string;
     size?: string;
@@ -178,16 +182,23 @@ async function placeAndTrackTwapOrder(size: number): Promise<void> {
     }
   }
 
-  const initialSize = initialPosition ? parseFloat(initialPosition.size || '0') : 0.0;
+  const initialSize = initialPosition != null ? parseFloat(initialPosition.size != null ? initialPosition.size : '0') : 0.0;
   const isLong = initialSize > 0;
+  const isShort = initialSize < 0;
+  let direction: string;
+  if (isLong) {
+    direction = 'LONG';
+  } else if (isShort) {
+    direction = 'SHORT';
+  } else {
+    direction = 'NONE';
+  }
 
   console.log('Initial Position:');
-  if (initialPosition) {
+  if (initialPosition != null) {
     console.log(`  Market: ${MARKET_ID}`);
     console.log(`  Size: ${initialSize.toFixed(6)}`);
-    console.log(
-      `  Direction: ${isLong ? 'LONG' : initialSize < 0 ? 'SHORT' : 'NONE'}`,
-    );
+    console.log(`  Direction: ${direction}`);
   } else {
     console.log(`  No open position for ${MARKET_ID}`);
   }
@@ -196,9 +207,6 @@ async function placeAndTrackTwapOrder(size: number): Promise<void> {
   // Generate unique client_id using timestamp to ensure uniqueness
   console.log(`Using unique client_id: ${uniqueClientId} (timestamp-based)`);
   console.log();
-
-  // Get current block height
-  const currentBlock = await validatorClient.get.latestBlockHeight();
 
   // Record order placement time
   const orderPlacedTime = new Date();
@@ -222,15 +230,15 @@ async function placeAndTrackTwapOrder(size: number): Promise<void> {
   const placeOrder: IPlaceOrder = {
     clientId: uniqueClientId,
     orderFlags: OrderFlags.TWAP,
-    clobPairId: clobPairId,
+    clobPairId,
     side: Order_Side.SIDE_SELL,
-    quantums: quantums,
-    subticks: subticks,
+    quantums,
+    subticks,
     timeInForce: Order_TimeInForce.TIME_IN_FORCE_UNSPECIFIED,
     reduceOnly: false,
     clientMetadata: 0,
     goodTilBlockTime: Math.round(new Date().getTime() / 1000 + 350),
-    twapParameters: twapParameters,
+    twapParameters,
   };
 
   const transaction = await validatorClient.post.placeOrderObject(subaccount, placeOrder);
@@ -253,7 +261,6 @@ async function placeAndTrackTwapOrder(size: number): Promise<void> {
   console.log('Monitoring position changes every 2 seconds...');
   console.log();
 
-  let finalPosition: { market?: string; status?: string; size?: string } | null = null;
   let finalSize = initialSize;
 
   while (Date.now() < endTime) {
@@ -264,7 +271,7 @@ async function placeAndTrackTwapOrder(size: number): Promise<void> {
       DYDX_TEST_ADDRESS,
       0,
     );
-    const currentPositions = (currentPositionsResponse.positions || []) as Array<{
+    const currentPositions = (currentPositionsResponse.positions != null ? currentPositionsResponse.positions : []) as Array<{
       market?: string;
       status?: string;
       size?: string;
@@ -278,7 +285,7 @@ async function placeAndTrackTwapOrder(size: number): Promise<void> {
       }
     }
 
-    const currentSize = currentPosition ? parseFloat(currentPosition.size || '0') : 0.0;
+    const currentSize = currentPosition != null ? parseFloat(currentPosition.size != null ? currentPosition.size : '0') : 0.0;
 
     // Check if position changed
     if (Math.abs(currentSize - lastPositionSize) > 0.000001) {
@@ -290,7 +297,7 @@ async function placeAndTrackTwapOrder(size: number): Promise<void> {
         time: elapsed,
         size: currentSize,
         change: positionChange,
-        totalChange: totalChange,
+        totalChange,
       });
 
       const elapsedStr = `${elapsed.toFixed(1)}s`;
@@ -309,7 +316,6 @@ async function placeAndTrackTwapOrder(size: number): Promise<void> {
     }
 
     // Store the latest position data for final verification
-    finalPosition = currentPosition;
     finalSize = currentSize;
 
     await sleep(MONITORING_INTERVAL);
@@ -329,7 +335,7 @@ async function placeAndTrackTwapOrder(size: number): Promise<void> {
   // Identify new fills (TWAP fills)
   const finalFillIds = new Set<string>();
   for (const fill of finalFills) {
-    if (fill.id) {
+    if (fill.id != null && fill.id !== '') {
       finalFillIds.add(fill.id);
     }
   }
@@ -339,12 +345,12 @@ async function placeAndTrackTwapOrder(size: number): Promise<void> {
       newFillIds.add(fillId);
     }
   }
-  const twapFills = finalFills.filter((fill) => fill.id && newFillIds.has(fill.id));
+  const twapFills = finalFills.filter((fill) => fill.id != null && fill.id !== '' && newFillIds.has(fill.id));
 
   // Sort TWAP fills by creation time (oldest first)
   twapFills.sort((a, b) => {
-    const timeA = a.createdAt || '';
-    const timeB = b.createdAt || '';
+    const timeA = a.createdAt != null ? a.createdAt : '';
+    const timeB = b.createdAt != null ? b.createdAt : '';
     return timeA.localeCompare(timeB);
   });
 
@@ -379,11 +385,11 @@ async function placeAndTrackTwapOrder(size: number): Promise<void> {
     let totalFilledSize = 0.0;
     for (let i = 0; i < twapFills.length; i++) {
       const fill = twapFills[i];
-      const fillId = fill.id || 'N/A';
-      const createdAt = fill.createdAt || 'N/A';
-      const fillSize = parseFloat(fill.size || '0');
-      const fillPrice = parseFloat(fill.price || '0');
-      const fillSide = fill.side || 'N/A';
+      const fillId = fill.id != null && fill.id !== '' ? fill.id : 'N/A';
+      const createdAt = fill.createdAt != null && fill.createdAt !== '' ? fill.createdAt : 'N/A';
+      const fillSize = parseFloat(fill.size != null && fill.size !== '' ? fill.size : '0');
+      const fillPrice = parseFloat(fill.price != null && fill.price !== '' ? fill.price : '0');
+      const fillSide = fill.side != null && fill.side !== '' ? fill.side : 'N/A';
       totalFilledSize += Math.abs(fillSize);
 
       console.log(`Fill ${i + 1}:`);
