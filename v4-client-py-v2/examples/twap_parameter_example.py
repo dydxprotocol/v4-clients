@@ -35,6 +35,7 @@ def format_order_id_for_query(order_id_obj) -> str:
         f"{order_id_obj.client_id}-{order_id_obj.clob_pair_id}-{order_id_obj.order_flags}"
     )
 
+
 def since_now(*args, **kwargs) -> int:
     return int(round((datetime.now() + timedelta(*args, **kwargs)).timestamp()))
 
@@ -194,7 +195,7 @@ async def place_and_track_twap_order(size: float):
         price=0,  # Market order
         time_in_force=Order.TimeInForce.TIME_IN_FORCE_UNSPECIFIED,
         reduce_only=False,
-        good_til_block_time = since_now(seconds=3600),
+        good_til_block_time=since_now(seconds=3600),
         twap_duration=TWAP_DURATION,
         twap_interval=TWAP_INTERVAL,
         twap_price_tolerance=TWAP_PRICE_TOLERANCE,
