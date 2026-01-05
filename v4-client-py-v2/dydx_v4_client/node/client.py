@@ -62,6 +62,8 @@ from v4_proto.dydxprotocol.clob.order_pb2 import Order, OrderId
 from v4_proto.dydxprotocol.clob.query_pb2 import (
     QueryAllClobPairRequest,
     QueryClobPairAllResponse,
+    QueryLeverageRequest,
+    QueryLeverageResponse,
 )
 from v4_proto.dydxprotocol.feetiers import query_pb2 as fee_tier_query
 from v4_proto.dydxprotocol.feetiers import query_pb2_grpc as fee_tier_query_grpc
@@ -124,6 +126,7 @@ from dydx_v4_client.node.message import (
     withdraw_delegator_reward,
     undelegate,
     delegate,
+    update_leverage,
 )
 from dydx_v4_client.wallet import Wallet
 
@@ -325,6 +328,24 @@ class QueryNodeClient:
         """
         stub = clob_query_grpc.QueryStub(self.channel)
         return stub.ClobPairAll(QueryAllClobPairRequest())
+
+    async def get_leverage(
+        self, address: str, subaccount_number: int
+    ) -> QueryLeverageResponse:
+        """
+        Retrieves leverage information for a subaccount.
+
+        Args:
+            address (str): The subaccount owner address.
+            subaccount_number (int): The subaccount number.
+
+        Returns:
+            QueryLeverageResponse: The response containing leverage information.
+        """
+        stub = clob_query_grpc.QueryStub(self.channel)
+        return stub.Leverage(
+            QueryLeverageRequest(owner=address, number=subaccount_number)
+        )
 
     async def get_price(self, market_id: int) -> market_price_type.MarketPrice:
         """
@@ -1074,6 +1095,33 @@ class NodeClient(MutatingNodeClient):
         return await self.broadcast_message(
             wallet,
             batch_cancel_msg,
+            tx_options=tx_options,
+        )
+
+    async def update_leverage(
+        self,
+        wallet: Wallet,
+        address: str,
+        subaccount_number: int,
+        entries: List,
+        tx_options: Optional[TxOptions] = None,
+    ):
+        """
+        Updates leverage for a subaccount.
+
+        Args:
+            wallet (Wallet): The wallet to use for signing the transaction.
+            address (str): The subaccount owner address.
+            subaccount_number (int): The subaccount number.
+            entries (List): List of LeverageEntry objects.
+            tx_options (TxOptions, optional): Options for transaction to support authenticators.
+
+        Returns:
+            The response from the transaction broadcast.
+        """
+        return await self.broadcast_message(
+            wallet,
+            update_leverage(address, subaccount_number, entries),
             tx_options=tx_options,
         )
 
