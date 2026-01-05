@@ -2,7 +2,7 @@ import Long from 'long';
 import protobuf from 'protobufjs';
 
 import { BECH32_PREFIX } from '../src';
-import { Network, OrderType, OrderSide } from '../src/clients/constants';
+import { Network } from '../src/clients/constants';
 import { calculateQuantums, calculateSubticks } from '../src/clients/helpers/chain-helpers';
 import { IndexerClient } from '../src/clients/indexer-client';
 import LocalWallet from '../src/clients/modules/local-wallet';
@@ -10,7 +10,7 @@ import { Order_Side, Order_TimeInForce } from '../src/clients/modules/proto-incl
 import { SubaccountInfo } from '../src/clients/subaccount';
 import { IPlaceOrder, ITwapParameters, OrderFlags } from '../src/clients/types';
 import { ValidatorClient } from '../src/clients/validator-client';
-import { DYDX_TEST_MNEMONIC, DYDX_TEST_ADDRESS, MAX_CLIENT_ID } from './constants';
+import { DYDX_TEST_ADDRESS, DYDX_TEST_MNEMONIC, MAX_CLIENT_ID } from './constants';
 
 // Required for encoding and decoding queries that are of type Long.
 protobuf.util.Long = Long;
@@ -32,22 +32,75 @@ interface PositionChange {
   totalChange: number;
 }
 
-function formatOrderIdForQuery(orderId: {
-  subaccountId: { owner: string; number: number };
-  clientId: number;
-  clobPairId: number;
-  orderFlags: number;
-}): string {
-  /**
-   * Format OrderId object to string format for API queries.
-   * Format: {address}-{subaccount_number}-{client_id}-{clob_pair_id}-{order_flags}
-   */
-  const subaccount = orderId.subaccountId;
-  return `${subaccount.owner}-${subaccount.number}-${orderId.clientId}-${orderId.clobPairId}-${orderId.orderFlags}`;
-}
-
 async function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+interface Fill {
+  id?: string;
+  createdAt?: string;
+  size?: string;
+  price?: string;
+  side?: string;
+}
+
+async function getAllFills(
+  indexerClient: IndexerClient,
+  address: string,
+  subaccountNumber: number,
+  ticker: string,
+  limit: number = 100,
+): Promise<Fill[]> {
+  /**
+   * Retrieve all fills for a subaccount by paginating through all pages.
+   *
+   * @param indexerClient - The IndexerClient instance
+   * @param address - The account address
+   * @param subaccountNumber - The subaccount number
+   * @param ticker - The market ticker to filter by
+   * @param limit - Number of fills per page (default 100)
+   * @returns List of all fills
+   */
+  const allFills: Fill[] = [];
+  let createdBeforeOrAt: string | null = null;
+
+  while (true) {
+    const response = await indexerClient.account.getSubaccountFills(
+      address,
+      subaccountNumber,
+      ticker,
+      undefined, // tickerType - default is PERPETUAL
+      limit,
+      undefined, // createdBeforeOrAtHeight
+      createdBeforeOrAt || undefined, // createdBeforeOrAt
+      undefined, // page
+    );
+
+    const fills = (response.fills || []) as Fill[];
+
+    if (!fills || fills.length === 0) {
+      break;
+    }
+
+    allFills.push(...fills);
+
+    // If we got fewer fills than the limit, we've reached the end
+    if (fills.length < limit) {
+      break;
+    }
+
+    // Use the createdAt timestamp of the last fill for the next page
+    // The API expects fills created before or at this timestamp
+    const lastFill = fills[fills.length - 1];
+    createdBeforeOrAt = lastFill.createdAt || null;
+
+    if (!createdBeforeOrAt) {
+      // If createdAt is missing, we can't paginate further
+      break;
+    }
+  }
+
+  return allFills;
 }
 
 async function placeAndTrackTwapOrder(size: number): Promise<void> {
@@ -85,6 +138,26 @@ async function placeAndTrackTwapOrder(size: number): Promise<void> {
   const stepBaseQuantums = market.stepBaseQuantums;
   const quantumConversionExponent = market.quantumConversionExponent;
   const subticksPerTick = market.subticksPerTick;
+
+  // Retrieve all initial fills with pagination
+  console.log(
+    'Retrieving initial fills (this may take a moment if there are many fills)...',
+  );
+  const initialFills = await getAllFills(
+    indexerClient,
+    DYDX_TEST_ADDRESS,
+    0,
+    MARKET_ID,
+  );
+  // Store initial fill IDs for comparison
+  const initialFillIds = new Set<string>();
+  for (const fill of initialFills) {
+    if (fill.id) {
+      initialFillIds.add(fill.id);
+    }
+  }
+  console.log(`Retrieved ${initialFills.length} initial fills`);
+  console.log();
 
   // Get initial position before placing order
   const positionsResponse = await indexerClient.account.getSubaccountPerpetualPositions(
@@ -148,7 +221,7 @@ async function placeAndTrackTwapOrder(size: number): Promise<void> {
   // Create and place TWAP order
   const placeOrder: IPlaceOrder = {
     clientId: uniqueClientId,
-    orderFlags: OrderFlags.SHORT_TERM,
+    orderFlags: OrderFlags.TWAP,
     clobPairId: clobPairId,
     side: Order_Side.SIDE_SELL,
     quantums: quantums,
@@ -156,7 +229,7 @@ async function placeAndTrackTwapOrder(size: number): Promise<void> {
     timeInForce: Order_TimeInForce.TIME_IN_FORCE_UNSPECIFIED,
     reduceOnly: false,
     clientMetadata: 0,
-    goodTilBlock: currentBlock + 30, // Must be within ShortBlockWindow limit (40 blocks max)
+    goodTilBlockTime: Math.round(new Date().getTime() / 1000 + 350),
     twapParameters: twapParameters,
   };
 
@@ -242,6 +315,39 @@ async function placeAndTrackTwapOrder(size: number): Promise<void> {
     await sleep(MONITORING_INTERVAL);
   }
 
+  // Retrieve all fills again after TWAP execution
+  console.log('Retrieving all fills after TWAP execution...');
+  const finalFills = await getAllFills(
+    indexerClient,
+    DYDX_TEST_ADDRESS,
+    0,
+    MARKET_ID,
+  );
+  console.log(`Retrieved ${finalFills.length} total fills`);
+  console.log();
+
+  // Identify new fills (TWAP fills)
+  const finalFillIds = new Set<string>();
+  for (const fill of finalFills) {
+    if (fill.id) {
+      finalFillIds.add(fill.id);
+    }
+  }
+  const newFillIds = new Set<string>();
+  for (const fillId of finalFillIds) {
+    if (!initialFillIds.has(fillId)) {
+      newFillIds.add(fillId);
+    }
+  }
+  const twapFills = finalFills.filter((fill) => fill.id && newFillIds.has(fill.id));
+
+  // Sort TWAP fills by creation time (oldest first)
+  twapFills.sort((a, b) => {
+    const timeA = a.createdAt || '';
+    const timeB = b.createdAt || '';
+    return timeA.localeCompare(timeB);
+  });
+
   // Final verification
   console.log('='.repeat(80));
   console.log('FINAL VERIFICATION');
@@ -261,6 +367,45 @@ async function placeAndTrackTwapOrder(size: number): Promise<void> {
   console.log('Using position tracking verification:');
   console.log('  - Position changed: ✓');
   console.log(`  - Total position change: ${absTotalChange.toFixed(6)}`);
+  console.log();
+
+  // Display TWAP fills
+  console.log('='.repeat(80));
+  console.log('TWAP FILLS');
+  console.log('='.repeat(80));
+  if (twapFills.length > 0) {
+    console.log(`Found ${twapFills.length} new fills from TWAP order execution:`);
+    console.log();
+    let totalFilledSize = 0.0;
+    for (let i = 0; i < twapFills.length; i++) {
+      const fill = twapFills[i];
+      const fillId = fill.id || 'N/A';
+      const createdAt = fill.createdAt || 'N/A';
+      const fillSize = parseFloat(fill.size || '0');
+      const fillPrice = parseFloat(fill.price || '0');
+      const fillSide = fill.side || 'N/A';
+      totalFilledSize += Math.abs(fillSize);
+
+      console.log(`Fill ${i + 1}:`);
+      console.log(`  ID: ${fillId}`);
+      console.log(`  Created At: ${createdAt}`);
+      console.log(`  Side: ${fillSide}`);
+      console.log(`  Size: ${fillSize.toFixed(6)}`);
+      console.log(`  Price: $${fillPrice.toFixed(2)}`);
+      console.log(`  Notional: $${Math.abs(fillSize * fillPrice).toFixed(2)}`);
+      console.log();
+    }
+
+    console.log(`Total Filled Size: ${totalFilledSize.toFixed(6)}`);
+    console.log(`Expected Order Size: ${size.toFixed(6)}`);
+    if (totalFilledSize > 0) {
+      const fillPercentage = (totalFilledSize / size) * 100;
+      console.log(`Fill Percentage: ${fillPercentage.toFixed(1)}%`);
+    }
+  } else {
+    console.log('No new fills detected. The TWAP order may not have executed yet,');
+    console.log('or all fills were already present in the initial retrieval.');
+  }
   console.log();
 
   // Final summary
