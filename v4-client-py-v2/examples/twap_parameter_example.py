@@ -1,6 +1,5 @@
 import asyncio
 import time
-from datetime import datetime, timezone
 
 from dydx_v4_client import MAX_CLIENT_ID, OrderFlags
 from v4_proto.dydxprotocol.clob.order_pb2 import Order
@@ -12,6 +11,7 @@ from dydx_v4_client.node.client import NodeClient
 from dydx_v4_client.node.market import Market
 from dydx_v4_client.wallet import Wallet
 from tests.conftest import DYDX_TEST_MNEMONIC, TEST_ADDRESS
+from datetime import datetime, timedelta, timezone
 
 MARKET_ID = "ETH-USD"
 
@@ -34,6 +34,9 @@ def format_order_id_for_query(order_id_obj) -> str:
         f"{subaccount.owner}-{subaccount.number}-"
         f"{order_id_obj.client_id}-{order_id_obj.clob_pair_id}-{order_id_obj.order_flags}"
     )
+
+def since_now(*args, **kwargs) -> int:
+    return int(round((datetime.now() + timedelta(*args, **kwargs)).timestamp()))
 
 
 async def get_all_fills(
@@ -170,7 +173,7 @@ async def place_and_track_twap_order(size: float):
     print()
 
     # Create order ID
-    order_id = market.order_id(TEST_ADDRESS, 0, unique_client_id, OrderFlags.SHORT_TERM)
+    order_id = market.order_id(TEST_ADDRESS, 0, unique_client_id, OrderFlags.TWAP)
 
     current_block = await node.latest_block_height()
 
@@ -191,8 +194,7 @@ async def place_and_track_twap_order(size: float):
         price=0,  # Market order
         time_in_force=Order.TimeInForce.TIME_IN_FORCE_UNSPECIFIED,
         reduce_only=False,
-        good_til_block=current_block
-        + 30,  # Must be within ShortBlockWindow limit (40 blocks max)
+        good_til_block_time = since_now(seconds=3600),
         twap_duration=TWAP_DURATION,
         twap_interval=TWAP_INTERVAL,
         twap_price_tolerance=TWAP_PRICE_TOLERANCE,
