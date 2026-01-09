@@ -39,6 +39,7 @@ export enum OrderFlags {
   SHORT_TERM = 0,
   LONG_TERM = 64,
   CONDITIONAL = 32,
+  TWAP = 128,
 }
 
 // TWAP order parameters
