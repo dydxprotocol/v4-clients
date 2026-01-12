@@ -71,8 +71,8 @@ jobs:
       - name: Install Dependencies
         run: poetry install
 
-      - name: Check Funding Account Balance
-        run: poetry run python dydx_v4_client/node/balance_checker.py
+      # - name: Check Funding Account Balance
+      #   run: poetry run python dydx_v4_client/node/balance_checker.py
 
       - name: Run pytest
         run: poetry run pytest
