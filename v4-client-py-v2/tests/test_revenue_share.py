@@ -13,7 +13,7 @@ import pytest
 async def test_place_order_with_order_router_address(
     node_client, indexer_rest_client, test_order_id, test_address, wallet
 ):
-    MARKET_ID = "ETH-USD"
+    MARKET_ID = "ENA-USD"
     market = Market(
         (await indexer_rest_client.markets.get_perpetual_markets(MARKET_ID))["markets"][
             MARKET_ID
@@ -34,7 +34,7 @@ async def test_place_order_with_order_router_address(
         order_id=order_id,
         order_type=OrderType.MARKET,
         side=Order.Side.SIDE_SELL,
-        size=0.0001,
+        size=100,
         price=0,  # Recommend set to oracle price - 5% or lower for SELL, oracle price + 5% for BUY
         time_in_force=Order.TimeInForce.TIME_IN_FORCE_UNSPECIFIED,
         reduce_only=False,
