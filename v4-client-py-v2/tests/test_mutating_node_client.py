@@ -609,10 +609,11 @@ async def test_close_position_sell_having_reduce_by(
         good_til_block=current_block + 20,
     )
 
-    _ = await node_client.place_order(
+    place_order_response = await node_client.place_order(
         wallet=wallet,
         order=new_order,
     )
+    assert_successful_broadcast(place_order_response)
 
     wallet.sequence += 1
 
@@ -623,7 +624,7 @@ async def test_close_position_sell_having_reduce_by(
     )
     assert size_after_placing_order == -200
 
-    _ = await node_client.close_position(
+    close_position_response = await node_client.close_position(
         wallet=wallet,
         address=test_address,
         subaccount_number=0,
@@ -631,8 +632,10 @@ async def test_close_position_sell_having_reduce_by(
         reduce_by=100,
         client_id=random.randint(0, MAX_CLIENT_ID),
     )
+    assert_successful_broadcast(close_position_response)
     await asyncio.sleep(5)
     assert await get_current_order_size(indexer_rest_client, test_address) == -100
+    _ = await close_open_positions(node_client, wallet, test_address, market)
 
 
 @pytest.mark.asyncio
@@ -793,7 +796,7 @@ async def get_current_order_size(indexer_rest_client, test_address):
 
 
 async def close_open_positions(node_client, wallet, test_address, market):
-    _ = await node_client.close_position(
+    return await node_client.close_position(
         wallet=wallet,
         address=test_address,
         subaccount_number=0,
