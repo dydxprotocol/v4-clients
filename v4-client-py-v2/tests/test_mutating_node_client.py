@@ -10,9 +10,10 @@ from dydx_v4_client.node.market import Market
 from dydx_v4_client.node.message import subaccount, send_token, order
 from v4_proto.dydxprotocol.clob.order_pb2 import Order
 from dydx_v4_client.indexer.rest.constants import OrderType
-from tests.conftest import get_wallet, assert_successful_broadcast
+from tests.conftest import get_wallet, assert_successful_broadcast, TEST_ADDRESS_2
 from v4_proto.dydxprotocol.clob.order_pb2 import BuilderCodeParameters
 from dydx_v4_client.indexer.rest.constants import OrderStatus
+from dydx_v4_client.key_pair import KeyPair
 
 
 REQUEST_PROCESSING_TIME = 5
@@ -413,9 +414,174 @@ async def test_close_position_sell_no_reduce_by(
     assert await get_current_order_size(indexer_rest_client, test_address) is None
 
 
+async def setup_liquidity_orders(
+    node_client, indexer_rest_client, wallet_2, market
+):
+    """
+    Places buy and sell orders at safe prices to provide liquidity without immediate execution.
+    Fetches orderbook to calculate prices 0.5% away from bid/ask, using oracle as fallback.
+    Returns tuple of (buy_order_id, sell_order_id, wallet_2, good_til_block) for cleanup.
+    """
+    MARKET_ID = "ENA-USD"
+    oracle_price = float(market.market["oraclePrice"])
+    
+    # Fetch orderbook to get current bid/ask
+    try:
+        orderbook = await indexer_rest_client.markets.get_perpetual_market_orderbook(MARKET_ID)
+        best_bid = float(orderbook["bids"][0]["price"]) if orderbook.get("bids") and len(orderbook["bids"]) > 0 else None
+        best_ask = float(orderbook["asks"][0]["price"]) if orderbook.get("asks") and len(orderbook["asks"]) > 0 else None
+    except Exception:
+        best_bid = None
+        best_ask = None
+
+    # For both buy and sell, start at oracle +- 0.5%
+    buy_price = oracle_price * 0.995  # 0.5% below oracle
+    sell_price = oracle_price * 1.005  # 0.5% above oracle
+
+    # If there is an ask, check if buy_price would immediately execute
+    if best_ask is not None:
+        # BUY price executes if price >= ask
+        if buy_price >= best_ask:
+            # Shift further down by 0.5% from ask
+            buy_price = best_ask * 0.995  # 0.5% below ask
+
+    # If there is a bid, check if sell_price would immediately execute
+    if best_bid is not None:
+        # SELL price executes if price <= bid
+        if sell_price <= best_bid:
+            # Shift further up by 0.5% from bid
+            sell_price = best_bid * 1.005  # 0.5% above bid
+    
+    current_block = await node_client.latest_block_height()
+    good_til_block = current_block + 15
+    
+    # Place BUY order at calculated safe price (below ask to avoid immediate execution)
+    buy_order_id = market.order_id(
+        TEST_ADDRESS_2, 0, random.randint(0, MAX_CLIENT_ID), OrderFlags.SHORT_TERM
+    )
+    buy_order = market.order(
+        order_id=buy_order_id,
+        order_type=OrderType.LIMIT,
+        side=Order.Side.SIDE_BUY,
+        size=1000,  # Large size to provide liquidity
+        price=buy_price,
+        time_in_force=Order.TimeInForce.TIME_IN_FORCE_UNSPECIFIED,
+        reduce_only=False,
+        good_til_block=good_til_block,
+    )
+    
+    buy_response = await node_client.place_order(
+        wallet=wallet_2,
+        order=buy_order,
+    )
+    assert_successful_broadcast(buy_response)
+    wallet_2.sequence += 1
+    
+    # Place SELL order at calculated safe price (above bid to avoid immediate execution)
+    sell_order_id = market.order_id(
+        TEST_ADDRESS_2, 0, random.randint(0, MAX_CLIENT_ID), OrderFlags.SHORT_TERM
+    )
+    sell_order = market.order(
+        order_id=sell_order_id,
+        order_type=OrderType.LIMIT,
+        side=Order.Side.SIDE_SELL,
+        size=1000,  # Large size to provide liquidity
+        price=sell_price,
+        time_in_force=Order.TimeInForce.TIME_IN_FORCE_UNSPECIFIED,
+        reduce_only=False,
+        good_til_block=good_til_block,
+    )
+    
+    sell_response = await node_client.place_order(
+        wallet=wallet_2,
+        order=sell_order,
+    )
+    assert_successful_broadcast(sell_response)
+    wallet_2.sequence += 1
+    
+    # Wait for orders to be placed
+    await asyncio.sleep(5)
+    
+    return (buy_order_id, sell_order_id, wallet_2, good_til_block)
+
+
+async def cleanup_liquidity_orders(
+    node_client, key_pair_2, buy_order_id, sell_order_id, good_til_block
+):
+    """
+    Cancels the buy and sell liquidity orders.
+    """
+    # Refresh wallet to get current sequence
+    wallet_2 = await get_wallet(node_client, key_pair_2, TEST_ADDRESS_2)
+    
+    # Cancel buy order
+    try:
+        cancel_buy_response = await node_client.cancel_order(
+            wallet=wallet_2,
+            order_id=buy_order_id,
+            good_til_block=good_til_block + 10,
+        )
+        assert_successful_broadcast(cancel_buy_response)
+        wallet_2.sequence += 1
+    except Exception as e:
+        # Order may have already been filled or cancelled, continue
+        pass
+    
+    # Refresh wallet again before canceling sell order
+    wallet_2 = await get_wallet(node_client, key_pair_2, TEST_ADDRESS_2)
+    
+    # Cancel sell order
+    try:
+        cancel_sell_response = await node_client.cancel_order(
+            wallet=wallet_2,
+            order_id=sell_order_id,
+            good_til_block=good_til_block + 10,
+        )
+        assert_successful_broadcast(cancel_sell_response)
+        wallet_2.sequence += 1
+    except Exception as e:
+        # Order may have already been filled or cancelled, continue
+        pass
+    
+    await asyncio.sleep(5)
+
+
+@pytest.fixture
+async def liquidity_setup(node_client, indexer_rest_client, wallet_2, key_pair_2):
+    """
+    Fixture that sets up liquidity orders before the test and cleans them up after.
+    Places buy and sell orders at ±0.1% from oracle price using TEST_ADDRESS_2.
+    """
+    MARKET_ID = "ENA-USD"
+    market = Market(
+        (await indexer_rest_client.markets.get_perpetual_markets(MARKET_ID))["markets"][
+            MARKET_ID
+        ]
+    )
+    
+    # Setup: place liquidity orders
+    buy_order_id, sell_order_id, wallet_ref, good_til_block = await setup_liquidity_orders(
+        node_client, indexer_rest_client, wallet_2, market
+    )
+    
+    yield  # Test runs here
+    
+    # Cleanup: cancel liquidity orders
+    await cleanup_liquidity_orders(
+        node_client, key_pair_2, buy_order_id, sell_order_id, good_til_block
+    )
+
+@pytest.mark.asyncio
+async def test__liquidity_setup(
+    node_client, wallet, test_address, indexer_rest_client, liquidity_setup
+):
+    # just sleep for 5 seconds
+    await asyncio.sleep(5)
+
+
 @pytest.mark.asyncio
 async def test_close_position_sell_having_reduce_by(
-    node_client, wallet, test_address, indexer_rest_client
+    node_client, wallet, test_address, indexer_rest_client, liquidity_setup
 ):
     MARKET_ID = "ENA-USD"
     market = Market(

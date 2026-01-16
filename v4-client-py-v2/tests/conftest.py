@@ -98,6 +98,11 @@ def key_pair() -> KeyPair:
 
 
 @pytest.fixture
+def key_pair_2() -> KeyPair:
+    return KeyPair.from_mnemonic(DYDX_TEST_MNEMONIC_2)
+
+
+@pytest.fixture
 def test_order_id(test_address) -> OrderId:
     return order_id(
         test_address,
@@ -148,6 +153,11 @@ async def get_wallet(node_client, key_pair, test_address) -> Wallet:
 @pytest.fixture()
 async def wallet(node_client, key_pair, test_address) -> Wallet:
     return await get_wallet(node_client, key_pair, test_address)
+
+
+@pytest.fixture()
+async def wallet_2(node_client, key_pair_2) -> Wallet:
+    return await get_wallet(node_client, key_pair_2, TEST_ADDRESS_2)
 
 
 def retry_on_forbidden(max_retries=3, delay=1, skip=False):
