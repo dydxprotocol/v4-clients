@@ -68,7 +68,12 @@ def test_cancel_order_serialization():
 
 def test_deposit_serialization():
     assert_serializes_properly(
-        deposit(SERIALIZATION_TEST_ADDRESS, subaccount(SERIALIZATION_TEST_ADDRESS, 0), 0, 10_000_000),
+        deposit(
+            SERIALIZATION_TEST_ADDRESS,
+            subaccount(SERIALIZATION_TEST_ADDRESS, 0),
+            0,
+            10_000_000,
+        ),
         SERIALIZED_DEPOSIT,
     )
 
@@ -76,7 +81,10 @@ def test_deposit_serialization():
 def test_withdraw_serialization():
     assert_serializes_properly(
         withdraw(
-            subaccount(SERIALIZATION_TEST_ADDRESS, 0), SERIALIZATION_TEST_ADDRESS, asset_id=0, quantums=10000000
+            subaccount(SERIALIZATION_TEST_ADDRESS, 0),
+            SERIALIZATION_TEST_ADDRESS,
+            asset_id=0,
+            quantums=10000000,
         ),
         SERIALIZED_WITHDRAW,
     )
@@ -84,14 +92,23 @@ def test_withdraw_serialization():
 
 def test_send_token_serialization():
     assert_serializes_properly(
-        send_token(SERIALIZATION_TEST_ADDRESS, SERIALIZATION_TEST_RECIPIENT, 10000000, "adv4tnt"), SERIALIZED_SEND_TOKEN
+        send_token(
+            SERIALIZATION_TEST_ADDRESS,
+            SERIALIZATION_TEST_RECIPIENT,
+            10000000,
+            "adv4tnt",
+        ),
+        SERIALIZED_SEND_TOKEN,
     )
 
 
 def test_transfer_serialization():
     assert_serializes_properly(
         transfer(
-            subaccount(SERIALIZATION_TEST_ADDRESS, 0), subaccount(SERIALIZATION_TEST_RECIPIENT, 1), asset_id=0, amount=1
+            subaccount(SERIALIZATION_TEST_ADDRESS, 0),
+            subaccount(SERIALIZATION_TEST_RECIPIENT, 1),
+            asset_id=0,
+            amount=1,
         ),
         SERIALIZED_TRANSFER,
     )
