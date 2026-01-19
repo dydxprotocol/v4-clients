@@ -44,6 +44,24 @@ DYDX_TEST_MNEMONIC_2 = (
 TEST_ADDRESS_2 = "dydx18sukah44zfkjndlhcdmhkjnarl2sevhwf894vh"
 
 
+
+# account 3
+
+DYDX_TEST_PRIVATE_KEY_3 = (
+    "0a7ff605269ed00853a425beda719da038a11792f6dddf31c087b2988b4dc8fe"
+)
+
+DYDX_TEST_MNEMONIC_3 = (
+    "mandate glove carry despair area gloom sting round toddler deal face vague receive "
+    "shallow confirm south green cup rain drill monkey method tongue fence"
+)
+
+DYDX_TEST_PUBLIC_KEY_3 = (
+    "0291d1d9fd23334f3d53c3a5b50b56317d8964692320d73d22d7a0b115d5eb574f"
+)
+
+TEST_ADDRESS_3 = "dydx1wldnytkerzs39rs28djn0p9vvqer2x2k5x8hjy"
+
 @pytest.fixture
 def indexer_rest_client() -> IndexerClient:
     return IndexerClient("https://indexer.v4testnet.dydx.exchange")
