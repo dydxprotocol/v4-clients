@@ -322,7 +322,7 @@ async def test_place_order_with_builder_code(
 
 @pytest.mark.asyncio
 async def test_place_order_with_twap_parameters(
-    node_client, indexer_rest_client, test_order_id, test_address, wallet
+    node_client, indexer_rest_client, test_order_id, test_address, wallet, liquidity_setup
 ):
     MARKET_ID = "ENA-USD"
     market = Market(
@@ -360,7 +360,7 @@ async def test_place_order_with_twap_parameters(
 
 @pytest.mark.asyncio
 async def test_close_position_sell_no_reduce_by(
-    node_client, wallet, test_address, indexer_rest_client
+    node_client, wallet, test_address, indexer_rest_client, liquidity_setup
 ):
     MARKET_ID = "ENA-USD"
     market = Market(
@@ -640,7 +640,7 @@ async def test_close_position_sell_having_reduce_by(
 
 @pytest.mark.asyncio
 async def test_close_position_buy_no_reduce_by(
-    node_client, wallet, test_address, indexer_rest_client
+    node_client, wallet, test_address, indexer_rest_client, liquidity_setup
 ):
     MARKET_ID = "ENA-USD"
     market = Market(
@@ -696,7 +696,7 @@ async def test_close_position_buy_no_reduce_by(
 
 @pytest.mark.asyncio
 async def test_close_position_buy_having_reduce_by(
-    node_client, wallet, test_address, indexer_rest_client
+    node_client, wallet, test_address, indexer_rest_client, liquidity_setup
 ):
     MARKET_ID = "ENA-USD"
     market = Market(
