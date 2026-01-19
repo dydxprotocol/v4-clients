@@ -21,6 +21,7 @@ REQUEST_PROCESSING_TIME = 5
 MARKET_ID = "ENA-USD"
 SUBACCOUNT = 0
 
+
 @pytest.fixture(autouse=True)
 def sleep_after_test(request):
     """
@@ -378,14 +379,19 @@ async def test_close_position_sell_no_reduce_by(
 
     wallet = await get_wallet(node_client, key_pair, test_address)
 
-    _ = await close_open_positions(node_client, wallet, test_address, market, SUBACCOUNT)
+    _ = await close_open_positions(
+        node_client, wallet, test_address, market, SUBACCOUNT
+    )
 
     # Refresh wallet after close_open_positions
     wallet = await get_wallet(node_client, key_pair, test_address)
 
     # Open a position for sell order
     order_id = market.order_id(
-        test_address, SUBACCOUNT, random.randint(0, MAX_CLIENT_ID), OrderFlags.SHORT_TERM
+        test_address,
+        SUBACCOUNT,
+        random.randint(0, MAX_CLIENT_ID),
+        OrderFlags.SHORT_TERM,
     )
     current_block = await node_client.latest_block_height()
     new_order = market.order(
@@ -423,24 +429,35 @@ async def test_close_position_sell_no_reduce_by(
         client_id=random.randint(0, MAX_CLIENT_ID),
     )
     await asyncio.sleep(5)
-    assert await get_current_order_size(indexer_rest_client, test_address, SUBACCOUNT) is None
+    assert (
+        await get_current_order_size(indexer_rest_client, test_address, SUBACCOUNT)
+        is None
+    )
 
 
-async def setup_liquidity_orders(
-    node_client, indexer_rest_client, wallet_2, market
-):
+async def setup_liquidity_orders(node_client, indexer_rest_client, wallet_2, market):
     """
     Places buy and sell orders at safe prices to provide liquidity without immediate execution.
     Fetches orderbook to calculate prices 0.5% away from bid/ask, using oracle as fallback.
     Returns tuple of (buy_order_id, sell_order_id, wallet_2, good_til_block) for cleanup.
     """
     oracle_price = float(market.market["oraclePrice"])
-    
+
     # Fetch orderbook to get current bid/ask
     try:
-        orderbook = await indexer_rest_client.markets.get_perpetual_market_orderbook(MARKET_ID)
-        best_bid = float(orderbook["bids"][0]["price"]) if orderbook.get("bids") and len(orderbook["bids"]) > 0 else None
-        best_ask = float(orderbook["asks"][0]["price"]) if orderbook.get("asks") and len(orderbook["asks"]) > 0 else None
+        orderbook = await indexer_rest_client.markets.get_perpetual_market_orderbook(
+            MARKET_ID
+        )
+        best_bid = (
+            float(orderbook["bids"][0]["price"])
+            if orderbook.get("bids") and len(orderbook["bids"]) > 0
+            else None
+        )
+        best_ask = (
+            float(orderbook["asks"][0]["price"])
+            if orderbook.get("asks") and len(orderbook["asks"]) > 0
+            else None
+        )
     except Exception:
         best_bid = None
         best_ask = None
@@ -462,10 +479,10 @@ async def setup_liquidity_orders(
         if sell_price <= best_bid:
             # Shift further up by 0.5% from bid
             sell_price = best_bid * 1.005  # 0.5% above bid
-    
+
     current_block = await node_client.latest_block_height()
     good_til_block = current_block + 15
-    
+
     # Place BUY order at calculated safe price (below ask to avoid immediate execution)
     buy_order_id = market.order_id(
         TEST_ADDRESS_2, 0, random.randint(0, MAX_CLIENT_ID), OrderFlags.SHORT_TERM
@@ -480,14 +497,14 @@ async def setup_liquidity_orders(
         reduce_only=False,
         good_til_block=good_til_block,
     )
-    
+
     buy_response = await node_client.place_order(
         wallet=wallet_2,
         order=buy_order,
     )
     assert_successful_broadcast(buy_response)
     wallet_2.sequence += 1
-    
+
     # Place SELL order at calculated safe price (above bid to avoid immediate execution)
     sell_order_id = market.order_id(
         TEST_ADDRESS_2, 0, random.randint(0, MAX_CLIENT_ID), OrderFlags.SHORT_TERM
@@ -502,17 +519,17 @@ async def setup_liquidity_orders(
         reduce_only=False,
         good_til_block=good_til_block,
     )
-    
+
     sell_response = await node_client.place_order(
         wallet=wallet_2,
         order=sell_order,
     )
     assert_successful_broadcast(sell_response)
     wallet_2.sequence += 1
-    
+
     # Wait for orders to be placed
     await asyncio.sleep(5)
-    
+
     return (buy_order_id, sell_order_id, wallet_2, good_til_block)
 
 
@@ -524,7 +541,7 @@ async def cleanup_liquidity_orders(
     """
     # Refresh wallet to get current sequence
     wallet_2 = await get_wallet(node_client, key_pair_2, TEST_ADDRESS_2)
-    
+
     # Cancel buy order
     try:
         cancel_buy_response = await node_client.cancel_order(
@@ -537,10 +554,10 @@ async def cleanup_liquidity_orders(
     except Exception as e:
         # Order may have already been filled or cancelled, continue
         pass
-    
+
     # Refresh wallet again before canceling sell order
     wallet_2 = await get_wallet(node_client, key_pair_2, TEST_ADDRESS_2)
-    
+
     # Cancel sell order
     try:
         cancel_sell_response = await node_client.cancel_order(
@@ -553,7 +570,7 @@ async def cleanup_liquidity_orders(
     except Exception as e:
         # Order may have already been filled or cancelled, continue
         pass
-    
+
     await asyncio.sleep(5)
 
 
@@ -568,18 +585,19 @@ async def liquidity_setup(node_client, indexer_rest_client, wallet_2, key_pair_2
             MARKET_ID
         ]
     )
-    
+
     # Setup: place liquidity orders
-    buy_order_id, sell_order_id, wallet_ref, good_til_block = await setup_liquidity_orders(
-        node_client, indexer_rest_client, wallet_2, market
+    buy_order_id, sell_order_id, wallet_ref, good_til_block = (
+        await setup_liquidity_orders(node_client, indexer_rest_client, wallet_2, market)
     )
-    
+
     yield  # Test runs here
-    
+
     # Cleanup: cancel liquidity orders
     await cleanup_liquidity_orders(
         node_client, key_pair_2, buy_order_id, sell_order_id, good_til_block
     )
+
 
 @pytest.mark.asyncio
 async def test__liquidity_setup(
@@ -601,14 +619,19 @@ async def test_close_position_sell_having_reduce_by(
 
     wallet = await get_wallet(node_client, key_pair, test_address)
 
-    _ = await close_open_positions(node_client, wallet, test_address, market, SUBACCOUNT)
+    _ = await close_open_positions(
+        node_client, wallet, test_address, market, SUBACCOUNT
+    )
 
     # Refresh wallet after close_open_positions
     wallet = await get_wallet(node_client, key_pair, test_address)
 
     # Open a position for sell order
     order_id = market.order_id(
-        test_address, SUBACCOUNT, random.randint(0, MAX_CLIENT_ID), OrderFlags.SHORT_TERM
+        test_address,
+        SUBACCOUNT,
+        random.randint(0, MAX_CLIENT_ID),
+        OrderFlags.SHORT_TERM,
     )
     current_block = await node_client.latest_block_height()
     new_order = market.order(
@@ -648,8 +671,13 @@ async def test_close_position_sell_having_reduce_by(
     )
     assert_successful_broadcast(close_position_response)
     await asyncio.sleep(5)
-    assert await get_current_order_size(indexer_rest_client, test_address, SUBACCOUNT) == -100
-    _ = await close_open_positions(node_client, wallet, test_address, market, SUBACCOUNT)
+    assert (
+        await get_current_order_size(indexer_rest_client, test_address, SUBACCOUNT)
+        == -100
+    )
+    _ = await close_open_positions(
+        node_client, wallet, test_address, market, SUBACCOUNT
+    )
 
 
 @pytest.mark.asyncio
@@ -664,14 +692,19 @@ async def test_close_position_buy_no_reduce_by(
 
     wallet = await get_wallet(node_client, key_pair, test_address)
 
-    _ = await close_open_positions(node_client, wallet, test_address, market, SUBACCOUNT)
+    _ = await close_open_positions(
+        node_client, wallet, test_address, market, SUBACCOUNT
+    )
 
     # Refresh wallet after close_open_positions
     wallet = await get_wallet(node_client, key_pair, test_address)
 
     # Open a position for buy order
     order_id = market.order_id(
-        test_address, SUBACCOUNT, random.randint(0, MAX_CLIENT_ID), OrderFlags.SHORT_TERM
+        test_address,
+        SUBACCOUNT,
+        random.randint(0, MAX_CLIENT_ID),
+        OrderFlags.SHORT_TERM,
     )
     current_block = await node_client.latest_block_height()
     new_order = market.order(
@@ -709,7 +742,10 @@ async def test_close_position_buy_no_reduce_by(
         client_id=random.randint(0, MAX_CLIENT_ID),
     )
     await asyncio.sleep(5)
-    assert await get_current_order_size(indexer_rest_client, test_address, SUBACCOUNT) is None
+    assert (
+        await get_current_order_size(indexer_rest_client, test_address, SUBACCOUNT)
+        is None
+    )
 
 
 @pytest.mark.asyncio
@@ -724,14 +760,19 @@ async def test_close_position_buy_having_reduce_by(
 
     wallet = await get_wallet(node_client, key_pair, test_address)
 
-    _ = await close_open_positions(node_client, wallet, test_address, market, SUBACCOUNT)
+    _ = await close_open_positions(
+        node_client, wallet, test_address, market, SUBACCOUNT
+    )
 
     # Refresh wallet after close_open_positions
     wallet = await get_wallet(node_client, key_pair, test_address)
 
     # Open a position for buy order
     order_id = market.order_id(
-        test_address, SUBACCOUNT, random.randint(0, MAX_CLIENT_ID), OrderFlags.SHORT_TERM
+        test_address,
+        SUBACCOUNT,
+        random.randint(0, MAX_CLIENT_ID),
+        OrderFlags.SHORT_TERM,
     )
     current_block = await node_client.latest_block_height()
     new_order = market.order(
@@ -770,7 +811,10 @@ async def test_close_position_buy_having_reduce_by(
     )
     await asyncio.sleep(5)
 
-    assert await get_current_order_size(indexer_rest_client, test_address, SUBACCOUNT) == 100
+    assert (
+        await get_current_order_size(indexer_rest_client, test_address, SUBACCOUNT)
+        == 100
+    )
 
 
 @pytest.mark.asyncio
@@ -805,9 +849,13 @@ async def test_close_position_slippage_pct_raise_exception(
         )
 
 
-async def get_current_order_size(indexer_rest_client, test_address, subaccount_number=0):
+async def get_current_order_size(
+    indexer_rest_client, test_address, subaccount_number=0
+):
     try:
-        subaccount = await indexer_rest_client.account.get_subaccount(test_address, subaccount_number)
+        subaccount = await indexer_rest_client.account.get_subaccount(
+            test_address, subaccount_number
+        )
     except httpx.HTTPStatusError as e:
         if e.response.status_code == 404:
             # Subaccount doesn't exist yet (no activity), so no position
@@ -823,7 +871,9 @@ async def get_current_order_size(indexer_rest_client, test_address, subaccount_n
     return float(subaccount["subaccount"]["openPerpetualPositions"]["ENA-USD"]["size"])
 
 
-async def close_open_positions(node_client, wallet, test_address, market, subaccount_number=0):
+async def close_open_positions(
+    node_client, wallet, test_address, market, subaccount_number=0
+):
     return await node_client.close_position(
         wallet=wallet,
         address=test_address,

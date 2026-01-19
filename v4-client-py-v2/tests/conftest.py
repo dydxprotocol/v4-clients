@@ -44,7 +44,6 @@ DYDX_TEST_MNEMONIC_2 = (
 TEST_ADDRESS_2 = "dydx18sukah44zfkjndlhcdmhkjnarl2sevhwf894vh"
 
 
-
 # account 3
 
 DYDX_TEST_PRIVATE_KEY_3 = (
@@ -61,6 +60,7 @@ DYDX_TEST_PUBLIC_KEY_3 = (
 )
 
 TEST_ADDRESS_3 = "dydx1wldnytkerzs39rs28djn0p9vvqer2x2k5x8hjy"
+
 
 @pytest.fixture
 def indexer_rest_client() -> IndexerClient:
