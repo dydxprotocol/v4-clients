@@ -2,6 +2,7 @@ import type {
   ComplianceResponse,
   ComplianceV2Response,
   HeightResponse,
+  HeightResponseWithHeaders,
   TimeResponse,
 } from '../types';
 import RestClient from './rest';
@@ -23,6 +24,15 @@ export default class UtilityClient extends RestClient {
   async getHeight(): Promise<HeightResponse> {
     const uri = '/v4/height';
     return this.get(uri);
+  }
+
+  /**
+   * @description Get the block height of the most recent block processed by the Indexer
+   * @returns {HeightResponse} block height and time
+   */
+  async getHeightWithHeaders(): Promise<HeightResponseWithHeaders> {
+    const uri = '/v4/height';
+    return this.getWithResponseHeaders(uri);
   }
 
   /**
