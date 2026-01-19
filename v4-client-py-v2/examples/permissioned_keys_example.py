@@ -13,36 +13,23 @@ from dydx_v4_client.node.client import NodeClient
 from dydx_v4_client.node.market import Market, since_now
 from dydx_v4_client.wallet import Wallet
 from tests.conftest import (
-    DYDX_TEST_MNEMONIC_3,
+    DYDX_TEST_MNEMONIC,
     DYDX_TEST_MNEMONIC_2,
-    TEST_ADDRESS_3,
+    TEST_ADDRESS,
     TEST_ADDRESS_2,
 )
 from v4_proto.dydxprotocol.clob.tx_pb2 import OrderBatch
 from v4_proto.dydxprotocol.subaccounts.subaccount_pb2 import SubaccountId
 
 
-MARKET_ID = "ENA-USD"
-PERPETUAL_PAIR_BTC_USD = 127
-
-async def authenticator_example():
-    node = await NodeClient.connect(TESTNET.node)
-    indexer = IndexerClient(TESTNET.rest_indexer)
+MARKET_ID = "ETH-USD"
+MARKET_ID_BTC = "BTC-USD"
+PERPETUAL_PAIR_BTC_USD = 0
 
 
-    # Set up the primary wallet for which we want to add authenticator
-    wallet = await Wallet.from_mnemonic(
-        node,
-        mnemonic=DYDX_TEST_MNEMONIC_3,
-        address=TEST_ADDRESS_3,
-    )
-
-    # Set up the "trader" wallet
-    trader_wallet = await Wallet.from_mnemonic(
-        node,
-        mnemonic=DYDX_TEST_MNEMONIC_2,
-        address=TEST_ADDRESS_2,
-    )
+async def short_term_order_example(node, wallet, trader_wallet, indexer):
+    """Demonstrate placing a short-term order using permission keys."""
+    print("\n=== Short-Term Order with Permission Keys ===")
 
     # Authenticate the "trader" wallet to place orders
     place_order_auth = Authenticator.compose(
@@ -83,7 +70,7 @@ async def authenticator_example():
     current_block = await node.latest_block_height()
     good_til_block = current_block + 1 + 10
     order_id = market.order_id(
-        TEST_ADDRESS_3, 0, random.randint(0, MAX_CLIENT_ID), OrderFlags.SHORT_TERM
+        TEST_ADDRESS, 0, random.randint(0, MAX_CLIENT_ID), OrderFlags.SHORT_TERM
     )
 
     order = market.order(
