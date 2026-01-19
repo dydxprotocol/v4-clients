@@ -13,7 +13,9 @@ from tests.conftest import (
 
 async def affiliate_examples():
     node = await NodeClient.connect(TESTNET.node)
-    referee_wallet = await Wallet.from_mnemonic(node, DYDX_TEST_MNEMONIC_3, TEST_ADDRESS_3)
+    referee_wallet = await Wallet.from_mnemonic(
+        node, DYDX_TEST_MNEMONIC_3, TEST_ADDRESS_3
+    )
     affiliate_wallet = await Wallet.from_mnemonic(
         node, DYDX_TEST_MNEMONIC_2, TEST_ADDRESS_2
     )

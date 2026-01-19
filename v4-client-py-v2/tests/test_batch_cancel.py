@@ -13,7 +13,11 @@ from v4_proto.dydxprotocol.clob.order_pb2 import Order
 from v4_proto.dydxprotocol.subaccounts.subaccount_pb2 import SubaccountId
 from v4_proto.dydxprotocol.clob.tx_pb2 import OrderBatch
 
-from tests.conftest import DYDX_TEST_MNEMONIC_3, assert_successful_broadcast, DYDX_TEST_MNEMONIC_3
+from tests.conftest import (
+    DYDX_TEST_MNEMONIC_3,
+    assert_successful_broadcast,
+    DYDX_TEST_MNEMONIC_3,
+)
 
 MARKET_ID = "ENA-USD"
 PERPETUAL_PAIR_ENA_USD = 127
