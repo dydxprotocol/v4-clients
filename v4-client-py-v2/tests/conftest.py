@@ -91,18 +91,18 @@ async def megavault() -> MegaVault:
 @pytest.fixture
 async def noble_client():
     client = NobleClient(TESTNET_NOBLE)
-    await client.connect(DYDX_TEST_MNEMONIC)
+    await client.connect(DYDX_TEST_MNEMONIC_3)
     yield client
 
 
 @pytest.fixture
 def test_address() -> str:
-    return TEST_ADDRESS
+    return TEST_ADDRESS_3
 
 
 @pytest.fixture
 def test_public_key() -> str:
-    return DYDX_TEST_PUBLIC_KEY
+    return DYDX_TEST_PUBLIC_KEY_3
 
 
 @pytest.fixture
@@ -112,7 +112,7 @@ def recipient() -> str:
 
 @pytest.fixture
 def key_pair() -> KeyPair:
-    return KeyPair.from_mnemonic(DYDX_TEST_MNEMONIC)
+    return KeyPair.from_mnemonic(DYDX_TEST_MNEMONIC_3)
 
 
 @pytest.fixture
