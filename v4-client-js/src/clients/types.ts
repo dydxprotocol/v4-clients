@@ -9,6 +9,8 @@ import { PerpetualMarketType } from '@dydxprotocol/v4-proto/src/codegen/dydxprot
 import BigNumber from 'bignumber.js';
 import Long from 'long';
 
+import { AxiosResponseWithGeoHeaders } from './lib/axios/types';
+
 export type Integer = BigNumber;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -119,6 +121,8 @@ export interface HeightResponse {
   height: number;
   time: string;
 }
+
+export type HeightResponseWithHeaders = AxiosResponseWithGeoHeaders<HeightResponse>;
 
 export interface ComplianceResponse {
   restricted: boolean;
