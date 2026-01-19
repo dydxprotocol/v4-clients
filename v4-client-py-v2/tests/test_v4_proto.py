@@ -11,7 +11,10 @@ from dydx_v4_client.node.message import (
     transfer,
     withdraw,
 )
-from tests.conftest import TEST_ADDRESS_3
+
+# Fixed addresses for serialization tests (these must match the expected serialized values)
+SERIALIZATION_TEST_ADDRESS = "dydx14zzueazeh0hj67cghhf9jypslcf9sh2n5k6art"
+SERIALIZATION_TEST_RECIPIENT = "dydx1slanxj8x9ntk9knwa6cvfv2tzlsq5gk3dshml0"
 
 SERIALIZED_PLACE_ORDER = b"\nH\n1\n-\n+dydx14zzueazeh0hj67cghhf9jypslcf9sh2n5k6art\x18@\x10\x01\x18\x80\xad\xe2\x04 \x80\xa0\xbe\x81\x95\x015\t\x9cYfH\x02"
 SERIALIZED_CANCEL_ORDER = (
@@ -31,16 +34,16 @@ def assert_serializes_properly(message: Message, expected: str):
 
 
 ORDER_ID = order_id(
-    TEST_ADDRESS_3,
+    SERIALIZATION_TEST_ADDRESS,
     subaccount_number=0,
     client_id=0,
-    clob_pair_id=127,
+    clob_pair_id=0,  # BTC-USD
     order_flags=64,
 )
 GOOD_TIL_BLOCK_TIME = 1717148681
 
 
-def test_place_order_serialization(test_address):
+def test_place_order_serialization():
     test_order = order(
         ORDER_ID,
         time_in_force=0,
@@ -63,32 +66,32 @@ def test_cancel_order_serialization():
     )
 
 
-def test_deposit_serialization(test_address):
+def test_deposit_serialization():
     assert_serializes_properly(
-        deposit(test_address, subaccount(test_address, 0), 0, 10_000_000),
+        deposit(SERIALIZATION_TEST_ADDRESS, subaccount(SERIALIZATION_TEST_ADDRESS, 0), 0, 10_000_000),
         SERIALIZED_DEPOSIT,
     )
 
 
-def test_withdraw_serialization(test_address):
+def test_withdraw_serialization():
     assert_serializes_properly(
         withdraw(
-            subaccount(test_address, 0), test_address, asset_id=0, quantums=10000000
+            subaccount(SERIALIZATION_TEST_ADDRESS, 0), SERIALIZATION_TEST_ADDRESS, asset_id=0, quantums=10000000
         ),
         SERIALIZED_WITHDRAW,
     )
 
 
-def test_send_token_serialization(test_address, recipient):
+def test_send_token_serialization():
     assert_serializes_properly(
-        send_token(test_address, recipient, 10000000, "adv4tnt"), SERIALIZED_SEND_TOKEN
+        send_token(SERIALIZATION_TEST_ADDRESS, SERIALIZATION_TEST_RECIPIENT, 10000000, "adv4tnt"), SERIALIZED_SEND_TOKEN
     )
 
 
-def test_transfer_serialization(test_address, recipient):
+def test_transfer_serialization():
     assert_serializes_properly(
         transfer(
-            subaccount(test_address, 0), subaccount(recipient, 1), asset_id=0, amount=1
+            subaccount(SERIALIZATION_TEST_ADDRESS, 0), subaccount(SERIALIZATION_TEST_RECIPIENT, 1), asset_id=0, amount=1
         ),
         SERIALIZED_TRANSFER,
     )

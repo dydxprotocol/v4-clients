@@ -262,11 +262,17 @@ async def test_delegate_undelegate(node_client, wallet, test_address):
 
 @pytest.mark.asyncio
 async def test_withdraw_delegate_reward(node_client, wallet, test_address):
-    validator = await node_client.get_all_validators()
-    assert validator is not None
-    assert len(validator.validators) > 0
+    # Get existing delegations for the test account
+    delegations = await node_client.get_delegator_delegations(test_address)
+
+    if not delegations.delegation_responses:
+        pytest.skip("No existing delegations found for test account. Skipping test.")
+
+    # Use a validator the account has actually delegated to
+    validator_address = delegations.delegation_responses[0].delegation.validator_address
+
     response = await node_client.withdraw_delegate_reward(
-        wallet, test_address, validator.validators[0].operator_address
+        wallet, test_address, validator_address
     )
     assert response is not None
     assert response.tx_response is not None
