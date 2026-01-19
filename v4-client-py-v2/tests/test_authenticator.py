@@ -6,13 +6,13 @@ from dydx_v4_client.node.authenticators import Authenticator, AuthenticatorType
 from dydx_v4_client.node.client import NodeClient
 from dydx_v4_client.wallet import Wallet
 from tests.conftest import (
-    DYDX_TEST_MNEMONIC,
+    DYDX_TEST_MNEMONIC_3,
     DYDX_TEST_MNEMONIC_2,
-    TEST_ADDRESS,
+    TEST_ADDRESS_3,
     TEST_ADDRESS_2,
 )
 
-MARKET_ID = "ETH-USD"
+MARKET_ID = "ENA-USD"
 REQUEST_PROCESSING_TIME = 5
 
 
@@ -31,8 +31,8 @@ async def connection_setup():
     node = await NodeClient.connect(TESTNET.node)
     wallet = await Wallet.from_mnemonic(
         node,
-        mnemonic=DYDX_TEST_MNEMONIC,
-        address=TEST_ADDRESS,
+        mnemonic=DYDX_TEST_MNEMONIC_3,
+        address=TEST_ADDRESS_3,
     )
     trader_wallet = await Wallet.from_mnemonic(
         node,

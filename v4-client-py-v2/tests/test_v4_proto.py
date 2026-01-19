@@ -11,7 +11,7 @@ from dydx_v4_client.node.message import (
     transfer,
     withdraw,
 )
-from tests.conftest import TEST_ADDRESS
+from tests.conftest import TEST_ADDRESS_3
 
 SERIALIZED_PLACE_ORDER = b"\nH\n1\n-\n+dydx14zzueazeh0hj67cghhf9jypslcf9sh2n5k6art\x18@\x10\x01\x18\x80\xad\xe2\x04 \x80\xa0\xbe\x81\x95\x015\t\x9cYfH\x02"
 SERIALIZED_CANCEL_ORDER = (
@@ -31,10 +31,10 @@ def assert_serializes_properly(message: Message, expected: str):
 
 
 ORDER_ID = order_id(
-    TEST_ADDRESS,
+    TEST_ADDRESS_3,
     subaccount_number=0,
     client_id=0,
-    clob_pair_id=0,
+    clob_pair_id=127,
     order_flags=64,
 )
 GOOD_TIL_BLOCK_TIME = 1717148681

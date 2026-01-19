@@ -7,10 +7,10 @@ from dydx_v4_client.network import TESTNET
 from dydx_v4_client.node.client import NodeClient
 from dydx_v4_client.node.market import Market
 from dydx_v4_client.wallet import Wallet
-from tests.conftest import DYDX_TEST_MNEMONIC, TEST_ADDRESS
+from tests.conftest import DYDX_TEST_MNEMONIC_3, TEST_ADDRESS_3
 
 # Constants for market configuration
-MARKET_ID = "BTC-USD"
+MARKET_ID = "ENA-USD"
 
 
 def print_leverage_response(leverage_response, node, title="Leverage"):
@@ -116,7 +116,7 @@ async def test():
     indexer = IndexerClient(TESTNET.rest_indexer)
 
     # Create the wallet
-    wallet = await Wallet.from_mnemonic(node, DYDX_TEST_MNEMONIC, TEST_ADDRESS)
+    wallet = await Wallet.from_mnemonic(node, DYDX_TEST_MNEMONIC_3, TEST_ADDRESS_3)
 
     subaccount_number = 0
 
@@ -129,13 +129,13 @@ async def test():
     print(f"Using CLOB pair ID: {clob_pair_id} for market {market_id}")
 
     success = await set_leverage_with_verification(
-        node, wallet, TEST_ADDRESS, subaccount_number, clob_pair_id, 5, 200_000
+        node, wallet, TEST_ADDRESS_3, subaccount_number, clob_pair_id, 5, 200_000
     )
     if not success:
         print("Failed to set leverage to 5x. Aborting.")
         return
     success = await set_leverage_with_verification(
-        node, wallet, TEST_ADDRESS, subaccount_number, clob_pair_id, 10, 100_000
+        node, wallet, TEST_ADDRESS_3, subaccount_number, clob_pair_id, 10, 100_000
     )
     if not success:
         print("Failed to set leverage to 10x. Aborting.")

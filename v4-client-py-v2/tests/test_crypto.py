@@ -8,8 +8,8 @@ from dydx_v4_client.wallet import (
 )
 
 from tests.conftest import (
-    DYDX_TEST_MNEMONIC as test_mnemonic,
-    DYDX_TEST_PRIVATE_KEY as test_private_key,
+    DYDX_TEST_MNEMONIC_3 as test_mnemonic,
+    DYDX_TEST_PRIVATE_KEY_3 as test_private_key,
 )
 
 

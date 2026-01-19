@@ -3,9 +3,9 @@ import asyncio
 from dydx_v4_client.indexer.candles_resolution import CandlesResolution
 from dydx_v4_client.indexer.socket.websocket import IndexerSocket
 from dydx_v4_client.network import TESTNET
-from tests.conftest import TEST_ADDRESS
+from tests.conftest import TEST_ADDRESS_3
 
-ETH_USD = "ETH-USD"
+ETH_USD = "ENA-USD"
 
 
 def handle_message(ws: IndexerSocket, message: dict):
@@ -14,7 +14,7 @@ def handle_message(ws: IndexerSocket, message: dict):
         ws.order_book.subscribe(ETH_USD)
         ws.trades.subscribe(ETH_USD)
         ws.candles.subscribe(ETH_USD, CandlesResolution.FIFTEEN_MINUTES)
-        ws.subaccounts.subscribe(TEST_ADDRESS, 0)
+        ws.subaccounts.subscribe(TEST_ADDRESS_3, 0)
     print(message)
 
 

@@ -126,7 +126,7 @@ def test_order_id(test_address) -> OrderId:
         test_address,
         subaccount_number=0,
         client_id=random.randint(0, 1000000000),
-        clob_pair_id=0,
+        clob_pair_id=127,
         order_flags=64,
     )
 
@@ -135,11 +135,11 @@ def test_order_id(test_address) -> OrderId:
 def test_order(test_order_id) -> Order:
     return order(
         test_order_id,
-        time_in_force=0,
+        time_in_force=Order.TimeInForce.TIME_IN_FORCE_UNSPECIFIED,
         reduce_only=False,
-        side=1,
+        side=Order.Side.SIDE_BUY,
         quantums=1000000,
-        subticks=100000,
+        subticks=1000000,
         good_til_block_time=int(time.time() + 60),
         builder_code_parameters=None,
         twap_parameters=None,
@@ -151,11 +151,11 @@ def test_order(test_order_id) -> Order:
 def test_order2(test_order_id) -> Order:
     return order(
         test_order_id,
-        time_in_force=0,
+        time_in_force=Order.TimeInForce.TIME_IN_FORCE_UNSPECIFIED,
         reduce_only=False,
-        side=1,
+        side=Order.Side.SIDE_BUY,
         quantums=1000000,
-        subticks=100000,
+        subticks=1000000,
         good_til_block_time=int(time.time() + 60),
         builder_code_parameters=None,
         twap_parameters=None,
