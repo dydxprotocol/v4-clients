@@ -161,7 +161,7 @@ class BasicAdder:
             address=self.address,
             subaccount_number=self.subaccount_number,
             client_id=0,
-            clob_pair_id=0,
+            clob_pair_id=127,
             order_flags=0,
         )
         time_in_force = (

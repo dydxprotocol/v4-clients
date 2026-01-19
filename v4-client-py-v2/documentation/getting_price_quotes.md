@@ -31,9 +31,9 @@ asyncio.run(get_all_markets())
 
 ### Getting a Specific Market's Data
 
-To get data for a specific market (e.g., BTC-USD):
+To get data for a specific market (e.g., ENA-USD):
 ```python
-MARKET_BTC_USD = "BTC-USD"
+MARKET_BTC_USD = "ENA-USD"
 
 async def get_specific_market():
     response = await client.markets.get_perpetual_markets(market=MARKET_BTC_USD)

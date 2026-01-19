@@ -17,16 +17,16 @@ async def test_order_book(indexer_socket_client):
     def on_message(ws, message):
         message_dict = json.loads(message)
         if message_dict["type"] == "connected":
-            ws.order_book.subscribe(id="BTC-USD")
+            ws.order_book.subscribe(id="ENA-USD")
         elif message_dict["type"] == "subscribed":
             assert message_dict["channel"] == order_book_channel_name
             if os.getenv("CI") == "true":
-                ws.order_book.unsubscribe(id="BTC-USD")
+                ws.order_book.unsubscribe(id="ENA-USD")
                 ws.close()
         elif message_dict["type"] in ["channel_data", "channel_batch_data"]:
             assert message_dict["channel"] == order_book_channel_name
             assert "bids" or "asks" in message_dict["contents"][0]
-            ws.order_book.unsubscribe(id="BTC-USD")
+            ws.order_book.unsubscribe(id="ENA-USD")
             ws.close()
         else:
             ws.close()
@@ -43,16 +43,16 @@ async def test_trades(indexer_socket_client):
     def on_message(ws, message):
         message_dict = json.loads(message)
         if message_dict["type"] == "connected":
-            ws.trades.subscribe(id="BTC-USD")
+            ws.trades.subscribe(id="ENA-USD")
         elif message_dict["type"] == "subscribed":
             assert message_dict["channel"] == trades_channel_name
             if os.getenv("CI") == "true":
-                ws.trades.unsubscribe(id="BTC-USD")
+                ws.trades.unsubscribe(id="ENA-USD")
                 ws.close()
         elif message_dict["type"] in ["channel_data", "channel_batch_data"]:
             assert message_dict["channel"] == trades_channel_name
             assert "trades" in message_dict["contents"][0]
-            ws.trades.unsubscribe(id="BTC-USD")
+            ws.trades.unsubscribe(id="ENA-USD")
             ws.close()
         else:
             ws.close()

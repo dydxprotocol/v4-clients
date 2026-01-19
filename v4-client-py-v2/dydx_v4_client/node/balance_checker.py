@@ -10,11 +10,11 @@ import sys
 from dydx_v4_client.network import TESTNET
 from dydx_v4_client.node.client import NodeClient
 from dydx_v4_client.node.fee import Denom
-from tests.conftest import TEST_ADDRESS
+from tests.conftest import TEST_ADDRESS_3
 
 
 async def check_funding_account_balance(
-    test_address: str, min_balance_usdc: int = 21000000
+    test_address: str, min_balance_usdc: int = 100000
 ) -> bool:
     """
     Check if the funding account has sufficient balance.
@@ -70,7 +70,7 @@ async def check_funding_account_balance(
 async def main():
     """Main function for CLI usage."""
     # Use the test address from conftest.py
-    default_test_address = TEST_ADDRESS
+    default_test_address = TEST_ADDRESS_3
 
     # Allow override via command line argument
     test_address = sys.argv[1] if len(sys.argv) > 1 else default_test_address

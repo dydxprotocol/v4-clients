@@ -5,7 +5,7 @@ from dydx_v4_client.indexer.rest.indexer_client import IndexerClient
 from dydx_v4_client.network import TESTNET
 
 # ------------ Markets ------------
-MARKET_BTC_USD = "BTC-USD"
+MARKET_BTC_USD = "ENA-USD"
 
 
 async def test():

@@ -1,14 +1,14 @@
 import asyncio
 from dydx_v4_client.indexer.rest.indexer_client import IndexerClient
 from dydx_v4_client.network import TESTNET
-from tests.conftest import TEST_ADDRESS
+from tests.conftest import TEST_ADDRESS_3
 
 
 async def test_status():
     indexer = IndexerClient(TESTNET.rest_indexer)
 
     try:
-        compliance_screen = await indexer.utility.compliance_screen(TEST_ADDRESS)
+        compliance_screen = await indexer.utility.compliance_screen(TEST_ADDRESS_3)
         print(f"compliance screen: {compliance_screen}")
         if compliance_screen is None:
             print("Compliance screen status is N/A")

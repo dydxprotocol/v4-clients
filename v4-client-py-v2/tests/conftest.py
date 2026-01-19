@@ -44,6 +44,24 @@ DYDX_TEST_MNEMONIC_2 = (
 TEST_ADDRESS_2 = "dydx18sukah44zfkjndlhcdmhkjnarl2sevhwf894vh"
 
 
+# account 3
+
+DYDX_TEST_PRIVATE_KEY_3 = (
+    "0a7ff605269ed00853a425beda719da038a11792f6dddf31c087b2988b4dc8fe"
+)
+
+DYDX_TEST_MNEMONIC_3 = (
+    "mandate glove carry despair area gloom sting round toddler deal face vague receive "
+    "shallow confirm south green cup rain drill monkey method tongue fence"
+)
+
+DYDX_TEST_PUBLIC_KEY_3 = (
+    "0291d1d9fd23334f3d53c3a5b50b56317d8964692320d73d22d7a0b115d5eb574f"
+)
+
+TEST_ADDRESS_3 = "dydx1wldnytkerzs39rs28djn0p9vvqer2x2k5x8hjy"
+
+
 @pytest.fixture
 def indexer_rest_client() -> IndexerClient:
     return IndexerClient("https://indexer.v4testnet.dydx.exchange")
@@ -73,18 +91,18 @@ async def megavault() -> MegaVault:
 @pytest.fixture
 async def noble_client():
     client = NobleClient(TESTNET_NOBLE)
-    await client.connect(DYDX_TEST_MNEMONIC)
+    await client.connect(DYDX_TEST_MNEMONIC_3)
     yield client
 
 
 @pytest.fixture
 def test_address() -> str:
-    return TEST_ADDRESS
+    return TEST_ADDRESS_3
 
 
 @pytest.fixture
 def test_public_key() -> str:
-    return DYDX_TEST_PUBLIC_KEY
+    return DYDX_TEST_PUBLIC_KEY_3
 
 
 @pytest.fixture
@@ -94,7 +112,12 @@ def recipient() -> str:
 
 @pytest.fixture
 def key_pair() -> KeyPair:
-    return KeyPair.from_mnemonic(DYDX_TEST_MNEMONIC)
+    return KeyPair.from_mnemonic(DYDX_TEST_MNEMONIC_3)
+
+
+@pytest.fixture
+def key_pair_2() -> KeyPair:
+    return KeyPair.from_mnemonic(DYDX_TEST_MNEMONIC_2)
 
 
 @pytest.fixture
@@ -103,7 +126,7 @@ def test_order_id(test_address) -> OrderId:
         test_address,
         subaccount_number=0,
         client_id=random.randint(0, 1000000000),
-        clob_pair_id=0,
+        clob_pair_id=127,
         order_flags=64,
     )
 
@@ -112,11 +135,11 @@ def test_order_id(test_address) -> OrderId:
 def test_order(test_order_id) -> Order:
     return order(
         test_order_id,
-        time_in_force=0,
+        time_in_force=Order.TimeInForce.TIME_IN_FORCE_UNSPECIFIED,
         reduce_only=False,
-        side=1,
+        side=Order.Side.SIDE_BUY,
         quantums=1000000,
-        subticks=100000,
+        subticks=1000000,
         good_til_block_time=int(time.time() + 60),
         builder_code_parameters=None,
         twap_parameters=None,
@@ -128,11 +151,11 @@ def test_order(test_order_id) -> Order:
 def test_order2(test_order_id) -> Order:
     return order(
         test_order_id,
-        time_in_force=0,
+        time_in_force=Order.TimeInForce.TIME_IN_FORCE_UNSPECIFIED,
         reduce_only=False,
-        side=1,
+        side=Order.Side.SIDE_BUY,
         quantums=1000000,
-        subticks=100000,
+        subticks=1000000,
         good_til_block_time=int(time.time() + 60),
         builder_code_parameters=None,
         twap_parameters=None,
@@ -148,6 +171,11 @@ async def get_wallet(node_client, key_pair, test_address) -> Wallet:
 @pytest.fixture()
 async def wallet(node_client, key_pair, test_address) -> Wallet:
     return await get_wallet(node_client, key_pair, test_address)
+
+
+@pytest.fixture()
+async def wallet_2(node_client, key_pair_2) -> Wallet:
+    return await get_wallet(node_client, key_pair_2, TEST_ADDRESS_2)
 
 
 def retry_on_forbidden(max_retries=3, delay=1, skip=False):
