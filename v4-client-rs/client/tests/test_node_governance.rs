@@ -136,7 +136,9 @@ async fn test_node_governance_register_affiliate() -> Result<(), Error> {
     match node.query_transaction_result(tx_res).await {
         Ok(_) => Ok(()),
         Err(e) => {
-            if e.to_string().contains("Affiliate already exists for referee") {
+            if e.to_string()
+                .contains("Affiliate already exists for referee")
+            {
                 Ok(())
             } else {
                 Err(e)

@@ -1,22 +1,22 @@
 #[cfg(any(feature = "faucet", feature = "noble"))]
 use anyhow::anyhow as err;
 use anyhow::{Error, Result};
+use bigdecimal::BigDecimal;
 use chrono::{TimeDelta, Utc};
 #[cfg(feature = "faucet")]
 use dydx::faucet::FaucetClient;
 #[cfg(feature = "noble")]
 use dydx::noble::NobleClient;
-use bigdecimal::BigDecimal;
 use dydx::{
     config::ClientConfig,
     indexer::{ClientId, Height, IndexerClient, PerpetualMarket, Ticker},
     node::{Account, Address, NodeClient, OrderBuilder, OrderId, OrderSide, Subaccount, Wallet},
 };
 use serde::Deserialize;
+use std::str::FromStr;
+use std::sync::Once;
 use tokio::fs;
 use tokio::time::{sleep, Duration};
-use std::sync::Once;
-use std::str::FromStr;
 
 static INIT_CRYPTO: Once = Once::new();
 
