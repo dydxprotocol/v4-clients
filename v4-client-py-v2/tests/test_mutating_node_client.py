@@ -11,7 +11,12 @@ from dydx_v4_client.node.market import Market
 from dydx_v4_client.node.message import subaccount, send_token, order
 from v4_proto.dydxprotocol.clob.order_pb2 import Order
 from dydx_v4_client.indexer.rest.constants import OrderType
-from tests.conftest import get_wallet, assert_successful_broadcast, TEST_ADDRESS_2, TEST_MARKET_ID
+from tests.conftest import (
+    get_wallet,
+    assert_successful_broadcast,
+    TEST_ADDRESS_2,
+    TEST_MARKET_ID,
+)
 from v4_proto.dydxprotocol.clob.order_pb2 import BuilderCodeParameters
 from dydx_v4_client.indexer.rest.constants import OrderStatus
 from dydx_v4_client.key_pair import KeyPair
@@ -333,9 +338,9 @@ async def test_place_order_with_twap_parameters(
     node_client, indexer_rest_client, test_address, wallet, liquidity_setup, key_pair
 ):
     market = Market(
-        (await indexer_rest_client.markets.get_perpetual_markets(TEST_MARKET_ID))["markets"][
-            TEST_MARKET_ID
-        ]
+        (await indexer_rest_client.markets.get_perpetual_markets(TEST_MARKET_ID))[
+            "markets"
+        ][TEST_MARKET_ID]
     )
     wallet = await get_wallet(node_client, key_pair, test_address)
 
@@ -377,9 +382,9 @@ async def test_close_position_sell_no_reduce_by(
     node_client, wallet, test_address, indexer_rest_client, liquidity_setup, key_pair
 ):
     market = Market(
-        (await indexer_rest_client.markets.get_perpetual_markets(TEST_MARKET_ID))["markets"][
-            TEST_MARKET_ID
-        ]
+        (await indexer_rest_client.markets.get_perpetual_markets(TEST_MARKET_ID))[
+            "markets"
+        ][TEST_MARKET_ID]
     )
 
     wallet = await get_wallet(node_client, key_pair, test_address)
@@ -586,9 +591,9 @@ async def liquidity_setup(node_client, indexer_rest_client, wallet_2, key_pair_2
     Places buy and sell orders at ±0.1% from oracle price using TEST_ADDRESS_2.
     """
     market = Market(
-        (await indexer_rest_client.markets.get_perpetual_markets(TEST_MARKET_ID))["markets"][
-            TEST_MARKET_ID
-        ]
+        (await indexer_rest_client.markets.get_perpetual_markets(TEST_MARKET_ID))[
+            "markets"
+        ][TEST_MARKET_ID]
     )
 
     # Setup: place liquidity orders
@@ -617,9 +622,9 @@ async def test_close_position_sell_having_reduce_by(
     node_client, wallet, test_address, indexer_rest_client, liquidity_setup, key_pair
 ):
     market = Market(
-        (await indexer_rest_client.markets.get_perpetual_markets(TEST_MARKET_ID))["markets"][
-            TEST_MARKET_ID
-        ]
+        (await indexer_rest_client.markets.get_perpetual_markets(TEST_MARKET_ID))[
+            "markets"
+        ][TEST_MARKET_ID]
     )
 
     wallet = await get_wallet(node_client, key_pair, test_address)
@@ -690,9 +695,9 @@ async def test_close_position_buy_no_reduce_by(
     node_client, wallet, test_address, indexer_rest_client, liquidity_setup, key_pair
 ):
     market = Market(
-        (await indexer_rest_client.markets.get_perpetual_markets(TEST_MARKET_ID))["markets"][
-            TEST_MARKET_ID
-        ]
+        (await indexer_rest_client.markets.get_perpetual_markets(TEST_MARKET_ID))[
+            "markets"
+        ][TEST_MARKET_ID]
     )
 
     wallet = await get_wallet(node_client, key_pair, test_address)
@@ -758,9 +763,9 @@ async def test_close_position_buy_having_reduce_by(
     node_client, wallet, test_address, indexer_rest_client, liquidity_setup, key_pair
 ):
     market = Market(
-        (await indexer_rest_client.markets.get_perpetual_markets(TEST_MARKET_ID))["markets"][
-            TEST_MARKET_ID
-        ]
+        (await indexer_rest_client.markets.get_perpetual_markets(TEST_MARKET_ID))[
+            "markets"
+        ][TEST_MARKET_ID]
     )
 
     wallet = await get_wallet(node_client, key_pair, test_address)
@@ -827,9 +832,9 @@ async def test_close_position_slippage_pct_raise_exception(
     node_client, wallet, test_address, indexer_rest_client
 ):
     market = Market(
-        (await indexer_rest_client.markets.get_perpetual_markets(TEST_MARKET_ID))["markets"][
-            TEST_MARKET_ID
-        ]
+        (await indexer_rest_client.markets.get_perpetual_markets(TEST_MARKET_ID))[
+            "markets"
+        ][TEST_MARKET_ID]
     )
     with pytest.raises(ValueError):
         _ = await node_client.close_position(
@@ -873,7 +878,9 @@ async def get_current_order_size(
         return None
     if TEST_MARKET_ID not in subaccount["subaccount"]["openPerpetualPositions"]:
         return None
-    return float(subaccount["subaccount"]["openPerpetualPositions"][TEST_MARKET_ID]["size"])
+    return float(
+        subaccount["subaccount"]["openPerpetualPositions"][TEST_MARKET_ID]["size"]
+    )
 
 
 async def close_open_positions(

@@ -9,7 +9,7 @@ from tests.conftest import (
     DYDX_TEST_MNEMONIC_3,
     DYDX_TEST_MNEMONIC_2,
     TEST_ADDRESS_3,
-    TEST_ADDRESS_2
+    TEST_ADDRESS_2,
 )
 
 REQUEST_PROCESSING_TIME = 5

@@ -38,9 +38,9 @@ def sleep_after_test(request):
 @pytest.mark.asyncio
 async def test_batch_cancel(indexer_rest_client, node_client, test_address, wallet):
     market = Market(
-        (await indexer_rest_client.markets.get_perpetual_markets(TEST_MARKET_ID))["markets"][
-            TEST_MARKET_ID
-        ]
+        (await indexer_rest_client.markets.get_perpetual_markets(TEST_MARKET_ID))[
+            "markets"
+        ][TEST_MARKET_ID]
     )
     height = await node_client.latest_block_height()
     assert height > 0

@@ -14,9 +14,9 @@ async def test_place_order_with_order_router_address(
     node_client, indexer_rest_client, test_order_id, test_address, wallet
 ):
     market = Market(
-        (await indexer_rest_client.markets.get_perpetual_markets(TEST_MARKET_ID))["markets"][
-            TEST_MARKET_ID
-        ]
+        (await indexer_rest_client.markets.get_perpetual_markets(TEST_MARKET_ID))[
+            "markets"
+        ][TEST_MARKET_ID]
     )
 
     assert market is not None
