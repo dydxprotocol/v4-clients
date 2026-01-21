@@ -4,7 +4,7 @@ import random
 from dydx_v4_client import MAX_CLIENT_ID, OrderFlags
 from dydx_v4_client.indexer.rest.constants import OrderType
 from dydx_v4_client.node.market import Market
-from tests.conftest import TEST_ADDRESS_2, TEST_ADDRESS_3
+from tests.conftest import TEST_ADDRESS_2, TEST_ADDRESS_3, TEST_MARKET_ID
 from v4_proto.dydxprotocol.clob.order_pb2 import Order
 from v4_proto.dydxprotocol.revshare import query_pb2 as revshare_query
 import pytest
@@ -13,10 +13,9 @@ import pytest
 async def test_place_order_with_order_router_address(
     node_client, indexer_rest_client, test_order_id, test_address, wallet
 ):
-    MARKET_ID = "ENA-USD"
     market = Market(
-        (await indexer_rest_client.markets.get_perpetual_markets(MARKET_ID))["markets"][
-            MARKET_ID
+        (await indexer_rest_client.markets.get_perpetual_markets(TEST_MARKET_ID))["markets"][
+            TEST_MARKET_ID
         ]
     )
 
