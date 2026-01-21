@@ -16,3 +16,19 @@ endpoint = "https://faucet.v4testnet.dydx.exchange"
 endpoint = "http://noble-testnet-grpc.polkachu.com:21590"
 chain_id = "grand-1"
 fee_denom = "uusdc"
+
+[test]
+# Symbol / instrument-specific test configuration (mirrors v4-client-py-v2/tests/conftest.py)
+market_id = "ENA-USD"
+clob_pair_id = 127
+default_subticks = 1000000
+
+[test.accounts]
+# Primary actor for mutating tests (Python test account 3)
+primary.mnemonic = "mandate glove carry despair area gloom sting round toddler deal face vague receive shallow confirm south green cup rain drill monkey method tongue fence"
+
+# Liquidity-provisioning actor (Python test account 2)
+liquidity.mnemonic = "movie yard still copper exile wear brisk chest ride dizzy novel future menu finish radar lunar claim hub middle force turtle mouse frequent embark"
+
+# Delegations / governance read checks (Python test account 1)
+account_1.mnemonic = "mirror actor skill push coach wait confirm orchard lunch mobile athlete gossip awake miracle matter bus reopen team ladder lazy list timber render wait"
