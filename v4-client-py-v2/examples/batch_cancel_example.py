@@ -10,12 +10,12 @@ from dydx_v4_client.network import TESTNET
 from dydx_v4_client.node.client import NodeClient
 from dydx_v4_client.node.market import Market
 from dydx_v4_client.wallet import Wallet
-from tests.conftest import DYDX_TEST_MNEMONIC, TEST_ADDRESS
+from tests.conftest import DYDX_TEST_MNEMONIC_3, TEST_ADDRESS_3
 from v4_proto.dydxprotocol.clob.tx_pb2 import OrderBatch
 from v4_proto.dydxprotocol.subaccounts.subaccount_pb2 import SubaccountId
 
 
-MARKET_ID = "BTC-USD"
+MARKET_ID = "ENA-USD"
 PERPETUAL_PAIR_BTC_USD = 0
 
 
@@ -26,14 +26,14 @@ async def test_batch_cancel():
     market = Market(
         (await indexer.markets.get_perpetual_markets(MARKET_ID))["markets"][MARKET_ID]
     )
-    wallet = await Wallet.from_mnemonic(node, DYDX_TEST_MNEMONIC, TEST_ADDRESS)
+    wallet = await Wallet.from_mnemonic(node, DYDX_TEST_MNEMONIC_3, TEST_ADDRESS_3)
 
     # Place multiple orders
     orders = []
     client_ids = []
     for _ in range(3):
         client_id = random.randint(0, MAX_CLIENT_ID)
-        order_id = market.order_id(TEST_ADDRESS, 0, client_id, OrderFlags.SHORT_TERM)
+        order_id = market.order_id(TEST_ADDRESS_3, 0, client_id, OrderFlags.SHORT_TERM)
         client_ids.append(client_id)
         current_block = await node.latest_block_height()
         order = market.order(
@@ -55,7 +55,7 @@ async def test_batch_cancel():
         wallet.sequence += 1
 
     # Prepare batch cancel
-    subaccount_id = SubaccountId(owner=TEST_ADDRESS, number=0)
+    subaccount_id = SubaccountId(owner=TEST_ADDRESS_3, number=0)
     order_batch = OrderBatch(clob_pair_id=PERPETUAL_PAIR_BTC_USD, client_ids=client_ids)
     cancellation_current_block = await node.latest_block_height()
 

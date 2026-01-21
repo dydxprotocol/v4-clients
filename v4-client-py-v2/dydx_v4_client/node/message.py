@@ -270,6 +270,8 @@ def builder_code_parameters(builder_address: str, fee_ppm: int):
 
 
 def twap_parameters(duration: int, interval: int, price_tolerance: int):
+    if duration is None or interval is None or price_tolerance is None:
+        return None
     return TwapParameters(
         duration=duration, interval=interval, price_tolerance=price_tolerance
     )

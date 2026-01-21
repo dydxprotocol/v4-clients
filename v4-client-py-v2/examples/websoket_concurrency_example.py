@@ -6,7 +6,7 @@ from dydx_v4_client.indexer.candles_resolution import CandlesResolution
 from dydx_v4_client.indexer.socket.websocket import IndexerSocket
 from dydx_v4_client.network import TESTNET
 
-ETH_USD = "ETH-USD"
+ETH_USD = "ENA-USD"
 RESOLUTION = CandlesResolution.ONE_MINUTE
 
 

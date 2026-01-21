@@ -9,7 +9,7 @@ from dydx_v4_client.network import TESTNET
 from dydx_v4_client.node.client import NodeClient
 from dydx_v4_client.node.message import order, order_id
 from dydx_v4_client.wallet import Wallet
-from tests.conftest import DYDX_TEST_MNEMONIC, TEST_ADDRESS
+from tests.conftest import DYDX_TEST_MNEMONIC_3, TEST_ADDRESS_3
 from google.protobuf.json_format import MessageToJson
 
 PERPETUAL_PAIR_BTC_USD = 0
@@ -20,11 +20,11 @@ with open(Path(__file__).parent / "raw_orders.json", "r") as file:
 
 async def test():
     node = await NodeClient.connect(TESTNET.node)
-    wallet = await Wallet.from_mnemonic(node, DYDX_TEST_MNEMONIC, TEST_ADDRESS)
+    wallet = await Wallet.from_mnemonic(node, DYDX_TEST_MNEMONIC_3, TEST_ADDRESS_3)
 
     for order_dict in orders:
         id = order_id(
-            TEST_ADDRESS,
+            TEST_ADDRESS_3,
             0,
             random.randint(0, MAX_CLIENT_ID),
             PERPETUAL_PAIR_BTC_USD,

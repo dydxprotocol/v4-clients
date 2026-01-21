@@ -2,14 +2,14 @@ import asyncio
 
 from dydx_v4_client.network import TESTNET
 from dydx_v4_client.node.client import NodeClient
-from tests.conftest import TEST_ADDRESS
+from tests.conftest import TEST_ADDRESS_3
 
 
 async def test():
     node_client = await NodeClient.connect(TESTNET.node)
 
     try:
-        account = await node_client.get_account(TEST_ADDRESS)
+        account = await node_client.get_account(TEST_ADDRESS_3)
         print("Get Account:")
         print(account)
     except Exception as e:
@@ -17,7 +17,7 @@ async def test():
         print(f"Error: {e}")
 
     try:
-        response = await node_client.get_account_balances(TEST_ADDRESS)
+        response = await node_client.get_account_balances(TEST_ADDRESS_3)
         print("Get Account Balances:")
         print(response)
     except Exception as e:
@@ -25,7 +25,7 @@ async def test():
         print(f"Error: {e}")
 
     try:
-        response = await node_client.get_account_balance(TEST_ADDRESS, "adv4tnt")
+        response = await node_client.get_account_balance(TEST_ADDRESS_3, "adv4tnt")
         print("Get Account Balance:")
         print(response)
     except Exception as e:
@@ -49,7 +49,7 @@ async def test():
         print(f"Error: {e}")
 
     try:
-        stats = await node_client.get_user_stats(TEST_ADDRESS)
+        stats = await node_client.get_user_stats(TEST_ADDRESS_3)
         print("Get User Stats:")
         print(stats)
     except Exception as e:
@@ -65,7 +65,7 @@ async def test():
         print(f"Error: {e}")
 
     try:
-        subaccount = await node_client.get_subaccount(TEST_ADDRESS, 0)
+        subaccount = await node_client.get_subaccount(TEST_ADDRESS_3, 0)
         decoded = node_client.transcode_response(subaccount)
         print("Get Subaccount:")
         print(decoded)
@@ -139,7 +139,7 @@ async def test():
         print(f"Error: {e}")
 
     try:
-        delegations = await node_client.get_delegator_delegations(TEST_ADDRESS)
+        delegations = await node_client.get_delegator_delegations(TEST_ADDRESS_3)
         print("Get Delegator Delegations:")
         print(delegations)
     except Exception as e:
@@ -148,7 +148,7 @@ async def test():
 
     try:
         unbonding_delegations = await node_client.get_delegator_unbonding_delegations(
-            TEST_ADDRESS
+            TEST_ADDRESS_3
         )
         print("Get Delegator Unbonding Delegations:")
         print(unbonding_delegations)
@@ -173,7 +173,7 @@ async def test():
         print(f"Error: {e}")
 
     try:
-        user_fee_tier = await node_client.get_user_fee_tier(TEST_ADDRESS)
+        user_fee_tier = await node_client.get_user_fee_tier(TEST_ADDRESS_3)
         print("Get User Fee Tier:")
         print(user_fee_tier)
     except Exception as e:
@@ -198,7 +198,7 @@ async def test():
 
     try:
         delegation_total_rewards = await node_client.get_delegation_total_rewards(
-            TEST_ADDRESS
+            TEST_ADDRESS_3
         )
         print("Get Delegation Total Rewards:")
         print(delegation_total_rewards)
@@ -233,7 +233,7 @@ async def test():
         print(f"Error: {e}")
 
     try:
-        affiliate_info = await node_client.get_affiliate_info(TEST_ADDRESS)
+        affiliate_info = await node_client.get_affiliate_info(TEST_ADDRESS_3)
         print("Get Affiliate Info:")
         print(affiliate_info)
     except Exception as e:
@@ -241,7 +241,7 @@ async def test():
         print(f"Error: {e}")
 
     try:
-        referred_by = await node_client.get_referred_by(TEST_ADDRESS)
+        referred_by = await node_client.get_referred_by(TEST_ADDRESS_3)
         print("Get Referred By:")
         print(referred_by)
     except Exception as e:

@@ -2,7 +2,7 @@ import pytest
 
 from tests.conftest import retry_on_forbidden
 
-MARKET_BTC_USD: str = "BTC-USD"
+MARKET_BTC_USD: str = "ENA-USD"
 
 
 @pytest.mark.asyncio

@@ -4,7 +4,7 @@ import random
 from dydx_v4_client import MAX_CLIENT_ID, OrderFlags
 from dydx_v4_client.indexer.rest.constants import OrderType
 from dydx_v4_client.node.market import Market
-from tests.conftest import TEST_ADDRESS_2, TEST_ADDRESS
+from tests.conftest import TEST_ADDRESS_2, TEST_ADDRESS_3
 from v4_proto.dydxprotocol.clob.order_pb2 import Order
 from v4_proto.dydxprotocol.revshare import query_pb2 as revshare_query
 import pytest
@@ -13,7 +13,7 @@ import pytest
 async def test_place_order_with_order_router_address(
     node_client, indexer_rest_client, test_order_id, test_address, wallet
 ):
-    MARKET_ID = "ETH-USD"
+    MARKET_ID = "ENA-USD"
     market = Market(
         (await indexer_rest_client.markets.get_perpetual_markets(MARKET_ID))["markets"][
             MARKET_ID
@@ -25,7 +25,7 @@ async def test_place_order_with_order_router_address(
     assert len(market.market) > 0
 
     order_id = market.order_id(
-        TEST_ADDRESS, 0, random.randint(0, MAX_CLIENT_ID), OrderFlags.SHORT_TERM
+        TEST_ADDRESS_3, 0, random.randint(0, MAX_CLIENT_ID), OrderFlags.SHORT_TERM
     )
 
     current_block = await node_client.latest_block_height()
@@ -34,7 +34,7 @@ async def test_place_order_with_order_router_address(
         order_id=order_id,
         order_type=OrderType.MARKET,
         side=Order.Side.SIDE_SELL,
-        size=0.0001,
+        size=100,
         price=0,  # Recommend set to oracle price - 5% or lower for SELL, oracle price + 5% for BUY
         time_in_force=Order.TimeInForce.TIME_IN_FORCE_UNSPECIFIED,
         reduce_only=False,
@@ -50,7 +50,7 @@ async def test_place_order_with_order_router_address(
     await asyncio.sleep(5)
 
     fills = await indexer_rest_client.account.get_subaccount_fills(
-        address=TEST_ADDRESS, subaccount_number=0, limit=1
+        address=TEST_ADDRESS_3, subaccount_number=0, limit=1
     )
 
     assert fills is not None

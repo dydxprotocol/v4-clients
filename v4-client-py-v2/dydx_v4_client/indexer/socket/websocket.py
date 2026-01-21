@@ -31,7 +31,7 @@ class Channel:
 
         Maybe allow creating standalone channels? Ie.:
         order_book = OrderBook()
-        order_book.subscribe(id="BTC-USD")
+        order_book.subscribe(id="ENA-USD")
         """
         raise NotImplementedError()
 
