@@ -1,10 +1,11 @@
 import asyncio
 
+from dydx_v4_client.key_pair import KeyPair
 from dydx_v4_client.network import TESTNET
 from dydx_v4_client.node.client import NodeClient
 from dydx_v4_client.node.message import subaccount
 from dydx_v4_client.wallet import Wallet
-from tests.conftest import DYDX_TEST_MNEMONIC_3, TEST_ADDRESS_3
+from tests.conftest import DYDX_TEST_PRIVATE_KEY_3, TEST_ADDRESS_3
 
 ASSET_ID_USDC = 0
 
@@ -29,7 +30,13 @@ async def print_balances(node: NodeClient, address: str, subaccount_numbers: lis
 async def test():
     node = await NodeClient.connect(TESTNET.node)
 
-    wallet = await Wallet.from_mnemonic(node, DYDX_TEST_MNEMONIC_3, TEST_ADDRESS_3)
+    # Create wallet from private key (hex string) instead of mnemonic
+    account = await node.get_account(TEST_ADDRESS_3)
+    wallet = Wallet(
+        key=KeyPair.from_hex(DYDX_TEST_PRIVATE_KEY_3),
+        account_number=account.account_number,
+        sequence=account.sequence,
+    )
     sender_subaccount = subaccount(TEST_ADDRESS_3, 0)
     recipient_subaccount = subaccount(TEST_ADDRESS_3, 1)
 
