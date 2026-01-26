@@ -17,10 +17,10 @@ from tests.conftest import (
     DYDX_TEST_MNEMONIC_3,
     assert_successful_broadcast,
     DYDX_TEST_MNEMONIC_3,
+    TEST_MARKET_ID,
+    TEST_CLOB_PAIR_ID,
 )
 
-MARKET_ID = "ENA-USD"
-PERPETUAL_PAIR_ENA_USD = 127
 REQUEST_PROCESSING_TIME = 5
 
 
@@ -38,9 +38,9 @@ def sleep_after_test(request):
 @pytest.mark.asyncio
 async def test_batch_cancel(indexer_rest_client, node_client, test_address, wallet):
     market = Market(
-        (await indexer_rest_client.markets.get_perpetual_markets(MARKET_ID))["markets"][
-            MARKET_ID
-        ]
+        (await indexer_rest_client.markets.get_perpetual_markets(TEST_MARKET_ID))[
+            "markets"
+        ][TEST_MARKET_ID]
     )
     height = await node_client.latest_block_height()
     assert height > 0
@@ -79,7 +79,7 @@ async def test_batch_cancel(indexer_rest_client, node_client, test_address, wall
 
     # Prepare batch cancel
     subaccount_id = SubaccountId(owner=test_address, number=0)
-    order_batch = OrderBatch(clob_pair_id=PERPETUAL_PAIR_ENA_USD, client_ids=client_ids)
+    order_batch = OrderBatch(clob_pair_id=TEST_CLOB_PAIR_ID, client_ids=client_ids)
     cancellation_current_block = await node_client.latest_block_height()
 
     # Execute batch cancel

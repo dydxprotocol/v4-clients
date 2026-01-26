@@ -61,6 +61,16 @@ DYDX_TEST_PUBLIC_KEY_3 = (
 
 TEST_ADDRESS_3 = "dydx1wldnytkerzs39rs28djn0p9vvqer2x2k5x8hjy"
 
+# Symbol/instrument-specific test configuration
+# Market symbol identifier (e.g., "ENA-USD", "BTC-USD")
+TEST_MARKET_ID: str = "ENA-USD"
+
+# ClobPairId for the test market
+TEST_CLOB_PAIR_ID: int = 127
+
+# Default subticks value for test orders (price precision, symbol-specific)
+TEST_DEFAULT_SUBTICKS: int = 1000000
+
 
 @pytest.fixture
 def indexer_rest_client() -> IndexerClient:
@@ -126,7 +136,7 @@ def test_order_id(test_address) -> OrderId:
         test_address,
         subaccount_number=0,
         client_id=random.randint(0, 1000000000),
-        clob_pair_id=127,
+        clob_pair_id=TEST_CLOB_PAIR_ID,
         order_flags=64,
     )
 
@@ -138,8 +148,8 @@ def test_order(test_order_id) -> Order:
         time_in_force=Order.TimeInForce.TIME_IN_FORCE_UNSPECIFIED,
         reduce_only=False,
         side=Order.Side.SIDE_BUY,
-        quantums=1000000,
-        subticks=1000000,
+        quantums=TEST_DEFAULT_SUBTICKS,
+        subticks=TEST_DEFAULT_SUBTICKS,
         good_til_block_time=int(time.time() + 60),
         builder_code_parameters=None,
         twap_parameters=None,
@@ -155,7 +165,7 @@ def test_order2(test_order_id) -> Order:
         reduce_only=False,
         side=Order.Side.SIDE_BUY,
         quantums=1000000,
-        subticks=1000000,
+        subticks=TEST_DEFAULT_SUBTICKS,
         good_til_block_time=int(time.time() + 60),
         builder_code_parameters=None,
         twap_parameters=None,

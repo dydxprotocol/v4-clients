@@ -1,15 +1,13 @@
 import pytest
 
-from tests.conftest import retry_on_forbidden
-
-MARKET_BTC_USD: str = "ENA-USD"
+from tests.conftest import retry_on_forbidden, TEST_MARKET_ID
 
 
 @pytest.mark.asyncio
 @retry_on_forbidden(max_retries=3, delay=1)
 async def test_markets(indexer_rest_client):
     response = await indexer_rest_client.markets.get_perpetual_markets()
-    btc = response["markets"][MARKET_BTC_USD]
+    btc = response["markets"][TEST_MARKET_ID]
     status = btc["status"]
     assert status == "ACTIVE"
 
@@ -17,8 +15,8 @@ async def test_markets(indexer_rest_client):
 @pytest.mark.asyncio
 @retry_on_forbidden(max_retries=3, delay=1)
 async def test_btc_market(indexer_rest_client):
-    response = await indexer_rest_client.markets.get_perpetual_markets(MARKET_BTC_USD)
-    btc = response["markets"][MARKET_BTC_USD]
+    response = await indexer_rest_client.markets.get_perpetual_markets(TEST_MARKET_ID)
+    btc = response["markets"][TEST_MARKET_ID]
     status = btc["status"]
     assert status == "ACTIVE"
 
@@ -27,7 +25,7 @@ async def test_btc_market(indexer_rest_client):
 @retry_on_forbidden(max_retries=3, delay=1)
 async def test_btc_trades(indexer_rest_client):
     response = await indexer_rest_client.markets.get_perpetual_market_trades(
-        MARKET_BTC_USD
+        TEST_MARKET_ID
     )
     trades = response["trades"]
     assert trades is not None
@@ -37,7 +35,7 @@ async def test_btc_trades(indexer_rest_client):
 @retry_on_forbidden(max_retries=3, delay=1)
 async def test_btc_orderbook(indexer_rest_client):
     response = await indexer_rest_client.markets.get_perpetual_market_orderbook(
-        MARKET_BTC_USD
+        TEST_MARKET_ID
     )
     asks = response["asks"]
     bids = response["bids"]
@@ -49,7 +47,7 @@ async def test_btc_orderbook(indexer_rest_client):
 @retry_on_forbidden(max_retries=3, delay=1)
 async def test_btc_candles(indexer_rest_client):
     response = await indexer_rest_client.markets.get_perpetual_market_candles(
-        MARKET_BTC_USD, "1MIN"
+        TEST_MARKET_ID, "1MIN"
     )
     candles = response["candles"]
     assert candles is not None
@@ -60,7 +58,7 @@ async def test_btc_candles(indexer_rest_client):
 async def test_btc_historical_funding(indexer_rest_client):
     response = (
         await indexer_rest_client.markets.get_perpetual_market_historical_funding(
-            MARKET_BTC_USD
+            TEST_MARKET_ID
         )
     )
     assert response is not None
@@ -75,5 +73,5 @@ async def test_btc_historical_funding(indexer_rest_client):
 @retry_on_forbidden(max_retries=3, delay=1)
 async def test_sparklines(indexer_rest_client):
     response = await indexer_rest_client.markets.get_perpetual_market_sparklines()
-    btc_sparklines = response[MARKET_BTC_USD]
+    btc_sparklines = response[TEST_MARKET_ID]
     assert btc_sparklines is not None

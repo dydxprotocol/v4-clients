@@ -12,7 +12,6 @@ from tests.conftest import (
     TEST_ADDRESS_2,
 )
 
-MARKET_ID = "ENA-USD"
 REQUEST_PROCESSING_TIME = 5
 
 
