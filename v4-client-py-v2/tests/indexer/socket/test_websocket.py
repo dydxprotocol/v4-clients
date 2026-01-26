@@ -95,12 +95,12 @@ async def test_candles(indexer_socket_client):
     def on_message(ws, message):
         message_dict = json.loads(message)
         if message_dict["type"] == "connected":
-            ws.candles.subscribe(id="BTC-USD", resolution=CandlesResolution.ONE_MINUTE)
+            ws.candles.subscribe(id="ENA-USD", resolution=CandlesResolution.ONE_MINUTE)
         elif message_dict["type"] == "subscribed":
             assert message_dict["channel"] == candles_channel_name
             if os.getenv("CI") == "true":
                 ws.candles.unsubscribe(
-                    id="BTC-USD", resolution=CandlesResolution.ONE_MINUTE
+                    id="ENA-USD", resolution=CandlesResolution.ONE_MINUTE
                 )
                 ws.close()
         elif message_dict["type"] in ["channel_data", "channel_batch_data"]:
@@ -109,7 +109,7 @@ async def test_candles(indexer_socket_client):
             assert "ticker" in message_dict["contents"][0]
             assert "resolution" in message_dict["contents"][0]
             ws.candles.unsubscribe(
-                id="BTC-USD", resolution=CandlesResolution.ONE_MINUTE
+                id="ENA-USD", resolution=CandlesResolution.ONE_MINUTE
             )
             ws.close()
         else:

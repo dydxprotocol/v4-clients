@@ -10,14 +10,14 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.9"
-v4-proto = "^9.0.0"
+v4-proto = "^9.4.0"
 httpx = "^0.27.0"
 websocket-client = "^1.7.0"
 bip-utils = "^2.9.3"
 typing-extensions = "^4.12.2"
 bech32 = "^1.2.0"
 pycryptodome = "^3.20.0"
-grpcio = "^1.74.0"
+grpcio = "^1.76.0"
 coincurve = "^20.0.0"
 
 
