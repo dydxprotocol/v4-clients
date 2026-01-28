@@ -3,7 +3,7 @@ package slinky.types.v1;
 
 import "gogoproto/gogo.proto";
 
-option go_package = "github.com/skip-mev/connect/v2/pkg/types";
+option go_package = "github.com/dydxprotocol/slinky/pkg/types";
 
 // CurrencyPair is the standard representation of a pair of assets, where one
 // (Base) is priced in terms of the other (Quote)
