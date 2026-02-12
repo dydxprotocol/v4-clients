@@ -41,4 +41,5 @@ export interface Options {
 export enum ClobPairId {
   PERPETUAL_PAIR_BTC_USD = 0,
   PERPETUAL_PAIR_ETH_USD = 1,
+  PERPETUAL_PAIR_LITECOIN_USD = 2,
 }
