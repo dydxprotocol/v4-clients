@@ -1,5 +1,5 @@
 # repo default
-* @dydxprotocol/client-code-owners
+* @dydxprotocol/client-code-owner
 
 # global security policy
 /.github/   @dydxprotocol/security
