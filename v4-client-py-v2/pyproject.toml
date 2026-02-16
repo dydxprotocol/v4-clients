@@ -3,8 +3,7 @@ name = "dydx-v4-client"
 version = "1.1.5"
 description = ""
 authors = [
-    "Saul Martin <saulmartin1@pm.me>",
-    "Piotr Piwoński <piwonskp@gmail.com>",
+    "Support <contact@dydx.exchange>"
 ]
 readme = "README.md"
 
