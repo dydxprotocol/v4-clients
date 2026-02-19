@@ -122,7 +122,6 @@ async function test(): Promise<void> {
   }
 
   // Get trade history
-  // Get trade history
   try {
     const response = await client.account.getSubaccountTradeHistory(address, 0);
     console.log(response);
