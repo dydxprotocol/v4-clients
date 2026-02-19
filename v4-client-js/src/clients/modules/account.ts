@@ -385,4 +385,30 @@ export default class AccountClient extends RestClient {
     const uri = `/v4/fundingPayments/parentSubaccount`;
     return this.get(uri, { address, parentSubaccountNumber, limit, ticker, afterOrAt, page });
   }
+
+  // ------ Trade History ------ //
+
+  async getSubaccountTradeHistory(
+    address: string,
+    subaccountNumber: number,
+    market?: string,
+    marketType?: string,
+    limit?: number,
+    page?: number,
+  ): Promise<Data> {
+    const uri = `/v4/tradeHistory`;
+    return this.get(uri, { address, subaccountNumber, market, marketType, limit, page });
+  }
+
+  async getParentSubaccountNumberTradeHistory(
+    address: string,
+    parentSubaccountNumber: number,
+    market?: string,
+    marketType?: string,
+    limit?: number,
+    page?: number,
+  ): Promise<Data> {
+    const uri = `/v4/tradeHistory/parentSubaccountNumber`;
+    return this.get(uri, { address, parentSubaccountNumber, market, marketType, limit, page });
+  }
 }
