@@ -120,6 +120,21 @@ async function test(): Promise<void> {
   } catch (error) {
     console.log(error.message);
   }
+
+  // Get trade history
+  // Get trade history
+  try {
+    const response = await client.account.getSubaccountTradeHistory(address, 0);
+    console.log(response);
+    const trades = response.tradeHistory;
+    console.log(trades);
+    if (trades.length > 0) {
+      const trade0 = trades[0];
+      console.log(trade0);
+    }
+  } catch (error) {
+    console.log(error.message);
+  }
 }
 
 test()
