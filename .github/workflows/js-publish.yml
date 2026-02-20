@@ -17,6 +17,9 @@ jobs:
     permissions:
       contents: write
       id-token: write
+    defaults:
+      run:
+        working-directory: ./v4-client-js
 
     steps:
       - uses: actions/checkout@v3
@@ -35,4 +38,4 @@ jobs:
         run: npm ci
 
       - name: Publish if needed
-        run: ./v4-client-js/scripts/publish-if-not-exists.sh
+        run: ./scripts/publish-if-not-exists.sh
