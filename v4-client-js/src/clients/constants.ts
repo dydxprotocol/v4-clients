@@ -144,6 +144,8 @@ export enum OrderType {
   TAKE_PROFIT_LIMIT = 'TAKE_PROFIT',
   STOP_MARKET = 'STOP_MARKET',
   TAKE_PROFIT_MARKET = 'TAKE_PROFIT_MARKET',
+  TWAP = 'TWAP',
+  TWAP_SUBORDER = 'TWAP_SUBORDER',
 }
 
 // ------------ Order Side ------------
