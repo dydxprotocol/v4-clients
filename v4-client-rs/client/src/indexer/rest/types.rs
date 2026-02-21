@@ -28,10 +28,6 @@ pub struct ErrorMsg {
     pub location: String,
 }
 
-/// Profit and loss tick id.
-#[derive(Deserialize, Debug, Clone, From, Display, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub struct PnlTickId(pub String);
-
 /// PnL tick resolution.
 #[derive(
     Deserialize, Serialize, Debug, Clone, Copy, From, Display, PartialEq, Eq, PartialOrd, Ord, Hash,

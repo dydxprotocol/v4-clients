@@ -50,8 +50,10 @@ where
 
 impl<T: TryFrom<FeedMessage>> Drop for Feed<T> {
     fn drop(&mut self) {
-        if let Err(err) = self.ctrl.send(ControlMsg::Unsubscribe(self.sub.clone())) {
-            log::error!("Sending of Unsubscribe control message to connector failed: {err}");
+        if !self.ctrl.is_closed() {
+            if let Err(err) = self.ctrl.send(ControlMsg::Unsubscribe(self.sub.clone())) {
+                log::error!("Sending of Unsubscribe control message to connector failed: {err}");
+            }
         }
     }
 }
