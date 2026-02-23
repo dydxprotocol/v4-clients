@@ -45,6 +45,7 @@ export function calculateSubticks(
   return Long.fromNumber(result);
 }
 
+
 export function calculateSide(side: OrderSide): Order_Side {
   return side === OrderSide.BUY ? Order_Side.SIDE_BUY : Order_Side.SIDE_SELL;
 }
