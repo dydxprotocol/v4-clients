@@ -550,7 +550,11 @@ export class CompositeClient {
     );
     const orderTimeInForce = calculateTimeInForce(type, timeInForce, execution, postOnly);
     let goodTilBlockTime = 0;
-    if (orderFlags === OrderFlags.LONG_TERM || orderFlags === OrderFlags.CONDITIONAL) {
+    if (
+      orderFlags === OrderFlags.LONG_TERM ||
+      orderFlags === OrderFlags.CONDITIONAL ||
+      orderFlags === OrderFlags.TWAP
+    ) {
       if (goodTilTimeInSeconds == null) {
         throw new Error('goodTilTimeInSeconds must be set for LONG_TERM or CONDITIONAL order');
       } else {
