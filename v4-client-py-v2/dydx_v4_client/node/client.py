@@ -1,6 +1,7 @@
 import asyncio
 import base64
 import json
+import random
 from dataclasses import dataclass
 from decimal import Decimal
 from typing import Union, Dict, Any
@@ -10,7 +11,7 @@ from google._upb._message import Message
 from google.protobuf.json_format import MessageToDict
 from typing_extensions import List, Optional, Self
 
-from dydx_v4_client import OrderFlags
+from dydx_v4_client import MAX_CLIENT_ID, OrderFlags
 from dydx_v4_client.indexer.rest.constants import OrderType
 from dydx_v4_client.node.market import Market
 from dydx_v4_client.node_helper_type import ExtendedSubaccount
@@ -1426,6 +1427,82 @@ class NodeClient(MutatingNodeClient):
             good_til_block=current_height + GOOD_TIL_BLOCK_OFFSET,
         )
         return await self.place_order(wallet, new_order)
+
+    async def place_scale_order(
+        self,
+        wallet: Wallet,
+        market: Market,
+        address: str,
+        subaccount_number: int,
+        side: "Order.Side",
+        total_size: float,
+        price_low: float,
+        price_high: float,
+        num_orders: int,
+        time_in_force: "Order.TimeInForce" = None,
+        good_til_block_time: Optional[int] = None,
+        reduce_only: bool = False,
+        post_only: bool = False,
+        tx_options: Optional["TxOptions"] = None,
+    ) -> List:
+        """
+        Places multiple limit orders distributed across a price range (scale order).
+
+        Args:
+            wallet (Wallet): The wallet to use for signing.
+            market (Market): The market to place orders on.
+            address (str): The account address.
+            subaccount_number (int): The subaccount number.
+            side (Order.Side): SIDE_BUY or SIDE_SELL.
+            total_size (float): Total order size to distribute across all orders.
+            price_low (float): Lower bound of the price range.
+            price_high (float): Upper bound of the price range.
+            num_orders (int): Number of orders to place across the range.
+            time_in_force (Order.TimeInForce, optional): Time in force for each order.
+            good_til_block_time (int, optional): Expiration timestamp. Required for long-term orders.
+            reduce_only (bool): Whether orders should be reduce-only.
+            post_only (bool): Whether orders should be post-only.
+            tx_options (TxOptions, optional): Transaction options for authenticators.
+
+        Returns:
+            List: List of (order_id, response) tuples for each placed order.
+
+        Raises:
+            ValueError: If parameters are invalid.
+        """
+        if num_orders < 2:
+            raise ValueError("num_orders must be at least 2")
+        if price_low >= price_high:
+            raise ValueError("price_low must be less than price_high")
+        if total_size <= 0:
+            raise ValueError("total_size must be positive")
+
+        order_size = total_size / num_orders
+        price_step = (price_high - price_low) / (num_orders - 1)
+
+        results = []
+        for i in range(num_orders):
+            price = price_low + i * price_step
+            client_id = random.randint(0, MAX_CLIENT_ID)
+            oid = market.order_id(
+                address, subaccount_number, client_id, OrderFlags.LONG_TERM
+            )
+            new_order = market.order(
+                order_id=oid,
+                order_type=OrderType.LIMIT,
+                side=side,
+                size=order_size,
+                price=price,
+                time_in_force=time_in_force,
+                reduce_only=reduce_only,
+                post_only=post_only,
+                good_til_block_time=good_til_block_time,
+            )
+            response = await self.place_order(wallet, new_order, tx_options=tx_options)
+            results.append((oid, response))
+            wallet.sequence += 1
+
+        return results
 
     async def set_order_router_revenue_share(
         self, authority: str, address: str, share_ppm: int
