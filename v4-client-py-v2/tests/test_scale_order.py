@@ -5,6 +5,7 @@ import pytest
 import asyncio
 
 from dydx_v4_client import MAX_CLIENT_ID, OrderFlags
+from dydx_v4_client.node.client import NodeClient
 from dydx_v4_client.node.market import Market
 from v4_proto.dydxprotocol.clob.order_pb2 import Order
 from dydx_v4_client.indexer.rest.constants import OrderType, OrderStatus
@@ -156,6 +157,60 @@ async def liquidity_setup(node_client, indexer_rest_client, wallet_2, key_pair_2
     )
 
 
+# --- Unit tests for _generate_skewed_prices ---
+
+
+def test_skewed_prices_linear():
+    """skew=1.0 produces linearly spaced prices."""
+    prices = NodeClient._generate_skewed_prices(100.0, 200.0, 5, 1.0)
+    assert len(prices) == 5
+    assert prices[0] == pytest.approx(100.0)
+    assert prices[-1] == pytest.approx(200.0)
+    for i in range(1, len(prices)):
+        assert prices[i] - prices[i - 1] == pytest.approx(25.0)
+
+
+def test_skewed_prices_high_skew():
+    """skew>1 concentrates prices toward start_price (larger gaps later)."""
+    prices = NodeClient._generate_skewed_prices(100.0, 200.0, 5, 2.0)
+    assert len(prices) == 5
+    assert prices[0] == pytest.approx(100.0)
+    assert prices[-1] == pytest.approx(200.0)
+    # Gaps should increase: first gap smallest, last gap largest
+    gaps = [prices[i + 1] - prices[i] for i in range(len(prices) - 1)]
+    for i in range(len(gaps) - 1):
+        assert gaps[i] < gaps[i + 1]
+
+
+def test_skewed_prices_low_skew():
+    """skew<1 concentrates prices toward end_price (larger gaps first)."""
+    prices = NodeClient._generate_skewed_prices(100.0, 200.0, 5, 0.5)
+    assert len(prices) == 5
+    assert prices[0] == pytest.approx(100.0)
+    assert prices[-1] == pytest.approx(200.0)
+    # Gaps should decrease: first gap largest, last gap smallest
+    gaps = [prices[i + 1] - prices[i] for i in range(len(prices) - 1)]
+    for i in range(len(gaps) - 1):
+        assert gaps[i] > gaps[i + 1]
+
+
+def test_skewed_prices_two_orders():
+    """With 2 orders, prices are just start and end regardless of skew."""
+    prices = NodeClient._generate_skewed_prices(50.0, 150.0, 2, 3.0)
+    assert len(prices) == 2
+    assert prices[0] == pytest.approx(50.0)
+    assert prices[1] == pytest.approx(150.0)
+
+
+def test_skewed_prices_single_order():
+    """With 1 order, only start_price is returned."""
+    prices = NodeClient._generate_skewed_prices(50.0, 150.0, 1, 1.0)
+    assert prices == [50.0]
+
+
+# --- Validation tests (no testnet needed) ---
+
+
 @pytest.mark.asyncio
 async def test_scale_order_validates_num_orders(
     node_client, indexer_rest_client, wallet, test_address, key_pair
@@ -175,8 +230,8 @@ async def test_scale_order_validates_num_orders(
             subaccount_number=SUBACCOUNT,
             side=Order.Side.SIDE_BUY,
             total_size=100,
-            price_low=1.0,
-            price_high=2.0,
+            start_price=1.0,
+            end_price=2.0,
             num_orders=1,
             good_til_block_time=int(time.time() + 120),
         )
@@ -193,7 +248,7 @@ async def test_scale_order_validates_price_range(
     )
     wallet = await get_wallet(node_client, key_pair, test_address)
 
-    with pytest.raises(ValueError, match="price_low must be less than price_high"):
+    with pytest.raises(ValueError, match="start_price and end_price must be different"):
         await node_client.place_scale_order(
             wallet=wallet,
             market=market,
@@ -201,8 +256,8 @@ async def test_scale_order_validates_price_range(
             subaccount_number=SUBACCOUNT,
             side=Order.Side.SIDE_BUY,
             total_size=100,
-            price_low=2.0,
-            price_high=1.0,
+            start_price=2.0,
+            end_price=2.0,
             num_orders=3,
             good_til_block_time=int(time.time() + 120),
         )
@@ -227,11 +282,41 @@ async def test_scale_order_validates_total_size(
             subaccount_number=SUBACCOUNT,
             side=Order.Side.SIDE_BUY,
             total_size=0,
-            price_low=1.0,
-            price_high=2.0,
+            start_price=1.0,
+            end_price=2.0,
             num_orders=3,
             good_til_block_time=int(time.time() + 120),
         )
+
+
+@pytest.mark.asyncio
+async def test_scale_order_validates_skew(
+    node_client, indexer_rest_client, wallet, test_address, key_pair
+):
+    market = Market(
+        (await indexer_rest_client.markets.get_perpetual_markets(TEST_MARKET_ID))[
+            "markets"
+        ][TEST_MARKET_ID]
+    )
+    wallet = await get_wallet(node_client, key_pair, test_address)
+
+    with pytest.raises(ValueError, match="skew must be positive"):
+        await node_client.place_scale_order(
+            wallet=wallet,
+            market=market,
+            address=test_address,
+            subaccount_number=SUBACCOUNT,
+            side=Order.Side.SIDE_BUY,
+            total_size=100,
+            start_price=1.0,
+            end_price=2.0,
+            num_orders=3,
+            skew=0,
+            good_til_block_time=int(time.time() + 120),
+        )
+
+
+# --- Testnet integration tests ---
 
 
 @pytest.mark.asyncio
@@ -260,8 +345,8 @@ async def test_scale_order_place_and_verify(
     oracle_price = float(market.market["oraclePrice"])
 
     # Place BUY scale orders well below oracle to avoid immediate execution
-    price_low = oracle_price * 0.90
-    price_high = oracle_price * 0.95
+    start_price = oracle_price * 0.90
+    end_price = oracle_price * 0.95
     num_orders = 3
     total_size = 30
 
@@ -273,8 +358,8 @@ async def test_scale_order_place_and_verify(
             subaccount_number=SUBACCOUNT,
             side=Order.Side.SIDE_BUY,
             total_size=total_size,
-            price_low=price_low,
-            price_high=price_high,
+            start_price=start_price,
+            end_price=end_price,
             num_orders=num_orders,
             good_til_block_time=int(time.time() + 120),
         )
@@ -316,7 +401,7 @@ async def test_scale_order_place_and_verify(
 
 
 @pytest.mark.asyncio
-async def test_scale_order_sell_place_and_verify(
+async def test_scale_order_sell_with_skew(
     node_client,
     indexer_rest_client,
     wallet,
@@ -325,7 +410,7 @@ async def test_scale_order_sell_place_and_verify(
     liquidity_setup,
 ):
     """
-    Places a SELL scale order with 3 limit orders above oracle price,
+    Places a SELL scale order with skew=2.0 (prices concentrated toward start),
     then verifies that orders appear on the book.
     """
     market = Market(
@@ -341,8 +426,8 @@ async def test_scale_order_sell_place_and_verify(
     oracle_price = float(market.market["oraclePrice"])
 
     # Place SELL scale orders well above oracle to avoid immediate execution
-    price_low = oracle_price * 1.05
-    price_high = oracle_price * 1.10
+    start_price = oracle_price * 1.05
+    end_price = oracle_price * 1.10
     num_orders = 3
     total_size = 30
 
@@ -354,9 +439,10 @@ async def test_scale_order_sell_place_and_verify(
             subaccount_number=SUBACCOUNT,
             side=Order.Side.SIDE_SELL,
             total_size=total_size,
-            price_low=price_low,
-            price_high=price_high,
+            start_price=start_price,
+            end_price=end_price,
             num_orders=num_orders,
+            skew=2.0,
             good_til_block_time=int(time.time() + 120),
         )
 

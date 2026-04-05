@@ -16,14 +16,16 @@ MARKET_ID = "ETH-USD"
 # Scale order configuration
 NUM_ORDERS = 5
 TOTAL_SIZE = 0.05  # Total size spread across all orders
-PRICE_OFFSET_LOW_PCT = 5  # % below oracle for lowest buy order
-PRICE_OFFSET_HIGH_PCT = 2  # % below oracle for highest buy order
+PRICE_OFFSET_LOW_PCT = 5  # % below oracle for start price
+PRICE_OFFSET_HIGH_PCT = 2  # % below oracle for end price
+SKEW = 1.5  # >1 concentrates prices toward start, <1 toward end, 1 = linear
 
 
 async def place_scale_order_example():
     """
     Demonstrates placing a BUY scale order: multiple limit orders
-    distributed across a price range below the current oracle price.
+    distributed across a price range below the current oracle price,
+    with configurable skew for non-linear price spacing.
     """
     print("=" * 60)
     print("SCALE ORDER EXAMPLE")
@@ -39,8 +41,13 @@ async def place_scale_order_example():
     wallet = await Wallet.from_mnemonic(node, DYDX_TEST_MNEMONIC_3, TEST_ADDRESS_3)
 
     oracle_price = float(market.market["oraclePrice"])
-    price_low = oracle_price * (1 - PRICE_OFFSET_LOW_PCT / 100)
-    price_high = oracle_price * (1 - PRICE_OFFSET_HIGH_PCT / 100)
+    start_price = oracle_price * (1 - PRICE_OFFSET_LOW_PCT / 100)
+    end_price = oracle_price * (1 - PRICE_OFFSET_HIGH_PCT / 100)
+
+    # Preview the price distribution
+    prices = NodeClient._generate_skewed_prices(
+        start_price, end_price, NUM_ORDERS, SKEW
+    )
 
     print(f"Market: {MARKET_ID}")
     print(f"Oracle Price: ${oracle_price:.2f}")
@@ -48,8 +55,9 @@ async def place_scale_order_example():
     print(f"Total Size: {TOTAL_SIZE}")
     print(f"Number of Orders: {NUM_ORDERS}")
     print(f"Size per Order: {TOTAL_SIZE / NUM_ORDERS:.6f}")
-    print(f"Price Range: ${price_low:.2f} - ${price_high:.2f}")
-    print(f"Price Step: ${(price_high - price_low) / (NUM_ORDERS - 1):.2f}")
+    print(f"Price Range: ${start_price:.2f} - ${end_price:.2f}")
+    print(f"Skew: {SKEW}")
+    print(f"Price levels: {['${:.2f}'.format(p) for p in prices]}")
     print()
 
     # Place the scale order
@@ -61,17 +69,20 @@ async def place_scale_order_example():
         subaccount_number=0,
         side=Order.Side.SIDE_BUY,
         total_size=TOTAL_SIZE,
-        price_low=price_low,
-        price_high=price_high,
+        start_price=start_price,
+        end_price=end_price,
         num_orders=NUM_ORDERS,
+        skew=SKEW,
         good_til_block_time=int(time.time() + 600),
     )
 
     print(f"Placed {len(results)} orders:")
     for i, (order_id, response) in enumerate(results):
-        price = price_low + i * (price_high - price_low) / (NUM_ORDERS - 1)
         status = "OK" if response.tx_response.code == 0 else "FAILED"
-        print(f"  Order {i + 1}: price=${price:.2f}, size={TOTAL_SIZE / NUM_ORDERS:.6f}, status={status}")
+        print(
+            f"  Order {i + 1}: price=${prices[i]:.2f}, "
+            f"size={TOTAL_SIZE / NUM_ORDERS:.6f}, status={status}"
+        )
     print()
 
     # Wait and verify
