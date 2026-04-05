@@ -1526,9 +1526,7 @@ class NodeClient(MutatingNodeClient):
             raise ValueError("skew must be positive")
 
         order_size = total_size / num_orders
-        prices = self._generate_skewed_prices(
-            start_price, end_price, num_orders, skew
-        )
+        prices = self._generate_skewed_prices(start_price, end_price, num_orders, skew)
 
         # Fetch the latest sequence once before the loop, then manage it
         # manually to avoid the sequence manager re-querying stale state

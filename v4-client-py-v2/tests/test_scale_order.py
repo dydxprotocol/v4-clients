@@ -17,7 +17,6 @@ from tests.conftest import (
     TEST_MARKET_ID,
 )
 
-
 REQUEST_PROCESSING_TIME = 5
 SUBACCOUNT = 0
 
