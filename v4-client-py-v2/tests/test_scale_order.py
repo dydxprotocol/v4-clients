@@ -252,6 +252,9 @@ async def test_scale_order_place_and_verify(
             "markets"
         ][TEST_MARKET_ID]
     )
+
+    # Wait for testnet to settle after liquidity setup, then refresh wallet
+    await asyncio.sleep(REQUEST_PROCESSING_TIME)
     wallet = await get_wallet(node_client, key_pair, test_address)
 
     oracle_price = float(market.market["oraclePrice"])
@@ -281,7 +284,7 @@ async def test_scale_order_place_and_verify(
         for order_id, response in results:
             assert_successful_broadcast(response)
 
-        await asyncio.sleep(5)
+        await asyncio.sleep(REQUEST_PROCESSING_TIME)
 
         # Verify orders appear in the indexer
         orders = await indexer_rest_client.account.get_subaccount_orders(
@@ -330,6 +333,9 @@ async def test_scale_order_sell_place_and_verify(
             "markets"
         ][TEST_MARKET_ID]
     )
+
+    # Wait for testnet to settle after liquidity setup, then refresh wallet
+    await asyncio.sleep(REQUEST_PROCESSING_TIME)
     wallet = await get_wallet(node_client, key_pair, test_address)
 
     oracle_price = float(market.market["oraclePrice"])
@@ -359,7 +365,7 @@ async def test_scale_order_sell_place_and_verify(
         for order_id, response in results:
             assert_successful_broadcast(response)
 
-        await asyncio.sleep(5)
+        await asyncio.sleep(REQUEST_PROCESSING_TIME)
 
         orders = await indexer_rest_client.account.get_subaccount_orders(
             test_address, SUBACCOUNT, status=OrderStatus.OPEN

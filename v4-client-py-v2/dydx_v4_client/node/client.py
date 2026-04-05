@@ -1480,27 +1480,40 @@ class NodeClient(MutatingNodeClient):
         order_size = total_size / num_orders
         price_step = (price_high - price_low) / (num_orders - 1)
 
-        results = []
-        for i in range(num_orders):
-            price = price_low + i * price_step
-            client_id = random.randint(0, MAX_CLIENT_ID)
-            oid = market.order_id(
-                address, subaccount_number, client_id, OrderFlags.LONG_TERM
-            )
-            new_order = market.order(
-                order_id=oid,
-                order_type=OrderType.LIMIT,
-                side=side,
-                size=order_size,
-                price=price,
-                time_in_force=time_in_force,
-                reduce_only=reduce_only,
-                post_only=post_only,
-                good_til_block_time=good_til_block_time,
-            )
-            response = await self.place_order(wallet, new_order, tx_options=tx_options)
-            results.append((oid, response))
-            wallet.sequence += 1
+        # Fetch the latest sequence once before the loop, then manage it
+        # manually to avoid the sequence manager re-querying stale state
+        # between rapid successive broadcasts.
+        if self.sequence_manager:
+            await self.sequence_manager.before_send(wallet)
+        saved_sequence_manager = self.sequence_manager
+        self.sequence_manager = None
+
+        try:
+            results = []
+            for i in range(num_orders):
+                price = price_low + i * price_step
+                client_id = random.randint(0, MAX_CLIENT_ID)
+                oid = market.order_id(
+                    address, subaccount_number, client_id, OrderFlags.LONG_TERM
+                )
+                new_order = market.order(
+                    order_id=oid,
+                    order_type=OrderType.LIMIT,
+                    side=side,
+                    size=order_size,
+                    price=price,
+                    time_in_force=time_in_force,
+                    reduce_only=reduce_only,
+                    post_only=post_only,
+                    good_til_block_time=good_til_block_time,
+                )
+                response = await self.place_order(
+                    wallet, new_order, tx_options=tx_options
+                )
+                results.append((oid, response))
+                wallet.sequence += 1
+        finally:
+            self.sequence_manager = saved_sequence_manager
 
         return results
 
