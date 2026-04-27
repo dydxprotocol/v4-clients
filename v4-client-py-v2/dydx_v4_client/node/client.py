@@ -1,6 +1,7 @@
 import asyncio
 import base64
 import json
+import random
 from dataclasses import dataclass
 from decimal import Decimal
 from typing import Union, Dict, Any
@@ -10,7 +11,7 @@ from google._upb._message import Message
 from google.protobuf.json_format import MessageToDict
 from typing_extensions import List, Optional, Self
 
-from dydx_v4_client import OrderFlags
+from dydx_v4_client import MAX_CLIENT_ID, OrderFlags
 from dydx_v4_client.indexer.rest.constants import OrderType
 from dydx_v4_client.node.market import Market
 from dydx_v4_client.node_helper_type import ExtendedSubaccount
@@ -1426,6 +1427,142 @@ class NodeClient(MutatingNodeClient):
             good_til_block=current_height + GOOD_TIL_BLOCK_OFFSET,
         )
         return await self.place_order(wallet, new_order)
+
+    @staticmethod
+    def _generate_skewed_prices(
+        start_price: float,
+        end_price: float,
+        num_orders: int,
+        skew: float,
+    ) -> List[float]:
+        """
+        Generate prices distributed across a range using geometric weighting.
+
+        Matches the dYdX frontend (v4-web) generateSkewedPrices algorithm:
+        - skew = 1.0: linearly spaced prices
+        - skew > 1.0: prices concentrated toward start_price
+        - skew < 1.0: prices concentrated toward end_price
+
+        Args:
+            start_price: First price in the range.
+            end_price: Last price in the range.
+            num_orders: Number of price levels.
+            skew: Geometric weighting factor for gap distribution.
+
+        Returns:
+            List of prices from start_price to end_price.
+        """
+        if num_orders < 2:
+            return [start_price]
+
+        weights = [skew**i for i in range(num_orders - 1)]
+        total_weight = sum(weights)
+
+        prices = [start_price]
+        cumulative = 0.0
+        for w in weights:
+            cumulative += w
+            prices.append(
+                start_price + (end_price - start_price) * (cumulative / total_weight)
+            )
+        return prices
+
+    async def place_scale_order(
+        self,
+        wallet: Wallet,
+        market: Market,
+        address: str,
+        subaccount_number: int,
+        side: "Order.Side",
+        total_size: float,
+        start_price: float,
+        end_price: float,
+        num_orders: int,
+        skew: float = 1.0,
+        time_in_force: "Order.TimeInForce" = None,
+        good_til_block_time: Optional[int] = None,
+        reduce_only: bool = False,
+        post_only: bool = False,
+        tx_options: Optional["TxOptions"] = None,
+    ) -> List:
+        """
+        Places multiple limit orders distributed across a price range (scale order).
+
+        Matches the dYdX frontend scale order behavior: equal size per order,
+        with prices distributed according to a geometric skew factor.
+
+        Args:
+            wallet (Wallet): The wallet to use for signing.
+            market (Market): The market to place orders on.
+            address (str): The account address.
+            subaccount_number (int): The subaccount number.
+            side (Order.Side): SIDE_BUY or SIDE_SELL.
+            total_size (float): Total order size to distribute equally across all orders.
+            start_price (float): First price in the range.
+            end_price (float): Last price in the range.
+            num_orders (int): Number of orders to place across the range.
+            skew (float): Price distribution skew factor (default 1.0 = linear).
+                skew > 1.0 concentrates prices toward start_price.
+                skew < 1.0 concentrates prices toward end_price.
+            time_in_force (Order.TimeInForce, optional): Time in force for each order.
+            good_til_block_time (int, optional): Expiration timestamp. Required for long-term orders.
+            reduce_only (bool): Whether orders should be reduce-only.
+            post_only (bool): Whether orders should be post-only.
+            tx_options (TxOptions, optional): Transaction options for authenticators.
+
+        Returns:
+            List: List of (order_id, response) tuples for each placed order.
+
+        Raises:
+            ValueError: If parameters are invalid.
+        """
+        if num_orders < 2:
+            raise ValueError("num_orders must be at least 2")
+        if start_price == end_price:
+            raise ValueError("start_price and end_price must be different")
+        if total_size <= 0:
+            raise ValueError("total_size must be positive")
+        if skew <= 0:
+            raise ValueError("skew must be positive")
+
+        order_size = total_size / num_orders
+        prices = self._generate_skewed_prices(start_price, end_price, num_orders, skew)
+
+        # Fetch the latest sequence once before the loop, then manage it
+        # manually to avoid the sequence manager re-querying stale state
+        # between rapid successive broadcasts.
+        if self.sequence_manager:
+            await self.sequence_manager.before_send(wallet)
+        saved_sequence_manager = self.sequence_manager
+        self.sequence_manager = None
+
+        try:
+            results = []
+            for price in prices:
+                client_id = random.randint(0, MAX_CLIENT_ID)
+                oid = market.order_id(
+                    address, subaccount_number, client_id, OrderFlags.LONG_TERM
+                )
+                new_order = market.order(
+                    order_id=oid,
+                    order_type=OrderType.LIMIT,
+                    side=side,
+                    size=order_size,
+                    price=price,
+                    time_in_force=time_in_force,
+                    reduce_only=reduce_only,
+                    post_only=post_only,
+                    good_til_block_time=good_til_block_time,
+                )
+                response = await self.place_order(
+                    wallet, new_order, tx_options=tx_options
+                )
+                results.append((oid, response))
+                wallet.sequence += 1
+        finally:
+            self.sequence_manager = saved_sequence_manager
+
+        return results
 
     async def set_order_router_revenue_share(
         self, authority: str, address: str, share_ppm: int
