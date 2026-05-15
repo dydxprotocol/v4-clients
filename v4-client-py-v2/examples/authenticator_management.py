@@ -13,14 +13,14 @@ from dydx_v4_client.node.client import NodeClient
 from dydx_v4_client.node.market import Market
 from dydx_v4_client.wallet import Wallet
 from tests.conftest import (
-    DYDX_TEST_MNEMONIC,
+    DYDX_TEST_MNEMONIC_3,
     DYDX_TEST_MNEMONIC_2,
-    TEST_ADDRESS,
+    TEST_ADDRESS_3,
     TEST_ADDRESS_2,
 )
 
 
-MARKET_ID = "ETH-USD"
+MARKET_ID = "ENA-USD"
 
 
 async def authenticator_example():
@@ -30,8 +30,8 @@ async def authenticator_example():
     # Set up the primary wallet for which we want to add authenticator
     wallet = await Wallet.from_mnemonic(
         node,
-        mnemonic=DYDX_TEST_MNEMONIC,
-        address=TEST_ADDRESS,
+        mnemonic=DYDX_TEST_MNEMONIC_3,
+        address=TEST_ADDRESS_3,
     )
 
     # Set up the "trader" wallet

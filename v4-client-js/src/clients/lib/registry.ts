@@ -1,6 +1,9 @@
 import { GeneratedType, Registry } from '@cosmjs/proto-signing';
 import { defaultRegistryTypes } from '@cosmjs/stargate';
-import { MsgAddAuthenticator, MsgRemoveAuthenticator } from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/accountplus/tx';
+import {
+  MsgAddAuthenticator,
+  MsgRemoveAuthenticator,
+} from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/accountplus/tx';
 import { MsgRegisterAffiliate } from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/affiliates/tx';
 import {
   MsgPlaceOrder,
@@ -8,6 +11,7 @@ import {
   MsgCreateClobPair,
   MsgUpdateClobPair,
   MsgBatchCancel,
+  MsgUpdateLeverage,
 } from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/clob/tx';
 import { MsgDelayMessage } from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/delaymsg/tx';
 import { MsgCreateMarketPermissionless } from '@dydxprotocol/v4-proto/src/codegen/dydxprotocol/listing/tx';
@@ -41,6 +45,7 @@ import {
   TYPE_URL_MSG_CREATE_MARKET_PERMISSIONLESS,
   TYPE_URL_MSG_ADD_AUTHENTICATOR,
   TYPE_URL_MSG_REMOVE_AUTHENTICATOR,
+  TYPE_URL_MSG_UPDATE_LEVERAGE,
 } from '../constants';
 
 export const registry: ReadonlyArray<[string, GeneratedType]> = [];
@@ -52,6 +57,7 @@ export function generateRegistry(): Registry {
     [TYPE_URL_BATCH_CANCEL, MsgBatchCancel as GeneratedType],
     [TYPE_URL_MSG_CREATE_CLOB_PAIR, MsgCreateClobPair as GeneratedType],
     [TYPE_URL_MSG_UPDATE_CLOB_PAIR, MsgUpdateClobPair as GeneratedType],
+    [TYPE_URL_MSG_UPDATE_LEVERAGE, MsgUpdateLeverage as GeneratedType],
 
     // delaymsg
     [TYPE_URL_MSG_DELAY_MESSAGE, MsgDelayMessage as GeneratedType],
@@ -76,7 +82,6 @@ export function generateRegistry(): Registry {
 
     // affiliates
     [TYPE_URL_MSG_REGISTER_AFFILIATE, MsgRegisterAffiliate as GeneratedType],
-
 
     // authentication
     [TYPE_URL_MSG_ADD_AUTHENTICATOR, MsgAddAuthenticator as GeneratedType],

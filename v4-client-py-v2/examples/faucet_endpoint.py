@@ -2,12 +2,12 @@ import asyncio
 
 from dydx_v4_client.faucet_client import FaucetClient
 from dydx_v4_client.network import TESTNET_FAUCET
-from tests.conftest import TEST_ADDRESS
+from tests.conftest import TEST_ADDRESS_3
 
 
 async def test():
     faucet = FaucetClient(TESTNET_FAUCET)
-    response = await faucet.fill(TEST_ADDRESS, 0, 2000)
+    response = await faucet.fill(TEST_ADDRESS_3, 0, 2000)
     print(response)
     print(response.status_code)
 

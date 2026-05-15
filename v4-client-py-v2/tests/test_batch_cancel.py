@@ -13,10 +13,14 @@ from v4_proto.dydxprotocol.clob.order_pb2 import Order
 from v4_proto.dydxprotocol.subaccounts.subaccount_pb2 import SubaccountId
 from v4_proto.dydxprotocol.clob.tx_pb2 import OrderBatch
 
-from tests.conftest import DYDX_TEST_MNEMONIC, assert_successful_broadcast
+from tests.conftest import (
+    DYDX_TEST_MNEMONIC_3,
+    assert_successful_broadcast,
+    DYDX_TEST_MNEMONIC_3,
+    TEST_MARKET_ID,
+    TEST_CLOB_PAIR_ID,
+)
 
-MARKET_ID = "BTC-USD"
-PERPETUAL_PAIR_BTC_USD = 0
 REQUEST_PROCESSING_TIME = 5
 
 
@@ -34,9 +38,9 @@ def sleep_after_test(request):
 @pytest.mark.asyncio
 async def test_batch_cancel(indexer_rest_client, node_client, test_address, wallet):
     market = Market(
-        (await indexer_rest_client.markets.get_perpetual_markets(MARKET_ID))["markets"][
-            MARKET_ID
-        ]
+        (await indexer_rest_client.markets.get_perpetual_markets(TEST_MARKET_ID))[
+            "markets"
+        ][TEST_MARKET_ID]
     )
     height = await node_client.latest_block_height()
     assert height > 0
@@ -63,7 +67,7 @@ async def test_batch_cancel(indexer_rest_client, node_client, test_address, wall
     assert orders[0].quantums == orders[1].quantums
     assert orders[0].subticks != orders[1].subticks
 
-    wallet = await Wallet.from_mnemonic(node_client, DYDX_TEST_MNEMONIC, test_address)
+    wallet = await Wallet.from_mnemonic(node_client, DYDX_TEST_MNEMONIC_3, test_address)
 
     assert wallet.address == test_address
 
@@ -75,7 +79,7 @@ async def test_batch_cancel(indexer_rest_client, node_client, test_address, wall
 
     # Prepare batch cancel
     subaccount_id = SubaccountId(owner=test_address, number=0)
-    order_batch = OrderBatch(clob_pair_id=PERPETUAL_PAIR_BTC_USD, client_ids=client_ids)
+    order_batch = OrderBatch(clob_pair_id=TEST_CLOB_PAIR_ID, client_ids=client_ids)
     cancellation_current_block = await node_client.latest_block_height()
 
     # Execute batch cancel

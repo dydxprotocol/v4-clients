@@ -34,6 +34,7 @@ import {
   MsgCancelOrder,
   Order_ConditionType,
   OrderBatch,
+  LeverageEntry,
 } from './proto-includes';
 
 // Required for encoding and decoding queries that are of type Long.
@@ -623,6 +624,38 @@ export class Post {
         subaccountNumber,
         shortTermOrders,
         goodTilBlock,
+      );
+      resolve(msg);
+    });
+  }
+
+  async updatePerpetualMarketsLeverage(
+    subaccount: SubaccountInfo,
+    address: string,
+    entries: LeverageEntry[],
+    broadcastMode?: BroadcastMode,
+  ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
+    const msg = await this.updatePerpetualMarketsLeverageMsg(subaccount, address, entries);
+    return this.send(
+      subaccount,
+      () => Promise.resolve([msg]),
+      false,
+      undefined,
+      undefined,
+      broadcastMode,
+    );
+  }
+
+  async updatePerpetualMarketsLeverageMsg(
+    subaccount: SubaccountInfo,
+    address: string,
+    entries: LeverageEntry[],
+  ): Promise<EncodeObject> {
+    return new Promise((resolve) => {
+      const msg = this.composer.composeMsgUpdateLeverage(
+        address,
+        subaccount.subaccountNumber,
+        entries,
       );
       resolve(msg);
     });

@@ -9,6 +9,8 @@ import { PerpetualMarketType } from '@dydxprotocol/v4-proto/src/codegen/dydxprot
 import BigNumber from 'bignumber.js';
 import Long from 'long';
 
+import { AxiosResponseWithGeoHeaders } from './lib/axios/types';
+
 export type Integer = BigNumber;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -37,6 +39,8 @@ export enum OrderFlags {
   SHORT_TERM = 0,
   LONG_TERM = 64,
   CONDITIONAL = 32,
+  TWAP = 128,
+  TWAP_SUBORDER = 256,
 }
 
 // TWAP order parameters
@@ -118,6 +122,8 @@ export interface HeightResponse {
   height: number;
   time: string;
 }
+
+export type HeightResponseWithHeaders = AxiosResponseWithGeoHeaders<HeightResponse>;
 
 export interface ComplianceResponse {
   restricted: boolean;

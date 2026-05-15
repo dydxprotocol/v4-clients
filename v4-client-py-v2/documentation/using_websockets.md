@@ -13,8 +13,8 @@ from dydx_v4_client.indexer.socket.websocket import IndexerSocket, CandlesResolu
 from dydx_v4_client.network import TESTNET
 
 # Replace with your actual address
-TEST_ADDRESS = "your_address_here"
-ETH_USD = "ETH-USD"
+TEST_ADDRESS_3 = "your_address_here"
+ETH_USD = "ENA-USD"
 ```
 
 
@@ -30,17 +30,17 @@ async def simple_subscription():
         # Subscribe to markets
         await ws.markets.subscribe()
         
-        # Subscribe to orderbook for ETH-USD
+        # Subscribe to orderbook for ENA-USD
         await ws.order_book.subscribe(ETH_USD)
         
-        # Subscribe to trades for ETH-USD
+        # Subscribe to trades for ENA-USD
         await ws.trades.subscribe(ETH_USD)
         
-        # Subscribe to 15-minute candles for ETH-USD
+        # Subscribe to 15-minute candles for ENA-USD
         await ws.candles.subscribe(ETH_USD, CandlesResolution.FIFTEEN_MINUTES)
         
         # Subscribe to a specific subaccount
-        await ws.subaccounts.subscribe(TEST_ADDRESS, 0)
+        await ws.subaccounts.subscribe(TEST_ADDRESS_3, 0)
         
         # Keep the connection alive
         while True:

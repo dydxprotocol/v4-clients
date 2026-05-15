@@ -12,16 +12,16 @@ from dydx_v4_client.faucet_client import FaucetClient
 from dydx_v4_client.network import TESTNET_FAUCET
 
 # Replace this with your actual testnet address
-TEST_ADDRESS = "your_testnet_address_here"
+TEST_ADDRESS_3 = "your_testnet_address_here"
 
 async def get_tokens_from_faucet():
     faucet = FaucetClient(TESTNET_FAUCET)
     
     # Get non-native tokens (USDC)
-    response_non_native = await faucet.fill(TEST_ADDRESS, 0, 2000)
+    response_non_native = await faucet.fill(TEST_ADDRESS_3, 0, 2000)
     
     # Get native tokens (DV4TNT)
-    response_native = await faucet.fill_native(TEST_ADDRESS)
+    response_native = await faucet.fill_native(TEST_ADDRESS_3)
 
     print("Non-native token response:", response_non_native)
     print("Native token response:", response_native)

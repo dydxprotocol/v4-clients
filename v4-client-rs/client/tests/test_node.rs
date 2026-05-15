@@ -5,7 +5,7 @@ use anyhow::{anyhow as err, Error};
 use bigdecimal::{num_traits::cast::ToPrimitive, BigDecimal, One};
 use chrono::{TimeDelta, Utc};
 use dydx::{
-    indexer::{Denom, OrderExecution, Ticker, Token},
+    indexer::{Denom, OrderExecution, Token},
     node::*,
 };
 use dydx_proto::dydxprotocol::{
@@ -21,20 +21,29 @@ use serial_test::serial;
 use std::str::FromStr;
 use tokio::time::{sleep, Duration};
 
-const ETH_USD_PAIR_ID: u32 = 1; // information on market id can be fetch from indexer API
-
 #[tokio::test]
 async fn test_node_order_generator() -> Result<(), Error> {
     let env = TestEnv::testnet().await?;
     let market = env.get_market().await?;
     let height = env.get_height().await?;
     let account = env.account;
+    let clob_pair_id = env.clob_pair_id;
 
     // Test values
     let price = BigDecimal::from_str("4000.0")?;
-    let subticks = 4_000_000_000_u64;
+    // Quantize price using market params (ENA-USD has different quantization than ETH-USD)
+    let subticks = market
+        .order_params()
+        .quantize_price(price.clone())
+        .to_u64()
+        .ok_or_else(|| err!("Failed converting subticks to u64"))?;
     let quantity = BigDecimal::from_str("0.1")?;
-    let quantums = 100_000_000_u64;
+    // Quantize quantity using market params (ENA-USD has different quantization than ETH-USD)
+    let quantums = market
+        .order_params()
+        .quantize_quantity(quantity.clone())
+        .to_u64()
+        .ok_or_else(|| err!("Failed converting quantums to u64"))?;
     let client_id = 123456;
 
     let until_height = height.ahead(SHORT_TERM_ORDER_MAXIMUM_LIFETIME);
@@ -72,7 +81,7 @@ async fn test_node_order_generator() -> Result<(), Error> {
             }),
             client_id,
             order_flags: 0_u32,
-            clob_pair_id: 1_u32,
+            clob_pair_id,
         }),
         side: Side::Sell.into(),
         quantums,
@@ -106,7 +115,7 @@ async fn test_node_order_generator() -> Result<(), Error> {
             }),
             client_id,
             order_flags: 32_u32,
-            clob_pair_id: 1_u32,
+            clob_pair_id,
         }),
         side: Side::Sell.into(),
         quantums,
@@ -140,7 +149,7 @@ async fn test_node_order_generator() -> Result<(), Error> {
             }),
             client_id,
             order_flags: 64_u32,
-            clob_pair_id: 1_u32,
+            clob_pair_id,
         }),
         side: Side::Buy.into(),
         quantums,
@@ -321,7 +330,7 @@ async fn test_node_batch_cancel_orders() -> Result<(), Error> {
     let subaccount = account.subaccount(0)?;
 
     let batch = OrderBatch {
-        clob_pair_id: ETH_USD_PAIR_ID,
+        clob_pair_id: env.clob_pair_id,
         client_ids: vec![order_id0.client_id, order_id1.client_id],
     };
     let cancels = vec![batch];
@@ -341,25 +350,41 @@ async fn test_node_batch_cancel_orders() -> Result<(), Error> {
 #[tokio::test]
 #[serial]
 async fn test_node_close_position() -> Result<(), Error> {
-    let env = TestEnv::testnet().await?;
-    let mut node = env.node;
-    let mut account = env.account;
+    let mut env = TestEnv::testnet().await?;
+    // Ensure there is bid/ask liquidity available (mirrors Python `liquidity_setup`)
+    let liq = env.setup_liquidity_orders().await?;
 
-    let subaccount = account.subaccount(0)?;
+    let subaccount = env.account.subaccount(0)?;
     let market = env
         .indexer
         .markets()
         .get_perpetual_market(&env.ticker)
         .await?;
 
-    node.close_position(
-        &mut account,
-        subaccount,
-        market,
-        None,
-        rng().random_range(0..100_000_000),
-    )
-    .await?;
+    // Capture result to ensure cleanup runs even on error
+    let close_result = env
+        .node
+        .close_position(
+            &mut env.account,
+            subaccount,
+            market,
+            None,
+            rng().random_range(0..100_000_000),
+        )
+        .await;
+
+    // Query transaction result if a transaction was created (best-effort, network issues are transient)
+    // Note: query timeouts are ignored as they may be transient testnet issues
+    if let Ok(Some(tx_hash)) = &close_result {
+        let _query_result = env.node.query_transaction_result(Ok(tx_hash.clone())).await;
+        // Ignore query errors (timeouts, etc.) - the important part is that close_position succeeded
+    }
+
+    // Always attempt cleanup of liquidity orders (best-effort, ignore failures).
+    let _ = env.cleanup_liquidity_orders(liq).await;
+
+    // Validate that close_position itself succeeded (Ok(None) means no position to close, which is valid)
+    close_result?;
 
     Ok(())
 }
@@ -373,7 +398,7 @@ async fn test_node_create_market_permissionless() -> Result<(), Error> {
 
     let subaccount = account.subaccount(0)?;
     // Avoid creating a new market and just try to create one that already exists
-    let ticker = Ticker::from("ETH-USD");
+    let ticker = env.ticker;
 
     let tx_res = node
         .create_market_permissionless(&mut account, &ticker, &subaccount)
@@ -382,7 +407,7 @@ async fn test_node_create_market_permissionless() -> Result<(), Error> {
     match node.query_transaction_result(tx_res).await {
         Err(e) if e.to_string().contains("Market params pair already exists") => Ok(()),
         Err(e) => Err(e),
-        Ok(_) => Err(err!("Market creation (ETH-USD) should fail")),
+        Ok(_) => Err(err!("Market creation should fail")),
     }
 }
 
@@ -393,7 +418,7 @@ async fn test_node_get_withdrawal_and_transfer_gating_status() -> Result<(), Err
     let mut node = env.node;
 
     let _get_withdrawal_and_transfer_gating_status = node
-        .get_withdrawal_and_transfer_gating_status(ETH_USD_PAIR_ID)
+        .get_withdrawal_and_transfer_gating_status(env.clob_pair_id)
         .await?;
 
     Ok(())

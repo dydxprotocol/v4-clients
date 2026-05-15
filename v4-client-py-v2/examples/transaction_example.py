@@ -4,15 +4,15 @@ from dydx_v4_client.network import TESTNET
 from dydx_v4_client.node.client import NodeClient
 from dydx_v4_client.node.message import send_token
 from dydx_v4_client.wallet import Wallet
-from tests.conftest import TEST_ADDRESS, RECIPIENT, DYDX_TEST_MNEMONIC
+from tests.conftest import TEST_ADDRESS_3, RECIPIENT, DYDX_TEST_MNEMONIC_3
 
 
 async def transaction_examples():
     node = await NodeClient.connect(TESTNET.node)
 
     # Create a transaction
-    send_token_msg = send_token(TEST_ADDRESS, RECIPIENT, 10000000, "adv4tnt")
-    wallet = await Wallet.from_mnemonic(node, DYDX_TEST_MNEMONIC, TEST_ADDRESS)
+    send_token_msg = send_token(TEST_ADDRESS_3, RECIPIENT, 10000000, "adv4tnt")
+    wallet = await Wallet.from_mnemonic(node, DYDX_TEST_MNEMONIC_3, TEST_ADDRESS_3)
     tx = await node.create_transaction(wallet, send_token_msg)
     print(tx)
     # broadcast it

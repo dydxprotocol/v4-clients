@@ -45,6 +45,7 @@ export function calculateSubticks(
   return Long.fromNumber(result);
 }
 
+
 export function calculateSide(side: OrderSide): Order_Side {
   return side === OrderSide.BUY ? Order_Side.SIDE_BUY : Order_Side.SIDE_SELL;
 }
@@ -133,6 +134,10 @@ export function calculateTimeInForce(
           throw new Error('Unexpected code path: timeInForce');
       }
 
+    case OrderType.TWAP:
+    case OrderType.TWAP_SUBORDER:
+      return Order_TimeInForce.TIME_IN_FORCE_UNSPECIFIED;
+
     default:
       throw new Error('Unexpected code path: timeInForce');
   }
@@ -158,6 +163,12 @@ export function calculateOrderFlags(type: OrderType, timeInForce?: OrderTimeInFo
     case OrderType.STOP_MARKET:
     case OrderType.TAKE_PROFIT_MARKET:
       return OrderFlags.CONDITIONAL;
+
+    case OrderType.TWAP:
+      return OrderFlags.TWAP;
+
+    case OrderType.TWAP_SUBORDER:
+      return OrderFlags.TWAP_SUBORDER;
 
     default:
       throw new Error('Unexpected code path: orderFlags');

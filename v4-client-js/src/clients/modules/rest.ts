@@ -28,6 +28,16 @@ export default class RestClient {
     return response.data;
   }
 
+  async getWithResponseHeaders(requestPath: string, params: {} = {}): Promise<Data> {
+    const url = `${this.host}${generateQueryPath(requestPath, params)}`;
+    const response = await this.axiosInstance.get(url);
+
+    return {
+      data: response.data,
+      headers: response.headers,
+    };
+  }
+
   async post(
     requestPath: string,
     params: {} = {},

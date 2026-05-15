@@ -3,12 +3,12 @@ import asyncio
 from dydx_v4_client.indexer.rest.constants import TradingRewardAggregationPeriod
 from dydx_v4_client.indexer.rest.indexer_client import IndexerClient
 from dydx_v4_client.network import TESTNET
-from tests.conftest import TEST_ADDRESS
+from tests.conftest import TEST_ADDRESS_3
 
 
 async def test_account():
     indexer = IndexerClient(TESTNET.rest_indexer)
-    test_address = TEST_ADDRESS
+    test_address = TEST_ADDRESS_3
 
     try:
         response = await indexer.account.get_subaccounts(test_address)

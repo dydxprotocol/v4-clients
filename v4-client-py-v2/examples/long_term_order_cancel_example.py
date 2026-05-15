@@ -12,9 +12,9 @@ from dydx_v4_client.node.client import NodeClient
 from dydx_v4_client.node.market import Market, since_now
 from dydx_v4_client.wallet import Wallet
 from dydx_v4_client.indexer.rest.constants import OrderType
-from tests.conftest import DYDX_TEST_MNEMONIC, TEST_ADDRESS
+from tests.conftest import DYDX_TEST_MNEMONIC_3, TEST_ADDRESS_3
 
-MARKET_ID = "ETH-USD"
+MARKET_ID = "ENA-USD"
 
 
 async def test():
@@ -25,10 +25,10 @@ async def test():
     market = Market(
         (await indexer.markets.get_perpetual_markets(MARKET_ID))["markets"][MARKET_ID]
     )
-    wallet = await Wallet.from_mnemonic(node, DYDX_TEST_MNEMONIC, TEST_ADDRESS)
+    wallet = await Wallet.from_mnemonic(node, DYDX_TEST_MNEMONIC_3, TEST_ADDRESS_3)
 
     order_id = market.order_id(
-        TEST_ADDRESS, 0, random.randint(0, MAX_CLIENT_ID), OrderFlags.LONG_TERM
+        TEST_ADDRESS_3, 0, random.randint(0, MAX_CLIENT_ID), OrderFlags.LONG_TERM
     )
 
     place = await node.place_order(

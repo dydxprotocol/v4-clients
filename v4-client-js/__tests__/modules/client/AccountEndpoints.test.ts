@@ -232,5 +232,73 @@ describe('IndexerClient', () => {
       expect(response.pageSize).toStrictEqual(1);
       expect(response.offset).toStrictEqual(0);
     });
+
+    it('Trade History', async () => {
+      const response = await client.account.getSubaccountTradeHistory(DYDX_TEST_ADDRESS, 0);
+      expect(response).not.toBeNull();
+      const trades = response.tradeHistory;
+      expect(trades).not.toBeNull();
+      if (trades.length > 0) {
+        const trade = trades[0];
+        expect(trade).not.toBeNull();
+      }
+    });
+    
+    it('Trade History ParentSubaccountNumber', async () => {
+      const response = await client.account.getParentSubaccountNumberTradeHistory(DYDX_TEST_ADDRESS, 0);
+      expect(response).not.toBeNull();
+      const trades = response.tradeHistory;
+      expect(trades).not.toBeNull();
+      if (trades.length > 0) {
+        const trade = trades[0];
+        expect(trade).not.toBeNull();
+      }
+    });
+    
+    it('Trade History Pagination', async () => {
+      const response = await client.account.getSubaccountTradeHistory(
+        DYDX_TEST_ADDRESS,
+        0,
+        undefined,
+        undefined,
+        1,
+        1,
+      );
+    
+      expect(response).not.toBeNull();
+      const trades = response.tradeHistory;
+      expect(trades).not.toBeNull();
+      if (trades.length > 0) {
+        const trade = trades[0];
+        expect(trade).not.toBeNull();
+        expect(response.totalResults).toBeGreaterThanOrEqual(1);
+      }
+    
+      expect(response.pageSize).toStrictEqual(1);
+      expect(response.offset).toStrictEqual(0);
+    });
+    
+    it('Trade History ParentSubaccountNumber Pagination', async () => {
+      const response = await client.account.getParentSubaccountNumberTradeHistory(
+        DYDX_TEST_ADDRESS,
+        0,
+        undefined,
+        undefined,
+        1,
+        1,
+      );
+    
+      expect(response).not.toBeNull();
+      const trades = response.tradeHistory;
+      expect(trades).not.toBeNull();
+      if (trades.length > 0) {
+        const trade = trades[0];
+        expect(trade).not.toBeNull();
+        expect(response.totalResults).toBeGreaterThanOrEqual(1);
+      }
+    
+      expect(response.pageSize).toStrictEqual(1);
+      expect(response.offset).toStrictEqual(0);
+    });
   });
 });

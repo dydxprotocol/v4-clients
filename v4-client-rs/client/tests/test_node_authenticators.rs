@@ -117,7 +117,8 @@ async fn test_node_auth_place_order_short_term() -> Result<(), Error> {
     let mut node = env.node;
     let mut account = env.account;
     let address = account.address().clone();
-    let mut paccount = env.wallet.account(1, &mut node).await?;
+    // Use account_offline to derive permissioned account without requiring it to exist on network
+    let mut paccount = env.wallet.account_offline(1)?;
 
     // Add authenticator
     let authenticator = Authenticator::AllOf(vec![
@@ -139,7 +140,10 @@ async fn test_node_auth_place_order_short_term() -> Result<(), Error> {
     let last_id = list.iter().max_by_key(|auth| auth.id).unwrap().id;
 
     let master = PublicAccount::updated(account.address().clone(), &mut node).await?;
-    paccount.authenticators_mut().add(master, last_id);
+    paccount.authenticators_mut().add(master.clone(), last_id);
+    // Update permissioned account sequence to match master account (required for authenticator-based orders)
+    // When using authenticators, the permissioned account signs but uses the master account's sequence
+    paccount.set_sequence_number(master.sequence_number());
 
     // Create order for permissioning account
     let (_, order) = OrderBuilder::new(market, account.subaccount(0)?)

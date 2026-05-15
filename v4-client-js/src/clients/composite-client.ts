@@ -45,7 +45,7 @@ import { UserError } from './lib/errors';
 import { generateRegistry } from './lib/registry';
 import LocalWallet from './modules/local-wallet';
 import { SubaccountInfo } from './subaccount';
-import { BroadcastMode, OrderBatch } from './types';
+import { BroadcastMode, IBuilderCodeParameters, ITwapParameters, OrderBatch } from './types';
 import { ValidatorClient } from './validator-client';
 
 // Required for encoding and decoding queries that are of type Long.
@@ -86,6 +86,9 @@ export type PlaceOrderPayload = {
   marketInfo?: MarketInfo;
   currentHeight?: number;
   goodTilBlock?: number;
+  twapParameters?: ITwapParameters;
+  builderCodeParameters?: IBuilderCodeParameters;
+  orderRouterAddress?: string;
 };
 
 export type CancelRawOrderPayload = {
@@ -318,6 +321,8 @@ export class CompositeClient {
    * @param timeInForce The time in force of the order to place
    * @param goodTilBlock The goodTilBlock of the order to place
    * @param reduceOnly The reduceOnly of the order to place
+   * @param builderCodeParameters The builder code parameters of the order to place.
+   * @param orderRouterAddress The order router address of the order to place.
    *
    *
    * @throws UnexpectedClientError if a malformed response is returned with no GRPC error
@@ -335,6 +340,8 @@ export class CompositeClient {
     timeInForce: Order_TimeInForce,
     reduceOnly: boolean,
     memo?: string,
+    builderCodeParameters?: IBuilderCodeParameters,
+    orderRouterAddress?: string,
   ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
     const msgs: Promise<EncodeObject[]> = new Promise((resolve, reject) => {
       const msg = this.placeShortTermOrderMessage(
@@ -347,6 +354,8 @@ export class CompositeClient {
         goodTilBlock,
         timeInForce,
         reduceOnly,
+        builderCodeParameters,
+        orderRouterAddress,
       );
       msg
         .then((it) => {
@@ -397,7 +406,10 @@ export class CompositeClient {
    *        trip to Indexer API will be made.
    * @param currentHeight Current block height. This can be obtained from ValidatorClient.
    *        If set to null, additional round trip to ValidatorClient will be made.
-   *
+   * @param goodTilBlock The goodTilBlock of the order to place.
+   * @param twapParameters The twap parameters of the order to place.
+   * @param builderCodeParameters The builder code parameters of the order to place.
+   * @param orderRouterAddress The order router address of the order to place.
    *
    * @throws UnexpectedClientError if a malformed response is returned with no GRPC error
    * at any point.
@@ -422,6 +434,9 @@ export class CompositeClient {
     goodTilBlock?: number,
     memo?: string,
     broadcastMode?: BroadcastMode,
+    twapParameters?: ITwapParameters,
+    builderCodeParameters?: IBuilderCodeParameters,
+    orderRouterAddress?: string,
   ): Promise<BroadcastTxAsyncResponse | BroadcastTxSyncResponse | IndexedTx> {
     const msgs: Promise<EncodeObject[]> = new Promise((resolve) => {
       const msg = this.placeOrderMessage(
@@ -441,6 +456,9 @@ export class CompositeClient {
         marketInfo,
         currentHeight,
         goodTilBlock,
+        twapParameters,
+        builderCodeParameters,
+        orderRouterAddress,
       );
       msg
         .then((it) => resolve([it]))
@@ -506,6 +524,9 @@ export class CompositeClient {
     marketInfo?: MarketInfo,
     currentHeight?: number,
     goodTilBlock?: number,
+    twapParameters?: ITwapParameters,
+    builderCodeParameters?: IBuilderCodeParameters,
+    orderRouterAddress?: string,
   ): Promise<EncodeObject> {
     const orderFlags = calculateOrderFlags(type, timeInForce);
 
@@ -529,7 +550,11 @@ export class CompositeClient {
     );
     const orderTimeInForce = calculateTimeInForce(type, timeInForce, execution, postOnly);
     let goodTilBlockTime = 0;
-    if (orderFlags === OrderFlags.LONG_TERM || orderFlags === OrderFlags.CONDITIONAL) {
+    if (
+      orderFlags === OrderFlags.LONG_TERM ||
+      orderFlags === OrderFlags.CONDITIONAL ||
+      orderFlags === OrderFlags.TWAP
+    ) {
       if (goodTilTimeInSeconds == null) {
         throw new Error('goodTilTimeInSeconds must be set for LONG_TERM or CONDITIONAL order');
       } else {
@@ -561,6 +586,9 @@ export class CompositeClient {
       clientMetadata,
       conditionalType,
       conditionalOrderTriggerSubticks,
+      twapParameters,
+      builderCodeParameters,
+      orderRouterAddress,
     );
   }
 
@@ -600,7 +628,8 @@ export class CompositeClient {
    * @param timeInForce The time in force of the order to place
    * @param goodTilBlock The goodTilBlock of the order to place
    * @param reduceOnly The reduceOnly of the order to place
-   *
+   * @param builderCodeParameters The builder code parameters of the order to place.
+   * @param orderRouterAddress The order router address of the order to place.
    *
    * @throws UnexpectedClientError if a malformed response is returned with no GRPC error
    * at any point.
@@ -616,6 +645,8 @@ export class CompositeClient {
     goodTilBlock: number,
     timeInForce: Order_TimeInForce,
     reduceOnly: boolean,
+    builderCodeParameters?: IBuilderCodeParameters,
+    orderRouterAddress?: string,
   ): Promise<EncodeObject> {
     await this.validateGoodTilBlock(goodTilBlock);
 
@@ -651,6 +682,9 @@ export class CompositeClient {
       0, // Client metadata is 0 for short term orders.
       Order_ConditionType.CONDITION_TYPE_UNSPECIFIED, // Short term orders cannot be conditional.
       Long.fromInt(0), // Short term orders cannot be conditional.
+      undefined,
+      builderCodeParameters,
+      orderRouterAddress,
     );
   }
 

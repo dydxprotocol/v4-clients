@@ -173,12 +173,14 @@ export function verifyOrderFlags(orderFlags: OrderFlags): boolean {
   return (
     orderFlags === OrderFlags.SHORT_TERM ||
     orderFlags === OrderFlags.LONG_TERM ||
-    orderFlags === OrderFlags.CONDITIONAL
+    orderFlags === OrderFlags.CONDITIONAL ||
+    orderFlags === OrderFlags.TWAP ||
+    orderFlags === OrderFlags.TWAP_SUBORDER
   );
 }
 
 export function isStatefulOrder(orderFlags: OrderFlags): boolean {
-  return orderFlags === OrderFlags.LONG_TERM || orderFlags === OrderFlags.CONDITIONAL;
+  return orderFlags === OrderFlags.LONG_TERM || orderFlags === OrderFlags.CONDITIONAL || orderFlags === OrderFlags.TWAP || orderFlags === OrderFlags.TWAP_SUBORDER;
 }
 
 function verifyIsBech32(address: string): Error | undefined {

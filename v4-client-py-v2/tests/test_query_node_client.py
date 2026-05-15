@@ -42,7 +42,7 @@ from v4_proto.cosmos.gov.v1 import query_pb2 as gov_query
 from v4_proto.dydxprotocol.subaccounts import query_pb2 as subaccount_query
 from v4_proto.dydxprotocol.ratelimit import query_pb2 as rate_query
 from v4_proto.dydxprotocol.affiliates import query_pb2 as affiliate_query
-from tests.conftest import TEST_ADDRESS
+from tests.conftest import TEST_ADDRESS_3
 
 
 @pytest.mark.asyncio
@@ -198,7 +198,7 @@ async def test_get_node_info(node_client):
 
 @pytest.mark.asyncio
 async def test_get_delegation_total_rewards(node_client):
-    total_rewards = await node_client.get_delegation_total_rewards(TEST_ADDRESS)
+    total_rewards = await node_client.get_delegation_total_rewards(TEST_ADDRESS_3)
     assert total_rewards is not None
     assert isinstance(
         total_rewards, distribution_query.QueryDelegationTotalRewardsResponse
@@ -231,14 +231,14 @@ async def test_get_withdrawal_capacity_by_denom(node_client):
 
 @pytest.mark.asyncio
 async def test_get_affiliate_info(node_client):
-    affiliate_info = await node_client.get_affiliate_info(TEST_ADDRESS)
+    affiliate_info = await node_client.get_affiliate_info(TEST_ADDRESS_3)
     assert affiliate_info is not None
     assert isinstance(affiliate_info, affiliate_query.AffiliateInfoResponse)
 
 
 @pytest.mark.asyncio
 async def test_get_referred_by(node_client):
-    referred_by = await node_client.get_referred_by(TEST_ADDRESS)
+    referred_by = await node_client.get_referred_by(TEST_ADDRESS_3)
     assert referred_by is not None
     assert isinstance(referred_by, affiliate_query.ReferredByResponse)
 

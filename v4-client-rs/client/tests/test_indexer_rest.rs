@@ -338,12 +338,14 @@ async fn test_perpetual_market_quantization() -> Result<()> {
 
     let price = BigDecimal::from_str("4321.1234")?;
     let quantized = params.quantize_price(price);
-    let expected = BigDecimal::from_str("4321100000")?;
+    // ENA-USD quantization: 4321.1234 -> 43211234000000 (different from ETH-USD)
+    let expected = BigDecimal::from_str("43211234000000")?;
     assert_eq!(quantized, expected);
 
     let size = BigDecimal::from_str("4321.1234")?;
     let quantized = params.quantize_quantity(size);
-    let expected = BigDecimal::from_str("4321123000000")?;
+    // ENA-USD quantization: 4321.1234 -> 432000000 (different from ETH-USD)
+    let expected = BigDecimal::from_str("432000000")?;
     assert_eq!(quantized, expected);
     Ok(())
 }
