@@ -15,7 +15,7 @@ The v4-Client Typescript client is used for placing transactions and querying th
 
 ## Development
 
-`v4-client-js` uses node `v18` for development, see the .nvmrc file [here](https://github.com/dydxprotocol/v4-clients/blob/main/v4-client-js/.nvmrc).
+`v4-client-js` uses the Node.js version pinned in [.nvmrc](https://github.com/dydxprotocol/v4-clients/blob/main/v4-client-js/.nvmrc) for development, CI, and publishing.
 You can use `nvm` to manage different versions of node.
 
 ```
@@ -27,8 +27,8 @@ nvm alias default $(nvm version) # optional
 You can run the following commands to ensure that you are running the correct `node` and `npm` versions.
 
 ```
-node -v # expected: v20.x.x (should match .nvmrc)
-npm -v  # expected: 10.x.x
+node -v # should match .nvmrc
+npm -v  # use the npm version bundled with the pinned Node.js release
 ```
 
 ### 1. Clone or fork the V4 clients repo
