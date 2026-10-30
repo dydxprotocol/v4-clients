@@ -9,7 +9,7 @@ import "tendermint/abci/types.proto";
 import "google/protobuf/any.proto";
 import "slinky/types/v1/currency_pair.proto";
 
-option go_package = "github.com/skip-mev/connect/v2/x/alerts/types";
+option go_package = "github.com/dydxprotocol/slinky/x/alerts/types";
 
 // Alert defines the basic meta-data necessary for the alerts module to resolve
 // a claim that the price of a CurrencyPair on-chain is deviating from the price

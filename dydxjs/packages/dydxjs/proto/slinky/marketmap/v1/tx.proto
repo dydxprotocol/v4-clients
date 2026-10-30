@@ -8,7 +8,7 @@ import "amino/amino.proto";
 import "slinky/marketmap/v1/market.proto";
 import "slinky/marketmap/v1/params.proto";
 
-option go_package = "github.com/skip-mev/connect/v2/x/marketmap/types";
+option go_package = "github.com/dydxprotocol/slinky/x/marketmap/types";
 
 // Msg is the message service for the x/marketmap module.
 service Msg {
