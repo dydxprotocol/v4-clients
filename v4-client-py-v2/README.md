@@ -29,7 +29,7 @@ pip install dydx-v4-client
 Install from github:
 
 ```bash
-pip install git+https://github.com/dydxprotocol/v4-clients/blob/main/v4-client-py-v2
+pip install git+https://github.com/dydxprotocol/v4-clients.git@main#subdirectory=v4-client-py-v2
 ```
 
 Certainly! Here's the continued README section:
@@ -51,7 +51,7 @@ pip install dydx-v4-client
 To install directly from the GitHub repository, run:
 
 ```bash
-pip install git+https://github.com/dydxprotocol/v4-clients/blob/main/v4-client-py-v2
+pip install git+https://github.com/dydxprotocol/v4-clients.git@main#subdirectory=v4-client-py-v2
 ```
 
 ### Common Installation Issue on Ubuntu
