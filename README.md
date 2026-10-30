@@ -14,6 +14,12 @@
   </a>
 </div>
 
+## ⚠️ Maintenance Notice
+
+The Python (`v4-client-py-v2`), Rust (`v4-client-rs`), and C++ (`v4-client-cpp`) clients will no longer be maintained by Nethermind after **June 2, 2026**. After that date, these clients will not receive further updates, bug fixes, or support from Nethermind.
+
+Only the TypeScript client (`v4-client-js`), which is maintained by the dYdX team, will continue to receive ongoing support.
+
 ## v4-client-js
 The dYdX Chain Client Typescript client is used for placing transactions and querying the dYdX chain.
 
