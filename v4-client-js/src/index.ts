@@ -13,6 +13,7 @@ export { FaucetClient } from './clients/faucet-client';
 export { IndexerClient } from './clients/indexer-client';
 export { default as LocalWallet } from './clients/modules/local-wallet';
 export { NobleClient } from './clients/noble-client';
+export { DirectEthSecp256k1Wallet } from './clients/modules/eth-secp256k1';
 export { SocketClient } from './clients/socket-client';
 export { SubaccountInfo as SubaccountClient, SubaccountInfo } from './clients/subaccount';
 export { ValidatorClient } from './clients/validator-client';

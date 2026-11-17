@@ -14,6 +14,7 @@ import protobuf from 'protobufjs';
 import { stripHexPrefix } from '../../lib/helpers';
 import { generateRegistry } from '../lib/registry';
 import { TransactionOptions } from '../types';
+import { DirectEthSecp256k1Wallet } from './eth-secp256k1';
 import { TransactionSigner } from './signer';
 
 // Required for encoding and decoding queries that are of type Long.
@@ -36,6 +37,20 @@ export default class LocalWallet {
   static async fromMnemonic(mnemonic: string, prefix?: string): Promise<LocalWallet> {
     const wallet = new LocalWallet();
     await wallet.setMnemonic(mnemonic, prefix);
+    return wallet;
+  }
+
+  /**
+   * Creates an Injective wallet for chains using Ethermint-style keys.
+   * Uses HD path (`m/44'/60'/0'/0/0`) by default.
+   */
+  static async fromEthSecp256k1Mnemonic(
+    mnemonic: string,
+    prefix: string,
+    hdPath?: string,
+  ): Promise<LocalWallet> {
+    const wallet = new LocalWallet();
+    await wallet.setSigner(await DirectEthSecp256k1Wallet.fromMnemonic(mnemonic, prefix, hdPath));
     return wallet;
   }
 
