@@ -3,7 +3,7 @@ import { CompositeClient } from '../../src/clients/composite-client'
 
 describe('CompositeClient', () => {
   describe('validateAuthenticators', () => {
-    const network = Network.staging();
+    const network = Network.testnet();
 
     it('Validates top level AnyOf authenticators', async () => {
       const client = await CompositeClient.connect(network);
