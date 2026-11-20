@@ -1,5 +1,7 @@
 # Rust client for dYdX v4
 
+> ⚠️ **Maintenance Notice:** This Rust client will no longer be maintained by Nethermind after **June 2, 2026**. After that date, it will not receive further updates, bug fixes, or support. Only the [TypeScript client (`v4-client-js`)](https://github.com/dydxprotocol/v4-clients/tree/main/v4-client-js), maintained by the dYdX team, will continue to receive ongoing support.
+
 The crate implements interaction with the dYdX API.
 
 The following features are implemented:
