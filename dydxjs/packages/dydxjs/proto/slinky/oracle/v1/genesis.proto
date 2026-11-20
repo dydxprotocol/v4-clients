@@ -1,7 +1,7 @@
 syntax = "proto3";
 package slinky.oracle.v1;
 
-option go_package = "github.com/skip-mev/connect/v2/x/oracle/types";
+option go_package = "github.com/dydxprotocol/slinky/x/oracle/types";
 
 import "gogoproto/gogo.proto";
 import "google/protobuf/timestamp.proto";

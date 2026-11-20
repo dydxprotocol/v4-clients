@@ -9,7 +9,7 @@ import "gogoproto/gogo.proto";
 import "slinky/alerts/v1/alerts.proto";
 import "google/protobuf/any.proto";
 
-option go_package = "github.com/skip-mev/connect/v2/x/alerts/types";
+option go_package = "github.com/dydxprotocol/slinky/x/alerts/types";
 
 // AlertParams is the set of parameters for the x/Alerts module's Alerting. It
 // defines whether or not Alerts can be submitted, and if so, the minimum

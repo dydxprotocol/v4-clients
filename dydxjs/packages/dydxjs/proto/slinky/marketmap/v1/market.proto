@@ -1,7 +1,7 @@
 syntax = "proto3";
 package slinky.marketmap.v1;
 
-option go_package = "github.com/skip-mev/connect/v2/x/marketmap/types";
+option go_package = "github.com/dydxprotocol/slinky/x/marketmap/types";
 
 import "gogoproto/gogo.proto";
 import "slinky/types/v1/currency_pair.proto";

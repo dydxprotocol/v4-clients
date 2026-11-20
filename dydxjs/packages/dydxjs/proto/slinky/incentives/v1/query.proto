@@ -5,7 +5,7 @@ import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
 import "slinky/incentives/v1/genesis.proto";
 
-option go_package = "github.com/skip-mev/connect/v2/x/incentives/types";
+option go_package = "github.com/dydxprotocol/slinky/x/incentives/types";
 
 // Query is the query service for the x/incentives module.
 service Query {

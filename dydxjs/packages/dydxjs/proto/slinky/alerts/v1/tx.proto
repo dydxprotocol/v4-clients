@@ -9,7 +9,7 @@ import "gogoproto/gogo.proto";
 import "google/protobuf/any.proto";
 import "slinky/alerts/v1/genesis.proto";
 
-option go_package = "github.com/skip-mev/connect/v2/x/alerts/types";
+option go_package = "github.com/dydxprotocol/slinky/x/alerts/types";
 
 // Msg is the message service for the x/alerts module.
 service Msg {
