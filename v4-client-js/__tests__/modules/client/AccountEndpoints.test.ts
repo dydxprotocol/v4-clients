@@ -137,6 +137,16 @@ describe('IndexerClient', () => {
       }
     });
 
+    it('Fills by ticker', async () => {
+      const response = await client.account.getSubaccountFills(DYDX_TEST_ADDRESS, 0, 'ETH-USD');
+      expect(response).not.toBeNull();
+      const fills = response.fills;
+      expect(fills).not.toBeNull();
+      fills.forEach((fill: { market: string }) => {
+        expect(fill.market).toStrictEqual('ETH-USD');
+      });
+    });
+
     it('Fills ParentSubaccountNumber', async () => {
       const response = await client.account.getParentSubaccountNumberFills(DYDX_TEST_ADDRESS, 0);
       expect(response).not.toBeNull();

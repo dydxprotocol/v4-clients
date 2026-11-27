@@ -208,8 +208,9 @@ export default class AccountClient extends RestClient {
     return this.get(uri, {
       address,
       subaccountNumber,
-      ticker,
-      tickerType,
+      // the indexer filters fills by market and rejects marketType without it
+      market: ticker || undefined,
+      marketType: ticker ? tickerType : undefined,
       limit,
       createdBeforeOrAtHeight,
       createdBeforeOrAt,
